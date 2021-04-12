@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+	default-autowire="byName">
+	<!-- spring结合quartz定时任务配置文件,需要导入quartz包,slf4j包,可使用spring自带的task类,比quartz轻量 -->
+
+	<!-- 定时任务调度工厂 -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!-- 触发方式,可以是简单调用,也可以自定义调用,或同时2种都可以 -->
+				<ref bean="cronTrigger" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 简单配置定时任务方法,按照一定频率来触发任务 -->
+	<bean id="simpleTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="description" value="这是一个测试定时任务的类"></property>
+		<!-- 配置需要调用的定时任务 -->
+		<property name="jobDetail" ref="methodInvokingJobDetail" />
+		<!-- 间隔多长时间调用一次该定时方法 -->
+		<property name="repeatInterval" value="2000" /><!-- 每2秒调度一次 -->
+		<!-- 从指定时间开始调用该定时方法 -->
+		<!-- <property name="startTime" > -->
+		<!-- <bean factory-bean="dateFormat" factory-method="parse"> -->
+		<!-- <constructor-arg value="2017-12-04 12:50:00" /> -->
+		<!-- </bean> -->
+		<!-- </property> -->
+		<!-- 从starttime之后多长时间第一次调用该方法,若starttime不指定或是过去的时间,默认初始化完成后开始计算 -->
+		<property name="startDelay" value="0" /><!-- 调度工厂实例化后，经过0秒开始执行调度 -->
+		<!-- 调用该定时方法次数 -->
+		<property name="repeatCount" value="10" />
+		<!-- 优先级 -->
+		<property name="priority" value="3" />
+		<!-- 错误码 -->
+		<property name="misfireInstruction" value="-1" />
+	</bean>
+
+	<!-- 自定义配置表达式 -->
+	<bean id="cronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="description" value="这是一个测试定时任务的类" />
+		<property name="jobDetail" ref="methodInvokingJobDetail" />
+		<property name="startDelay" value="0" />
+		<!-- 定时任务配置规则 -->
+		<!-- 7位:秒 分 时 日 月 周 -->
+		<!-- 年,年可选,其他必填,都是自然日相对应的整数;周月日下标从1开始,时分秒从0开始; -->
+		<!-- 通配符:*标识当前位的所有值都会触发;?标识不关心当前位的值;-标识区间;,标识多个值;其他配置可网上查找 -->
+		<property name="cronExpression" value="1 * * * * ? *" />
+		<!-- <property name="startTime"> -->
+		<!-- <bean factory-bean="dateFormat" factory-method="parse"> -->
+		<!-- <constructor-arg value="2017-12-04 12:50:00" /> -->
+		<!-- </bean> -->
+		<!-- </property> -->
+		<property name="priority" value="1" />
+		<property name="misfireInstruction" value="-1" />
+	</bean>
+
+	<bean id="dateFormat" class="java.text.SimpleDateFormat">
+		<constructor-arg value="yyyy-MM-dd HH:mm:ss"></constructor-arg>
+	</bean>
+
+	<!-- 以代理方式执行任务方法 -->
+	<bean id="methodInvokingJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 配置定时任务所在类 -->
+		<property name="targetObject">
+			<bean class="com.wy.test.TestIgnore" />
+		</property>
+		<!-- 配置需要定时调用的方法 -->
+		<property name="targetMethod" value="testInterval" />
+		<!-- 不允许并发调用 -->
+		<property name="concurrent" value="false" />
+	</bean>
+</beans>

@@ -1,0 +1,11 @@
+server:
+  servlet:
+    # 指定url后缀,若不指定访问接口时直接就是ip:port/api,该参数加上则是ip:port/study/api
+    context-path: study
+    
+    
+spring:
+  mvc:
+    servlet:
+      # 指定API后缀,加上后访问api为ip:port/study/api.html,这个是利于搜索的
+      path: "*.html" 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- jedis最大连接数 -->
+		<property name="maxTotal" value="${redis_maxTotal}" />
+		<!-- jedis最大活跃数 -->
+		<property name="maxIdle" value="${redis_maxIdle}" />
+		<!-- 连接池中最少保留的jedis连接数 -->
+		<property name="minIdle" value="${redis_minIdle}" />
+		<property name="maxWaitMillis" value="${redis_maxWaitMillis}" />
+		<!-- 在borrow一个jedis的时候验证其是否可用，可用则返回true，不可用则废弃重新创建一个 -->
+		<property name="testOnBorrow" value="${redis_testOnBorrow}" />
+		<!-- 在空闲时检查有效性,默认false -->
+		<property name="testOnReturn" value="${redis_testOnReturn}" />
+		<!-- idle时进行链接扫描 -->
+		<property name="testWhileIdle" value="${redis_testWhileIdle}" />
+		<!-- 是否启用pool的jmx管理功能,默认true -->
+		<!-- <property name="jmxEnabled" value="true"></property> -->
+		<!-- 是否启用后进先出,默认true -->
+		<!-- <property name="lifo" value="true"></property> -->
+		<!-- 链接耗尽时候阻塞,false报异常,true阻塞直到超时,默认ture -->
+		<!-- <property name="blockWhenExhausted"></property> -->
+	</bean>
+</beans>

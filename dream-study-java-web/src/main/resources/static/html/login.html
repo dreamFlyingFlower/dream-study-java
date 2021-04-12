@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>登录</title>
+<script type="text/javascript" src="../plugins/jquery/jquery.min.js"></script>
+</head>
+<body>
+	用户名:<input type="text" id="username">
+	密码&nbsp;:<input type="password" id="password">
+	<input type="button" value="登录" id="login">
+	<script type="text/javascript">
+		$(function(){
+			$("#login").click(function(){
+				var username = $("#username").val();
+				var password = $("#password").val();
+				var user = {
+						username:username,
+						password:password
+				};
+				login(user);
+			});
+			function login(usr){
+				
+					$.ajax({
+						url:"http://127.0.0.1:8080/com.wy.springjava/userInfo/login",
+						data:usr,
+						dataType:"json",
+						type:"post",
+						success:function(Result){
+							if(Result){
+								console.log(Result);
+							}else{
+								alert("系统错误!");
+							}
+						}
+					});
+				}
+		});
+	</script>
+</body>
+</html>

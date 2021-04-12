@@ -1,0 +1,5 @@
+spring: 
+# activiti配置
+  activiti: 
+    # 是否记录所有的流程历史数据
+    history-level: full

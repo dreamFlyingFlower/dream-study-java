@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h5>Huanying,Thymeleaf的模板</h5>
+	<!-- th可以用在任意标签内 -->
+	<!-- 展示文本,文本拼接也都在标签内,可以直接用+ -->
+	<!-- 若直接是一个不带空格,制表符或换行的字符串,数字等,直接用+可以拼接,若带特殊字符,可用到引号引起来 -->
+	<h2 th:text="${test}+很好1"></h2>
+	<!-- utext不会转义特殊字符,text会转义特殊字符 -->
+	<h2 th:utext="${test4}+'1'"></h2>
+	<!-- 等同于th:text=${test}+很好1,utext里面的则是用() -->
+	<h2>[[${test}+很好1]]</h2>
+	<h2 th:text="${test}+',很好'"></h2>
+	<h2 th:text="${test}+1"></h2>
+	<!-- 由于test1是数字,会直接做加法运算,即使test1是一个字符串数字,也会直接做运算 -->
+	<h2 th:text="${test1}+1"></h2>
+	<h2 th:text="${test2}+1"></h2>
+	<!-- 若是后面的是一个字符串,则是做字符串拼接 -->
+	<h2 th:text="${test1}+'1'"></h2>
+	<h2 th:text="${test2}+'1'"></h2>
+	<!-- 若元素标签内有值,而元素内也有值,元素标签中的值会覆盖元素内的值.该h2不会输出很好,输出的是test的值 -->
+	<h2 th:text="${test}">很好</h2>
+	<!-- 若有同名属性存在,则th的值会覆盖原生的同名属性值,下例的id是testId -->
+	<h2 id="test1" th:id="${test3}">替代原生的属性</h2>
+	<!-- 展示对象中的属性,和js语法相同,对象是在java程序中存入Model或ModelMap等实例中的key -->
+	<h2 th:text="${user.name}"></h2>
+	<!-- thymeleaf自带的字符串语法,内置对象通常#开头,详见官网 -->
+	<h2 th:text="${#strings.isEmpty(user.name)}"></h2>
+
+	<!-- 日期格式化,根据浏览器语言不同显示不同 -->
+	<h2 th:text="${#dates.format(date)}"></h2>
+	<!-- 日期格式化,指定格式 -->
+	<h2 th:text="${#dates.format(date,'yyyy-MM-dd')}"></h2>
+	<!-- 获得日期的年份 -->
+	<h2 th:text="${#dates.year(date)}"></h2>
+
+	<!-- 条件判断 -->
+	<h2 th:if="${sex} =='m'" th:text="男"></h2>
+
+	<!-- each:数组,集合等循环的使用,可以将循环后的值赋值给另外一个变量在标签内使用 -->
+	<ul th:text="${user}" th:each="user:${foreach}">
+		<li><span th:text="${user.username}"></span></li>
+	</ul>
+	<!-- 状态变量:跟在元素之后,主要保存索引,first,last等信息,下例中status就是状态变量 -->
+	<ul th:text="${user}" th:each="user,status:${foreach}">
+		<li><span th:text="${user.username}"></span></li>
+		<!-- 当前元素的索引,从0开始 -->
+		<li><span th:text="${status.index}"></span></li>
+		<!-- 当前元素的计数器,从1开始 -->
+		<li><span th:text="${status.count}"></span></li>
+		<!-- 迭代对象的长度 -->
+		<li><span th:text="${status.size}"></span></li>
+		<!-- boolean值,判断当前行是否为奇数 -->
+		<li><span th:text="${status.odd}"></span></li>
+		<!-- boolean值,判断当前行是否为偶数 -->
+		<li><span th:text="${status.even}"></span></li>
+		<!-- boolean值,判断当前行是否为第一个元素 -->
+		<li><span th:text="${status.first}"></span></li>
+	</ul>
+	
+	<!-- each:map迭代,需要双重迭代-->
+	<ul th:each="maps:${map}">
+		<li><span th:each="entry:${maps}" th:text="${entry.key}"></span></li>
+	</ul>
+	
+	<!-- 从环境变量中取数据,如httpservletrequest,httpservletresponse等 -->
+	<!-- 从httpServletRequest中取数据,httpServletRequest固定写法 -->
+	<h2 th:text="${#httpServletRequest.getAttribute('key')}"></h2>
+	<!-- 从Session中取数据,session固定写法 -->
+	<h2 th:text="${session.key}"></h2>
+	<!-- 从application中取数据,application固定写法,数据由request.getSession().getServletContext().setAttribute()存 -->
+	<h2 th:text="${application.key}"></h2>
+
+	<!-- 绝对路径跳转,等同于a标签直接写href -->
+	<a th:href="@{https://baidu.com}"></a>
+	<a href="https://baidu.com"></a>
+	<!-- 相对路径,相对于当前项目的根 -->
+	<a th:href="@{/show}"></a>
+	<!-- 相对于服务器路径,~相当于服务器的根路径 -->
+	<a th:href="@{~/show}"></a>
+	<!-- 参数传递 -->
+	<a th:href="@{~/show(key=value,key1=value1)}"></a>
+
+	<!-- 国际化变量的使用,直接使用#即可 -->
+	<h5 th:text="#{bundle.super_admin}"></h5>
+
+	<script type="text/javascript">
+		var test1 = document.getElementById("test1");
+		var testId = document.getElementById("testId");
+		console.log(test1); // null
+		console.log(testId.innerHTML);
+	</script>
+</body>
+</html>

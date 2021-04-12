@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process description="一个流程图的例子" key="example" name="example"
+	version="1.0.0" xmlns="http://jbpm.org/4.4/jpdl">
+	<!-- on标签是事件元素,但是在图形化界面没有这个按钮,event指定标签的名字,class指定一个实现了EventListener的类 -->
+	<!-- 当执行到某个标签时会自动执行这个类 -->
+	<on event="start">
+		<event-listener class=""></event-listener>
+	</on>
+	<start g="136,54,49,48" name="jbpm例子">
+		<transition g="-69,-22" name="部门经理审批" to="部门经理" />
+	</start>
+	<task assignee="#{departUser}" g="416,50,92,52" name="部门经理">
+		<transition g="-80,-4" name="请假天数" to="请假天数" />
+	</task>
+	<decision expr="#{days}" g="437,209,48,48" name="请假天数">
+		<handler class="com.colligate.jbpm.DayDecision" />
+		<transition g="-52,-22" name="请假大于3天" to="总经理审批" />
+		<transition g="-52,-22" name="请假小于3天" to="人事审批" />
+	</decision>
+	<task assignee="#{zongUser}" g="236,328,92,52" name="总经理审批">
+		<assignmeng-handler class="com.collogate.jbpm.SingleAssignHandler" />
+		<transition g="-52,-22" name="人事审批" to="人事审批" />
+	</task>
+	<task assignee="#{employee}" g="566,326,92,52" name="人事审批">
+		<transition g="-45,-22" name="审批结束" to="结束" />
+	</task>
+	<end g="762,484,48,48" name="结束" />
+</process>

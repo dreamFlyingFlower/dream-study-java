@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd"
+	default-autowire="byName">
+
+	<!-- 全局配置跨域请求拦截器,可写多个mapping;若是需要更加精细的配置,可自定义servlet的filter拦截器 -->
+	<!-- allowed-headers:允许自定义的头部 -->
+	<!-- allow-credentials:是否允许有cookie信息,有则为true,没有则不写 -->
+	<!-- expose-headers:允许暴露在外的请求头中的信息,默认6种Cache-Control,Content-Language,Content-Type,Expires,Last-Modified,Pragma -->
+	<!-- 没有特殊处理可不写 -->
+	<!-- max-age:缓存每次请求的最大秒数 -->
+	<mvc:cors>
+		<mvc:mapping path="/**" allowed-origins="*"
+			allowed-methods="GET, POST,DELETE,OPTIONS,PUT"
+			allowed-headers="Accept,Origin, Content-Disposition,Authorization,No-Cache, X-Requested-With, 
+		If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With,userId,token"
+			allow-credentials="false" max-age="3600" />
+	</mvc:cors>
+
+	<!-- 拦截器配置,直接定义在根下面的拦截所有请求,定义在目录下的拦截特定请求 -->
+<!-- 	<mvc:interceptors> -->
+<!-- 		<bean class="com.wy.base.AuthInterceptor"></bean> -->
+<!-- 		<mvc:interceptor> -->
+<!-- 			<mvc:mapping path="/**" /> -->
+<!-- 			<bean></bean> -->
+<!-- 		</mvc:interceptor> -->
+<!-- 		<mvc:interceptor> -->
+<!-- 			<mvc:mapping path="" /> -->
+<!-- 			<bean></bean> -->
+<!-- 		</mvc:interceptor> -->
+<!-- 	</mvc:interceptors> -->
+
+</beans>

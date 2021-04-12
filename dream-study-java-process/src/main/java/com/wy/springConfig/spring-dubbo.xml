@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans        
+    http://www.springframework.org/schema/beans/spring-beans.xsd        
+    http://code.alibabatech.com/schema/dubbo        
+    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	<!-- dubbo的xsd联网检验失效,需要在本地配置检验window->performances->xml->catalog->user->add -->
+	<!-- location填本地dubbo的xsd文件,key填http://code.alibabatech.com/schema/dubbo/dubbo.xsd -->
+
+	<!-- 提供方应用信息，用于计算依赖关系 -->
+	<dubbo:application name="projectname-provider" />
+
+	<!-- 使用multicast广播注册中心暴露服务地址 -->
+	<!-- <dubbo:registry address="multicast://224.5.6.7:1234" /> -->
+
+	<!-- 使用zookeeper注册中心暴露服务地址 -->
+	<!-- register是否向此注册中心注册服务,如果设为false,将只订阅,不注册. -->
+	<!-- check注册中心不存在时,是否报错 -->
+	<!-- subscribe是否向此注册中心订阅服务,如果设为false,将只注册,不订阅 -->
+	<!-- timeout注册中心请求超时时间(毫秒) -->
+	<!-- address可以Zookeeper集群配置,地址可以多个以逗号隔开等 -->
+	<dubbo:registry address="zookeeper://127.0.0.1:2181"
+		check="false" subscribe="false" register="" />
+
+	<!-- 用dubbo协议在20880端口暴露服务 -->
+	<dubbo:protocol name="dubbo" port="20880" />
+
+	<!-- 声明需要暴露的服务接口 -->
+	<!-- interface服务接口的路径 -->
+	<!-- ref引用对应的实现类的Bean的ID -->
+	<!-- registry向指定注册中心注册,在多个注册中心时使用,值为<dubbo:registry>的id属性,多个注册中心ID用逗号分隔,如果不想将该服务注册到任何registry,可将值设为N/A -->
+	<!-- register 默认true,该协议的服务是否注册到注册中心, -->
+	<dubbo:service interface="com.provider.DemoService" ref="demoService" />
+
+	<!-- 和本地bean一样实现服务 -->
+	<!-- <bean id="demoService" class="com.provider.DemoServiceImpl" /> -->
+</beans>

@@ -1,0 +1,33 @@
+# 查看springboot开启了那些配置
+debug: false
+spring: 
+  # redis配置
+  redis:
+    host: 127.0.0.1
+    password: 
+    port: 6379
+    #连接超时时间,单位毫秒
+    timeout: 
+      seconds: 0
+    jedis:
+      pool:
+        #连接池最大空闲连接
+        max-idle: 100
+        #连接池最小空闲连接
+        min-idle: 1
+        #连接池最大可用数,负数表示无限制
+        max-active: 1000
+        #最大等待时间,负数表示无限制
+        max-wait: 
+          seconds: -1
+  cache: 
+    type: redis
+    redis:
+      time-to-live:
+        seconds: 1800
+  #邮件配置
+  mail:
+    host: smtp.qq.com
+    username: 582822832
+    password: 
+    default-encoding: UTF-8

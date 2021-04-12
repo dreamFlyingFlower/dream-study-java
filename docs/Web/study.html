@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>首页</title>
+	<script src="jquery.min.js"></script>
+</head>
+<body>
+	<video src="" id="video" autoplay></video>
+	<script type="text/javascript">
+		$(function(){
+			// 该方法可自动调用电脑的摄像头进行播放,video标签必须是autoplay,否则就是一张图片
+			// 同时该html文件必须放在服务器上,否则会被浏览器拦截,报错不可加载本地文件
+			var getUserMedia = (navigator.getUserMedia || navigator.mozGetUserMedia);
+			getUserMedia.call(navigator,{video:true},success,fail);
+			function success(localMedisStream){
+				var ca = document.getElementById("video");
+				ca.src = URL.createObjectURL(localMedisStream);
+			}
+		});
+	</script>
+</body>
+</html>

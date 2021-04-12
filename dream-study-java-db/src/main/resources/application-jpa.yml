@@ -1,0 +1,16 @@
+spring: 
+  jpa: 
+    database: mysql
+    # spring2.0建表的引擎是myisam,这个是将引擎改为innodb
+    databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect
+    # 配置实体类维护数据库表结构的具体行为,update表示当实体类发生改变时,表结构也发生改变;
+    # create表示当启动程序的时候删除上一次的表,再重新建表,之前的数据将全部被清空,最好不使用该情况
+    # create-drop表示当启动的时候新建表,当sessionFactory关闭的时候删除表,最好不要使用
+    # validate表示当启动的时候验证和实体类是否一致
+    # none表示什么也不做
+    hibernate: 
+      ddl-auto: update
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy 
+    # hibernate在操作的时候在控制台打印真实的sql语句
+    show-sql: true

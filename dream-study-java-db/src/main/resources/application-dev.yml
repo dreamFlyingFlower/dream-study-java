@@ -1,0 +1,90 @@
+# 查看springboot开启了那些配置
+debug: false
+server:
+  address: 127.0.0.1
+  port: 5555
+  max-http-header-size: 10000000
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+spring:
+  profiles:
+    # 使用那个一个配置文件,配置文件必须以application-开头,多个配置只用写后缀即可,逗号隔开
+    active: dev,config
+  application:
+    # 应用的名称,在某些时候会用到,比如分布式应用
+    name: paradise-study-java-db
+  mvc:
+    async:
+      request-timeout:
+        seconds: 180
+    format:
+      date: yyyy-MM-dd
+      date-time: yyyy-MM-dd HH:mm:ss
+      time: HH:mm:ss
+    throw-exception-if-no-handler-found: true
+  #静态资源配置文件,false时无法访问静态资源,如html等,默认为true
+  resources:
+    add-mappings: true
+  #文件上传
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+  #格式化输出的json字符串
+  jackson: 
+    serialization: 
+      INDENT_OUTPUT: true
+    date-format: yyyy-MM-dd HH:mm:ss
+  #定义了多种session策略的时候,需要选择一种作为主要策略
+  session: 
+    store-type: redis
+    timeout:
+      seconds: 1800
+  #redis配置
+  redis:
+    host: 127.0.0.1
+    password: 
+    port: 6379
+    #连接超时时间,单位毫秒
+    timeout: 
+      seconds: 0
+    jedis:
+      pool:
+        #连接池最大空闲连接
+        max-idle: 100
+        #连接池最小空闲连接
+        min-idle: 1
+        #连接池最大可用数,负数表示无限制
+        max-active: 1000
+        #最大等待时间,负数表示无限制
+        max-wait: 
+          seconds: -1
+  cache: 
+    type: redis
+    redis:
+      time-to-live:
+        seconds: 1800
+  #开启支持ANSI格式输出
+  output:
+    ansi:
+      enabled: always
+  #邮件配置
+  mail:
+    host: smtp.qq.com
+    username: 582822832
+    password: 
+    default-encoding: UTF-8
+  #国际化
+  messages:
+    basename: i18n/config/config
+
+# mybatis配置,多数据源下无效
+mybatis:
+  # 实体类包名的路径,可以在mapper.xml中直接写类名而不用写全路径
+  type-aliases-package: com.wy.model
+  configuration:
+    # 返回结果为map时,自动将下划线转驼峰
+    map-underscore-to-camel-case: true

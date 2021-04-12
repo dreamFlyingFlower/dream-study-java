@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- configuration属性 -->
+<!-- scan:当配置文件被修改时,是否刷新配置,默认true刷新 -->
+<!-- scanPeriod:当scan为true时生效,设置监测配置文件修改的时间间隔,默认1分钟,单位是毫秒,可设置60 seconds -->
+<!-- debug:当该属性为true时,将打印出logback内部日志信息,实时查看logback运行状态,默认false -->
+<configuration>
+	<!-- 定义全局变量,日志存储的根目录 -->
+	<property name="logHome" value="logs"></property>
+	<!-- 定义日志文件名称 -->
+	<property name="appName" value="paradise-study-java-service"></property>
+	<!-- 控制台打印日志的相关配置 -->
+	<appender name="STD_OUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- 日志格式:%d:日期时间;%thread:线程名;%-5level:级别从左显示5个字符宽度 -->
+		<!-- %logger{50}:logger名字最长50个字符,否则按照句点分隔;%msg:日志消息;%n:换行符 -->
+		<!-- encoder和layout不知道有啥不一样 -->
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] - %m%n</pattern>
+		</encoder>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+		</layout>
+		<!-- 日志级别过滤器 -->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<!-- 过滤的级别 -->
+			<level>INFO</level>
+			<!-- 匹配时的操作:接收,记录 -->
+			<onMatch>ACCEPT</onMatch>
+			<!-- 不匹配时的操作:接收,不记录 -->
+			<onMismatch>ACCEPT</onMismatch>
+		</filter>
+	</appender>
+
+	<!-- 滚动保存日志的相关配置 -->
+	<appender name="ERROR_OUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!-- 保存日志文件的名称 -->
+		<file>${logHome}/error.log</file>
+		<!-- 日志格式,encoder和layout不知道有啥不一样 -->
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%class:%line] - %m%n</pattern>
+		</encoder>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [ %thread ] - [ %-5level ] [ %logger{50} : %line ] - %msg%n
+			</pattern>
+		</layout>
+		<!-- 日志级别过滤器 -->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<!-- 过滤的级别 -->
+			<level>ERROR</level>
+			<!-- 匹配时的操作:接收,记录 -->
+			<onMatch>ACCEPT</onMatch>
+			<!-- 不匹配时的操作:拒绝,不记录 -->
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<!-- 循环策略:基于时间创建日志文件 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 滚动时产生的日志文件名格式及存放位置 -->
+			<!-- %d{yyyy-MM-dd}:按天进行日志滚动 -->
+			<fileNamePattern>${logHome}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- 可选,保留归档文件的最大数量,超出数量就删除旧文件 -->
+			<!-- 若按每天滚定日志,则只保存最近30天的文件 -->
+			<maxHistory>30</maxHistory>
+			<!-- %i:当文件大小超过maxFileSize时,按i进行文件滚动 -->
+			<!-- <fileNamePattern>${logHome}/error.%i.log</fileNamePattern> -->
+			<!-- 当日志文件超过maxFileSize的值时,根据上面的%i进行日志滚动 -->
+			<!-- SizeBasedTriggeringPolicy无法实现按文件大小滚动,必须配置timeBasedFileNamingAndTriggeringPolicy -->
+			<!-- <timeBasedFileNamingAndTriggeringPolicy -->
+			<!-- class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP"> -->
+			<!-- <maxFileSize>100MB</maxFileSize> -->
+			<!-- </timeBasedFileNamingAndTriggeringPolicy> -->
+		</rollingPolicy>
+	</appender>
+
+	<!-- 定义输出的日志,level指定日志级别:TRACE < DEBUG < INFO < WARN < ERROR -->
+	<root level="info">
+		<appender-ref ref="STD_OUT" />
+		<appender-ref ref="ERROR_OUT" />
+	</root>
+</configuration>

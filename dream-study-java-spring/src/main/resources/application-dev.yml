@@ -1,0 +1,9 @@
+# 没有在项目中定义的配置,可以直接在项目中使用@Value("${config}")注入到变量中
+# 双引号包裹的值不会自动转义,即下面的值在输出时会 test 换行
+test: "test \n"
+# 单引号包裹的值会自动转义,即下面的值在输出时仍为test \n
+test1: 'test \n'
+
+config:
+  user-id: 13
+  placeholder: ${config.user-id}

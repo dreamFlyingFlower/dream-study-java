@@ -1,0 +1,83 @@
+# 大部分配置只在单数据源有效
+mybatis:
+  # mapper.xml文件
+  mapper-locations: classpath:mappers/*.xml
+  # 全局配置文件,该全局配置文件中的属性可以直接在application中配置
+  configuration:
+    # 数据库下划线转驼峰,true为转,false不变
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    lazy-loading-enabled: true
+    aggressive-lazy-loading: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    local-cache-scope: session
+    
+# 分页插件
+pagehelper:
+  helper-dialect: mysql
+  offset-as-page-num: true
+  row-bounds-with-count: false
+  page-size-zero: false
+  reasonable: false
+  support-methods-arguments: false
+  auto-runtime-dialect: false
+    
+spring:
+  datasource:
+    # 若数据库没有指定时区,连接还需要加上时区.多数据源情况下会从hikari的配置文件中查找数据库连接
+    url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT&useSSL=false
+    username: root
+    password: 52LDforever
+    driverClassName: com.mysql.cj.jdbc.Driver
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # druidweb端页面监控用户名和密码
+      stat-view-servlet: 
+        login-username: root
+        login-password: 123456
+      # 合并多个DruidDataSource的监控数据
+      use-global-data-source-stat: true
+      # 初始化大小,最小,最大
+      initial-size: 8
+      min-idle: 5 
+      max-active: 20
+      max-wait: 10000
+      # 配置间隔多久才进行一次检测,检测需要关闭的空闲连接,单位毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间,单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 通过connectProperties属性来打开mergeSql功能,慢SQL记录
+      connect-properties: 
+        druid.stat.mergeSql: true
+        druid.stat.slowSqlMillis: 5000
+      poolPreparedStatements: true
+      # 配置监控统计拦截的filters,去掉后监控界面sql无法统计,wall用于防火墙
+      filters: stat,wall,slf4j
+      filter:
+        wall:
+          enabled: true
+          config: 
+            alter-table-allow: false
+            truncate-allow: false
+            drop-table-allow: false
+            none-base-statement-allow: false
+            update-where-none-check: true
+            select-into-outfile-allow: false
+            metadata-allow: true
+            multi-statement-allow: true
+          log-violation: true
+          throw-exception: true
+        stat:
+          log-slow-sql: true
+          enabled: true
+          merge-sql: true
+          slow-sql-millis: 1000
+    
+logging:
+  level: 
+    com.wy.mapper: debug

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
+	default-autowire="byName">
+	<!-- spring-config主配置文件,spring-mvc是mvc配置文件,spring-config和spring-mvc是父子关系 -->
+	<!-- 由于在web.xml文件中同时配置ContextLoaderListener和DispatcherServlet,若是<context:component-scan 
+		base-package="*"/>只配置一个, -->
+	<!-- 并且扫描所有的java文件,会造成重复加载,资源浪费,故而contextloaderlistener只加载主配置,dispatcherServlet只加载mvc,避免重复加载配置文件 -->
+
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.wy" />
+
+	<!-- 开启定时任务注解,若是无定时任务可不开启 -->
+	<!-- <task:annotation-driven/> -->
+
+	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> -->
+	<!-- <property name="prefix" value="/WEB-INF/" /> -->
+	<!-- <property name="suffix" value=".html" /> -->
+	<!-- </bean> -->
+
+	<!-- 防止IE执行ajax时,返回json出现下载文件,有配置问题,暂未使用 -->
+	<!-- <bean id="mappingJaclsonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"> -->
+	<!-- <property name="supportedMediaTypes"> -->
+	<!-- <list> -->
+	<!-- <value>text/html;charset=utf-8</value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+	<!-- 国际化的读取配置文件内容 -->
+	<bean id="reloadableMessageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:com.wy*</value>
+			</list>
+		</property>
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="cacheSeconds" value="180" />
+	</bean>
+	<!-- 多媒体图片,文件上传等,表单必须使用enctype=multipart/form-data -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8" />
+		<!-- 一次上传文件的最大大小500M -->
+		<property name="maxUploadSize" value="524288000" />
+		<!-- 上传的每个文件大小不能超过10M,spring4.2后才有效 -->
+		<property name="maxUploadSizePerFile" value="10485760"></property>
+		<property name="maxInMemorySize" value="40960" />
+	</bean>
+
+	<!-- property-plcaeholder只能加载一次,故而都要写在一起 -->
+	<context:property-placeholder
+		location="classpath:redis.properties,classpath:jdbc.properties" />
+
+	<!-- 方面组件,拦截器 -->
+	<!-- <import resource="spring-aop.xml"/> -->
+	<!-- 拦截器配置 -->
+	<!-- <import resource="spring-filters.xml"/> -->
+	<!-- 导入数据库配置 -->
+	<import resource="spring-database.xml" />
+	<!-- nutz操作数据库接口,不需要配合spring-mybatis使用 -->
+	<import resource="spring-nutz.xml" />
+	<!-- <import resource="spring-redisConf.xml" /> -->
+	<!-- 导入jedis配置 -->
+	<!-- <import resource="spring-jedis.xml" /> -->
+	<!-- 导入spring-data-redis配置 -->
+	<!-- <import resource="spring-redis.xml" /> -->
+	<!-- 导入定时任务配置 -->
+	<!-- <import resource="spring-interval.xml" /> -->
+</beans>

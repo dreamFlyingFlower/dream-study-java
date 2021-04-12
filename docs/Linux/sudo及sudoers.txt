@@ -1,0 +1,293 @@
+sudo及其配置文件sudoers 
+
+sudo是linux下常用的允许普通用户使用超级用户权限的工具。
+
+它的主要配置文件是sudoers,linux下通常在/etc目录下，如果是solaris，缺省不装sudo的，编译安装后通常在安装目录的etc目录下，不过不管sudoers文件在哪儿，sudo都提供了一个编辑该文件的命令：visudo来对该文件进行修改。强烈推荐使用该命令修改sudoers，因为它会帮你校验文件配置是否正确，如果不正确，在保存退出时就会提示你哪段配置出错的。
+言归正传，下面介绍如何配置sudoers
+首先写sudoers的缺省配置：
+#############################################################
+# sudoers file.
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# See the sudoers man page for the details on how to write a sudoers file.
+#
+# Host alias specification
+# User alias specification
+# Cmnd alias specification
+# Defaults specification
+# User privilege specification
+root ALL=(ALL) ALL
+# Uncomment to allow people in group wheel to run all commands
+# %wheel        ALL=(ALL)    ALL
+# Same thing without a password
+# %wheel        ALL=(ALL)    NOPASSWD: ALL
+# Samples
+# %users   ALL=/sbin/mount /cdrom,/sbin/umount /cdrom
+# %users   localhost=/sbin/shutdown -h now
+##################################################################
+1. 最简单的配置，让普通用户support具有root的所有权限
+执行visudo之后，可以看见缺省只有一条配置：
+root ALL=(ALL) ALL
+那么你就在下边再加一条配置：
+support ALL=(ALL) ALL
+这样，普通用户support就能够执行root权限的所有命令
+以support用户登录之后，执行：
+sudo su -
+然后输入support用户自己的密码，就可以切换成root用户了
+2. 让普通用户support只能在某几台服务器上，执行root能执行的某些命令
+首先需要配置一些Alias，这样在下面配置权限时，会方便一些，不用写大段大段的配置。Alias主要分成4种
+Host_Alias
+Cmnd_Alias
+User_Alias
+Runas_Alias
+1) 配置Host_Alias：就是主机的列表
+Host_Alias    HOST_FLAG = hostname1, hostname2, hostname3
+2) 配置Cmnd_Alias：就是允许执行的命令的列表
+Cmnd_Alias    COMMAND_FLAG = command1, command2, command3
+3) 配置User_Alias：就是具有sudo权限的用户的列表
+User_Alias USER_FLAG = user1, user2, user3
+4) 配置Runas_Alias：就是用户以什么身份执行（例如root，或者oracle）的列表
+Runas_Alias RUNAS_FLAG = operator1, operator2, operator3
+5) 配置权限
+配置权限的格式如下：
+USER_FLAG HOST_FLAG=(RUNAS_FLAG) COMMAND_FLAG
+如果不需要密码验证的话，则按照这样的格式来配置
+USER_FLAG HOST_FLAG=(RUNAS_FLAG) NOPASSWD: COMMAND_FLAG
+配置示例：
+############################################################################
+# sudoers file.
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# See the sudoers man page for the details on how to write a sudoers file.
+#
+# Host alias specification
+Host_Alias    EPG = 192.168.1.1, 192.168.1.2
+# User alias specification
+# Cmnd alias specification
+Cmnd_Alias    SQUID = /opt/vtbin/squid_refresh, /sbin/service, /bin/rm
+# Defaults specification
+# User privilege specification
+root ALL=(ALL) ALL
+support EPG=(ALL) NOPASSWD: SQUID
+# Uncomment to allow people in group wheel to run all commands
+# %wheel        ALL=(ALL)    ALL
+# Same thing without a password
+# %wheel        ALL=(ALL)    NOPASSWD: ALL
+# Samples
+# %users   ALL=/sbin/mount /cdrom,/sbin/umount /cdrom
+# %users   localhost=/sbin/shutdown -h now
+###############################################################
+我们不可以使用su让他们直接变成root，因为这些用户都必须知道root的密码，这种方法很不安全，而且也不符合我们的分工需求。一般的做法是利用权限的设置，依工作性质分类，让特殊身份的用户成为同一个工作组，并设置工作组权限。例如：要wwwadm这位用户负责管理网站数据，一般Apache Web Server的进程httpd的所有者是www，您可以设置用户wwwadm与www为同一工作组，并设置Apache默认存放网页目录 /usr/local/httpd/htdocs的工作组权限为可读、可写、可执行，这样属于此工作组的每位用户就可以进行网页的管理了。 
+但这并不是最好的解决办法，例如管理员想授予一个普通用户关机的权限，这时使用上述的办法就不是很理想。这时您也许会想，我只让这个用户可以以 root身份执行shutdown命令就行了。完全没错，可惜在通常的Linux系统中无法实现这一功能，不过已经有了工具可以实现这样的功能—— sudo。 
+sudo通过维护一个特权到用户名映射的数据库将特权分配给不同的用户，这些特权可由数据库中所列的一些不同的命令来识别。为了获得某一特权项，有资格的用户只需简单地在命令行输入sudo与命令名之后，按照提示再次输入口令（用户自己的口令，不是root用户口令）。例如，sudo允许普通用户格式化磁盘，但是却没有赋予其他的root用户特权。 
+1、sudo工具由文件/etc/sudoers进行配置，该文件包含所有可以访问sudo工具的用户列表并定义了他们的特权。一个典型的/etc/sudoers条目如下： 
+代码: 
+liming ALL=(ALL) ALL 
+这个条目使得用户liming作为超级用户访问所有应用程序，如用户liming需要作为超级用户运行命令，他只需简单地在命令前加上前缀sudo。因此，要以root用户的身份执行命令format，liming可以输入如下命令： 
+代码: 
+# sudo /usr/sbin/useradd sam 
+注意：命令要写绝对路径，/usr/sbin默认不在普通用户的搜索路径中，或者加入此路径：PATH=$PATH:/usr/sbin;export PATH。另外，不同系统命令的路径不尽相同，可以使用命令“whereis 命令名”来查找其路径。 
+这时会显示下面的输出结果： 
+代码: 
+We trust you have received the usual lecture from the local System 
+Administrator. It usually boils down to these two things: 
+#1) Respect the privacy of others. 
+#2) Think before you type. 
+Password: 
+如果liming正确地输入了口令，命令useradd将会以root用户身份执行。 
+注意：配置文件/etc/sudoers必须使用命令 Visudo来编辑。 
+只要把相应的用户名、主机名和许可的命令列表以标准的格式加入到文件/etc/sudoers，并保存就可以生效，再看一个例子。 
+2、例子：管理员需要允许gem用户在主机sun上执行reboot和shutdown命令，在/etc/sudoers中加入： 
+代码: 
+gem sun=/usr/sbin/reboot，/usr/sbin/shutdown 
+注意：命令一定要使用绝对路径，以避免其他目录的同名命令被执行，从而造成安全隐患。 
+然后保存退出，gem用户想执行reboot命令时，只要在提示符下运行下列命令： 
+代码: 
+$ sudo /usr/sbin/reboot 
+输入正确的密码，就可以重启服务器了。 
+如果您想对一组用户进行定义，可以在组名前加上%，对其进行设置，如： 
+代码: 
+%cuug ALL=(ALL) ALL 
+3、另外，还可以利用别名来简化配置文件。别名类似组的概念，有用户别名、主机别名和命令别名。多个用户可以首先用一个别名来定义，然后在规定他们可以执行什么命令的时候使用别名就可以了，这个配置对所有用户都生效。主机别名和命令别名也是如此。注意使用前先要在/etc/sudoers中定义： User_Alias, Host_Alias, Cmnd_Alias项，在其后面加入相应的名称，也以逗号分隔开就可以了，举例如下： 
+代码: 
+Host_Alias SERVER=no1 
+User_Alias ADMINS=liming，gem 
+Cmnd_Alias SHUTDOWN=/usr/sbin/halt，/usr/sbin/shutdown，/usr/sbin/reboot 
+ADMINS SERVER=SHUTDOWN 
+、再看这个例子： 
+代码: 
+ADMINS ALL=(ALL) NOPASSWD: ALL 
+表示允许ADMINS不用口令执行一切操作，其中“NOPASSWD:”项定义了用户执行操作时不需要输入口令。 
+5、sudo命令还可以加上一些参数，完成一些辅助的功能，如 
+代码: 
+$ sudo –l 
+会显示出类似这样的信息： 
+代码: 
+User liming may run the following commands on this host: 
+(root) /usr/sbin/reboot 
+说明root允许用户liming执行/usr/sbin/reboot命令。这个参数可以使用户查看自己目前可以在sudo中执行哪些命令。 
+6、在命令提示符下键入sudo命令会列出所有参数，其他一些参数如下： 
+代码: 
+-V 显示版本编号。 
+-h 显示sudo命令的使用参数。 
+-v 因为sudo在第一次执行时或是在N分钟内没有执行（N预设为5）会询问密码。这个参数是重新做一次确认，如果超过N分钟，也会问密码。 
+-k 将会强迫使用者在下一次执行sudo时询问密码（不论有没有超过N分钟）。 
+-b 将要执行的命令放在背景执行。 
+-p prompt 可以更改问密码的提示语，其中%u会替换为使用者的账号名称，%h会显示主机名称。 
+-u username/#uid 不加此参数，代表要以root的身份执行命令，而加了此参数，可以以username的身份执行命令（#uid为该username的UID）。 
+-s 执行环境变量中的 SHELL 所指定的 Shell ，或是 /etc/passwd 里所指定的 Shell。 
+-H 将环境变量中的HOME（宿主目录）指定为要变更身份的使用者的宿主目录。（如不加-u参数就是系统管理者root。） 
+要以系统管理者身份（或以-u更改为其他人）执行的命令。
+
+##########################     实         例     ###############################
+
+实例一：
+
+beinan ALL=/bin/chown,/bin/chmod
+
+假如我们在/etc/sudoers 中添加这一行，表示beinan 能够在任何可能出现的主机名的系统中，能够转换到root用户下执行 /bin/chown 和/bin/chmod 命令，通过sudo -l 来查看beinan 在这台主机上允许和禁止运行的命令；
+
+值得注意的是，在这里省略了指定转换到哪个用户下执行/bin/shown 和/bin/chmod命令；在省略的情况下默认为是转换到root用户下执行；同时也省略了是不是需要beinan用户输入验证密码，假如省略了，默认为是需要验证密码。
+
+为了更周详的说明这些，我们能够构造一个更复杂一点的公式；
+
+授权用户 主机=[(转换到哪些用户或用户组)] [是否需要密码验证] 命令1,[(转换到哪些用户或用户组)] [是否需要密码验证] [命令2],[(转换到哪些用户或用户组)] [是否需要密码验证] [命令3]....
+
+注解：
+
+凡是[ ]中的内容，是能够省略；命令和命令之间用,号分隔；通过本文的例子，能够对照着看哪些是省略了，哪些地方需要有空格；
+
+在[(转换到哪些用户或用户组)] ，假如省略，则默认为root用户；假如是ALL ，则代表能转换到任何用户；注意要转换到的目的用户必须用()号括起来，比如(ALL)、(beinan)
+
+实例二：
+
+beinan ALL=(root) /bin/chown, /bin/chmod
+
+假如我们把第一个实例中的那行去掉，换成这行；表示的是beinan 能够在任何可能出现的主机名的主机中，能够转换到root下执行 /bin/chown ，能够转换到任何用户招执行/bin/chmod 命令，通过sudo -l 来查看beinan 在这台主机上允许和禁止运行的命令；
+
+实例三：
+
+beinan ALL=(root) NOPASSWD: /bin/chown,/bin/chmod
+
+假如换成这个例子呢？表示的是beinan 能够在任何可能出现的主机名的主机中，能够转换到root下执行 /bin/chown ，无需输入beinan用户的密码；并且能够转换到任何用户下执行/bin/chmod 命令，但执行chmod时需要beinan输入自己的密码；通过sudo -l 来查看beinan 在这台主机上允许和禁止运行的命令；
+
+关于一个命令动作是不是需要密码，我们能够发现在系统在默认的情况下是需要用户密码的，除非特加指出无需用户需要输入自己密码，所以要在执行动作之前加入NOPASSWD: 参数；
+
+有可能有的弟兄对系统管理的命令不太懂，不知道其用法，这样就影响了他对 sudoers定义的理解，下面我们再举一个最简单，最有说服务力的例子；
+
+实例四：
+
+比如我们想用beinan普通用户通过more /etc/shadow文档的内容时，可能会出现下面的情况；
+
+[beinan@localhost ~]?$ more /etc/shadow/etc/shadow: 权限不够
+
+这时我们能够用sudo more /etc/shadow 来读取文档的内容；就需要在/etc/soduers中给beinan授权
+
+于是我们就能够先su 到root用户下通过visudo 来改/etc/sudoers ；（比如我们是以beinan用户登录系统的）
+
+[beinan@localhost ~]?$ su
+
+Password: 注：在这里输入root密码
+
+下面运行visodu；
+
+[root@localhost beinan]# visudo 注：运行visudo 来改 /etc/sudoers
+
+加入如下一行，退出保存；退出保存，在这里要会用vi，visudo也是用的vi编辑器；至于vi的用法不多说了；
+beinan ALL=/bin/more 表示beinan能够转换到root下执行more 来查看文档；
+
+退回到beinan用户下，用exit命令；
+
+[root@localhost beinan]# exit
+
+exit
+
+[beinan@localhost ~]?$
+
+查看beinan的通过sudo能执行哪些命令？
+
+[beinan@localhost ~]?$ sudo -l
+
+Password: 注：在这里输入beinan用户的密码
+
+User beinan may run the following commands on this host: 注：在这里清楚的说明在本台主机上，beinan用户能够以root权限运行more ；在root权限下的more ，能够查看任何文本文档的内容的；
+
+(root) /bin/more
+
+最后，我们看看是不是beinan用户有能力看到/etc/shadow文档的内容；
+
+[beinan@localhost ~]?$ sudo more /etc/shadow
+
+beinan 不但能看到 /etc/shadow文档的内容，还能看到只有root权限下才能看到的其他文档的内容，比如；
+
+[beinan@localhost ~]?$ sudo more /etc/gshadow
+
+对于beinan用户查看和读取任何系统文档中，我只想把/etc/shadow 的内容能够让他查看；能够加入下面的一行；
+
+beinan ALL=/bin/more /etc/shadow
+
+题外话：有的弟兄会说，我通过su 转换到root用户就能看到任何想看的内容了，哈哈，对啊。但咱们现在不是在讲述sudo的用法吗？假如主机上有多个用户并且不知道root用户的密码，但又想查看某些他们看不到的文档，这时就需要管理员授权了；这就是sudo的好处；
+
+实例五：练习用户组在/etc/sudoers中写法；
+
+假如用户组出现在/etc/sudoers 中，前面要加%号，比如%beinan ，中间不能有空格；%beinan ALL=/usr/sbin/*,/sbin/*
+
+假如我们在 /etc/sudoers 中加上如上一行，表示beinan用户组下的任何成员，在任何可能的出现的主机名下，都能转换到root用户下运行 /usr/sbin和/sbin目录下的任何命令；
+
+实例六：练习取消某类程式的执行：
+
+取消程式某类程式的执行，要在命令动作前面加上!号； 在本例中也出现了通配符的*的用法；
+
+beinan ALL=/usr/sbin/*,/sbin/*,!/usr/sbin/fdisk 注：把这行规则加入到/etc/sudoers中；但您得有beinan这个用户组，并且beinan也是这个组中的才行；
+
+本规则表示beinan用户在任何可能存在的主机名的主机上运行/usr/sbin和/sbin下任何的程式，但fdisk 程式除外；
+
+[beinan@localhost ~]?$ sudo -l
+
+Password: 注：在这里输入beinan用户的密码；
+
+User beinan may run the following commands on this host:(root) /usr/sbin/*(root) /sbin/*(root) !/sbin/fdisk[beinan@localhost ~]?$ sudo /sbin/fdisk -lSorry, user beinan is not allowed to execute '/sbin/fdisk -l' as root on localhost.
+
+注：不能转换到root用户下运行fdisk 程式；
+
+实例七：别名的运用实践；
+
+假如我们就一台主机localhost，能通过hostname 来查看，我们在这里就不定义主机别名了，用ALL来匹配任何可能出现的主机名；并且有beinan、linuxsir、lanhaitun 用户；主要是通过小例子能更好理解；sudo虽然简单好用，但能把说的明白的确是件难事；最好的办法是多看例子和man soduers ；
+
+User_Alias SYSADER=beinan,linuxsir,%beinan
+
+User_Alias DISKADER=lanhaitun
+
+Runas_Alias OP=root
+
+Cmnd_Alias SYDCMD=/bin/chown,/bin/chmod,/usr/sbin/adduser,/usr/bin/passwd [A-Za-z]*,!/usr/bin/passwd root
+
+Cmnd_Alias DSKCMD=/sbin/parted,/sbin/fdisk 注：定义命令别名DSKCMD，下有成员parted和fdisk ；
+
+SYSADER ALL= SYDCMD,DSKCMDDISKADER     ALL=(OP) DSKCMD
+
+注解：
+
+第一行：定义用户别名SYSADER 下有成员 beinan、linuxsir和beinan用户组下的成员，用户组前面必须加%号；
+
+第二行：定义用户别名 DISKADER ，成员有lanhaitun
+
+第三行：定义Runas用户，也就是目标用户的别名为OP，下有成员root
+
+第四行：定义SYSCMD命令别名，成员之间用,号分隔，最后的!/usr/bin/passwd root 表示不能通过passwd 来更改root密码；
+
+第五行：定义命令别名DSKCMD，下有成员parted和fdisk ；
+
+第六行：表示授权SYSADER下的任何成员，在任何可能存在的主机名的主机下运行或禁止 SYDCMD和DSKCMD下定义的命令。更为明确遥说，beinan、linuxsir和beinan用户组下的成员能以root身份运行 chown 、chmod 、adduser、passwd，但不能更改root的密码；也能够以root身份运行 parted和fdisk ，本条规则的等价规则是；
+
+beinan,linuxsir,%beinan ALL=/bin/chown,/bin/chmod,/usr/sbin/adduser,/usr/bin/passwd [A-Za-z]*,!/usr/bin/passwd root,/sbin/parted,/sbin/fdisk
+
+第七行：表示授权DISKADER 下的任何成员，能以OP的身份，来运行 DSKCMD ，无需密码；更为明确的说 lanhaitun 能以root身份运行 parted和fdisk 命令；其等价规则是：
+
+lanhaitun ALL=(root) /sbin/parted,/sbin/fdisk
+
+可能有的弟兄会说我想不输入用户的密码就能转换到root并运行SYDCMD和DSKCMD 下的命令，那应该把把NOPASSWD:加在哪里为好？理解下面的例子吧，能明白的；
+
+SYSADER ALL= NOPASSWD: SYDCMD, NOPASSWD: DSKCMD

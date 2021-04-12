@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd"
+	default-autowire="byName">
+	<!-- 本配置文件只配置mvc相关信息,为避免和主配置文件重复加载,将在自动扫描的时候只扫描controller,其他注解交给主配置文件扫描 -->
+
+	<!-- 开启mvc注解,后面可不加任何属性,可添加的属性可查看class=org.springframework.web.servlet.config.MvcNamespaceHandler -->
+	<!-- conversion-service:开启自定义的转换器 -->
+	<mvc:annotation-driven conversion-service="converter" />
+	<mvc:default-servlet-handler />
+
+	<!-- 只自动扫描controller,其他注解不扫描 -->
+	<context:component-scan base-package="com.wy.controller">
+		<!-- include-filter:只扫描那些注解,exclude-filter:不扫描那些注解 -->
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation"
+			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
+
+	<!-- 静态资源访问,不经过url拦截 -->
+	<mvc:resources location="/img/" mapping="/img/**"></mvc:resources>
+	<mvc:resources location="/download/" mapping="/download/**"></mvc:resources>
+
+	<!-- 定义转换器 -->
+	<bean id="converter"
+		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<!-- 时间格式检测,无法对单个类的单个字段进行单个验证 -->
+				<bean class="com.wy.common.DateConverter" />
+			</set>
+		</property>
+	</bean>
+</beans>

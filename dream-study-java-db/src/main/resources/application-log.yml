@@ -1,0 +1,17 @@
+# 日志配置
+logging:
+  pattern: 
+    console: "%(%d{yyyy-MM-dd HH:mm:ss})  [%p]  %(%C:%L)  : %m %n"
+    file: "%(%d{yyyy-MM-dd HH:mm:ss})  [%p]  %(%C:%L)  : %m %n"
+  # 需要打印那个包的日志,就写那个包的路径
+  level:
+    # 全局日志输出级别
+    root: INFO
+    # 配置包的日志输出级别
+    org.springframework.web.servlet: WARN
+    # 打印mybatis的sql日志,前面为mapper接口所在的包
+    com.wy.mapper: debug
+  # 日志输出位置
+  file: 
+    max-size: 15MB
+    max-history: 10000

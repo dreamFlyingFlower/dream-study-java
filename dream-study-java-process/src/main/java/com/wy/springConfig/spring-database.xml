@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!-- 加载数据库文件 -->
+	<bean id="datasource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="driverClassName" value="${jdbc_driverClass}" />
+		<property name="url" value="${jdbc_url}" />
+		<property name="username" value="${jdbc_username}" />
+		<property name="password" value="${jdbc_password}" />
+		<!-- 连接池最大使用连接数 -->
+		<property name="maxActive" value="20" />
+		<!-- 初始化连接大小 -->
+		<property name="initialSize" value="1" />
+		<!-- 获取连接最大等待时间 -->
+		<property name="maxWait" value="20000" />
+		<!-- 连接池最小空闲 -->
+		<property name="minIdle" value="3" />
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+		<!-- 如果空闲时间大于timeBetweenEvictionRunsMillis， 执行validationQuery检测连接是否有效 -->
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+		<!--验证连接有效与否的SQL，不同的数据配置不同 -->
+		<property name="validationQuery" value="select 1 " />
+		<!-- 自动清除无用连接 -->
+		<property name="removeAbandoned" value="true" />
+		<!-- 清除无用连接的等待时间 -->
+		<property name="removeAbandonedTimeout" value="180" />
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize"
+			value="20" />
+		<!--配置监控统计拦截的filters，去掉后监控界面sql无法统计 -->
+		<property name="filters" value="stat" />
+		<!-- 连接属性 -->
+		<property name="connectionProperties" value="clientEncoding=UTF-8" />
+	</bean>
+
+	<bean id="sqlsessionfactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="datasource"></property>
+		<property name="mapperLocations" value="classpath:com/wy/dao/mapper/*.xml"></property>
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.wy.dao"></property>
+		<property name="sqlSessionFactoryBeanName" value="sqlsessionfactory"></property>
+	</bean>
+	<!-- 调用原生的jdbc -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="datasource"></property>
+	</bean>
+	<!-- 开启事务对应的数据源 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="datasource" />
+	</bean>
+
+	<!-- 事务注解和事务结合aop配置只需要使用一种 -->
+	<!-- 开启事务注解@Transactional配置 @Transaction(readOnly==true)只读 -->
+	<tx:annotation-driven transaction-manager="txManager" />
+
+	<!-- 开启事务结合aop的配置 -->
+	<!-- <tx:advice id="txAdvice" transaction-manager="txManager"> -->
+	<!-- <tx:attributes> -->
+	<!-- name中写方法名,可用*代替,也可一直写*,以save开头,delete开头,update开头,find开头的方法 -->
+	<!-- <tx:method name="save*" propagation="REQUIRED" isolation="DEFAULT" 
+		/> -->
+	<!-- <tx:method name="delete*" propagation="REQUIRED" /> -->
+	<!-- <tx:method name="update*" propagation="REQUIRED" /> -->
+	<!-- <tx:method name="find*" read-only="true" /> -->
+	<!-- </tx:attributes> -->
+	<!-- </tx:advice> -->
+
+	<!-- 开启aop配置,需要导入aop的命名空间 -->
+	<!-- <aop:config> -->
+	<!-- <aop:pointcut id="point" expression="execution(* com.*(...))"/> -->
+	<!-- <aop:advisor advice-ref="txAdvice" pointcut-ref="point"/> -->
+	<!-- </aop:config> -->
+</beans>

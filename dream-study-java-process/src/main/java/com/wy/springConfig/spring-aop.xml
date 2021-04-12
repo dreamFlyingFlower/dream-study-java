@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!-- init-method:初始化该方法的时候会调用该方法,方法名可随意,在类中的方法上可以使用@PostConstruct注解实现相同效果 -->
+	<!-- destroy-method:该实例被销毁的时候调用的方法,只对单例模式有效,方法名可随意,在类方法上使用@PreDestroy,上下文关闭才会调用该方法 -->
+	<!-- scope:bean的作用域,在类上使用@Scope注解可实现相同效果 singleton:单例模式 prototype:多例模式 request:web中,当该类被实例化后,会存入到request中 
+		session:web应用中,当该类被创建后,会加入到session中 globalsession:全局session,相当于单点登录,不过是同一个域名,非不同域名不可使用 -->
+	<!-- DI:依赖注入 -->
+	<!-- 属性注入:需要在该类中添加属性的set方法,name中的值和类中的字段需要一样;或者构造方法注入 -->
+	<!-- P命名空间属性注入:需要先使用p的命名空间,2.5以后版本,需测试 -->
+	<!-- spel属性注入:spring特有的属性注入方式,只有name和value,即便是引用其他对象,也是写value,还可以写直接调用其他对象的方法3.0以后可使用 -->
+	<!-- <bean id="user" class="com.wy.bean.User" init-method="init" -->
+	<!-- destroy-method="destroy" scope="singleton" p:username="test01" > -->
+	<!-- set方法注入普通类型 -->
+	<!-- <property name="age" value="20" /> -->
+	<!-- set方法注入对象类型 -->
+	<!-- <property name="logger" ref="loggerBean" /> -->
+	<!-- 构造方法注入普通类型 -->
+	<!-- <constructor-arg name="company" value="test" /> -->
+	<!-- 构造方法注入对象 -->
+	<!-- <constructor-arg name="logger" ref="loggerBean" /> -->
+	<!-- spel注入字符串,需要加引号,如果是字符串但是没加引入就是在spring的配置文件中寻找id为该字符串的对象 -->
+	<!-- <property name="id" value="#{'string'}"/> -->
+	<!-- <property name="age" value="#{20}"></property> -->
+	<!-- user是另外一个id名为num的类,calculate是该类的方法 -->
+	<!-- <property name="salary" value="#{num.calculate}"></property> -->
+	<!-- </bean> -->
+
+	<!-- 开启aop注解切面开发 -->
+	<!-- <aop:aspectj-autoproxy /> -->
+
+	<!-- 利用AOP配置将MyOptLogger组件作用到MyService所有方法上 -->
+	<!-- <bean id="loggerBean" class="org.wy.note.aop.MyOptLogger"></bean> -->
+
+	<!-- <bean id="exceptionBean" class="org.wy.note.aop.MyExceptionLogger"></bean> -->
+
+	<!-- <aop:config> -->
+	<!-- 表达式配置那些类的那些方法需要进行增强 -->
+	<!-- 第一个*是指任意返回值,..:任务参数 -->
+	<!-- <aop:pointcut expression="execution(* com.wy.service.UserService.addUser(..))" 
+		id="point1"/> -->
+	<!-- 给id为point1的切入点配置前置或后置或其他方法 -->
+	<!-- 指向需要进行前置方法的类 -->
+	<!-- <aop:aspect ref="loggerBean"> -->
+	<!-- 前置方法类中的方法名,以及需要被切面的point1的类 -->
+	<!-- <aop:before method="logger" pointcut-ref="point1"/> -->
+	<!-- </aop:aspect> -->
+
+	<!-- 定义方面,指定将loggerBean切入到目标 -->
+	<!-- <aop:aspect ref="loggerBean"> -->
+	<!-- 在执行目标方法之前切入loggerBean处理 -->
+	<!-- expression指定哪些组件是目标 -->
+	<!-- <aop:before method="logOpt" pointcut="within(org.wy.note.aop.MyServiceImpl)"/> -->
+	<!-- </aop:aspect> -->
+
+	<!-- 将exceptionBean定义成方面 -->
+	<!-- <aop:aspect ref="exceptionBean"> -->
+	<!-- 当MyServiceImpl组件方法抛出异常,会自动调用方面组件的log方法,将异常对象给log方法的ex参数 -->
+	<!-- <aop:after-throwing method="log" throwing="ex" pointcut="within(org.wy.note.aop.MyServiceImpl)"/> -->
+	<!-- </aop:aspect> -->
+	<!-- </aop:config> -->
+</beans>

@@ -1,0 +1,15 @@
+# Initializers
+org.springframework.context.ApplicationContextInitializer=\
+com.wy.listener.S_ApplicationContextInitializer
+
+# Application Listeners
+org.springframework.context.ApplicationListener=\
+com.wy.listener.S_SpringListener
+
+# Spring Applicaiton Listeners
+org.springframework.boot.SpringApplicationRunListener=\
+com.wy.listener.S_SpringApplicationRunListener
+
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.autoconfigure.S_AutoConfig
