@@ -98,7 +98,7 @@
   # 以终端的形式运行容器并进入容器内部./bin/bash表示进入容器内部,每个IMAGE可能不一样
   docker run -it redis /bin/bash
   # 指定后台运行,不需要指定/bin/bash
-  docker run -d --name redis01 redis
+  docker run -d --name=redis01 redis
   # 指定端口映射
   docker run -d -p 6181:6181 -p 6282:6282 --name=zk01 zookeeper
   ```
@@ -111,7 +111,7 @@
     * port1是主机端口,port2是docker容器端口
     * 若不指定port1,则将随机映射到主机端口
     * 可以同时写多个端口映射,如-p port1:port2 -p port3:port4
-  * --name cname:自定义容器的名称(cname),不能重复,若不指定,由docker自行定义
+  * --name=cname:自定义容器的名称(cname),不能重复,若不指定,由docker自行定义
   * -v src:des[:rwo]:将容器中的文件映射到主机中,保证数据的持久化,可以给目录赋权
     * src:主机中的目录地址
     * des:容器中的目录地址
@@ -126,7 +126,8 @@
 * docker ps []:查看所有正在运行的容器
 
   * -a:查看所有正在运行和已经停止的容器
-  * -l:查看最新创建的容器
+  * -l:查看最后一次运行的容器
+  * -f status=exited:查看停止的容器
 
 * docker attach cid/cname:以终端的形式进入到某个容器中
 
@@ -144,6 +145,8 @@
 * docker inspect [] iid/iname/iname:tag/cid/cname:查看镜像,容器的详细信息
 
   * -f:格式化形式详细信息
+
+* docker inspect --format='{{.NetworkSettings.IPAddress}}' iid/iname/iname:tag/cid/cname:直接输出容器或镜像的ip地址,双大括号固定写法,里面的内容需要根据inspect信息指定,是一个Json对象
 
 * docker logs [] cid/cname:查看容器日志
 
@@ -186,6 +189,10 @@
 
   * -t:指定镜像名的名字
   * .:表示当前目录,也可以是其他目录
+  
+* docker cp file1 containerid:file2:将linux中的文件拷贝到docker容器中的指定目录中
+
+* docker cp containerid:file2 file1 :将docker容器中的文件拷贝到Linux指定目录中
 
 
 

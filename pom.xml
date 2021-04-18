@@ -16,6 +16,7 @@
 		<module>dream-study-java-process</module>
 		<module>dream-study-java-search</module>
 		<module>dream-study-java-service</module>
+		<module>dream-study-java-shiro</module>
 		<module>dream-study-java-spring</module>
 		<module>dream-study-java-thread</module>
 		<module>dream-study-java-web</module>
