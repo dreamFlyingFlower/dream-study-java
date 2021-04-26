@@ -4,7 +4,9 @@
 
 * git init:将一个目录初始化为git仓库,必须是空目录
 
-* git clone url:将git远程仓库中的内容拉去到本地
+* git clone [] url:将git远程仓库中的内容拉去到本地
+
+  * -b branchname:拉取指定分支到本地，branchname为要拉取的分支名称
 
 * git remote []:查看本地库对应的远程仓库名称,默认都是origin,是一个标签
   * -v:查看拉取和提交的远程仓库名称和地址
@@ -32,7 +34,10 @@
 
 * git add filename:将某个文件添加到本地的预提交程序中
 
-* git commit -am comment:将git add中预提交的文件提交到本地仓库,comment为提交的注释,必须填写
+* git commit [] :将git add中预提交的文件提交到本地仓库
+
+  * -am comment:提交所有同时提交注释,comment为注释,必须填写
+  * --amend:编辑提交的内容或信息
 
 * git push [] [origin master]:将本地仓库中的修改同步到远程仓库中,默认提交到origin master;若有过个git远程仓库,其中的origin要自定义命名,且和origin不一样,此时必须加上自定义名称和分支,如git push github master.若只是分支不一样,可以是git push origin aa,aa为分支名
 
@@ -46,6 +51,10 @@
 
 * git reset --hard version filename:将指定文件回滚到指定版本
 
+* `git reset HEAD <file>`: 恢复暂存的文件
+
+* `git checkout -- <file>`: 丢弃修改
+
 * git rebase:将分支进行合并
 
 * git merge aa:将aa分支中的代码合并到当前分支,注意可能需要解决冲突
@@ -56,15 +65,24 @@
 
 ## git bransh
 
-* git branch []:查看本地仓库当前分支
+* `git branch []`:查看本地仓库当前分支
   * -a:查看所有分支
   * -v:查看版本以及注释
-* git branch aa:根据当前分支创建一个新的分支aa,aa的所有代码和当前分支一样
-* git branch -d aa:删除分支aa
-* git checkout -b aa:根据当前分支创建一个新的分支aa,并切换到aa分支上
-* git checkout aa:切换到aa分支上
-* git pull origin aa:从aa分支上拉取最新代码,需要显示的指定用户名和分支名
-* git push origin aa[:master]:将新建的本地分支提交到远程仓库.若远程仓库不存在aa分支,则会自动创建,也可以提交到指定的分支上.需要显示的指定用户名和分支名
+* `git branch aa`:根据当前分支创建一个新的分支aa,aa的所有代码和当前分支一样
+* `git branch -d aa`:删除分支aa
+* `git checkout -b aa`:根据当前分支创建一个新的分支aa,并切换到aa分支上
+* `git checkout aa`:切换到aa分支上
+* `git pull origin aa`:从aa分支上拉取最新代码,需要显示的指定用户名和分支名
+* `git push origin aa[:master]`:将新建的本地分支提交到远程仓库.若远程仓库不存在aa分支,则会自动创建,也可以提交到指定的分支上.需要显示的指定用户名和分支名
+* `git merge [revision]`: 合并到当前分支
+* `git mergetool`: 使用工具来处理合并冲突
+
+
+
+## git log
+
+* `git log`: 显示历史日志
+* `git log --all --graph --decorate`: 可视化历史记录(有向无环图)
 
 
 
@@ -122,7 +140,14 @@
 
 
 
-## 配置
+## git diff
+
+* `git diff <filename>`: 显示与上一次提交之间的差异
+* `git diff <revision> <filename>`: 显示某个文件两个版本之间的差异
+
+
+
+## git config
 
 1. git config --global core.autocrlf []:windows,mac的换行符不一样,win是CRLF,mac是LF,不同开发者使用系统不一样会导致在比对时因为换行符的问题而出现差异
    1. true:提交时转换为LF,检出时转换为CRLF
@@ -184,6 +209,20 @@ git push --force
 ```
 
 * 在回退版本的时候即使回退到该大文件A存在的历史版本,依然无法获取A文件,这个文件被永久被仓库以及仓库历史中删除
+
+
+
+## 其他
+
+- `git commit --amend`: 编辑提交的内容或信息
+- `git reset HEAD <file>`: 恢复暂存的文件
+- `git checkout -- <file>`: 丢弃修改
+- `git clone --shallow`: 克隆仓库,但是不包括版本历史信息
+- `git add -p`: 交互式暂存
+- `git blame`: 查看最后修改某行的人
+- `git stash`: 暂时移除工作目录下的修改内容
+- `git bisect`: 通过二分查找搜索历史记录
+- `.gitignore`: 指定不追踪的文件
 
 
 
