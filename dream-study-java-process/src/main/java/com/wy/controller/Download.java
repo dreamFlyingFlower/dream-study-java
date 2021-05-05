@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.wy.utils.StrUtils;
+import com.wy.lang.StrTool;
 
 @Controller
 @RequestMapping("download")
@@ -19,9 +19,9 @@ public class Download {
 
 	public void download(HttpServletRequest request, HttpServletResponse response) {
 		// 若是下载文件,必须传download,文件名
-		if (!StrUtils.isBlank(request.getParameter("download"))) {
+		if (StrTool.isNotBlank(request.getParameter("download"))) {
 			String filename = request.getParameter("filename");
-			if (!StrUtils.isBlank(filename)) {
+			if (StrTool.isNotBlank(filename)) {
 				System.out.println(filename);
 				response.setContentType(request.getServletContext().getMimeType(filename));
 				response.setHeader("Content-Disposition", "attachment;filename=" + filename);

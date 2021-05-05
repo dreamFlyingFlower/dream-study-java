@@ -5,7 +5,7 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
-import com.wy.valid.ValidInsert;
+import com.wy.valid.ValidAdd;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -38,7 +38,7 @@ public class Userinfo implements Serializable {
 	 * 用户编号
 	 */
 	@ApiModelProperty("用户编号")
-	@NotNull(groups = ValidInsert.class)
+	@NotNull(groups = ValidAdd.class)
 	private Long userId;
 
 	/**

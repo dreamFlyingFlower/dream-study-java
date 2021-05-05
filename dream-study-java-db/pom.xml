@@ -48,9 +48,9 @@
 			<version>1.1.10</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.mygodness100</groupId>
-			<artifactId>SimpleUtils</artifactId>
-			<version>1.0.4</version>
+			<groupId>dream.flying.flower</groupId>
+			<artifactId>dream-tool-third</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 
 		<dependency>

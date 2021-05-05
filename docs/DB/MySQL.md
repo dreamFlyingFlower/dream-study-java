@@ -1,120 +1,120 @@
-# Mysql
+# MySQL
+
+
 
 # Linux安装
 
-## 1.1 卸载Mysql
 
-1. 所有操作都是以linux的centos7版本为基础进行的,其他操作系统可百度
 
-2. 查询linux中是否安装了mysql
+## 卸载MySQL
 
-   ```shell
-   rpm -qa|grep -i mysql #查询系统中已经安装的mysql包,例如mysql-community...
-   ```
+* 所有操作都是以linux的centos7版本为基础进行的,其他操作系统可百度
+* 查询linux中是否安装了mysql
 
-3. 卸载mysql
+```shell
+rpm -qa|grep -i mysql #查询系统中已经安装的mysql包,例如mysql-community...
+```
 
-   ```shell
-   service mysqld status # 查看mysql状态
-   service mysqld stop # 停止mysql服务
-   rpm -ev mysql-community... # 卸载2中查询到的mysql安装包,若卸载时提示找不到依赖,可以在命令后加上--nodeps,该参数表示不检查依赖
-   ```
+* 卸载mysql
 
-4. 找到系统中关于mysql的文件夹并删除
+```shell
+service mysqld status # 查看mysql状态
+service mysqld stop # 停止mysql服务
+rpm -ev mysql-community... # 卸载2中查询到的mysql安装包,若卸载时提示找不到依赖,可以在命令后加上--nodeps,该参数表示不检查依赖
+```
 
-   ```
-   find / -name mysql # 查找系统中所有关于mysql的文件夹,之后通过命令删除
-   ```
+* 找到系统中关于mysql的文件夹并删除
 
-   
-
-## 1.2 安装Mysql
-
-### 1.2.1 rpm安装
-
-1. 进入https://dev.mysql.com/downloads/repo/yum/,下载mysql的rpm包
-
-2. 根据linux版本选择mysql版本,点击download
-
-3. 页面跳转之后会需要登录,可以不登陆,直接点击左下方的No thanks,just start download或者直接右键点击该文件,复制连接地址
-
-4. 若是复制链接地址的,需要在linux中使用wget下载该文件
-
-   ```shell
-   wget https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
-   ```
-
-5. 若是直接下载的,可以把下载后的文件上传到linux中,此处下载的文件名为mysql80-community-release-el7-3.noarch.rpm,版本不一样,可能文件名不一样
-
-6. 安装镜像
-
-   ```shell
-   rpm -ivh mysql80-community-release-el7-3.noarch.rpm
-   ```
-
-7. 升级系统上的mysql软件包
-
-   ```shell
-   yum update mysql-server
-   ```
-
-8. 安装mysql
-
-   ```shell
-   yum install mysql-server
-   ```
-
-   安装成功之后会自动将mysql用户和mysql用户组添加到mysql中
-
-9. 设置mysql权限
-
-   ```shell
-   chown mysql:mysql -R /var/lib/mysql
-   ```
-
-10. 初始化mysql
-
-    ```shell
-    mysqld --initialize # 初始化完成之后会生成密码,该密码在/var/log/mysqld.log中
-    grep "password" /var/log/mysqld.log # 查找安装时的默认密码
-    ```
-
-11. 启动mysql,并设置开机启动
-
-    ```shell
-    systemctl start mysqld或service mysqld start # 启动mysql
-    systemctl enable mysqld # 开机启动mysql
-    systemctl daemon-reload # 重新加载mysql的配置文件
-    ```
-
-12. **启动mysql的时候报错**
-
-    ```shell
-    # Job for mysqld.service failed because the control process exited with error code. See "systemctl status mysqld.service" and "journalctl -xe" for details
-    # 解决办法
-    chown mysql:mysql -R /var/lib/mysql
-    # 之后再启动mysql
-    service mysqld start
-    service mysqld status # 查看mysql状态
-    mysqladmin --version # 查看mysql版本
-    ```
-
-13. 修改数据库密码root密码
-
-    ```shell
-    mysqladmin -u root password "密码" # 从10那步的日志中找
-    ```
-
-14. 若设置密码遇到问题,
-
-    ```shell
-    # ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
-    # 一般该错误是由密码错误引起,只能重置密码,查看3.重置密码
-    ```
+```shell
+find / -name mysql # 查找系统中所有关于mysql的文件夹,之后通过命令删除
+```
 
 
 
-### 1.2.2 压缩包安装
+## 安装MySQL
+
+
+
+### rpm安装
+
+* 进入https://dev.mysql.com/downloads/repo/yum/,下载mysql的rpm包
+* 根据linux版本选择mysql版本,点击download
+* 页面跳转之后会需要登录,可以不登陆,直接点击左下方的No thanks,just start download或者直接右键点击该文件,复制连接地址
+* 若是复制链接地址的,需要在linux中使用wget下载该文件
+
+```shell
+wget https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+```
+
+* 若是直接下载的,可以把下载后的文件上传到linux中,此处下载的文件名为mysql80-community-release-el7-3.noarch.rpm,版本不一样,可能文件名不一样
+* 安装镜像
+
+```shell
+rpm -ivh mysql80-community-release-el7-3.noarch.rpm
+```
+
+* 升级系统上的mysql软件包
+
+```shell
+yum update mysql-server
+```
+
+* 安装mysql
+
+```shell
+yum install mysql-server
+```
+
+* 安装成功之后会自动将mysql用户和mysql用户组添加到mysql中
+* 设置mysql权限
+
+```shell
+chown mysql:mysql -R /var/lib/mysql
+```
+
+* 初始化mysql
+
+```shell
+mysqld --initialize # 初始化完成之后会生成密码,该密码在/var/log/mysqld.log中
+grep "password" /var/log/mysqld.log # 查找安装时的默认密码
+```
+
+* 启动mysql,并设置开机启动
+
+```shell
+systemctl start mysqld或service mysqld start # 启动mysql
+systemctl enable mysqld # 开机启动mysql
+systemctl daemon-reload # 重新加载mysql的配置文件
+```
+
+* **启动mysql的时候报错**
+
+```shell
+# Job for mysqld.service failed because the control process exited with error code. See "systemctl status mysqld.service" and "journalctl -xe" for details
+# 解决办法
+chown mysql:mysql -R /var/lib/mysql
+# 之后再启动mysql
+service mysqld start
+service mysqld status # 查看mysql状态
+mysqladmin --version # 查看mysql版本
+```
+
+* 修改数据库密码root密码
+
+```shell
+mysqladmin -u root password "密码" # 从10那步的日志中找
+```
+
+* 若设置密码遇到问题,
+
+```shell
+# ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+# 一般该错误是由密码错误引起,只能重置密码,查看3.重置密码
+```
+
+
+
+### 压缩包安装
 
 1. 进入[mysql下载页](https://dev.mysql.com/downloads/mysql/),选择linux-Generic,选择下载版本**Linux - Generic (glibc 2.12) (x86, 64-bit), TAR**(根据需求选择),点击download进入下载页
 
@@ -163,46 +163,49 @@
    vi /etc/init.d/mysqld # 价格datadir和basedir的目录改成自己的
    ```
 
-### 1.2.3 启动数据库
+###  启动数据库
 
-1. service mysqld start
-2. systemctl start mysqld
-3. service mysqld restart
-4. systemctl  restart mysqld
+* service mysqld start/systemctl start mysqld
 
-
-
-### 1.2.4 停止数据库
-
-1. service mysqld stop
-2. systemctl stop mysqld
-3. mysqladmin -uroot -p123456 shutdown
-4. /etc/init.d/mysqld stop
-5. kill -USER2 \`cat path/pid\`:不要用这种方法,可能造成数据丢失
+* service mysqld restart/systemctl  restart mysqld
 
 
 
-### 1.2.5 多实例
+### 停止数据库
+
+* service mysqld stop/systemctl stop mysqld
+
+* mysqladmin -uroot -p123456 shutdown
+
+* /etc/init.d/mysqld stop
+
+* kill -USER2 \`cat path/pid\`:不要用这种方法,可能造成数据丢失
+
+
+
+### 多实例
 
 > 一台机器上开多不同的服务端口,运行多个Mysql服务进程,这些Mysql多实例公用一套安装程序,使用相同的/不同的my.cnf配置,启动程序,数据文件
 
-配置多个数据目录,多个配置文件及多个启动程序实现多实例
+* 配置多个数据目录,多个配置文件及多个启动程序实现多实例
 
-多实例启动mysql
+* 多实例启动mysql
 
+```shell
 mysqld_safe --defaults-file=/app/mysql/data/3306/my.cnf 2>&1 > /dev/null &
-
 mysqld_safe --defaults-file=/app/mysql/data/3307/my.cnf 2>&1 > /dev/null &
+```
 
-多实例停止mysql
+* 多实例停止mysql
 
+```shell
 mysqladmin -uroot -p123456 -S /app/mysql/data/3306/mysql.sock shutdown
-
 mysqladmin -uroot -p123456 -S /app/mysql/data/3307/mysql.sock shutdown
+```
 
 
 
-## 1.3 修改密码
+##  修改密码
 
 1. 在mysql环境外
 
@@ -222,7 +225,7 @@ mysqladmin -uroot -p123456 -S /app/mysql/data/3307/mysql.sock shutdown
 
 
 
-## 1.4 忘记密码
+## 忘记密码
 
 ```shell
 # 停止mysql
@@ -257,7 +260,7 @@ FLUSH PRIVILEGES;
 
 
 
-## 1.5 登录加密
+## 登录加密
 
 1. **注意打开远程访问时,mysql8之前的版本和8以后的版本不一样,因为登录时密码的加密方式不一样.MYSQL_NATIVE_PASSWORD是5的加密方式,8的加密方式改成了caching_sha2_password**,若是用远程访问工具登录数据库时,需要做部分修改
 
@@ -294,7 +297,7 @@ FLUSH PRIVILEGES;
 
 
 
-## 1.6 配置文件
+## 配置文件
 
 > mysqld --help --verbose|grep -A 1 'Default options':查看mysql读取配置文件的顺序,不同系统顺序不一样
 
@@ -406,7 +409,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-## 1.7 字符集
+## 字符集
 
 * 在安装时指定服务端和客户端的字符集,一般utf8或utfmb4
 
@@ -471,7 +474,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-## 1.8 开启远程访问
+## 开启远程访问
 
 1. 登录数据库
 
@@ -503,6 +506,52 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
+# Windows安装
+
+* 下载压缩包到自定义目录,解压之后得到目录如:E:\mysql-8.0.24
+* 进入mysql目录新建data和my.ini文件,data为mysql的数据目录,my.ini为配置文件,内容如下
+
+```ini
+[mysqld]
+# 设置3306端口
+port=3306
+# 设置mysql的安装目录
+basedir=E:\\mysql-5.7.22-winx64
+# 设置mysql数据库的数据的存放目录
+datadir=E:\\mysql-5.7.22-winx64\\data
+# 允许最大连接数
+max_connections=200
+# 允许连接失败的次数。这是为了防止有人从该主机试图攻击数据库系统
+max_connect_errors=10
+# 服务端使用的字符集默认为UTF8
+character-set-server=utf8mb4
+# 创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+[mysql]
+# 设置mysql客户端默认字符集
+default-character-set=utf8mb4
+[client]
+# 设置mysql客户端连接服务端时默认使用的端口
+port=3306
+default-character-set=utf8mb4
+```
+
+* 配置环境变量:MYSQL_HOME=E:\mysql-8.0.24,加入Path中:%MYSQL_HOME%\bin
+
+* 进入E:\mysql-8.0.24\bin,执行以下命令进行数据库初始化
+
+```mysql
+mysqld --initialize --user=mysql --console
+```
+
+* 初始化时会将root密码输出到控制台中,登录时需要使用
+* 将服务添加到windows启动任务中:mysqld -install
+* 启动:net start mysql
+* 登录数据库,使用刚才的密码
+* 修改密码:ALTER USER root@localhost IDENTIFIED BY '123456'; 
+
+
+
 # 数据库引擎
 
 > 主要介绍MyISAM和InnoDB,还有其他类型,用的不多.mysql5.5之前默认是MyISAM,之后是InnoDB
@@ -512,9 +561,9 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-## 1 MyISAM
+## MyISAM
 
-### 1.1 概述
+### 概述
 
 * 不支持外键,不支持事务
 * 只能表锁,即使操作一条数据时也会锁住整个表,不适合高并发
@@ -526,7 +575,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-### 1.2 适用场景
+### 适用场景
 
 * 适用于不需要事务的生产场景,一般是读数据比较多的应用
 * 并发相对较低的业务
@@ -534,7 +583,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-### 1.3 优化
+### 优化
 
 * 设置合适的索引
 * 调整速写优先级,根据实际需求确保重要操作更优先执行
@@ -547,9 +596,9 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-## 2 InnoDB
+## InnoDB
 
-### 2.1 概述
+###  概述
 
 * 支持外键,支持事务,支持多版本读
 * 行锁,操作时只锁某一行,不对其他行有影响,适合高并发,通过索引实现.但是全表扫描时仍然会升级成表锁,同时需要注意间隙锁的影响
@@ -561,7 +610,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-### 2.2 适用场景
+### 适用场景
 
 * 需要事务支持的业务,具有较好的事务特性
 * 行级锁定对高并发有很好的适应能力,但需要确保查询是通过索引完成
@@ -570,7 +619,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-### 2.3 优化
+### 优化
 
 * 主键尽可能小,避免给secondary index带来过大的空间负担
 * 避免全表扫描,会使用表锁
@@ -583,7 +632,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 # 权限
 
-## 1 用户信息
+## 用户信息
 
 1. 用户信息表:mysql.user
 2. 刷新权限:FLUSH PRIVILEGES;
@@ -606,9 +655,9 @@ DROP mysql.USER username;
 
 
 
-## 2 权限操作
+## 权限操作
 
-### 2.1 赋权
+### 赋权
 
 GRANT 权限列表 ON dbname.tablename TO 'username'@'ip';
 
@@ -627,7 +676,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 2.2 撤销权限
+### 撤销权限
 
 1. 单个权限:REVOKE 权限列表 ON tablename FROM username;
 2. 所有权限:REVOKE ALL PRIVILEGES GRANT OPTION FROM username;
@@ -635,7 +684,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 2.3 权限层级
+### 权限层级
 
 1. 要使用GRANT或REVOKE,您必须拥有GRANT OPTION权限,并且您必须用于您正在授予或撤销的权限
 
@@ -655,7 +704,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 2.4 权限列表
+### 权限列表
 
 * ALL [PRIVILEGES]:设置除GRANT OPTION之外的所有简单权限
 * ALTER:允许使用ALTER TABLE
@@ -688,9 +737,9 @@ SHOW GRANTS FOR username;
 
 # 语法
 
-## 1 基础语法
+## 基础语法
 
-### 1 特殊语法
+### 特殊语法
 
 * mysql中使用了关键字,需要用``(反引号)包裹起来
 
@@ -735,7 +784,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 2 系统语法
+### 系统语法
 
 * SHOW DATABASES:查看所有的数据库
 * USE dbname:使用名称为dbname数据库
@@ -768,9 +817,9 @@ SHOW GRANTS FOR username;
 
 
 
-## 2 常用函数
+## 常用函数
 
-### 1 通用函数
+### 通用函数
 
 * SELECT database(),now(),user(),version():查看mysql当前数据库,时间,登录用户,版本号
 * IFNULL(exp1,exp2):若exp1表达式为null,则使用exp2的值,若不为null,则使用exp1的值
@@ -780,7 +829,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 2 字符串函数
+### 字符串函数
 
 * CONCAT(str1,str2...):直接将字符串拼接
 
@@ -835,7 +884,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 3 数学函数
+### 数学函数
 
 * ABS(x):返回x的绝对值
 
@@ -870,7 +919,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 4 时间函数
+### 时间函数
 
 ```mysql
 # %Y:4位年
@@ -927,9 +976,9 @@ SHOW GRANTS FOR username;
 
 
 
-### 5 流程控制函数
+### 流程控制函数
 
-#### 1 IF
+#### IF
 
 ```mysql
 # 第一种形式,只有2种结果
@@ -944,7 +993,9 @@ ELSE
 END IF
 ```
 
-#### 2 CASE WHEN
+
+
+#### CASE WHEN
 
 ```mysql
 # 第一种形式,该方式适用于等值比较
@@ -962,7 +1013,7 @@ END
 
 
 
-#### 3 WHILE
+#### WHILE
 
 ```mysql
 [label:]WHILE cnd1 DO # label可有无,主要是用来跳出循环时使用.cnd1为循环的条件
@@ -977,7 +1028,7 @@ END WHILE[label]
 
 
 
-#### 4 REPEAT
+#### REPEAT
 
 ```mysql
 [label:]REPEAT  # label可有无,主要是用来跳出循环时使用
@@ -993,7 +1044,7 @@ END REPEAT[label]
 
 
 
-## 3 自定义变量
+## 自定义变量
 
 * 自定义变量只在当前会话有效,只能在定义了之后使用
 * SET/SELECT @var_name=value:声明一个变量并给变量赋值
@@ -1002,7 +1053,7 @@ END REPEAT[label]
 
 
 
-## 4 局部变量
+## 局部变量
 
 * BEGIN...END:语句块,可以在其中写多条语句,一般用于逻辑比较复杂的存储过程等
 * DECLARE @var_name[,...] type [default]:声明局部变量,初始化值可以是常数或表达式,不赋值则为null.
@@ -1011,7 +1062,7 @@ END REPEAT[label]
 
 
 
-## 5 触发器
+## 触发器
 
 * TRIGGER:触发器,主要是监听表中记录的增删改
 * CREATE TRIGGER triggername triggertime triggerevent ON tablename FOR EACH ROW trigger_sql
@@ -1023,7 +1074,7 @@ END REPEAT[label]
 
 
 
-## 6 方法
+## 方法
 
 * CREATE FUNCTION func_name(参数列表) RETURNS 返回值类型 BEGIN ...sql逻辑... END:创建一个方法,必须有且仅有一个返回值
 
@@ -1049,7 +1100,7 @@ END REPEAT[label]
 
 
 
-## 7 存储过程
+## 存储过程
 
 * CREATE PROCEDURE sp_name (参数列表) BEGIN ...sql逻辑... END:创建存储过程
 
@@ -1076,7 +1127,7 @@ END REPEAT[label]
 
 # 备份还原
 
-## 1 备份
+## 备份
 
 ```mysql
 # 直接输入用户名和密码进行备份,username是登录的用户名,password是登录的密码,dbname是数据库名
@@ -1122,7 +1173,7 @@ CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 
 
 
-## 2 还原
+## 还原
 
 ```shell
 # 非压缩sql文件,在不登录mysql时直接恢复
@@ -1160,7 +1211,7 @@ gizp -d sql_bak_dbname.sql.gz # 之后再用上面的方法恢复
 
 
 
-## 3 导出表数据
+## 导出表数据
 
 ```mysql
 select * into outfile 文件地址 from tablename;
@@ -1168,7 +1219,7 @@ select * into outfile 文件地址 from tablename;
 
 
 
-## 4 导入数据
+## 导入数据
 
 ```mysql
 load data [local] infile 文件地址 into table tablename;
@@ -1176,7 +1227,7 @@ load data [local] infile 文件地址 into table tablename;
 
 
 
-## 5 定时备份
+## 定时备份
 
 1. 创建备份脚本目录:mkdir  -p  /bak/tasks,新建mysql备份目录mkdir  -p  /bak/mysql
 
@@ -1204,13 +1255,9 @@ load data [local] infile 文件地址 into table tablename;
 
 
 
-
-
-
-
 # 表检查
 
-## 1 检查表错误
+## 检查表错误
 
 ```mysql
 CHECK TABLE tablename1,tablename2... [option]
@@ -1219,7 +1266,7 @@ CHECK TABLE tablename1,tablename2... [option]
 
 
 
-## 2 优化表,整理数据文件碎片
+## 优化表,整理数据文件碎片
 
 ```mysql
 OPTIMIZE [LOCAL|NO_WRITE_TO_BINLOG] TABLE tablename1,tablename2...
@@ -1227,7 +1274,7 @@ OPTIMIZE [LOCAL|NO_WRITE_TO_BINLOG] TABLE tablename1,tablename2...
 
 
 
-## 3 修复表
+## 修复表
 
 ```mysql
 REPAIR [LOCAL|NO_WRITE_TO_BINLOG] TABLE tablename1,tablename2... [QUICK,EXTENDED,USE_FRM]
@@ -1235,7 +1282,7 @@ REPAIR [LOCAL|NO_WRITE_TO_BINLOG] TABLE tablename1,tablename2... [QUICK,EXTENDED
 
 
 
-## 4 分析表和存储表的关键字分布
+## 分析表和存储表的关键字分布
 
 ```mysql
 ANALYZE [LOCAL|NO_WRITE_TO_BINLOG] TABLE tablename1,tablename2
@@ -1243,7 +1290,7 @@ ANALYZE [LOCAL|NO_WRITE_TO_BINLOG] TABLE tablename1,tablename2
 
 
 
-## 5 分析sql语句
+## 分析sql语句
 
 ```mysql
 EXPLAIN select ... # explain后接sql语句
@@ -2007,7 +2054,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 # 日志
 
-## 1 binlog
+## binlog
 
 > 默认是不开启的,是一个顺序读写的日志,记录**所有数据库**增删改,用于主从,数据恢复等
 
@@ -2023,7 +2070,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 2 error
+## error
 
 > 默认是关闭的,记录严重的警告和错误信息,每次mysqld启动和关闭的详细信息
 
@@ -2032,7 +2079,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 3 slow
+## slow
 
 > 用来记录mysql中响应时间超过阈值的语句,具体指运行时间超过long_query_time值的sql
 
@@ -2057,7 +2104,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 4 general_log
+## general_log
 
 > 记录客户端连接信息和执行的sql语句信息,永远也不要在生产环境中开启该功能,验证影响程序.
 
@@ -2076,19 +2123,19 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 5 tmp目录
+## tmp目录
 
 * mysql在查询时生成的临时数据文件,性能比较高
 
 
 
-## 6 事务日志
+## 事务日志
 
 * 
 
 
 
-## 7 DoubleWrite数据
+## DoubleWrite数据
 
 
 
@@ -2096,7 +2143,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 1 事务由来
+## 概述
 
 * 高并发环境下,多个线程对同一行数据进行同时更新时可能出现的问题
 * ACID:原子性(Atomicity),一致性(Consistent),隔离性(Isolation),持久性(Durable)
@@ -2109,7 +2156,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 2 事务的隔离级别
+## 隔离级别
 
 * Read uncommitted:读未提交,级别最低,一个事务可以读取另外一个事务并未提交的数据.可能出现脏读,幻读,不可重复读
 * Read Committed:读提交,大部分数据库采用的默认隔离级别.一个事务的更新操作结果只有在该事务提交之后,另外一个事务才可以读取到该数据更新后的结果.可能出现不可重复读和幻读
@@ -2118,7 +2165,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 3 Mysql数据库锁
+## Mysql数据库锁
 
 * show variables like '%tx_isolation%':查看mysql的默认事物隔离级别
 * show open tables:查看表上加过的锁,in_use为0表示没加锁
@@ -2136,13 +2183,13 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 4 表锁
+## 表锁
 
 * 偏向MyISAM存储引擎,开销小,加锁快,无死锁,锁定粒度大,发生锁冲突的概率最高,并发低
 
 
 
-### 4.1 读锁
+### 读锁
 
 * 若sesson1对a表设置了读锁,那sesson1就只能读a表,不可更新a表,也不可读写其他没有锁定的表
 
@@ -2156,7 +2203,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-### 4.2 写锁
+### 写锁
 
 * sesson1给t1表加写锁,则sesson1可以对t1表读写,但不能对其他没有写锁的表进行读写
 
@@ -2166,7 +2213,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 5 行锁
+## 行锁
 
 * 偏向InnoDB存储引擎,开销大,加锁慢,会出现死锁,锁定粒度最小,发生锁冲突的概率最低,并发度也高
 * InnoDB和MyISAM最大的不同是:支持事务和采用了行锁
@@ -2177,13 +2224,13 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 6 行锁升表锁
+## 行锁升表锁
 
 * 在行锁的情况下,若更新时索引失效,如where子句中的自动类型转换,将会导致行锁变成表锁,此时整个表都只能有一个更新事务,其他事务都会被阻塞
 
 
 
-## 7 间隙锁
+## 间隙锁
 
 > 当用范围条件而不是相等条件检索数据,并请求共享或排他锁时,InnoDB会给符合条件的已有数据记录的索引项加锁,对于键值在条件范围内但并不存在的记录,叫做间隙.InnoDB会对这个间隙加锁,这种锁机制就是间隙锁.
 
@@ -2192,7 +2239,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 6 分析行锁定
+## 分析行锁定
 
 * show status like 'innodb_row_lock%':
   * innodb_row_lock_current_waits:当前正在等待锁定的数量
@@ -2203,7 +2250,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 7 优化
+## 优化
 
 * 尽可能让所有数据检索都通过索引来完成,避免无索引行锁升级为表锁
 * 合理设计索引,尽量缩小锁的范围
@@ -2213,7 +2260,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 8 Snapshot
+## Snapshot
 
 生成一个数据请求时间点的一致性数据快照,并用这个快照来提供一定级别的一致性读取(MVCC:Multi Version Concurrency Control)
 
@@ -2223,7 +2270,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 1 原理
+## 原理
 
 1. slave服务器上执行start slave,开启主从复制开关
 2. 此时,slave服务器的io线程会通过在master上授权的复制用户权限请求连接master服务器,并请求从指定bin_log日志文件的指定位置(日志文件名和位置就是在配置主从复制服务器时执行的changet master命令指定的)之后发送bin_log日志内容
@@ -2235,7 +2282,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 2 正常配置
+## 正常配置
 
 1. 每个slave只有一个master,每个master可以有多个slave
 
@@ -2313,7 +2360,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 3 Show Slave Status
+## Show Slave Status
 
 * connecting to master:线程正试图连接主服务器
 * checking master version:检查版本,建立同主服务器之间的连接后立即临时出现的状态
@@ -2325,7 +2372,7 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 4 简单配置
+## 简单配置
 
 * 配置文件的修改同2正常配置,不同的是进行主从复制的方式
 
@@ -2341,9 +2388,9 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
-## 5 主从故障
+## 主从故障
 
-### 1 第一种
+### 第一种
 
 停止主从,跳过故障点,重新开启主从
 
@@ -2357,13 +2404,13 @@ start slave;
 
 
 
-### 2 第二种
+### 第二种
 
 配置slave-skip-errors,该参数表示跳过指定错误码的错误,错误码可参考mysql文档
 
 
 
-### 3 第三种
+### 第三种
 
 主库损坏,备份不可用.若只有一个从库,直接用从库的数据恢复.若有多个从库,查看每一个从库的master.info文件,判断那一个对主库的复制位置更新,POS更大就用那一个
 
@@ -2386,17 +2433,17 @@ start slave;
 
 
 
-### 4 半同步
+### 半同步
 
 
 
-## 6 HA
+## HA
 
 Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-## 7 延迟
+## 延迟
 
 * 分库,将一个主库拆分为4个主库,每个主库的写并发就500/s,此时主从延迟可忽略
 * 打开mysql支持的并行复制,多个库并行复制
@@ -2465,7 +2512,7 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-## 1 概述
+## 概述
 
 * 通过修改heartbeat的配置文件,可以指定那一台heartbeat服务器作为主服务器,则另外一台将自动改成热备服务器,然后再热备服务器上配置heartbeat守护程序来监听来自主服务器的心跳消息.如果热备服务器在指定时间内没有监听到主服务器的心跳,就会启动故障转义程序,并取得主服务器上的相关资源服务的所有权,替代主服务器继续不间断的提供服务,从而达到高可用的目的
 * heartbeat既可以有主从模式,也可以有主主模式
@@ -2474,7 +2521,7 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-### 1.1 脑裂
+## 脑裂
 
 > 主备都检测到对方发生了故障,然后进行资源转移,实际上主备都是正常的,结果就造成多主的现象,而且主备都使用相同的VIP(virtual ip:虚拟IP),造成ip冲突,即便不IP冲突,也会造成数据在主备上不一致的问题
 
@@ -2492,7 +2539,7 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-### 1.2 消息类型
+## 消息类型
 
 * 心跳小心:约150字节的数据包,可能为单播,广播或多播,控制心跳频率及出现故障要等待多久进行故障转移
 
@@ -2504,7 +2551,7 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-### 1.3 配置文件
+## 配置文件
 
 * ha.cf:参数配置文件,配置一些基本参数
 * authkey:认证文件,高可用服务之间根据对端的authkey,对对端进行认证
@@ -2518,7 +2565,7 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 >
 > 只不过drbd是基于文件系统底层的,即block层级同步,而rsync+inotify是在文件系统上的实际物理文件的同步,因此,drbd效率更高,效果更好
 
-## 1 概述
+## 概述
 
 * drbd工作位置是在文件系统层级以下,比文件系统更加靠近操作系统内核以及IO栈.
 * 在基于drbd的高可用(HA)两台服务器主机中,当我们讲数据写入到本地磁盘系统时,数据还会被实时的发送到网络中另外一个主机上,并以相同的形式记录在另一个磁盘系统中,使得主备保持实时数据同步
@@ -2528,14 +2575,14 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-## 2 生产应用模式
+## 生产应用模式
 
 * 单主模式:就是主备模式,典型的高可用集群方案
 * 复制模式:需要采用共享集群文件系统,如GFS,OCFS2,用于需要从2个节点并发访问数据的场合
 
 
 
-## 3 同步复制协议
+## 同步复制协议
 
 * 协议A:异步复制协议,本地写成功之后立即返回,数据放在发送buffer中,可能丢失
 * 协议B:内存同步(半同步)复制协议.本地写成功并将数据发动对方后立即返回,如果双机掉电,可能丢失数据
@@ -2544,7 +2591,7 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-## 4 相关数据同步工具
+## 相关数据同步工具
 
 * rsync:实时同步工具sersync,inotify,lsyncd
 * scp

@@ -1,10 +1,12 @@
 package com.wy.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wy.base.AbstractService;
 import com.wy.mapper.UserMapper;
 import com.wy.model.User;
 import com.wy.service.UserService;
@@ -16,7 +18,8 @@ import com.wy.service.UserService;
  * @date 2021-04-08 13:56:03
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class UserServiceImpl implements UserService {
+@Service
+public class UserServiceImpl extends AbstractService<User, Long> implements UserService {
 
 	@Autowired
 	private UserMapper userMapper;
@@ -36,5 +39,13 @@ public class UserServiceImpl implements UserService {
 		Page<User> selectPage = userMapper.selectPage(page, query);
 		// 分页数据
 		selectPage.getRecords();
+	}
+
+	@Override
+	public Object resetPwd(User user) {
+		User detail = baseMapper.selectById(user.getUserId());
+		System.out.println(user.getPassword());
+		System.out.println(detail.getPassword());
+		return null;
 	}
 }

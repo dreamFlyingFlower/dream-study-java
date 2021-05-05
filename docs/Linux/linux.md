@@ -197,6 +197,45 @@ init num:控制台中直接修改运行级别
   * -h:获得帮助
   * -d num:显示用户进程状态和进程控制,每num分钟刷新一次
   * -c:显示整个命令行的信息
+  * 结果第一行:
+    * top:当前时间
+    * up:机器运行了多少时间
+    * users:当前有多少用户
+    * load average:一段时间内,CPU正在处理以及等待处理的进程数之和,分别是1,5,15分钟的负载统计值
+  * 结果第二行:
+    * Tasks:当前有多少进程
+    * running:正在运行的进程,越多表示服务器压力越大
+    * sleeping:正在休眠的进程
+    * stopped:停止的进程
+    * zombie:僵尸进程
+  * 结果第三行:
+    * us:用户进程占CPU的使用率,长期过高,表明用户进程占用了大量CPU时间
+    * sy:系统进程占CPU的使用率
+    * ni:用户进程空间改变过优先级
+    * id:空闲CPU占用率
+    * wa:等待输入输出的CPU时间百分比
+    * hi:硬件的中断请求
+    * si:软件的中断请求
+    * st:steal time
+  * 结果第四行,第五行:
+    * 分别是内存信息和swap(内存交换分区)信息,所有程序的运行都是在内存中进行的
+    * 当内存的free变少的时候,其实我们并不需要太紧张,真正需要看的是Swap中的used信息
+    * Swap分区是由硬盘提供的交换区,当物理内存不够用的时候,操作系统才会把暂时不用的数据放到Swap中.所以当这个数值变高的时候,说明内存是真的不够用了
+  * 第五行以下:
+    * PID:进程id
+    * USER:进程所有者
+    * PR:优先级.数值越大优先级越高
+    * NI:nice值,负值表示高优先级,正值表示低优先级
+    * VIRT:进程使用的虚拟内存总量
+    * SWAP:进程使用的虚拟内存中被换出的大小
+    * RES:进程使用的,未被换出的物理内存大小
+    * SHR:共享内存大小
+    * SHR:共享内存大小
+    * S:进程状态.D表示不可中断的睡眠状态,R表示运行,S表示睡眠,T表示跟踪/停止,Z表示僵尸进程
+    * %CPU:上次更新到现在的CPU占用百分比 
+    * %MEM:进程使用的物理内存百分比 
+    * TIME+:进程使用的CPU时间总计,单位1/100秒
+    * COMMAND:命令名/命令行
   
 * cat /proc/meminfo:查看内存等系统信息
 
@@ -544,7 +583,7 @@ init num:控制台中直接修改运行级别
     * 闪烁:'\E[31;5m'
   
     ```shell
-  echo -e \E[1;31m esserew\E[0m # 输出红色的esserew
+    echo -e \E[1;31m esserew\E[0m # 输出红色的esserew
     ```
   
 * wc [] filename:统计文本文档的行数,单词数,字符数(包括空格)
@@ -1276,14 +1315,10 @@ sort -t " " -k2.1,2.3 # 按空格分隔文件行,用第2列的第一个字符到
 
 # 防火墙
 
-* systemctl start firewalld.service:开启防火墙.centos7安装之后默认是开启的
-* service firewalld start:同上
-* systemctl stop firewalld.service:停止防火墙,但是重启之后仍会打开
-* service firewalld stop:同上
-* systemctl disable firewalld.service:彻底关闭防火墙,重启之后也不会打开防火墙
-* service firewalld disable:同上
-* systemctl status firewalld.service:查看防火墙状态
-* service firewalld status:同上
+* systemctl start firewalld.service/service firewalld start::开启防火墙.centos7安装之后默认是开启的
+* systemctl stop firewalld.service/service firewalld stop:停止防火墙,但是重启之后仍会打开
+* systemctl disable firewalld.service/service firewalld disable:彻底关闭防火墙,重启之后也不会打开防火墙
+* systemctl status firewalld.service/service firewalld status:查看防火墙状态
 
 
 
@@ -1801,7 +1836,6 @@ location /{ # 请求URI
       proxy_pass http://name
   }
   ```
-  
 
 
 ## Keepalived
@@ -1861,5 +1895,4 @@ service keepalived start # 启动
   	protocol TCP # 协议类型
   }
   ```
-
 

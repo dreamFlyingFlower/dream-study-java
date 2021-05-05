@@ -21,7 +21,7 @@ import com.github.pagehelper.PageInfo;
 import com.wy.collection.ListTool;
 import com.wy.database.Sort;
 import com.wy.database.Unique;
-import com.wy.excel.ExcelModelUtils;
+import com.wy.excel.ExcelModelTools;
 import com.wy.lang.NumberTool;
 import com.wy.lang.StrTool;
 import com.wy.result.Result;
@@ -299,7 +299,7 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 		Result<List<T>> entitys = getEntitys(t);
 		String excelName = StrTool.isBlank(request.getParameter("excelName")) ? "数据导出"
 				: request.getParameter("excelName");
-		ExcelModelUtils.getInstance().exportExcel(entitys.getData(), response, excelName);
+		ExcelModelTools.getInstance().exportExcel(entitys.getData(), response, excelName);
 	}
 
 	@Override

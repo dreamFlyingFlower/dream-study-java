@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.wy.base.BaseMapper;
+import com.wy.base.BaseMappers;
 import com.wy.model.Depart;
 
 /**
@@ -15,7 +15,7 @@ import com.wy.model.Depart;
  * @git {@link https://github.com/mygodness100}
  */
 @Mapper
-public interface DepartMapper extends BaseMapper<Depart, Long> {
+public interface DepartMapper extends BaseMappers<Depart, Long> {
 
 	/**
 	 * 根据角色编号查询该角色所属部门

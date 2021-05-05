@@ -5,14 +5,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import com.wy.io.IOUtils;
+import com.wy.io.IOTool;
+import com.wy.result.ResultException;
 
 /**
  * 当需要重复使用request请求的inputstream时可使用此类
@@ -31,10 +31,11 @@ public class MultiUseHttpReqIS extends HttpServletRequestWrapper {
 		InputStream is = null;
 		try {
 			is = request.getInputStream();
+			body = IOTool.toByteArray(is);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		body = IOUtils.readIO(is).getBytes(StandardCharsets.UTF_8);
+		throw new ResultException();
 	}
 
 	@Override

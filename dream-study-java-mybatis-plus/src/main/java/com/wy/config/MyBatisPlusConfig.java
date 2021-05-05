@@ -3,6 +3,8 @@ package com.wy.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 
 /**
@@ -21,7 +23,9 @@ public class MyBatisPlusConfig {
 	 * @return 分页拦截器
 	 */
 	@Bean
-	public PaginationInnerInterceptor paginationInnerInterceptor() {
-		return new PaginationInnerInterceptor();
+	public MybatisPlusInterceptor paginationInnerInterceptor() {
+		MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+		interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+		return interceptor;
 	}
 }

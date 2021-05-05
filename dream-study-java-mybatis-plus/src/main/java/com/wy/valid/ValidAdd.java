@@ -5,6 +5,6 @@ package com.wy.valid;
  * @author ParadiseWY
  * @date 2019年7月31日 上午9:38:20
  */
-public interface ValidInsert {
+public interface ValidAdd {
 
 }

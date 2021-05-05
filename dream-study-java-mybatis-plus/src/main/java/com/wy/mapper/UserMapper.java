@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.wy.base.BaseMapper;
+import com.wy.base.BaseMappers;
 import com.wy.model.User;
 
 /**
@@ -15,7 +15,7 @@ import com.wy.model.User;
  * @git {@link https://github.com/mygodness100}
  */
 @Mapper
-public interface UserMapper extends BaseMapper<User, Long> {
+public interface UserMapper extends BaseMappers<User, Long> {
 
 	/**
 	 * 根据用户名或邮件地址,手机号查询用户信息,角色信息

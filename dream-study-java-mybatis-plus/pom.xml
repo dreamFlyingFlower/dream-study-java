@@ -41,6 +41,11 @@
 			<artifactId>mybatis-plus-boot-starter</artifactId>
 			<version>3.4.2</version>
 		</dependency>
+		<dependency>
+			<groupId>dream.flying.flower</groupId>
+			<artifactId>dream-tool-third</artifactId>
+			<version>0.0.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -91,6 +96,10 @@
 					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
 		</dependency>
 	</dependencies>
 

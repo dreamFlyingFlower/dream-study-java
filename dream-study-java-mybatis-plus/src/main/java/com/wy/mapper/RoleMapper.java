@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.wy.base.BaseMapper;
+import com.wy.base.BaseMappers;
 import com.wy.model.Role;
 
 /**
@@ -15,7 +15,7 @@ import com.wy.model.Role;
  * @git {@link https://github.com/mygodness100}
  */
 @Mapper
-public interface RoleMapper extends BaseMapper<Role, Long> {
+public interface RoleMapper extends BaseMappers<Role, Long> {
 
 	/**
 	 * 根据用户编号获取角色列表

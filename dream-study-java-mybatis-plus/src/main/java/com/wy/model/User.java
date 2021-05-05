@@ -13,7 +13,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.wy.valid.ValidEdit;
 
 import io.swagger.annotations.ApiModel;
@@ -49,7 +50,7 @@ public class User implements Serializable {
 	 */
 	@ApiModelProperty("用户编号")
 	@NotNull(groups = ValidEdit.class)
-	@TableId(value="user_id",type = IdType.AUTO) // 指定主键,指定主键生成方式
+	@TableId(value = "user_id", type = IdType.AUTO) // 指定主键,指定主键生成方式
 	private Long userId;
 
 	/**
@@ -65,7 +66,7 @@ public class User implements Serializable {
 	 * 密码,md5加密
 	 */
 	@ApiModelProperty("密码,md5加密")
-	@JsonIgnore
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
 
 	/**
@@ -155,29 +156,34 @@ public class User implements Serializable {
 	 * 用户登录成功后返回的token
 	 */
 	@ApiModelProperty("用户登录成功后返回的token")
+	@TableField(exist = false)
 	private String token;
 
 	/**
 	 * 用户存入token到redis中的时间
 	 */
 	@ApiModelProperty("用户存入token到redis中的时间")
+	@TableField(exist = false)
 	private Date loginTime;
 
 	/**
 	 * 部门对象
 	 */
 	@ApiModelProperty("部门对象")
+	@TableField(exist = false)
 	private Depart depart;
 
 	/**
 	 * 用户扩展信息
 	 */
 	@ApiModelProperty("用户扩展信息")
+	@TableField(exist = false)
 	private Userinfo userinfo;
 
 	/**
 	 * 用户角色对象
 	 */
 	@ApiModelProperty("用户角色对象")
+	@TableField(exist = false)
 	private List<Role> roles;
 }

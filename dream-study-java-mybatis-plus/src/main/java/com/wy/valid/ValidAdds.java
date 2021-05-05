@@ -8,7 +8,7 @@ import javax.validation.groups.Default;
  * @author ParadiseWY
  * @date 2019年7月31日 上午9:38:20
  */
-@GroupSequence({ ValidInsert.class, Default.class })
-public interface ValidInserts {
+@GroupSequence({ ValidAdd.class, Default.class })
+public interface ValidAdds {
 
 }

@@ -18,14 +18,14 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import com.wy.base.AbstractCrl;
+import com.wy.lang.StrTool;
 import com.wy.model.User;
 import com.wy.result.Result;
 import com.wy.service.UserService;
-import com.wy.utils.StrUtils;
 
 @RestController
 @RequestMapping("user")
-public class UserCrl extends AbstractCrl<User> {
+public class UserCrl extends AbstractCrl<User,Long> {
 
 	@Autowired
 	private UserService userService;
@@ -44,7 +44,7 @@ public class UserCrl extends AbstractCrl<User> {
 
 	@GetMapping("checkUsername")
 	public Result<?> checkUsername(String username) {
-		if (StrUtils.isBlank(username)) {
+		if (StrTool.isBlank(username)) {
 			return Result.error("参数错误");
 		}
 		return Result.result(userService.checkUsername(username));
@@ -52,7 +52,7 @@ public class UserCrl extends AbstractCrl<User> {
 
 	@GetMapping("login")
 	public Result<?> login(String username, String password) {
-		if (StrUtils.isBlank(password) || StrUtils.isBlank(username)) {
+		if (StrTool.isBlank(password) || StrTool.isBlank(username)) {
 			return Result.error("用户名或密码不能为空");
 		}
 		return Result.ok(userService.login(username, password));

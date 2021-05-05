@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
-import com.wy.crypto.CryptoUtils;
+import com.wy.collection.ListTool;
+import com.wy.collection.MapTool;
+import com.wy.digest.DigestTool;
 import com.wy.mapper.UserMapper;
 import com.wy.model.User;
 import com.wy.result.Result;
-import com.wy.utils.ListUtils;
-import com.wy.utils.MapUtils;
 
 /**
  * 测试单机版solr的增删改查,SolrCloud搭建比较复杂,使用时和httpsolrclient差不多
@@ -54,7 +54,7 @@ public class SolrService {
 	 */
 	public void addSingle() {
 		SolrInputDocument ds = new SolrInputDocument();
-		ds.addField("id", CryptoUtils.UUID());
+		ds.addField("id", DigestTool.UUID());
 		ds.addField("username", "测试单个新增");
 		try {
 			solrClient.add(collection, ds);
@@ -138,7 +138,7 @@ public class SolrService {
 	public Result<?> search(Map<String, Object> param) {
 		try {
 			List<String> q = new ArrayList<>();
-			if (MapUtils.isNotBlank(param)) {
+			if (MapTool.isNotEmpty(param)) {
 				for (Map.Entry<String, Object> entry : param.entrySet()) {
 					q.add(entry.getKey() + ":" + entry.getValue());
 				}
@@ -146,7 +146,7 @@ public class SolrService {
 			// 查询参数对象，继承了SolrParams抽象类
 			ModifiableSolrParams params = new ModifiableSolrParams();
 			// 查询条件
-			params.add("q", ListUtils.isNotBlank(q) ? String.join(" and ", q) : "*:*");
+			params.add("q", ListTool.isNotEmpty(q) ? String.join(" and ", q) : "*:*");
 			// 这里的分页和mysql分页一样
 			params.add("start", "0");
 			params.add("rows", "10");
@@ -157,7 +157,7 @@ public class SolrService {
 
 			SolrQuery cnds = new SolrQuery();
 			// 设置查询条件
-			cnds.set("q", ListUtils.isNotBlank(q) ? String.join(" and ", q) : "*:*");
+			cnds.set("q", ListTool.isNotEmpty(q) ? String.join(" and ", q) : "*:*");
 			// 排序
 			cnds.addSort("id", ORDER.asc);
 			// 分页,和mysql一样
