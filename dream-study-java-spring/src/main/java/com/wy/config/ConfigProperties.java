@@ -7,8 +7,11 @@ import javax.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.env.RandomValuePropertySource;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import lombok.Getter;
@@ -17,21 +20,30 @@ import lombok.Setter;
 /**
  * 读取配置文件中的信息
  *
- * {@link @Configuration}:将该类注入到Spring的组件中<br>
+ * {@link @Configuration}:将该类注入到Spring的组件中,和{@link Component}差不多,只不过语义不一样
  * 
- * {@link @ConfigurationProperties}:该类中的属性可以在配置文件中自动提示,<br>
- * 默认读取bootstrap.yml和application.yml中的配置信息,若需要读取其他yml中的信息,需要在上述2个文件中引入<br>
- * 和第一个注解配合使用,Spring启动时会自动引入配置信息,在其他组件中使用配置信息时,注入当前组件即可
+ * 主要配置文件:
+ * 
+ * <pre>
+ * bootstrap.yml:程序启动时必然读取,该配置文件主要是为了微服务中的自动配置服务而使用,用于加载application等配置文件使用
+ * application.yml:若没有配置微服务的远程自动配置服务,必然读取该文件,后于bootstrap.yml读取
+ * application-env.yml:env可以是任意自定义名称,需要在application中引入,否则将不读取
+ * </pre>
+ * 
+ * {@link @ConfigurationProperties}:该类中的属性可以在配置文件中自动提示,注意这些自定义属性最好是配置在application[-env].ym中,
+ * 配置在bootstrap.yml中可能不会读取.和{@link @Configuration}配合使用,Spring启动时会自动引入配置信息
  * 
  * {@link @PropertySource}:需要和ConfigurationProperties}配合使用,读取指定地址的配置,但只能是properties文件
  * 若yml和properties有相同配置,以properties优先使用,properties中没有的才读取yml
  * 
- * 若是没有在配置类中的属性,可以直接通过{@link Value}注解来读取,也可以获取使用了以上2个注解的属性
+ * {@link Value}:可以直接读取配置文件中的属性,不需要在上2个注解中定义
  * 
- * {@link @Validated}:可以对类中的属性进行校验,如email,若有值则必须是一个email,否则报错
+ * {@link @Validated}:可以对类中的属性进行校验,如email,若有值则必须是一个email,否则报错,需要配合{@link @ConfigurationProperties}使用
  * 
- * 配置文件中属性的值可以使用占位符,即使用配置文件中已经存在的其他属性.<br>
+ * 配置文件中属性的值可以使用占位符,即使用配置文件中已经存在的其他属性.如${server.port}.
  * 也可以使用{@link RandomValuePropertySource}中的属性赋值,如config.user-id=${random.uuid}
+ * 
+ * {@link ImportResource}:导入spring的xml配置文件,类似的xml配置可使用{@link Bean}代替
  * 
  * 详见{@link TestConfig#testConfig},application-config.yml
  * 

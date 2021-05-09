@@ -10,13 +10,12 @@ import org.springframework.context.annotation.Configuration;
 import com.wy.config.GlobalWebConfig;
 
 /**
- * SpringBoot整合ServletListener二,需要添加到{@link ServletListenerRegistrationBean}中,并注入到上下文中
+ * SpringBoot整合ServletListener二,需要添加到{@link ServletListenerRegistrationBean}中,并注入到上下文中,不需要添加{@link Configuration}
  *
  * @author ParadiseWY
  * @date 2020-12-08 23:24:55
  * @git {@link https://github.com/mygodness100}
  */
-@Configuration
 public class SecondListener implements ServletContextListener {
 
 	@Override
@@ -33,7 +32,7 @@ public class SecondListener implements ServletContextListener {
 	 * @return 监听器对象
 	 */
 	@Bean
-	public ServletListenerRegistrationBean<SecondListener> getServletListenerRegistrationBean() {
+	public ServletListenerRegistrationBean<SecondListener> secondListener() {
 		ServletListenerRegistrationBean<SecondListener> bean = new ServletListenerRegistrationBean<SecondListener>(
 				new SecondListener());
 		return bean;

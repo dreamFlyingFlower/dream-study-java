@@ -34,7 +34,7 @@ spring:
   servlet:
     multipart:
       # 设置一次请求上传文件的总容量
-      max-request-size: 200M
+      max-request-size: 200MB
     
   messages:
     basename: i18n/messages

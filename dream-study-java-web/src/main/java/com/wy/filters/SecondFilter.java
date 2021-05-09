@@ -16,13 +16,12 @@ import org.springframework.context.annotation.Configuration;
 import com.wy.config.GlobalWebConfig;
 
 /**
- * servlet的拦截器,该方式需要当前类被注入到{@link FilterRegistrationBean}中
+ * servlet的拦截器,该方式需要当前类被注入到{@link FilterRegistrationBean}中,不需要添加{@link Configuration}
  *
  * @author ParadiseWY
  * @date 2019-04-07 10:32:36
  * @git {@link https://github.com/mygodness100}
  */
-@Configuration
 public class SecondFilter implements Filter {
 
 	@Override
@@ -42,14 +41,14 @@ public class SecondFilter implements Filter {
 	}
 
 	/**
-	 * 该方法可以卸载{@link GlobalWebConfig}中,也可以写这里
+	 * 该方法可以写在{@link GlobalWebConfig}中,也可以写这里
 	 * 
 	 * @return 过滤器对象
 	 */
 	@Bean
-	public FilterRegistrationBean<SecondFilter> getServletRegistrationBean() {
+	public FilterRegistrationBean<SecondFilter> secondFilter() {
 		FilterRegistrationBean<SecondFilter> bean = new FilterRegistrationBean<>(new SecondFilter());
-		bean.addUrlPatterns("/second");
+		bean.addUrlPatterns("/secondFilter");
 		return bean;
 	}
 }

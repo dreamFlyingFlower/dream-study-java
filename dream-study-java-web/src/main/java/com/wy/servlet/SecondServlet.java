@@ -12,13 +12,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * SpringBoot整合Servlet方式二,该方式需要当前类被注入到{@link ServletRegistrationBean}中
+ * SpringBoot整合Servlet方式二,该方式需要当前类被注入到{@link ServletRegistrationBean}中,不需要添加{@link Configuration}
  *
  * @author ParadiseWY
  * @date 2020-12-08 19:55:09
  * @git {@link https://github.com/mygodness100}
  */
-@Configuration
 public class SecondServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -29,7 +28,7 @@ public class SecondServlet extends HttpServlet {
 	}
 
 	@Bean
-	public ServletRegistrationBean<SecondServlet> getServletRegistrationBean() {
+	public ServletRegistrationBean<SecondServlet> secondServlet() {
 		ServletRegistrationBean<SecondServlet> bean = new ServletRegistrationBean<>(new SecondServlet());
 		bean.addUrlMappings("/second");
 		return bean;

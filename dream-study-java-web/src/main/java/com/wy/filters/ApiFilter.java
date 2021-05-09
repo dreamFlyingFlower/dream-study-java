@@ -15,9 +15,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.wy.collection.MapTool;
+import com.wy.lang.StrTool;
 import com.wy.result.ResultException;
-import com.wy.utils.MapUtils;
-import com.wy.utils.StrUtils;
 
 /**
  * url拦截器,只有登录和下载资源不需要校验,其他都需要进行校验
@@ -37,17 +37,18 @@ public class ApiFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (request.getRequestURI().startsWith("/user/login") || request.getRequestURI().startsWith("/download/")) {
+		if (request.getRequestURI().startsWith("/user/login") || request.getRequestURI().startsWith("/download/")
+				|| request.getRequestURI().startsWith("/test")) {
 			// 登录和下载资源放过
 			filterChain.doFilter(request, response);
 		} else {
 			// 从redis缓存中检验是否存在某个值,值从请求头的auth中来
 			String auth = request.getHeader("Authentication");
-			if (StrUtils.isBlank(auth)) {
+			if (StrTool.isBlank(auth)) {
 				throw new ResultException("您还未登录,请登录");
 			}
 			Map<Object, Object> entity = redisTemplate.opsForHash().entries(auth);
-			if (MapUtils.isNotBlank(entity)) {
+			if (MapTool.isNotEmpty(entity)) {
 				filterChain.doFilter(request, response);
 			} else {
 				throw new ResultException("您还未登录,请登录");
