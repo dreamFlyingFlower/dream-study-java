@@ -2,18 +2,18 @@ spring:
   profiles:
     active:
     - config
+    - mail
   servlet:
     multipart:
       enabled: true
-      max-file-size: 10M
+      max-file-size: 10MB
   mvc:
     format:
       date: yyyy-MM-dd
       time: HH:mm:ss
       date-time: yyyy-MM-dd HH:mm:ss
     async:
-      request-timeout:
-        seconds: 180
+      request-timeout: 180S
     throw-exception-if-no-handler-found: true
     servlet:
       load-on-startup: 1
@@ -27,8 +27,7 @@ spring:
     # quartz启动时覆盖己存在的Job,这样就不用每次修改targetObject后删除qrtz_job_details表对应记录了
     overwrite-existing-jobs: true
     # 延时启动
-    startup-delay: 
-      seconds: 5
+    startup-delay: 5S
     scheduler-name: paradise-scheduler
     wait-for-jobs-to-complete-on-shutdown: true
     properties: 

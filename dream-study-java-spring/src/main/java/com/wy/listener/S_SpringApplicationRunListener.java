@@ -10,7 +10,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 /**
  * SpringApplicationRunListener:监听器,所有的监听器实现类都在{@link SpringApplication#run}中调用
  * 
- * @apiNote 注意,实现SpringApplicationRunListener时,必须添加一个带2个参数的构造,否则启动失败
+ * 实现SpringApplicationRunListener时,必须添加一个带2个参数的构造,否则启动失败.
+ * SpringApplicationRunListener的实现类不需要手动添加到Spring上下文中,在Spring启动时会自动装配实现类
  * 
  * @author ParadiseWY
  * @date 2020-12-02 19:50:24
@@ -24,7 +25,8 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	 * @param application
 	 * @param args
 	 */
-	public S_SpringApplicationRunListener(SpringApplication application, String[] args) {}
+	public S_SpringApplicationRunListener(SpringApplication application, String[] args) {
+	}
 
 	/**
 	 * spring启动时调用
