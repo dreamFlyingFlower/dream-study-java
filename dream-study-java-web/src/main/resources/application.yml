@@ -38,3 +38,5 @@ spring:
     
   messages:
     basename: i18n/messages
+# 使用actuator监控的时候和thymeleaf等模板引擎可能有冲突,此处没有解决
+#management:#  endpoints:#    web:#      exposure:#        include: "*"

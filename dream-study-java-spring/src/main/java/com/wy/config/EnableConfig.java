@@ -3,6 +3,7 @@ package com.wy.config;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  * 
  * <pre>
  * {@link EnableConfigurationProperties}:自动注入{@link ConfigurationProperties}修饰的配置类,由{@link SpringBootApplication}注入
+ * {@link EnableAspectJAutoProxy}:是否使用cglib作为动态代理的关键jar,默认不使用,该注解已由其他注解注入
  * </pre>
  * 
  * 需要手动注入的注解类:
@@ -24,8 +26,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  * <pre>
  * {@link EnableAsync}:允许使用{@link Async}
  * ->{@link Async}:修饰类或方法,表示类或方法异步执行,相当于开启了一个Runnable线程
+ * 
  * {@link EnableWebSecurity}:启用spring-security机制,允许使用{@link EnableGlobalMethodSecurity}
  * ->{@link EnableGlobalMethodSecurity}:对spring-security进行配置
+ * 
  * {@link EnableScheduling}:允许使用{@link Scheduled}
  * ->{@link Scheduled}:自动使用定时任务配置
  * </pre>

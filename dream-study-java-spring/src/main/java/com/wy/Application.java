@@ -1,10 +1,16 @@
 package com.wy;
 
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.support.AbstractApplicationContext;
 
 /**
  * SpringBoot学习:初始化initialize,listener,自动配置,配置文件.
@@ -34,6 +40,40 @@ import org.springframework.context.annotation.Profile;
  * 
  * 若开启了actuator的shutdown配置,则可以使用post方式远程关闭应用:curl -X POST
  * ip:port/actuator/shutdown
+ * 
+ * SpringBoot启动流程:
+ * 
+ * <pre>
+ * 1.{@link SpringApplication#run(Class, String...)}:构造方法判断是否是SERVLET,REACTIVE,NONE环境
+ * 2.{@link SpringApplication#setInitializers}:加载所有META-INF/spring.factories中的{@link ApplicationContextInitializer}
+ * 3.{@link SpringApplication#setListeners}:加载所有META-INF/spring.factories中的{@link ApplicationListener}
+ * 4.{@link SpringApplication#deduceMainApplicationClass}:推断main所在的类
+ * 5.{@link SpringApplication#run(String...)}:开始执行run()
+ * 6.{@link SpringApplication#configureHeadlessProperty}:设置java.awt.headless系统变量
+ * 7.{@link SpringApplication#getRunListeners}:加载所有META-INF/spring.factories中的{@link SpringApplicationRunListener}
+ * 8.执行所有的{@link SpringApplicationRunListener#starting()}
+ * 9.{@link DefaultApplicationArguments}:实例化ApplicationArguments对象
+ * 10.{@link SpringApplication#prepareEnvironment}:创建Environment
+ * 11.{@link SpringApplication#configureEnvironment}:配置Enviroment,主要是把run()的参数配置到Environment中
+ * 12.执行所有{@link SpringApplicationRunListener#environmentPrepared()}
+ * 13.{@link SpringApplication#configureIgnoreBeanInfo}:设置需要忽略的环境变量
+ * 14.{@link SpringApplication#printBanner}:设置日志打印Banner
+ * 15.{@link SpringApplication#createApplicationContext}:根据环境不同,设置不同的ConfigurableApplicationContext
+ * 16.{@link SpringApplication#getSpringFactoriesInstances}:加载自定义的异常报告
+ * 17.{@link SpringApplication#prepareContext}:预加载ConfigurableApplicationContext
+ * 18.{@link SpringApplication#postProcessApplicationContext}:加载beanNameGenerator,resourceLoade,raddConversionService
+ * 19.{@link SpringApplication#applyInitializers}:回调所有的{@link ApplicationContextInitializer#initialize}
+ * 20.执行所有的{@link SpringApplicationRunListener#contextPrepared()}
+ * 21.{@link SpringApplication#load}:设置beanNameGenerator,resourceLoade,raddConversionService
+ * 22.执行所有的{@link SpringApplicationRunListener#contextLoaded()}
+ * 23.{@link SpringApplication#refreshContext}:调用context的registerShutdownHook(),执行context的refresh(),根据不同环境执行不同的refresh(),
+ * 		最终调用{@link AbstractApplicationContext#refresh()},注册各种Bean以及Spring组件
+ * 24.{@link SpringApplication#afterRefresh}:用户可自定义加载完成的方法
+ * 25.执行所有的{@link SpringApplicationRunListener#started()}
+ * 26.{@link SpringApplication#callRunners}:回调,获取容器中所有的{@link ApplicationRunner},{@link CommandLineRunner},依次调用
+ * 27.执行所有的{@link SpringApplicationRunListener#running()}
+ * 28.返回{@link ConfigurableApplicationContext}
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40

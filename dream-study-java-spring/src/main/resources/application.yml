@@ -58,8 +58,16 @@ spring:
             # 触发器触发失败后再次触发的时间间隔
             misfireThreshold: 12000
             # 数据库表前缀
-            tablePrefix: QRTZ_
-    
+            tablePrefix: QRTZ_  security:    user:      name: admin
+      password: 123456
+management:  endpoints:    web:      exposure:        include:
+       # *表示暴露info,health所有端点        - "*"
+  endpoint:    health:
+      # 默认是NEVER      show-details: ALWAYS
+info:
+  test: test
+  version: 0.0.1
+
 server: 
   port: 5510
   max-http-header-size: 10000000
