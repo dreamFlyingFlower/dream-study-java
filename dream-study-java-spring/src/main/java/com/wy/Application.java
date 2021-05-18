@@ -75,6 +75,22 @@ import org.springframework.context.support.AbstractApplicationContext;
  * 28.返回{@link ConfigurableApplicationContext}
  * </pre>
  * 
+ * {@link SpringApplication#refreshContext()}
+ * ->{@link AbstractApplicationContext#refresh()}
+ * ->{@link AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory}
+ * ->{@link ClassPathBeanDefinitionScanner.scan()}
+ * ->{@link AnnotationConfigUtils.registerAnnotationConfigProcessors()}
+ * -->{@link RootBeanDefinition(ConfigurationClassPostProcessor.class)}:判断加载Configuraion,Import,Component,ComponentScan等
+ * --->{@link ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry()}
+ * --->{@link ConfigurationClassPostProcessor.processConfigBeanDefinitions()}
+ * --->{@link ConfigurationClassUtils.checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
+ * --->{@link ConfigurationClassUtils.isConfigurationCandidate()}:判断是否为Import,Component,ComponentScan,ImportResource
+ * ->{@link AnnotationConfigUtils.registerPostProcessor()}
+ * ->{@link BeanDefinitionRegistry.registerBeanDefinition()}
+ *
+ * {@link AutowiredAnnotationBeanPostProcessor}:加载由{@link Autowired}和{@link Value}注解修饰的成员变量,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化
+ * {@link AnnotationConfigApplicationContext},{@link AnnotationConfigWebApplicationContext}:根据环境不同启动加载{@link Configuration}
+ * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40
  * @git {@link https://github.com/mygodness100}
