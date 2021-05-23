@@ -23,9 +23,16 @@ import java.util.concurrent.TimeUnit;
  * 子类同步方法中又调用了父类的同步方法,也可看作是重入锁<br>
  * 异常:当同步锁中发生异常时,会自动释放锁资源,不会影响其他线程的执行
  * 
- * @author ParadiseWY
+ * 临界区:一种公共资源或共享数据被多个线程使用,但每次只能有一个线程使用,一旦临界区资源被占用,其他线程就必须等待
+ * 死锁:DeadLock,资源之间相互访问,但是因为资源被占用,锁无法释放,造成死锁<br>
+ * 饥饿:Starvation,指某一个或多个线程因种种原因无法获得资源,导致一直无法执行<br>
+ * 无障碍:一种最弱的非阻塞调度,可自由出入临界区,无竞争时,在有限步内完成操作,有竞争时回滚<br>
+ * 无锁:是无障碍的,保证有一个线程可以胜出,例如CAS<br>
+ * 无等待:无锁的,要求所有的线程都必须在有限步内完成<br>
+ * 
+ * @author 飞花梦影
  * @date 2020-10-06 18:39:02
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_Synchronized {
 

@@ -1,9 +1,18 @@
 package com.wy.study;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
+import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
 
 /**
  * {@link Executor}:线程池,可以对线程进行重复利用,减少线程创建和销毁的开销
@@ -23,25 +32,59 @@ import java.util.concurrent.ThreadPoolExecutor;
  * 当线程池中的线程空闲到一定时间时(默认60秒),自动释放线程.缓存线程多数用于测试高并发时,固定线程池的最佳线程数
  * {@link Executors#newScheduledThreadPool}:执行定时任务的线程,底层还是用DelayedQueue
  * 
- * 线程状态:start->就绪,running->正在运行,shuttingdown->正在关闭,优雅关闭,terminated->结束
+ * 线程状态:start()->就绪,running->正在运行,shuttingdown->正在关闭,优雅关闭,terminated->结束
  * 
- * {@link ThreadPoolExecutor}:除了ForkJoinPool之外,所有的线程池的底层都是该类,主要构造参数:<br>
+ * {@link ThreadPoolExecutor}:除了ForkJoinPool之外,所有的线程池的底层都是该类,主要参数及方法:
  * 
- * @apiNote corePoolSize:核心容量,创建好后就准备就绪的线程数量,一直会存在,除非设置了allowCoreThreadTimeOut
- *          maximumPoolSize:最大线程数,控制资源,同时并发的最大数量<br>
- *          keepAliveTime:存活时间,只要线程空闲大于该时间并且maximumPoolSize>corePoolSize就回收空闲线程 unit:时间单位<br>
- *          BlockingQueue:阻塞队列,所有待执行的任务都放在队列中,等待空闲线程取出任务并执行<br>
- *          handler:若队列满了,按照指定的拒绝策略执行任务<br>
+ * <pre>
+ * corePoolSize:核心容量,创建好后就准备就绪的线程数量,一直会存在,除非设置了allowCoreThreadTimeOut
+ * maximumPoolSize:最大线程数,控制资源,同时并发的最大数量.若设置了无限队列,则该参数无效
+ * keepAliveTime:存活时间,只要线程空闲大于该时间并且maximumPoolSize>corePoolSize就回收空闲线程
+ * handler:若队列满了,按照指定的拒绝/饱和策略执行任务
+ * threadFactory:设置创建线程的工厂,可以设置每个创建出来的线程的名字,debug和定位问题时更容易
+ * workQueue:阻塞队列,所有待执行的任务都放在队列中,等待空闲线程取出任务并执行,由以下几种队列可选
+ * ->{@link ArrayBlockingQueue}:数组队列,按FIFO(先进先出)排序元素
+ * ->{@link LinkedBlockingQueue}:链表队列,按FIFO(先进先出)排序元素,Executors.newFixedThreadPool()使用该队列
+ * ->{@link SynchronousQueue}:不存储元素的队列,每个插入必须等另一个线程调用移除,否则插入一直阻塞,Executors.newCachedThreadPool使用该队列
+ * ->{@link PriorityBlockingQueue}:具有优先级的无限阻塞队列
+ * ctl:线程池的控制状态,用来表示线程池的运行状态(整型的高3位)和运行的worker数量(低29位)
+ * COUNT_BITS:29位的偏移量
+ * CAPACITY:最大容量,2^29 - 1
+ * RUNNING:线程状态,接受新任务并且处理已经进入阻塞队列的任务
+ * SHUTDOWN:不接受新任务,但是处理已经进入阻塞队列的任务
+ * STOP:不接受新任务,不处理已经进入阻塞队列的任务并且中断正在运行的任务
+ * TIDYING:所有的任务都已经终止,workerCount为0,线程转化为TIDYING状态并且调用terminated钩子函数
+ * TERMINATED:terminated钩子函数已经运行完成
+ * mainLock:可重入锁
+ * workers:存放工作线程集合
+ * termination:终止条件
+ * largestPoolSize:最大线程池容量,可重入锁中才有效
+ * completedTaskCount:已完成任务数量
+ * allowCoreThreadTimeOut:是否运行核心线程超时
+ * </pre>
  * 
- * @apiNote 运行流程:<br>
- *          线程池创建,准备好core数量的核心线程,准备接受任务<br>
- *          ->core满了之后将再进来的任务放入阻塞队列中,空闲的core就会自己去阻塞队列获取任务执行
- *          ->阻塞队列满了,就直接开心的线程,最大只能开到maximumPoolSize<br>
- *          ->max满了就用拒绝策略拒绝任务或max都执行完成,有空闲线程,在指定存活时间后,释放max-core这些线程
+ * 线程池运行中线程使用数量变化:
  * 
- * @author ParadiseWY
+ * <pre>
+ * 1.线程池创建,准备好core数量的核心线程,准备接受任务
+ * 2.core满了之后将再进来的任务放入阻塞队列中,空闲的core就会自己去阻塞队列获取任务执行
+ * 3.阻塞队列满了,就直接开新的线程,最大只能开到maximumPoolSize
+ * 4.max满了就用拒绝策略拒绝任务或max都执行完成,有空闲线程,在指定存活时间后,释放max-core这些线程
+ * </pre>
+ * 
+ * 拒绝/饱和策略,当队列和线程池都满了,新任务的执行策略,默认时AbortPolicy策略,可自定义
+ * 
+ * <pre>
+ * {@link AbortPolicy}:直接抛出异常
+ * {@link CallerRunsPolicy}:不在新线程中执行任务,而是由调用者所在的线程来执行
+ * {@link DiscardPolicy}:拒绝新的任务,也不处理,等同于丢失新的任务
+ * {@link DiscardOldestPolicy}:丢失最长时间没有执行的任务,同时尝试执行处理新的任务,如果线程池未关闭
+ * {@link RejectedExecutionHandler}:实现该接口,实现自定义的拒绝策略
+ * </pre>
+ * 
+ * @author 飞花梦影
  * @date 2019-05-11 00:19:31
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_Executor {
 
@@ -69,5 +112,4 @@ public class S_Executor {
 		// 是否已经结束.相当于回收了资源.当该方法返回true时,表示多线程任务都已经完成
 		System.out.println(fixPool.isTerminated());
 	}
-
 }

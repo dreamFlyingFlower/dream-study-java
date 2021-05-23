@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.alibaba.fastjson.JSON;
 
@@ -26,21 +25,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AsyncPoolConfig implements AsyncConfigurer {
 
+	/**
+	 * 在需要使用{@link Async}的地方,该直接的value()值必须是getAsyncExecutor
+	 */
 	@Bean
 	@Override
 	public Executor getAsyncExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(10);
-		executor.setMaxPoolSize(20);
-		executor.setQueueCapacity(20);
-		executor.setKeepAliveSeconds(60);
-		executor.setThreadNamePrefix("ImoocAsync_");
-		executor.setWaitForTasksToCompleteOnShutdown(true);
-		executor.setAwaitTerminationSeconds(60);
-		// 拒绝策略
-		executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
-		executor.initialize();
-		return executor;
+		// 使用自定义的线程池或直接使用系统自带的线程池
+		ThreadPoolLogExecutor threadPoolLogExecutor = new ThreadPoolLogExecutor();
+		// ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		// 配置核心线程数
+		threadPoolLogExecutor.setCorePoolSize(10);
+		// 配置最大线程数
+		threadPoolLogExecutor.setMaxPoolSize(20);
+		// 配置队列大小
+		threadPoolLogExecutor.setQueueCapacity(20);
+		// 配置空闲线程的最大时间,超过该时间,线程将被回收
+		threadPoolLogExecutor.setKeepAliveSeconds(60);
+		// 配置线程名前缀
+		threadPoolLogExecutor.setThreadNamePrefix("getAsyncExecutor_");
+		// 当线程池关闭时,定时任务是否立刻关闭,清空队列,而不等待他们执行完成,默认false,立刻关闭
+		threadPoolLogExecutor.setWaitForTasksToCompleteOnShutdown(true);
+		// 当线程池要关闭时,仍有线程在执行,此时等待的最大时长
+		threadPoolLogExecutor.setAwaitTerminationSeconds(60);
+		// 当线程池中的队列满时,设置拒绝策略
+		threadPoolLogExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+		threadPoolLogExecutor.initialize();
+		return threadPoolLogExecutor;
 	}
 
 	/**

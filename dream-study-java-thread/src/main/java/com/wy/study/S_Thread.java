@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
  * 优先级:{@link Thread#MAX_PRIORITY},{@link Thread#MIN_PRIORITY}
  * 
  * <pre>
- * 线程状态:被创建->start()被条用之后处于就绪状态->运行->阻塞,会释放锁等资源->消亡
- * 从运行到冻结状态可以调用sleep(),wait(),唤醒可调用notify(),notifyAll()
+ * 线程状态:初始化start()->被调用之后处于就绪状态run()->运行,抢到CPU时间片->阻塞,会释放锁等资源->消亡
+ * 从运行到阻塞状态可以调用sleep(),wait(),同步块,唤醒可调用notify(),notifyAll()
  * </pre>
  * 
  * 线程的打断,恢复:Interrupt()
