@@ -10,8 +10,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -59,7 +61,7 @@ public class User implements Serializable {
 	@ApiModelProperty("用户名")
 	@NotBlank(message = "用户账号不能为空")
 	@Size(min = 0, max = 30, message = "用户账号长度不能超过30个字符")
-	@TableField("username") // 指定字段名
+	@TableField(value = "username", condition = SqlCondition.LIKE) // 指定字段名,同时可指定查询时的默认(等值)行为,其他行为可参考SqlCondition
 	private String username;
 
 	/**
@@ -143,13 +145,22 @@ public class User implements Serializable {
 	 * 创建时间
 	 */
 	@ApiModelProperty("创建时间")
+	@TableField(fill = FieldFill.INSERT)
 	private Date createtime;
 
 	/**
 	 * 修改时间
 	 */
 	@ApiModelProperty("修改时间")
+	@TableField(fill = FieldFill.UPDATE)
 	private Date updatetime;
+
+	/**
+	 * 逻辑删除
+	 */
+	@ApiModelProperty("逻辑删除")
+	@TableLogic(value = "1", delval = "2")
+	private Inteter logicDelete;
 
 	/** 非数据库字段 */
 	/**

@@ -10,8 +10,10 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+
 /**
- * WebSocket推送消息到前端
+ * WebSocket推送消息到前端,需要开启{@link EnableWebSocket}
  * 
  * 全双工即双向通讯,本质上是一个额外的TCP连接,建立和关闭时握手使用http协议,其他数据传输不使用http协议,<br>
  * 更加复杂一些,适用于需要进行复杂双向数据通讯的场景,支持大部分主流浏览器

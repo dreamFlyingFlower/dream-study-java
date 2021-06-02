@@ -13,12 +13,14 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * websocket业务
  *
+ * {@link EnableWebSocket}:使用WebSocket功能必须开启该注解
  * {@link ServerEndpoint}:将当前类定义成一个websocket服务器端,注解的值将被用于监听用户连接的终端访问URL地址
  * 
  * @author 飞花梦影

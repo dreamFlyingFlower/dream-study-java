@@ -24,8 +24,10 @@ public class MyBatisPlusConfig {
 	 */
 	@Bean
 	public MybatisPlusInterceptor paginationInnerInterceptor() {
+		// 分页插件
 		MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 		interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+		// FIXME 动态表名解析器,不同版本不同
 		return interceptor;
 	}
 }
