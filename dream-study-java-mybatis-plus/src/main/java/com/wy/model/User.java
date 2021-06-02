@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -157,10 +158,13 @@ public class User implements Serializable {
 
 	/**
 	 * 逻辑删除
+	 * 
+	 * {@link TableField#select()}:定义查询时是否查出该值,只对mybatis-plus内置sql有效
 	 */
 	@ApiModelProperty("逻辑删除")
+	@TableField(select = false)
 	@TableLogic(value = "1", delval = "2")
-	private Inteter logicDelete;
+	private Integer logicDelete;
 
 	/** 非数据库字段 */
 	/**
