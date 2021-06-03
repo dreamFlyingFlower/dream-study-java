@@ -456,6 +456,92 @@ public class RedisUtils {
 	}
 	/*-------------------------------------------hashmap end -------------------------------------------*/
 
+	/*------------------------------------------- zset start -------------------------------------------*/
+	 /**
+     * 有序集合添加
+     *
+     * @param key
+     * @param value
+     * @param scoure
+     */
+    public void zAdd(String key, Object value, double scoure) {
+        redisTemplate.opsForZSet().add(key, value, scoure);
+    }
+
+    /**
+     * 有序集合获取
+     *
+     * @param key
+     * @param scoure
+     * @param scoure1
+     * @return
+     */
+    public Set<Object> rangeByScore(String key, double scoure, double scoure1) {
+        return redisTemplate.opsForZSet().rangeByScore(key, scoure, scoure1);
+    }
+
+    /**
+     * 有序集合获取排名
+     *
+     * @param key 集合名称
+     * @param value 值
+     */
+    public Long zRank(String key, Object value) {
+        return redisTemplate.opsForZSet().rank(key,value);
+    }
+
+
+    /**
+     * 有序集合获取排名
+     *
+     * @param key
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> zRankWithScore(String key, long start,long end) {
+        return redisTemplate.opsForZSet().rangeWithScores(key,start,end);
+    }
+
+    /**
+     * 有序集合添加
+     *
+     * @param key
+     * @param value
+     */
+    public Double zSetScore(String key, Object value) {
+        return redisTemplate.opsForZSet().score(key,value);
+    }
+
+
+    /**
+     * 有序集合添加分数
+     *
+     * @param key
+     * @param value
+     * @param scoure
+     */
+    public void incrementScore(String key, Object value, double scoure) {
+        redisTemplate.opsForZSet().incrementScore(key, value, scoure);
+    }
+
+
+    /**
+     * 有序集合获取排名
+     *
+     * @param key
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> reverseZRankWithScore(String key, long start,long end) {
+        return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, start, end);
+    }
+
+    /**
+     * 有序集合获取排名
+     *
+     * @param key
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> reverseZRankWithRank(String key, long start, long end) {
+        return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+    }
+	/*------------------------------------------- zset end ---------------------------------------------*/
+
 	/*-------------------------------------------过期时间处理 start -------------------------------------------*/
 	/**
 	 * 通过key过期时间处理
