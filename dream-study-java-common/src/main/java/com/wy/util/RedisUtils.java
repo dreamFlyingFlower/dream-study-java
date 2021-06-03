@@ -1,13 +1,14 @@
 package com.wy.util;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Scope;
@@ -18,6 +19,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.util.NumberUtils;
 
@@ -26,32 +29,47 @@ import com.wy.collection.ListTool;
 import com.wy.config.RedisConfig;
 import com.wy.enums.RedisKey;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * redis缓存中设置和获取值,key的类型全部都是string,若是需要特殊类型的key,使用不带后缀的set和get
  * 用什么opsFor类型存,就必须用该类型取,否则会报错
  * 所有set方法后带out的代表会设置超时时间,默认是30分钟;不带out的都是没有过期时间的,最好是设置超时,避免内存溢出
  * 
- * @author wanyang 2018年7月23日
+ * @auther 飞花梦影
+ * @date 2018-07-23 19:50:45
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Component
 @Scope("singleton")
 @ConditionalOnBean({ RedisConfig.class, RedisTemplate.class })
+@Slf4j
 public class RedisUtils {
 
-	protected static final Logger logger = LoggerFactory.getLogger(RedisUtils.class);
+	/** 使用LUA语法笔记redis中的值,并删除当前key,原子性,支持高并发集群 */
+	public static final String SCRIPT_COMPARE_AND_DELETE =
+			"if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
 	@Autowired
 	private StringRedisTemplate template;
+
 	@Autowired
 	private RedisTemplate<Object, Object> redisTemplate;
+
 	@Autowired
 	private ValueOperations<Object, Object> valueOperaions;
+
 	@Autowired
 	private ListOperations<Object, Object> listOperations;
+
 	@Autowired
 	private SetOperations<Object, Object> setOperations;
+
 	@Autowired
 	private HashOperations<Object, Object, Object> hashOperations;
+
+	@Autowired
+	private ZSetOperations<Object, Object> zSetOperations;
 
 	/**
 	 * 直接将传入的key-value值缓存到redis中,不超时
@@ -273,7 +291,7 @@ public class RedisUtils {
 	public void setListLeft(Object key, List<Object> vals) {
 		listOperations.leftPushAll(RedisKey.REDIS_KEY_ARRAY.getKey(key), vals);
 	}
-	
+
 	/**
 	 * 将整个list存入到redis可操作的缓存中,添加到缓存中元素的顺序和原list中元素的数序相反,过期
 	 */
@@ -302,7 +320,7 @@ public class RedisUtils {
 	 */
 	public void setList(Object key, Long index, Object value) {
 		if (listOperations.size(key) == null) {
-			logger.error(String.format("#####ERRER:redis缓存中没有key值为%s的list集合", key));
+			log.error("#####ERRER:redis缓存中没有key值为{}的list集合", key);
 			return;
 		}
 		listOperations.set(RedisKey.REDIS_KEY_ARRAY.getKey(key), index, value);
@@ -457,89 +475,86 @@ public class RedisUtils {
 	/*-------------------------------------------hashmap end -------------------------------------------*/
 
 	/*------------------------------------------- zset start -------------------------------------------*/
-	 /**
-     * 有序集合添加
-     *
-     * @param key
-     * @param value
-     * @param scoure
-     */
-    public void zAdd(String key, Object value, double scoure) {
-        redisTemplate.opsForZSet().add(key, value, scoure);
-    }
+	/**
+	 * 有序集合添加
+	 *
+	 * @param key
+	 * @param value
+	 * @param scoure
+	 */
+	public void zAdd(String key, Object value, double scoure) {
+		zSetOperations.add(key, value, scoure);
+	}
 
-    /**
-     * 有序集合获取
-     *
-     * @param key
-     * @param scoure
-     * @param scoure1
-     * @return
-     */
-    public Set<Object> rangeByScore(String key, double scoure, double scoure1) {
-        return redisTemplate.opsForZSet().rangeByScore(key, scoure, scoure1);
-    }
+	/**
+	 * 有序集合获取
+	 *
+	 * @param key
+	 * @param scoure
+	 * @param scoure1
+	 * @return
+	 */
+	public Set<Object> rangeByScore(String key, double scoure, double scoure1) {
+		return zSetOperations.rangeByScore(key, scoure, scoure1);
+	}
 
-    /**
-     * 有序集合获取排名
-     *
-     * @param key 集合名称
-     * @param value 值
-     */
-    public Long zRank(String key, Object value) {
-        return redisTemplate.opsForZSet().rank(key,value);
-    }
+	/**
+	 * 有序集合获取排名
+	 *
+	 * @param key 集合名称
+	 * @param value 值
+	 */
+	public Long zRank(String key, Object value) {
+		return zSetOperations.rank(key, value);
+	}
 
+	/**
+	 * 有序集合获取排名
+	 *
+	 * @param key
+	 */
+	public Set<ZSetOperations.TypedTuple<Object>> zRankWithScore(String key, long start, long end) {
+		return zSetOperations.rangeWithScores(key, start, end);
+	}
 
-    /**
-     * 有序集合获取排名
-     *
-     * @param key
-     */
-    public Set<ZSetOperations.TypedTuple<Object>> zRankWithScore(String key, long start,long end) {
-        return redisTemplate.opsForZSet().rangeWithScores(key,start,end);
-    }
+	/**
+	 * 有序集合添加
+	 *
+	 * @param key
+	 * @param value
+	 */
+	public Double zSetScore(String key, Object value) {
+		return zSetOperations.score(key, value);
+	}
 
-    /**
-     * 有序集合添加
-     *
-     * @param key
-     * @param value
-     */
-    public Double zSetScore(String key, Object value) {
-        return redisTemplate.opsForZSet().score(key,value);
-    }
+	/**
+	 * 有序集合添加分数
+	 *
+	 * @param key
+	 * @param value
+	 * @param scoure
+	 */
+	public void incrementScore(String key, Object value, double scoure) {
+		zSetOperations.incrementScore(key, value, scoure);
+	}
 
+	/**
+	 * 有序集合获取排名
+	 *
+	 * @param key
+	 */
+	public Set<ZSetOperations.TypedTuple<Object>> reverseZRankWithScore(String key, long start, long end) {
+		return zSetOperations.reverseRangeByScoreWithScores(key, start, end);
+	}
 
-    /**
-     * 有序集合添加分数
-     *
-     * @param key
-     * @param value
-     * @param scoure
-     */
-    public void incrementScore(String key, Object value, double scoure) {
-        redisTemplate.opsForZSet().incrementScore(key, value, scoure);
-    }
-
-
-    /**
-     * 有序集合获取排名
-     *
-     * @param key
-     */
-    public Set<ZSetOperations.TypedTuple<Object>> reverseZRankWithScore(String key, long start,long end) {
-        return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, start, end);
-    }
-
-    /**
-     * 有序集合获取排名
-     *
-     * @param key
-     */
-    public Set<ZSetOperations.TypedTuple<Object>> reverseZRankWithRank(String key, long start, long end) {
-        return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
-    }
+	/**
+	 * 有序集合获取排名
+	 *
+	 * @param key
+	 */
+	public Set<ZSetOperations.TypedTuple<Object>> reverseZRankWithRank(String key, long start, long end) {
+		return zSetOperations.reverseRangeWithScores(key, start, end);
+	}
 	/*------------------------------------------- zset end ---------------------------------------------*/
 
 	/*-------------------------------------------过期时间处理 start -------------------------------------------*/
@@ -689,4 +704,30 @@ public class RedisUtils {
 	public Set<Object> keys() {
 		return redisTemplate.keys("*");
 	}
+
+	/*--------------------------------------------- lua start -----------------------------------------*/
+	/**
+	 * 原子比较redis集群中的值并删除redis当前key
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @param failCallback 失败回调
+	 * @param successCallback 成功回调
+	 */
+	public void atomicCompareAndDelete(Object key, Object value, Consumer<RedisTemplate<Object, Object>> failCallback,
+			Consumer<RedisTemplate<Object, Object>> successCallback) {
+		Long result = redisTemplate.execute(new DefaultRedisScript<Long>(SCRIPT_COMPARE_AND_DELETE, Long.class),
+				Arrays.asList(key), value);
+		if (result == 0L) {
+			// 失败
+			if (Objects.nonNull(failCallback)) {
+				failCallback.accept(redisTemplate);
+			}
+		} else {
+			if (Objects.nonNull(successCallback)) {
+				successCallback.accept(redisTemplate);
+			}
+		}
+	}
+	/*--------------------------------------------- lua end -------------------------------------------*/
 }

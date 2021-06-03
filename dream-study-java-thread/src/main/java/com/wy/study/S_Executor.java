@@ -37,15 +37,19 @@ import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
  * {@link ThreadPoolExecutor}:除了ForkJoinPool之外,所有的线程池的底层都是该类,主要参数及方法:
  * 
  * <pre>
- * corePoolSize:核心容量,创建好后就准备就绪的线程数量,一直会存在,除非设置了allowCoreThreadTimeOut
- * maximumPoolSize:最大线程数,控制资源,同时并发的最大数量.若设置了无限队列,则该参数无效
+ * corePoolSize:核心容量,即使其他核心线程处于空闲状态,仍然会创建新的线程,直到达到核心线程数.
+ * 		如果调用了prestartAllCoreThreads(),线程池会提前创建好并启动所有核心线程.
+ * 		核心线程一直会存在,除非设置了allowCoreThreadTimeOut()
+ * maximumPoolSize:最大线程数,若队列满了,将会继续创建线程,直到最大线程数.若设置了无限队列,则该参数无效
  * keepAliveTime:存活时间,只要线程空闲大于该时间并且maximumPoolSize>corePoolSize就回收空闲线程
- * handler:若队列满了,按照指定的拒绝/饱和策略执行任务
+ * handler:若队列满了和线程池都满了,按照指定的拒绝/饱和策略执行任务,默认策略是直接抛出异常
  * threadFactory:设置创建线程的工厂,可以设置每个创建出来的线程的名字,debug和定位问题时更容易
  * workQueue:阻塞队列,所有待执行的任务都放在队列中,等待空闲线程取出任务并执行,由以下几种队列可选
- * ->{@link ArrayBlockingQueue}:数组队列,按FIFO(先进先出)排序元素
- * ->{@link LinkedBlockingQueue}:链表队列,按FIFO(先进先出)排序元素,Executors.newFixedThreadPool()使用该队列
- * ->{@link SynchronousQueue}:不存储元素的队列,每个插入必须等另一个线程调用移除,否则插入一直阻塞,Executors.newCachedThreadPool使用该队列
+ * ->{@link ArrayBlockingQueue}:有界阻塞数组队列,按FIFO(先进先出)排序元素
+ * ->{@link LinkedBlockingQueue}:有界阻塞链表队列,按FIFO(先进先出)排序元素,性能通常高于ArrayBlockingQueue,
+ * 		Executors.newFixedThreadPool()使用该队列
+ * ->{@link SynchronousQueue}:不存储元素的阻塞队列,每个元素插入必须等另一个线程调用移除,否则插入一直阻塞,
+ * 		性能通常高于LinkedBlockingQueue,Executors.newCachedThreadPool使用该队列
  * ->{@link PriorityBlockingQueue}:具有优先级的无限阻塞队列
  * ctl:线程池的控制状态,用来表示线程池的运行状态(整型的高3位)和运行的worker数量(低29位)
  * COUNT_BITS:29位的偏移量
@@ -75,7 +79,7 @@ import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
  * 拒绝/饱和策略,当队列和线程池都满了,新任务的执行策略,默认时AbortPolicy策略,可自定义
  * 
  * <pre>
- * {@link AbortPolicy}:直接抛出异常
+ * {@link AbortPolicy}:直接抛出异常,默认策略
  * {@link CallerRunsPolicy}:不在新线程中执行任务,而是由调用者所在的线程来执行
  * {@link DiscardPolicy}:拒绝新的任务,也不处理,等同于丢失新的任务
  * {@link DiscardOldestPolicy}:丢失最长时间没有执行的任务,同时尝试执行处理新的任务,如果线程池未关闭

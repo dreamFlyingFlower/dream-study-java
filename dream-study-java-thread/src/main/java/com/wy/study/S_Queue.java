@@ -15,6 +15,10 @@ import java.util.concurrent.TransferQueue;
 /**
  * 队列.先进先出fifo
  * 
+ * {@link LinkedBlockingDeque}:链表组成的双向阻塞队列(可以从队列两端插入和删除元素),数据有界
+ * {@link LinkedTransferQueue}:数据转移,无界队列,一般用于处理即时信息<br>
+ * 		add:队列会保存数据,不做阻塞等待.transfer会阻塞等待里面的数据被获取,必须有消费者来获取数据
+ * 
  * @author ParadiseWY
  * @date 2019-05-10 22:08:59
  * @git {@link https://github.com/mygodness100}
@@ -22,7 +26,9 @@ import java.util.concurrent.TransferQueue;
 public class S_Queue {
 
 	public static void main(String[] args) {
-		// 线程安全的队列,同步队列
+		/**
+		 * 线程安全非阻塞队列
+		 */
 		ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
 		for (int i = 0; i < 10; i++) {
 			queue.offer("value" + i);
@@ -96,7 +102,9 @@ public class S_Queue {
 		}
 
 		/**
-		 * 转移队列.add:队列会保存数据,不做阻塞等待.transfer会阻塞等待里面的数据被获取,必须有消费者来获取数据 一般用于处理即时信息
+		 * 转移队列,数据无界
+		 * 
+		 * add:队列会保存数据,不做阻塞等待.transfer会阻塞等待里面的数据被获取,必须有消费者来获取数据 一般用于处理即时信息
 		 */
 		TransferQueue<String> queue5 = new LinkedTransferQueue<>();
 		new Thread(new Runnable() {
