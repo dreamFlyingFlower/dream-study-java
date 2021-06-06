@@ -148,6 +148,38 @@ private final static List<Map<${String},${Object}>> ${LIST_MAP} = new ArrayList<
 ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 ```
 
+* pstr,Java,new a private String
+
+```java
+private String ${NAME};${cursor}
+```
+
+* pint,Java,new a private Integer
+
+```java
+private Integer ${NAME};${cursor}
+```
+
+* plong,Java,new a private Long
+
+```java
+private Long ${NAME};${cursor}
+```
+
+* plist,Java,new a private List
+
+```java
+private List<${String}> ${NAME};${cursor}
+${imp:import(java.util.List)}
+```
+
+* pmap,Java,new a private Map
+
+```java
+private Map<${String},${Object}> ${map};${cursor}
+${imp:import(java.util.Map)}
+```
+
 * newHashMap,Java,new a Hashmap
 
 ```java
@@ -204,6 +236,30 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 ## MyBatipse
 
 * 配合MyBatis,鼠标左键+CTRL可直接选择跳到相应的XML文件的相应方法中
+
+
+
+## UMLet
+
+* 画UML流程图,并且可以导出pdf,jpg等格式
+
+
+
+## JAutoDoc
+
+* 自动代码注释
+
+
+
+## Eclipse Color Theme
+
+* Eclipse多种主题切换
+
+
+
+## Bytecode Outline
+
+* 显示Java文件编译后的指令文件,即JVM真正运行时的指令文件
 
 
 

@@ -25,6 +25,7 @@
 
 * Docker Client:客户端,C/S架构
 * Docker Daemon:守护进程
+* Docker Server:Docker Daemon的主要组成部分,接收用户通过Docker Client发送的请求
 * Docker Image:镜像,容器的基石,层叠的只读文件系统
 * Docker Container:容器,通过镜像启动,启动和执行阶段,写时复制
 * Docker Registry:仓库
@@ -239,9 +240,10 @@
   ENTRYPOINT /bin/bash
   ```
 
-* docker build [] path/url:构建镜像,path和url是要构建镜像的文件地址
+* docker build [] path/url:构建镜像
 
-  * -t:镜像的名称
+  * path/url:path和url是要构建镜像的Dockfile地址,一个是本地地址,一个是远程地址
+  * -t iname[:tag]:指定镜像的名称和版本,若不指定版本,默认latest
   * --no-cache:不使用构建缓存,默认是使用
 
 
