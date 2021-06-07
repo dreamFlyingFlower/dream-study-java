@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Node implements Comparable<Node> {
+public class HuffmenNode implements Comparable<HuffmenNode> {
 
 	/**
 	 * 表示节点存的字符
@@ -17,13 +17,13 @@ public class Node implements Comparable<Node> {
 	 */
 	private int weight;
 
-	private Node leftNode;
+	private HuffmenNode leftNode;
 
-	private Node rightNode;
+	private HuffmenNode rightNode;
 
-	private Node parent;
+	private HuffmenNode parent;
 
-	public int compareTo(Node o) {
+	public int compareTo(HuffmenNode o) {
 		return this.weight - o.weight;
 	}
 }

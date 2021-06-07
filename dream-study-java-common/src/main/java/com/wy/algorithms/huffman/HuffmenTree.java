@@ -8,22 +8,22 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 /**
- * 哈夫曼树
+ * 哈夫曼树,构建成哈夫曼树之后,将所有路径链接起来可组成二进制编码,左边为0,右边为1
  * 
  * @author 飞花梦影
  * @date 2021-06-07 17:12:20
  */
 public class HuffmenTree {
 
-	private Node root;
+	private HuffmenNode root;
 
-	private List<Node> leafs;
+	private List<HuffmenNode> leafs;
 
 	Map<Character, Integer> weights;
 
 	public HuffmenTree(Map<Character, Integer> weights) {
 		this.weights = weights;
-		leafs = new ArrayList<Node>();
+		leafs = new ArrayList<HuffmenNode>();
 	}
 
 	private String deCode(String str) {
@@ -34,7 +34,7 @@ public class HuffmenTree {
 			characters.add(c);
 		}
 		while (characters.size() > 0) {
-			Node node = root;
+			HuffmenNode node = root;
 			do {
 				// 每次取第一次字符
 				Character c = characters.removeFirst();
@@ -63,10 +63,10 @@ public class HuffmenTree {
 
 	private Map<Character, String> codeInfo() {
 		Map<Character, String> map = new HashMap<Character, String>();
-		for (Node node : leafs) {
+		for (HuffmenNode node : leafs) {
 			Character c = new Character(node.getChars().charAt(0));
 			String code = "";
-			Node start = node;
+			HuffmenNode start = node;
 			do {
 				// 判断是否为左节点
 				if (start.getParent() != null && start == start.getParent().getLeftNode()) {
@@ -84,9 +84,9 @@ public class HuffmenTree {
 
 	private void creatTree() {
 		Character[] keys = weights.keySet().toArray(new Character[0]);
-		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>();
+		PriorityQueue<HuffmenNode> priorityQueue = new PriorityQueue<HuffmenNode>();
 		for (Character c : keys) {
-			Node node = new Node();
+			HuffmenNode node = new HuffmenNode();
 			node.setChars(c.toString());
 			node.setWeight(weights.get(c));
 			priorityQueue.add(node);
@@ -96,9 +96,9 @@ public class HuffmenTree {
 		// 最后一个不用走就是合成
 		for (int i = 1; i <= len - 1; i++) {
 			// 每次加进来都会排序 队列是一个排好序的 从小到大
-			Node n1 = priorityQueue.poll();
-			Node n2 = priorityQueue.poll();
-			Node newNode = new Node();
+			HuffmenNode n1 = priorityQueue.poll();
+			HuffmenNode n2 = priorityQueue.poll();
+			HuffmenNode newNode = new HuffmenNode();
 			newNode.setChars(n1.getChars() + n2.getChars());
 			newNode.setWeight(n1.getWeight() + n2.getWeight());
 			newNode.setLeftNode(n1);
