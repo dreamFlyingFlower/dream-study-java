@@ -1,5 +1,8 @@
 package com.wy.annotation;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -49,6 +52,13 @@ import org.springframework.transaction.annotation.Transactional;
  * {@link PreDestroy}:非spring注解,需要写在某个组件中,表示当该组件被销毁之前需要执行的方法<br>
  * 
  * {@link Profile}:添加在类或方法上时表示在该环境下才有作用
+ *
+ * {@link JsonBackReference},{@link JsonManagedReference}:配对使用,通常用在父子关系中,比如树形结构.
+ * JsonBackReference标注的属性在序列化(对象转json)时,会被忽略;JsonManagedReference标注的属性则会被序列化.
+ * 在序列化时,JsonBackReference的作用相当于JsonIgnore,此时可以没有JsonManagedReference.
+ * 但在反序列化(json转对象)时,如果没有JsonManagedReference,则不会自动注入JsonBackReference标注的属性(被忽略的父或子).
+ * 如果有JsonManagedReference,则会自动注入JsonBackReference标注的属性.
+ * 此时JsonManagedReference和JsonBackReference并不是在同一个属性上
  *
  * @author 飞花梦影
  * @date 2018-07-20 23:00:58

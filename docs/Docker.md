@@ -195,6 +195,15 @@
 
 * docker cp containerid:file2 file1 :将docker容器中的文件拷贝到Linux指定目录中
 
+* docker tag iid/iname[:tag] newiname[:tag]:类似git中的tag,从某个稳定版本中拉取分支开发新功能
+
+* docker commit [] iid newiname[:tag]:将修改后的镜像提交本地仓库中,成为一个新的镜像
+
+  * -m:提交的注释信息
+  * -a:指定镜像作者
+
+* docker push iname[:tag]:将本地镜像推送到远程仓库
+
 
 
 # 镜像构建
@@ -268,6 +277,59 @@
 * 使用weave实现跨主机容器连接
 
 
+
+# Docker compose
+
+* 一种用于通过使用单个命令创建和启动Docker应用程序的工具,主要用来做开发,测试等
+* 需要配置一个docker-compose.yml文件,详见[官网](https://docs.docker.com/compose/extends/)
+
+
+
+# Docker私服
+
+
+
+## 服务端配置
+
+* mkdir registry:新建一个存放私服镜像的目录
+* 在目录中新建一个docker-compose.yml文件,内容如下
+
+```yaml
+# docker版本
+version: '3'
+# 服务
+services:
+  registry: 
+  	# docker仓库官方镜像
+    image: registry
+    # 总是随docker启动
+    restart: always
+    # 容器名称
+    container_name: registry
+    # 端口
+    ports: 
+      - 5000:5000
+    volumns: 
+      - /app/server/docker/registry:/var/lib/registry
+```
+
+* docker-compose up  -d:后台启动,访问成功即表示搭建成功
+
+
+
+## 客户端配置
+
+* 修改/lib/systemd/system/docker.services,添加docker私服服务端地址
+
+```shell
+--insecure-registry 192.168.1.150:5000
+```
+
+* systemctl daemon-reload
+* systemctl restart docker
+* git search,git pull可正常使用,其他打tag,commit,push等都要带上私服地址
+* git tag iid/iname 192.168.1.150:5000/newiname[:tag]:在私服上打tag
+* git push 192.168.1.150:5000/newiname[:tag]:上传新的镜像到私服上
 
 # Maven中使用
 
