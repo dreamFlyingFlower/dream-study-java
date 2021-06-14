@@ -39,63 +39,13 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @ServerEndpoint("/websocket")
 public class TestWebSocket {
 
-	// 客户端代码
-	//
-	// var websocket = null;
-	// //判断当前浏览器是否支持WebSocket
-	// if ('WebSocket' in window) {
-	// websocket = new WebSocket("ws://localhost:8080/WebSocketTest/websocket");
-	// }
-	// else {
-	// alert('当前浏览器 Not support websocket')
-	// }
-	//
-	// //连接发生错误的回调方法
-	// websocket.onerror = function () {
-	// setMessageInnerHTML("WebSocket连接发生错误");
-	// };
-	//
-	// //连接成功建立的回调方法
-	// websocket.onopen = function () {
-	// setMessageInnerHTML("WebSocket连接成功");
-	// }
-	//
-	// //接收到消息的回调方法
-	// websocket.onmessage = function (event) {
-	// setMessageInnerHTML(event.data);
-	// }
-	//
-	// //连接关闭的回调方法
-	// websocket.onclose = function () {
-	// setMessageInnerHTML("WebSocket连接关闭");
-	// }
-	//
-	// //监听窗口关闭事件,当窗口关闭时,主动去关闭websocket连接,防止连接还没断开就关闭窗口,server端会抛异常。
-	// window.onbeforeunload = function () {
-	// closeWebSocket();
-	// }
-	//
-	// //将消息显示在网页上
-	// function setMessageInnerHTML(innerHTML) {
-	// document.getElementById('message').innerHTML += innerHTML + '<br/>';
-	// }
-	//
-	// //关闭WebSocket连接
-	// function closeWebSocket() {
-	// websocket.close();
-	// }
-	//
-	// //发送消息
-	// function send() {
-	// var message = document.getElementById('text').value;
-	// websocket.send(message);
-	// }
+	/** 记录当前在线人数 */
+	private static int onlineCount = 0;
 
-	private static int onlineCount = 0;// 记录当前在线人数
-
-	// 确保线程安全
+	/** 确保线程安全 */
 	private static CopyOnWriteArraySet<TestWebSocket> webSocketSet = new CopyOnWriteArraySet<TestWebSocket>();
 
+	/** 与某个客户端的连接会话,需要通过它来给客户端发送数据 */
 	private Session session;
 
 	@OnOpen
@@ -113,6 +63,12 @@ public class TestWebSocket {
 		System.out.println("有一连接关闭！当前在线人数为" + getOnlineCount());
 	}
 
+	/**
+	 * 接收客户端发送的消息
+	 * 
+	 * @param message 客户端发送的消息
+	 * @param session 会话
+	 */
 	@OnMessage
 	public void OnMessage(String message, Session session) {
 		System.out.println("来自客户端的消息:" + message);
@@ -133,8 +89,16 @@ public class TestWebSocket {
 		error.printStackTrace();
 	}
 
+	/**
+	 * 主动推送消息到Web
+	 * 
+	 * @param message 推送的消息
+	 * @throws IOException
+	 */
 	public void sendMessage(String message) throws IOException {
+		// 推送消息
 		this.session.getBasicRemote().sendText(message);
+		// 异步推送消息
 		// this.session.getAsyncRemote().sendText(message);
 	}
 
