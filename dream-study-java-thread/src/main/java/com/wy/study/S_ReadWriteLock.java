@@ -4,7 +4,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * ReadWriteLock:读写锁,写写和读写的时候需要互斥,读读的时候不需要互斥
+ * ReadWriteLock:读写锁.写写和读写的时候需要互斥,读读的时候不需要互斥
+ * 
+ * 锁降级:写锁降级为读锁.在写锁木有释放的时候,获取到读锁,再释放写锁
+ * 锁升级:读锁升级为写锁.在读锁米有释放的时候,获取到写锁,再释放读锁
  * 
  * @author ParadiseWY
  * @date 2020-11-24 23:33:16
