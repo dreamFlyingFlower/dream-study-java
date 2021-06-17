@@ -21,6 +21,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 独占模式:该模式下,其他线程试图获得锁将无法成功,需要实现AbstractQueuedSynchronizer的tryAcquire()和tryRelease
  * 共享模式:多个线程获取某个锁可能成功,也可能失败,需要实现AbstractQueuedSynchronizer#tryAcquireShared()和tryReleaseShared()
  *
+ * 不可变对象:
+ * 
+ * <pre>
+ * 对象创建后其状态就不可修改
+ * 对象所有域都是final类型
+ * 对象是正确创建的(在对象创建期间,this引用没有逸出)
+ * 一些Collections的方法,guaua的一些集合,列表等
+ * 使用局部变量,ThreadLocal让线程封闭,阻止并发环境
+ * </pre>
+ *
  * @author ParadiseWY
  * @date 2020-12-09 22:47:03
  * @git {@link https://github.com/mygodness100}
