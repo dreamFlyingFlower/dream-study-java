@@ -202,6 +202,16 @@
 
 
 
+# 双击SHIFT设置
+
+
+
+## 显示内存使用
+
+* show Memory indicator:设置为on
+
+
+
 # 插件
 
 
