@@ -169,6 +169,20 @@
 
 
 
+### 提示变量声明称local
+
+* 搜索 parameter can be local,不勾选
+* Java->Class structure->parameter can be local
+
+
+
+### 提示方法访问符可变
+
+* 搜索weaker,Declaration access can be weaker,不勾选
+* Java->Declarataion redundancy->Declaration access can be weaker
+
+
+
 # Build,Execution,Deployment
 
 * File->Settings->Build,Execution,Deployment:构建,执行配置
