@@ -1,0 +1,13 @@
+生成GUID的网址
+https://www.guidgen.com/
+
+用这个网址+生成的GUID激活
+https://jrebel.qekang.com/
+
+例如:https://jrebel.qekang.com/738b776f-6cc9-4ac5-9574-960a057392db
+
+邮件地址随便填写
+
+设置离线模式,防止失效
+IDEA:File->Settings->JRebel->Work offline
+Eclipse:Help->JRebel->Configuration->Overview->Work Offline
