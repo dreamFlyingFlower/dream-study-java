@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @date 2019-05-10 22:01:26
  * @git {@link https://github.com/mygodness100}
  */
+@SuppressWarnings("restriction")
 public class S_Map {
 
 	public static void main(String[] args) {
