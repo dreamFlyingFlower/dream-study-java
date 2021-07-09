@@ -148,13 +148,23 @@
 
 
 
-## Code Style
+## Code Style->Java
 
 
 
-### 设置导包不显示`*`
 
-* Java->Imports:class count to use...和Names count to use...设置更大的值
+
+#### Table and Indents
+
+* 设置格式化使用制表符
+  * Use tab character:勾选
+    * Smart tabs:勾选
+
+
+
+#### Imports
+
+* 设置导包不显示`*`:class count to use...和Names count to use...设置更大的值
 
 
 
@@ -162,14 +172,14 @@
 
 
 
-### 自动生成序列号
+### 右键菜单生成序列号
 
-* 搜索Serializable,选择Serialization issues,勾选Serializable class without serialVersionUID
-* 在Java类中右键可看到serialVersionUID选项
+* 搜索Serializable,Serializable class without serialVersionUID,勾选
+* Java->Serialization issues->Serializable class without serialVersionUID
 
 
 
-### 提示变量声明称local
+### 提示变量声明成local
 
 * 搜索 parameter can be local,不勾选
 * Java->Class structure->parameter can be local
@@ -180,6 +190,13 @@
 
 * 搜索weaker,Declaration access can be weaker,不勾选
 * Java->Declarataion redundancy->Declaration access can be weaker
+
+
+
+### 提示缺少泛型
+
+* 搜索raw,Raw use of parameterized class,勾选
+* Java->Java language level migration aids->Java 5->Raw use of parameterized class
 
 
 
