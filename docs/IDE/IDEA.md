@@ -10,38 +10,29 @@
 
 
 
-# Editor
+# Editor->General
 
-* File->Settings->Editor:编辑配置
+* File->Settings->Editor->General:编辑配置
 
+* Change font size(Zoom) with Ctrl+Mouse Wheel:鼠标滚轮控制字体大小
 
-
-## General
-
-
-
-### 鼠标滚轮控制字体大小
-
-* Change font size(Zoom) with Ctrl+Mouse Wheel
+* Remove trailing blank lines at the end of saved files:删除文件末尾空白
 
 
 
-删除文件末尾空白
-
-* Remove trailing blank lines at the end of saved files
+## Auto Import
 
 
 
-### 自动提示忽略大小写
+### Java
 
-* Code Completion:取消勾选Match case
+* Add unambigous...,Optimize imports...:勾选,自动导包,快捷键ALT+ENTER
 
 
 
-### 自动导包
+## Code Completion
 
-* AutoImport:勾选Java中的Add unambigous...和Optimize imports...
-* 快捷键:ALT+ENTER
+* Code Completion:取消勾选Match case,自动提示忽略大小写
 
 
 
@@ -51,30 +42,87 @@
 
 
 
-## Code Editing
+# Editor->Code Editing
 
 
 
-### 鼠标滑过显示文档
-
-* 勾选Show quick documentation on mouse move
+* Show quick documentation on mouse move:勾选,鼠标滑过显示文档
 * Tooltip delay:设置提示出现的延迟时间
 
 
 
-### 设置编码
-
-* File Encodings:Global Encoding,Project Encoding,Default encoding for properties files都设置为UTF-8
+# Editor->Color Scheme
 
 
 
-## File and Code templates
+## Console Font
+
+* Use console font instead of the default:可勾选,使用不用于通用字体的其他字体
 
 
 
-### 新建文件自定义时间
+# Editor->Code Style
 
-* Includes:
+* General->Line separator:选择使用哪种换行符
+
+
+
+## Java
+
+
+
+### Tabs and Indents
+
+* Use tab character,Smart tabs:使用制表符代替空格进行格式化
+
+
+
+### Imports
+
+* Use fully qualifies class names in JavaDoc:在注释中使用类的模式,选择Never,use short name...
+
+* Class count to use import with `*`:导入类超过多少时使用`*`,值设大一点就不会显示`*`
+* Names count to use static import with `*`:同上,只不过时静态导入
+
+
+
+# Editor->Inspections
+
+
+
+## Java
+
+
+
+### Class structure
+
+* parameter can be local:不勾选,将不会提示变量声明成local
+
+
+
+### Declarataion redundancy
+
+* Declaration access can be weaker:不勾选,将不会提示方法访问符可变
+
+
+
+### Java language level migration aids
+
+* Java 5->Raw use of parameterized class:勾选,将提示缺少泛型
+
+
+
+### Serialization issues
+
+* Serializable class without serialVersionUID:勾选,右键菜单生成序列号
+
+# Editor->File and Code templates
+
+
+
+## Includes
+
+* 新建文件自定义时间
 
 ```java
 #set($str = "")
@@ -93,11 +141,17 @@
 
 
 
-## Live Templates 
+# Editor->File Encodings
+
+* Global Encoding,Project Encoding,Default encoding for properties files:设置编码,都设为UTF-8
 
 
 
-### 自定义注释时间
+# Editor->Live Templates
+
+
+
+## 自定义注释时间
 
 * 新建一个变量名,不能为系统已经设置好的重名,如dateFormat,abbreviation设置为dateFormat,template text输入{$dateFormat$}
 * 点击右边的Edit variables,在弹出框中Name设置为dateFormat,Expression设置为date("自定义的格式,与Java时间格式相同")
@@ -105,17 +159,17 @@
 
 
 
-## File Types
+# Editor->File Types
 
 
 
-### 隐藏文件
+## 隐藏文件
 
 * 在ignore files and folders中添加
 
 
 
-### 格式化设置
+## 格式化设置
 
 * Code Style->Java
 * Wrapping and Braces:
@@ -148,71 +202,32 @@
 
 
 
-## Code Style->Java
+# Build->Build Tools
 
 
 
+## Maven
 
-
-#### Table and Indents
-
-* 设置格式化使用制表符
-  * Use tab character:勾选
-    * Smart tabs:勾选
-
-
-
-#### Imports
-
-* 设置导包不显示`*`:class count to use...和Names count to use...设置更大的值
+* Maven home path:配置Maven目录地址
+* User settings file:Maven配置文件地址
+* Local repository:本地Maven仓库地址
 
 
 
-## Inspections
+### Importing
+
+* Automatically download:自动下载资源,可选
+* JDK for importer:设置JDK版本
 
 
 
-### 右键菜单生成序列号
-
-* 搜索Serializable,Serializable class without serialVersionUID,勾选
-* Java->Serialization issues->Serializable class without serialVersionUID
+# Build->Complier
 
 
 
-### 提示变量声明成local
+## 自动编译
 
-* 搜索 parameter can be local,不勾选
-* Java->Class structure->parameter can be local
-
-
-
-### 提示方法访问符可变
-
-* 搜索weaker,Declaration access can be weaker,不勾选
-* Java->Declarataion redundancy->Declaration access can be weaker
-
-
-
-### 提示缺少泛型
-
-* 搜索raw,Raw use of parameterized class,勾选
-* Java->Java language level migration aids->Java 5->Raw use of parameterized class
-
-
-
-# Build,Execution,Deployment
-
-* File->Settings->Build,Execution,Deployment:构建,执行配置
-
-
-
-## Complier
-
-
-
-### 自动编译
-
-* 勾选Build project automatically,Compile independent modules in parallel
+* Build project automatically,Compile independent modules in parallel:勾选
 * 不能对SpringBoot项目进行热部署开发,需要其他配置,且自动编译极慢极耗资源
 
 
