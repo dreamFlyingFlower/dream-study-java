@@ -55,6 +55,13 @@
 
 
 
+## General
+
+* Code
+  * Identifier under caret:修改选中字符的背景色
+
+
+
 ## Console Font
 
 * Use console font instead of the default:可勾选,使用不用于通用字体的其他字体
@@ -74,6 +81,34 @@
 ### Tabs and Indents
 
 * Use tab character,Smart tabs:使用制表符代替空格进行格式化
+
+
+
+### Wrappging and Braces
+
+* Hard wrap at:每行最大宽度
+* Keep when reformatting
+  * Line breaks:不勾选,默认有换行时,格式化不回到上一行
+* Ensure right margin is not exceeded:格式化时每行字符不能超过最大宽度
+* Method declaration parameters:选择Wrap if long
+  * Align when multiline:不勾选,多行时不对齐
+
+
+
+### JavaDoc
+
+* Alignment
+  * Align parameter description:不勾选
+  * Align thrown exception descriptions:不勾选
+* Blank lines
+  * After description:勾选
+* Invalid tags
+  * Keep invalid tags:勾选,不会情况不可用标签
+  * Keep empty @Param tags:不勾选,删除未解释的参数
+  * Keep empty @Return tags:不勾选,删除未解释的返回
+  * Keep empty @throws tags:不勾选,删除未解释的异常
+
+
 
 
 
@@ -108,7 +143,10 @@
 
 ### Java language level migration aids
 
-* Java 5->Raw use of parameterized class:勾选,将提示缺少泛型
+* Java 5:
+  * Raw use of parameterized class:勾选,将提示缺少泛型
+  * Unnecessary boxing:不勾选,不会提示不必要的装箱
+  * Unnecessary unboxing:不勾选,不会提示不必要的拆箱
 
 
 
@@ -313,3 +351,10 @@
 ## Java Stream Debugger
 
 * 对Java8的Stream进行Debug
+
+
+
+## Free MyBatis plugin
+
+* 从dao跳到Mybatis的xml文件
+* 没有Eclipse的好用,只能从dao层条,service中不能跳

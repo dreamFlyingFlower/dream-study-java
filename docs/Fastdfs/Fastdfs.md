@@ -353,12 +353,6 @@
 
 
 
-# 缩略图
-
-
-
-
-
 # 安装
 
 
@@ -576,6 +570,205 @@ vi /etc/fdfs/mod_fastdfs.conf
   * 根据是否trunkfile获取文件名,文件名长度、文件offset
   * 若nginx开启了send_file开关而且当前为非chunkFile的情况下尝试使用sendfile方法以优化性能
   * 否则使用lseek 方式随机访问文件,并输出相应的段.做法:使用chunk方式循环读,输出
+
+
+
+# 缩略图
+
+* 可以直接使用FastDFS功能,但是需要上传多次文件,且还需要另外编码,此处直接使用Nginx的扩展
+
+
+
+## nginx_http_image_filter_module
+
+* 该模块用于对JPEG,GIF和PNG图片进行转换处理(压缩图片,裁剪图片,旋转图片).
+* 默认不被编译,需要在编译nginx源码的时候,加入相关配置
+
+
+
+### 安装
+
+```shell
+# 检测nginx模块安装情况,查看是否安装了上述模块
+nginx/sbin/nginx -V
+# 安装依赖
+yum -y install gd-devel
+# 重新编译
+./configure \
+--prefix=/app/server/nginx \
+--with-http_stub_status_module \
+--with-http_ssl_module \
+--with-http_realip_module \
+--with-http_image_filter_module
+make && make install
+```
+
+
+
+### 访问普通图片
+
+```shell
+location ~* /img/(.*)_(\d+)x(\d+)\.(jpg|gif|png)$ {
+    root /;
+    set $s $1;
+    set $w $2;
+    set $h $3;
+    set $t $4;
+    image_filter resize $w $h;
+    image_filter_buffer 10M;
+    # 普通图片地址
+    rewrite ^/img/(.*)$ /app/data/img/$s.$t break;
+}
+```
+
+
+
+### 访问FastDFS图片
+
+```nginx
+location ~ group1/M00/(.+)_([0-9]+)x([0-9]+)\.(jpg|gif|png) {
+    # 设置别名,类似于root的用法
+    alias /app/server/fastdfs/storage/data/;
+    # fastdfs中的ngx_fastdfs_module模块
+    ngx_fastdfs_module;
+    set $w $2;
+    set $h $3;
+    if ($w != "0") {
+    	rewrite group1/M00(.+)_(\d+)x(\d+)\.(jpg|gif|png)$ group1/M00$1.$4 break;
+    } 
+    if ($h != "0") {
+    	rewrite group1/M00(.+)_(\d+)x(\d+)\.(jpg|gif|png)$ group1/M00$1.$4 break;
+    } 
+    # 根据给定的长宽生成缩略图
+    image_filter resize $w $h;
+    #原图最大2M,要裁剪的图片超过2M返回415错误,需要调节参数image_filter_buffer
+    image_filter_buffer 2M;
+    #try_files group1/M00$1.$4 $1.jpg;
+}
+```
+
+* 重启nginx:nginx/sbin/nginx -s reload
+
+
+
+## nginx image
+
+* 该模块主要功能是对请求的图片进行缩略/水印处理,支持文字水印和图片水印
+* 支持自定义字体,文字大小,水印透明度,水印位置
+* 判断原图是否大于指定尺寸才处理
+* 支持jpeg/png/gif(Gif生成后变成静态图片)
+
+
+
+### 安装
+
+```shell
+yum install -y gd-devel pcre-devel libcurl-devel
+wget https://github.com/oupula/ngx_image_thumb/archive/master.tar.gz
+tar -xf master.tar.gz
+cd /app/plugins/nginx
+./configure \
+--prefix=/app/server/nginx \
+--pid-path=/var/run/nginx/nginx.pid \
+--lock-path=/var/lock/nginx.lock \
+--error-log-path=/var/log/nginx/error.log \
+--http-log-path=/var/log/nginx/access.log \
+--http-client-body-temp-path=/var/temp/nginx/client \
+--http-proxy-temp-path=/var/temp/nginx/proxy \
+--http-fastcgi-temp-path=/var/temp/nginx/fastcgi \
+--http-uwsgi-temp-path=/var/temp/nginx/uwsgi \
+--http-scgi-temp-path=/var/temp/nginx/scgi \
+--with-http_gzip_static_module \
+--with-http_stub_status_module \
+--with-http_ssl_module \
+--add-module=/app/plugins/nginx/ngx_image_thumb-master \
+--add-module=/app/server/fastdfs-nginx-module-1.20/src
+make && make install
+```
+
+
+
+### 访问普通图片
+
+```nginx
+location /img/{
+    root /app/data/;
+    # 开启压缩功能
+    image on;
+    # 是否不生成图片而直接处理后输出
+    image_output on;
+    image_water on;
+    # 水印类型:0为图片水印,1位文字水印
+    image_water_type 0;
+    # 水印出现位置
+    image_water_pos 9;
+    # 水印透明度
+    image_water_transparent 80;
+    # 水印文件
+    image_water_file "/app/data/logo.png";
+}
+```
+
+* 访问方式:
+  * nginx服务器地址: http://192.168.1.150
+  * 访问源文件地址:http://192.168.1.150/img/1.jpg
+  * 访问压缩文件地址:http://192.168.1.150/img/1.jpg !c300x200.jpg
+  * 其中c是生成图片缩略图的参数,300是生成缩略图的宽度,200是生成缩略图的高度
+* 参数说明,一共可以生成四种不同类型的缩略图:
+  * C:按请求宽高比例从图片高度10%处开始截取图片,然后缩放到指定尺寸,图片缩略图大小等于请求
+    的宽高
+  * M:按请求宽高比例居中截图图片,然后缩放到指定尺寸,图片缩略图大小等于请求的宽高
+  * T:按请求宽高比例按比例缩放到指定尺寸,图片缩略图大小可能小于请求的宽高
+  * W:按请求宽高比例缩放到指定尺寸,空白处填充白色背景颜色,图片缩略图大小等于请求的宽高
+
+
+
+### 访问**FastDFS**图片
+
+```nginx
+location /group1/M00/{
+    alias /app/server/fastdfs/storage/data/;
+    image on;
+    image_output on;
+    image_jpeg_quality 75;
+    image_water on;
+    image_water_type 0;
+    image_water_pos 9;
+    image_water_transparent 80;
+    image_water_file "/app/data/logo.png";
+    # image_backend off;
+    #配置一个不存在的图片地址,防止查看缩略图时图片不存在,服务器响应慢
+    # image_backend_server http://www.baidu.com/img/baidu_jgylogo3.gif;
+}
+```
+
+
+
+* image on/off:是否开启缩略图功能,默认关闭
+* image_backend on/off:是否开启镜像服务,当开启该功能时,请求目录不存在的图片(判断原图),将自动从镜像服务器地址下载原图
+* image_backend_server:镜像服务器地址
+* image_output on/off:否不生成图片而直接处理后输出 默认off
+* image_jpeg_quality 75:生成JPEG图片的质量,默认75
+* image_water on/off:是否开启水印功能
+* image_water_type 0/1:水印类型->0:图片水印;1:文字水印
+* image_water_min 300 300:图片宽度300,高度300的情况才添加水印
+* image_water_pos 0-9:水印位置,默认值9.
+  * 0:随机位置
+  * 1:顶端居左
+  * 2:顶端居中
+  * 3:顶端居右
+  * 4:中部居左
+  * 5:中部居中
+  * 6:中部居右
+  * 7:底端居左
+  * 8:底端居中
+  * 9:底端居右
+* image_water_file:水印文件(jpg/png/gif),绝对路径或者相对路径的水印图片
+* image_water_transparent:水印透明度,默认20
+* image_water_text:水印文字
+* image_water_font_size:水印大小,默认 5
+* image_water_font:文字水印字体文件路径
+* image_water_color:水印文字颜色,默认#000000
 
 
 
