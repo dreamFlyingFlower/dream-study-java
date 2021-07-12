@@ -8,6 +8,15 @@
 
 
 
+# Appearace->System Settings
+
+
+
+## Updates
+
+* Check IDE updates for:不勾选,关闭检查IDEA更新
+* Check for plugin updates:不勾选,关闭检查插件更新
+
 
 
 # Editor->General

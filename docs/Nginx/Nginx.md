@@ -4,31 +4,23 @@
 
 # 概述
 
-* 正向代理:用户访问服务器,中间有个代理服务,代理服务器代理的是用户.
-
-  用户无法直接访问真正的服务器,需要通过代理服务器进行转发才能访问真正的服务器.
-
-  服务器不能判断用户的真实地址以及其他信息,保护用户.
-
-  正向代理多用来访问无法直接访问的服务器资源,用作缓存,加速访问速度.对客户端访问授权,认证.
-
-  代理可以记录用户访问记录,对外隐藏用户信息
-
-* 反向代理:用户访问服务器,中间有个代理服务,代理服务器代理的是服务器.
-
-  用户请求通过代理服务器转发给多个服务中的一个,用户并不知道自己访问的真正服务器是那一个
-
-  用户无法获得服务的真实信息,保护服务器.
-
-  反向代理多用来保护内网安全,进行负载均衡,缓存,减少服务器压力
+* 正向代理:用户访问服务器,中间有个代理服务,代理服务器代理的是用户
+  * 用户无法直接访问真正的服务器,需要通过代理服务器进行转发才能访问真正的服务器
+  * 服务器不能判断用户的真实地址以及其他信息,保护用户
+  * 正向代理多用来访问无法直接访问的服务器资源,用作缓存,加速访问速度.对客户端访问授权,认证
+  * 代理可以记录用户访问记录,对外隐藏用户信息
+* 反向代理:用户访问服务器,中间有个代理服务,代理服务器代理的是服务器
+* 用户请求通过代理服务器转发给多个服务中的一个,用户并不知道自己访问的真正服务器是那一个
+  * 用户无法获得服务的真实信息,保护服务器
+* 反向代理多用来保护内网安全,进行负载均衡,缓存,减少服务器压力
 
 
 
 # 安装
 
-## yum安装
 
-​	不推荐该种方式安装nginx,无法对相关参数进行自定义
+
+## yum安装
 
 * yum install nginx:在centos仓库中没有nginx的安装软件,需如下安装
 
@@ -48,15 +40,33 @@
 
 ## 安装包安装
 
-* 解压到指定目录
-* 进入解压后的目录,执行命令:./configure --prifix=/app/software/nginx(自定义目录,也可以不写)
+* 解压到指定目录/app/software/nginx
+
+* 安装依赖:yum install -y readline-devel pcre-devel openssl-devel gcc-c++ gcc
+
+* 进入解压后的目录,执行命令:./configure --help,查看该命令的参数,根据需要进行修改
+
+  * --prefix=PATH:安装根目录.默认为/usr/local/nginx
+  * --sbin-path=PATH:命令路径.默认为/usr/local/nginx/sbin/nginx
+  * --modules-path=PATH:模块路径.默认为/usr/local/nginx/modules
+  * --conf-path=PATH:nginx.conf配置文件路径.默认为/usr/local/nginx/conf/nginx.conf
+  * --error-log-path=PATH:错误日志路径.默认为/usr/local/nginx/logs/error.log
+  * --pid-path=PATH:运行时的pid文件路径.默认为/usr/local/nginx/logs/nginx.pid
+  * --with:可以加上该参数,安装该模块
+  * --without:已经安装了的模块,卸载该模块
+  * --add-module=PATH:添加指定的模块,必须是已经下载到本地目录中
+  * --add-dynamic-module=PATH:动态添加模块
+
+  ```shell
+  ./configure --prifix=/app/software/nginx \ # 根目录
+  --with-http_ssl_module # 安装指定模块,可根据情况自定义安装
+  ```
+
 * make && make install
 
 
 
 # 配置文件
-
-
 
 * 每一行配置后都需要有分号
 * nginx.conf包括全局块,events块,http块
