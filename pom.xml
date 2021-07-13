@@ -13,15 +13,16 @@
 		<module>dream-study-java-design</module>
 		<module>dream-study-java-io</module>
 		<module>dream-study-java-jpa</module>
+		<module>dream-study-java-mybatis-plus</module>
 		<module>dream-study-java-process</module>
 		<module>dream-study-java-search</module>
 		<module>dream-study-java-service</module>
+		<module>dream-study-java-sharding</module>
 		<module>dream-study-java-shiro</module>
 		<module>dream-study-java-spring</module>
 		<module>dream-study-java-thread</module>
 		<module>dream-study-java-web</module>
 		<module>dream-study-java-webflux</module>
 		<module>dream-study-java-wsdl</module>
-		<module>dream-study-java-mybatis-plus</module>
 	</modules>
 </project>

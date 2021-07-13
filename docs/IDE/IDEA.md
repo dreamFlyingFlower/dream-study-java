@@ -68,6 +68,23 @@
 
 * Code
   * Identifier under caret:修改选中字符的背景色
+    * Background->FFBE4C
+    * Error stripe mark->BAA8FF
+  * Identifier under caret(write):
+    * Background->FFBE4C
+    * Error stripe mark->F0ADF0
+  * Line number:修改行号颜色,可选000000
+
+
+
+## Language Defaults
+
+* Comments
+  * Block comment:Foreground->C87737,调整注释字体颜色
+  * Doc Comment
+    * Tag:Effects->C87737
+    * Text:Foreground->C87737
+  * Line comment:Foreground->C87737
 
 
 
@@ -93,14 +110,46 @@
 
 
 
+### Spaces
+
+* Before Left Brace
+  * Array initializer left brace:勾选
+* Within
+  * Array initializer braces:勾选
+
+
+
 ### Wrappging and Braces
+
+
 
 * Hard wrap at:每行最大宽度
 * Keep when reformatting
   * Line breaks:不勾选,默认有换行时,格式化不回到上一行
+  * Comment at first column:不勾选
+  * Control statement...:不勾选
 * Ensure right margin is not exceeded:格式化时每行字符不能超过最大宽度
+* Extends/Implements list:选择Wrap if long
+* Extends/Implements keyword:选择Wrap if long
+* Throws list:选择Wrap if long
+* Throws keyword:选择Wrap if long
 * Method declaration parameters:选择Wrap if long
+
   * Align when multiline:不勾选,多行时不对齐
+* Method call arguments:选择Wrap if long
+* Chained method calls:选择Wrap if long
+* if() statement
+  * Force braces:选择Always
+* switch statement:
+  * Indent case branches:不勾选
+* try-with-resources:选择Wrap if long
+  * Align when multiline:不勾选
+* Binary expressions:选择Wrap if long
+* Assignment statement:选择Wrap if long
+  * Assignment sign on next line:勾选
+* Ternary operation:选择Wrap if long
+  * ? and : signs on next line:勾选
+* Enum constants:选择Wrap always
 
 
 
@@ -116,6 +165,8 @@
   * Keep empty @Param tags:不勾选,删除未解释的参数
   * Keep empty @Return tags:不勾选,删除未解释的返回
   * Keep empty @throws tags:不勾选,删除未解释的异常
+* Other
+  * Do not wrap one line comments:勾选
 
 
 
@@ -305,7 +356,7 @@
 
 
 
-# 插件
+# Plugins
 
 
 
@@ -367,3 +418,16 @@
 
 * 从dao跳到Mybatis的xml文件
 * 没有Eclipse的好用,只能从dao层条,service中不能跳
+
+
+
+# Version
+
+
+
+## File Status Colors
+
+* 修改Git以及其他类型版本控制工具不同文件的颜色显示
+
+
+
