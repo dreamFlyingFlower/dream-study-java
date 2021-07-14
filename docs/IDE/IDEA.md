@@ -145,11 +145,32 @@
 * try-with-resources:选择Wrap if long
   * Align when multiline:不勾选
 * Binary expressions:选择Wrap if long
+  * Operation sign on next line:勾选
 * Assignment statement:选择Wrap if long
   * Assignment sign on next line:勾选
 * Ternary operation:选择Wrap if long
   * ? and : signs on next line:勾选
 * Enum constants:选择Wrap always
+
+
+
+### Blank Lines
+
+* Minimum blank lines
+  * Before package statement:0
+  * After package statement:1
+  * Before imports:1
+  * After imports:1
+  * Around class:1
+  * After class header:1
+  * Before class end:0
+  * After anonymous class header:1
+  * Around field in interface:1
+  * Around field:1
+  * Around method in interface:1
+  * Around method:1
+  * Before method body:0
+  * Around initializer:1
 
 
 
@@ -166,6 +187,7 @@
   * Keep empty @Return tags:不勾选,删除未解释的返回
   * Keep empty @throws tags:不勾选,删除未解释的异常
 * Other
+  * Generate "<p>" on empty lines:取消勾选
   * Do not wrap one line comments:勾选
 
 
@@ -191,7 +213,7 @@
 
 ### Class structure
 
-* parameter can be local:不勾选,将不会提示变量声明成local
+* parameter/field can be local:不勾选,将不会提示变量声明成local,不同版本第一个关键字不一样
 
 
 
@@ -249,11 +271,47 @@
 
 
 
+## Java
+
+* serr:修改为syses:输出一个error的String
+* serrc:修改为Eclipse快捷键:syse
+* souf:修改为sysf,输出一个formatted string
+* sout:修改为syss,输出一个String
+* soutc:修改为Eclipse快捷键:syso
+
+
+
 ## 自定义注释时间
 
-* 新建一个变量名,不能为系统已经设置好的重名,如dateFormat,abbreviation设置为dateFormat,template text输入{$dateFormat$}
+* 新建一个变量名dateFormat,不能和系统已经设置好的重名,Abbreviation设置为dateFormat,template text输入{$dateFormat$}
 * 点击右边的Edit variables,在弹出框中Name设置为dateFormat,Expression设置为date("自定义的格式,与Java时间格式相同")
-* default value和不填,skip if defined勾选,在File and code template中可以使用${dateFormat}连接当前定义的表达式
+* default value不填,skip if defined勾选,在Live Templates和File and code template中可以使用${dateFormat}链接当前自定义的表达式
+
+
+
+## 自定义类注释模板
+
+* 新建一个变量名`/**`,Abbreviation设置为`/**`,template text输入如下
+
+  ```java
+  /**
+   * $END$
+   *
+   * @author 作者
+   * @date $dateFormat$
+   * @git 自定义
+   */
+  ```
+
+* $END$为系统自带,表示鼠标停留的位置
+
+* $dateFormat$需要自定义
+
+  * 点击右边的Edit variables,会自动将dateFormat填入其中
+  * Expression改为自己想要的格式,如date("yyyy-MM-dd HH:mm:ss")
+  * Default value不填,Skip if defined勾选
+
+* 右边的Expand with选择Tab,Enter已经被系统占用为方法等注释触发条件
 
 
 
@@ -264,39 +322,6 @@
 ## 隐藏文件
 
 * 在ignore files and folders中添加
-
-
-
-## 格式化设置
-
-* Code Style->Java
-* Wrapping and Braces:
-  * Keep when reformatting:取消勾选Line breaks,Commetn at first column,Control statement in one line
-  * Method declaration parameters:设置为:Wrap if long
-  * Enum constants:wrap always
-* Blank Lines:
-  * Minimum Blank Lines:
-    * Before package statement:0
-    * After package statement:1
-    * Before imports:1
-    * After imports:1
-    * Around class:1
-    * After class header:1
-    * Before class end:0
-    * After anonymous class header:1
-    * Around field in interface:1
-    * Around field:1
-    * Around method in interface:1
-    * Around method:1
-    * Before method body:1
-    * Around initializer:1
-
-* JavaDoc:
-  * Alignment:
-    * Align parameter description:取消勾选
-    * Align thrown exception descriptions:取消勾选
-  * Other:
-    * Generate "<p>" on empty lines:取消勾选
 
 
 
