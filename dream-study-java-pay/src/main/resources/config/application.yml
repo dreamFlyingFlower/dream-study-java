@@ -1,0 +1,6 @@
+server:
+  port: 12301
+
+spring:
+  application:
+    name: paradise-study-java-pay

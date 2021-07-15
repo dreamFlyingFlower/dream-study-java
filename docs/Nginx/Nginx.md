@@ -103,6 +103,32 @@
 
 
 
+## 内置变量
+
+- `$args`:这个变量等于请求行中的参数,同`$query_string`
+- `$content_length`:请求头中的Content-length字段
+- `$content_type`:请求头中的Content-Type字段
+- `$document_root`:当前请求在root指令中指定的值
+- `$host`:请求主机头字段,否则为服务器名称
+- `$http_user_agent`:客户端agent信息
+- `$http_cookie`:客户端cookie信息
+- `$limit_rate`:这个变量可以限制连接速率
+- `$request_method`:客户端请求的动作,通常为GET或POST
+- `$remote_addr`:客户端的IP地址
+- `$remote_port`:客户端的端口
+- `$remote_user`:已经经过Auth Basic Module验证的用户名
+- `$request_filename`:当前请求的文件路径,由root或alias指令与URI请求生成
+- `$scheme`:HTTP方法,如http,https
+- `$server_protocol`:请求使用的协议,通常是HTTP/1.0或HTTP/1.1
+- `$server_addr`:服务器地址,在完成一次系统调用后可以确定这个值
+- `$server_name`:服务器名称
+- `$server_port`:请求到达服务器的端口号
+- `$request_uri`:包含请求参数的原始URI,不包含主机名,如:`/foo/bar.php?arg=baz`
+- `$uri`:不带请求参数的当前URI,`$uri`不包含主机名,如`/foo/bar.html`
+- `$document_uri`:与`$uri`相同
+
+
+
 
 ## http
 
@@ -168,15 +194,20 @@ location /{ # 请求URI
 ```
 
 * location URI {}:对当前路径以及子路径生效
+
 * location = URI {}:完全匹配才生效
+
 * location ~/~* URI {}:模式匹配URI,此处的URI可使用正则表达式,~区分字符大小写,~*不区分
+
 * location ^~URI {}:不使用正则表达式
+
 * 多location匹配规则:先普通,再正则,匹配顺序= > ^~ > ~|~* > /|/dir/
   * 普通:除了2个正则,其他的都是普通匹配.匹配的顺序和location在文件中的顺序无关
   * 普通匹配使用最大前缀匹配,即匹配最多的才是最后使用规则
   * 有2种情况在普通匹配之后不匹配正则:使用^~或者完全匹配
   * 正则:不完全匹配普通模式时才匹配正则
   * 若同时匹配多个正则,则按照匹配规则在文件中的顺序来,先匹配,先应用
+  
 * rewrite src des:重定向,可以使用正则表达式对需要重定向的页面执行规则
   * rewrite [flag]:关键字,正则,替代内容,flag
   * 关键字:重写语法关键字
@@ -187,8 +218,36 @@ location /{ # 请求URI
     * break:本条规则匹配完成即终止,不再匹配后面的任何规则
     * redirect:返回302临时重定向,浏览器地址会显示跳转后的URL地址
     * permanent:返回301永久重定向,浏览器地址栏会显示跳转后的URL地址
+  
 * proxy_pass:反向代理地址,格式为http://ip:port[uri].当匹配的为正则时,不需要写uri,会被匹配掉.若是匹配普通的uri,可根据情况编写.默认情况下,页面上地址栏会跳转到被代理的地址,此时ip被改变了.若不想ip改变,可以使用https,注意该https不是https协议,只是一种特殊写法.例如反向代理到百度,此时可能会因为服务器没有路由而导致跳转失败,所以要注意跳转
-* proxy_set_header Host $host:Nginx在进行网关转发时会丢失请求中的域名信息,需要设置请求头信息,$host表示当前请求的host
+
+* 代理访问:proxy_set_header Host $host:Nginx在进行网关转发时会丢失请求中的域名信息,需要设置请求头信息,$host表示当前请求的host
+
+  ```nginx
+  location /{
+      # 写上域名是防止某些服务器禁止ip访问.若不禁止ip访问,也可以写ip
+  	proxy_set_header Host 域名 
+      # name为upstream定义的标识
+      proxy_pass http://name
+  }
+  ```
+
+* return:返回http状态码和可选的第二个参数可以是重定向的URL
+
+  ```nginx
+  location /test/url {
+      return 301 http://www.example.com/moved/here;
+  }
+  ```
+
+* deny:禁止访问某个目录
+
+  ```nginx
+  location ~* \.(txt|doc)${
+    root /app/doc
+    deny all;
+  }
+  ```
 
 
 
@@ -202,21 +261,21 @@ location /{ # 请求URI
   # 定义需要进行反向代理的服务器地址,server可以写多个.name可自定义,会在location中使用
   # 当写多个server时表示会用到负载均衡功能,若不显示指定weight,则权重相同,即轮询访问
   upstream name{
+      # ip_hash;
+      # hash $request_uri;
+      # hash_method crc32;
   	server ip1:port1 weight=2; # 真实服务器的ip和端口,若是有负载均衡,可以写多个
       server ip2:port2 weight=1; # 该权重表示访问2次ip1之后再访问1次ip2
+      server ip3:port3 backup;   # 只有上面的宕机之后才走,相当于热备服务器
   }
   ```
 
-* 在location中定义代理访问
-
-  ```nginx
-  location /{
-      # 写上域名是防止某些服务器禁止ip访问.若不禁止ip访问,也可以写ip
-  	proxy_set_header Host 域名 
-      # name为upstream定义的标识
-      proxy_pass http://name
-  }
-  ```
+  * 轮询:默认不指定任何方式时,即为轮询
+  * 权重:根据weight指定,数值越大,权重越大,访问次数越高
+  * backup:热备,其他的服务器宕机之后才走
+  * ip_hash:根据请求的ip进行hash之后转发到其他服务器
+  * fair:按后端服务器的响应时间来分配请求,响应时间短的优先分配
+  * hash:按访问url的hash结果来分配请求,使每个url定向到同一个后端服务器,后端服务器为缓存时比较有效.在upstream中加入hash语句,server语句中不能写入weight等其他的参数,hash_method是使用的hash算法
 
 
 
