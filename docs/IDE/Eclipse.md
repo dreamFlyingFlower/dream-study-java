@@ -263,9 +263,15 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 
 
 
+## aiXcoder
+
+* 同codota,需要在Brower for more solutions中搜索
+
+
+
 ## Codota
 
-* 代码提示以及最新的代码样例,需要再Brower for more solutions中搜索
+* 代码提示以及最新的代码样例,需要在Brower for more solutions中搜索
 
 
 

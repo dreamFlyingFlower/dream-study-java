@@ -67,13 +67,22 @@
 ## General
 
 * Code
-  * Identifier under caret:修改选中字符的背景色
+  * Identifier under caret:修改选中字符其他相同字符的背景色
     * Background->FFBE4C
     * Error stripe mark->BAA8FF
   * Identifier under caret(write):
     * Background->FFBE4C
     * Error stripe mark->F0ADF0
   * Line number:修改行号颜色,可选000000
+* Editor
+  * Selection background:修改选中字符属性背景颜色->FFBE4C
+* Search Results
+  * Search result:修改搜索选中字符的背景色
+    * Background->FFBE4C
+    * Error stripe mark->BAA8FF
+  * Search result(write):修改搜索选中字符的背景色
+    * Background->FFBE4C
+    * Error stripe mark->BAA8FF
 
 
 
@@ -382,6 +391,18 @@
 
 
 # Plugins
+
+
+
+## Xcode-Dark Theme
+
+* 该主题可适用于蓝色背景
+
+
+
+## GsonFormat
+
+* 将Json字符串转为实体类
 
 
 
