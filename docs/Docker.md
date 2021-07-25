@@ -341,7 +341,13 @@ services:
     <!-- docker镜像配置 -->
     <configuration>
         <!-- 镜像名 -->
-        <imageName>${project.artifactId}-${project.version}</imageName>
+        <imageName>${project.artifactId}:${project.version}</imageName>
+        <!-- 如果是私服,镜像名前面应该加上私服ip地址 -->
+        <imageName>192.168.1.150:5000/${project.artifactId}:${project.version}</imageName>
+        <!-- 基础镜像 -->
+        <baseImage>jdk1.8</baseImage>
+        <!-- 启动参数 -->
+        <entryPoint>["java","-jar","/${project.artifactId}.jar"]</entryPoint>
         <!-- dockerfile所在目录 -->
         <dockerDirectory>${project.basedir}/src/main/resources</dockerDirectory>
         <!-- 镜像版本 -->
@@ -360,3 +366,4 @@ services:
 </plugin>
 ```
 
+* maven clean package docker:build -DpushImage:将项目打包上传到仓库中

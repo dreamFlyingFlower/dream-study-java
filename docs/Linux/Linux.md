@@ -1773,10 +1773,21 @@ source /etc/profile
 ### Configure
 
 * 配置JDK,可以使用自动安装,系统自带的,也可以用自定义的安装路径.可以安装多个版本JDK
+
 * 配置Maven,同安装JDK.注意需要设置Maven的配置,修改Maven仓库路径
+
+* 修改Jenkins用户和端口:vi /etc/sysconfig/jenkins
+
+  ```shell
+  JENKINS_USER="root"
+  JENKINS_PORT="8888"
+  ```
+
+* 启动:systemctl start jenkins
 
 
 
 ### 插件管理
 
 * 安装publish over ssh和ssh plugin,主要用来将服务部署到远程服务器上
+* JDK已经安装过了,不需要再次自动安装

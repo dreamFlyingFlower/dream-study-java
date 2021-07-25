@@ -10,16 +10,17 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
+import org.mybatis.spring.SqlSessionFactoryBean;
 
 /**
- * 自定义MyBatis插件,需要实现org.apache.ibatis.plugin.Interceptor
+ * 自定义MyBatis插件,需要调用{@link SqlSessionFactoryBean#setPlugins}方法将其添加进去
  * 
- * @apiNote Intercepts:该注解必须加上,告诉mybatis那些类需要拦截<br>
- *          Signature:表明当前插件用来拦截那个对象的那个方法,以及参数类型,可以有多个
+ * Intercepts:该注解必须加上,告诉mybatis那些类需要拦截<br>
+ * Signature:表明当前插件用来拦截那个对象的那个方法,以及参数类型,可以有多个
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-11-22 22:31:56
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Intercepts({ @Signature(type = StatementHandler.class, method = "parameterize", args = java.sql.Statement.class) })
 public class CustomPlugin implements Interceptor {
@@ -32,6 +33,12 @@ public class CustomPlugin implements Interceptor {
 		System.out.println("CustomPlugin...intercept:" + invocation.getMethod());
 		// 动态的改变一下sql运行的参数:以前1号用户,实际从数据库查询3号用户
 		Object target = invocation.getTarget();
+		// 对象结果根据Intercepts注解中的args获得
+		// Object[] args = invocation.getArgs();
+		// MappedStatement mappedStatement =(MappedStatement)args[0];
+		// // 判断方法类型
+		// if (mappedStatement.getSqlCommandType().equals(SqlCommandType.SELECT)) {
+		// }
 		System.out.println("当前拦截到的对象:" + target);
 		// 拿到:StatementHandler==>ParameterHandler===>parameterObject
 		// 拿到target的元数据

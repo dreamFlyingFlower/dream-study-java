@@ -3,37 +3,39 @@ package com.wy.dynamicdb;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @apiNote 通过AOP来判断使用哪一个标识数据库
- * @author ParadiseWY
- * @date 2019年8月18日 下午10:07:54
+ * 通过AOP来判断使用哪一个标识数据库
+ * 
+ * @auther 飞花梦影
+ * @date 2021-07-24 16:06:36
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class DynamicSourceHolder {
 
-	private static final ThreadLocal<DBTypeEnum> dbLocal = new ThreadLocal<>();
+	private static final ThreadLocal<DBTypeEnum> DB_LOCAL = new ThreadLocal<>();
 
 	private static final AtomicInteger counter = new AtomicInteger(-1);
 
 	public static void setDataSourceKey(DBTypeEnum dbTypeEnum) {
-		dbLocal.set(dbTypeEnum);
+		DB_LOCAL.set(dbTypeEnum);
 	}
 
 	public static DBTypeEnum getDataSourceKey() {
-		DBTypeEnum dbTypeEnum = dbLocal.get();
+		DBTypeEnum dbTypeEnum = DB_LOCAL.get();
 		if (null == dbTypeEnum) {
 			setMaster();
 		}
-		return dbLocal.get();
+		return DB_LOCAL.get();
 	}
 
 	public static void setMaster() {
 		setDataSourceKey(DBTypeEnum.MASTER);
 	}
-	
+
 	/**
 	 * 清理连接类型
 	 */
 	public static void clearDBType() {
-		dbLocal.remove();
+		DB_LOCAL.remove();
 	}
 
 	/**

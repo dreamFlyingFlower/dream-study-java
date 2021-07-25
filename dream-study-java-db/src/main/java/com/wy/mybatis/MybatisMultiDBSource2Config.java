@@ -23,11 +23,13 @@ import com.wy.properties.ConfigProperties;
 /**
  * 多数据源2
  * 
- * @author ParadiseWY
- * @date 2020年7月7日 下午4:45:54
+ * @auther 飞花梦影
+ * @date 2021-07-24 17:52:55
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 // @Configuration
-// @MapperScan(basePackages = "com.wy.mapper1", sqlSessionTemplateRef = "sqlSessionTemplate1")
+// @MapperScan(basePackages = "com.wy.mapper1", sqlSessionTemplateRef =
+// "sqlSessionTemplate1")
 public class MybatisMultiDBSource2Config {
 
 	@Autowired

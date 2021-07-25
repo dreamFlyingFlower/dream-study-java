@@ -12,12 +12,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @apiNote 数据源配置,可在配置文件中自定义,不必一定都写在springdatasource下
- * @author ParadiseWY
- * @date 2019年12月21日 下午3:14:51
+ * 数据库读写分离多数据源配置,可在配置文件中自定义,适合固定数据源的小项目.
+ * 
+ * 主要通过对接口名称的拦截,动态判断是读或写,从 DynamicSourceHolder 中获得数据源
+ * 
+ * <pre>
+ * {@link DynamicRoutingDataSource}:数据源动态切换配置
+ * {@link DynamicSourceHolder}:线程安全的数据源切换规则
+ * {@link DBAspect DBSelectAspect}:数据源切换拦截器,主要拦截数据库执行的方法以及数据源
+ * {@link DBMaster  DBSelect}:根据不同业务需要在不同的类或方法上添加注解,强制使用主数据源或指定数据源
+ * {@link MybatisInterceptor}:使用AOP的局限性和复杂性比较大,如果使用了Mybatis,可以加入该类,不使用拦截器
+ * </pre>
+ * 
+ * @auther 飞花梦影
+ * @date 2021-07-24 16:42:32
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
 public class DataSourceConfig {
+
 	@Bean
 	@ConfigurationProperties("spring.datasource.master")
 	public DataSource masterDataSource() {

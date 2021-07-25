@@ -23,8 +23,9 @@ import com.github.pagehelper.PageInterceptor;
 /**
  * 多数据源1,该数据源可以直接使用spring自动配置的数据源,注意,多数据源模式下,需要使用hikari的数据源
  * 
- * @author ParadiseWY
- * @date 2020年7月7日 下午4:42:33
+ * @auther 飞花梦影
+ * @date 2021-07-24 17:52:41
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
 @MapperScan(basePackages = "com.wy.mapper", sqlSessionTemplateRef = "sqlSessionTemplate")
