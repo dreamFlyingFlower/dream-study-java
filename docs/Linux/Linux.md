@@ -1790,4 +1790,23 @@ source /etc/profile
 ### 插件管理
 
 * 安装publish over ssh和ssh plugin,主要用来将服务部署到远程服务器上
-* JDK已经安装过了,不需要再次自动安装
+
+
+
+#### JDK
+
+* JDK已经安装过了,不需要再次自动安装,但是需要手动指定别名和Java_home
+
+
+
+#### Maven
+
+* 取消自动安装,将本机上的maven地址填入即可
+
+
+
+### 新建
+
+* 构建一个maven项目
+* 点击源码管理,将git仓库的地址填入其中,根据实际情况添加密钥验证
+* build的Root Pom需要根据实际情况选择pom.xml文件.Goals只需要写maven后的命令
