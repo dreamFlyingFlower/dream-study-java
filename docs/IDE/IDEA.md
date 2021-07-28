@@ -19,6 +19,13 @@
 
 
 
+# Keymap
+
+* Main menu->Refactor->Rename:添加快捷键F2
+* Other->Show Intention Actions:去掉Alt+Enter,改为CTRL+1
+
+
+
 # Editor->General
 
 * File->Settings->Editor->General:编辑配置
@@ -156,10 +163,11 @@
 * Binary expressions:选择Wrap if long
   * Operation sign on next line:勾选
 * Assignment statement:选择Wrap if long
-  * Assignment sign on next line:勾选
+  * Assignment sign on next line:不勾选
 * Ternary operation:选择Wrap if long
   * ? and : signs on next line:勾选
 * Enum constants:选择Wrap always
+* Annotation Parameters:Wrap if long
 
 
 
@@ -394,6 +402,15 @@
 
 
 
+## Eclipse Code Formatter
+
+* 让IDEA使用Eclipse的格式化
+* 打开File->Settings->Other Settings->Eclipse Code Formatter
+* Use the Eclipse Code Formatter:勾选
+* Eclipse Java Formatter config file:选择从Eclipse导出来的格式化文件,OK
+
+
+
 ## Xcode-Dark Theme
 
 * 该主题可适用于蓝色背景
@@ -436,9 +453,17 @@
 
 
 
+## CamelCase
+
+* 驼峰,下划线相互转换,默认快捷键ALT+SHIFT+U
+* File->Editor->Camel Case可设置相关配置
+
+
+
 ## String Manipulation
 
-* 字符串转换工具,可以进行驼峰,蛇形相互转换,快捷键`ALT+M`
+* 字符串转换工具,可以进行驼峰,蛇形相互转换,快捷键`ALT+M`,功能比CamelCase更丰富
+* File->Settings->Other Settings可设置相关配置
 
 
 
