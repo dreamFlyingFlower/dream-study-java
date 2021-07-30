@@ -46,6 +46,12 @@
 
 
 
+## Appearance
+
+* Show hard wrap guide(configured in Code Style options):不勾选,去掉中间的白线
+
+
+
 ## Code Completion
 
 * Code Completion:取消勾选Match case,自动提示忽略大小写
@@ -285,6 +291,12 @@
 
 
 # Editor->Live Templates
+
+
+
+## iterrations
+
+* iter:修改为foreach
 
 
 
