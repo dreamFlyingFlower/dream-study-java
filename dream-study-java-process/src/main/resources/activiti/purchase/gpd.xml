@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="purchase" width="670" height="482">
+  <node name="开始填写采购申请" x="132" y="10" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="fork1" x="73" y="105" width="252" height="24">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="申请人取消申请" x="-3" y="172" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="主管审批" x="253" y="164" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="join1" x="70" y="272" width="252" height="24">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="判断流程流转的走向" x="123" y="361" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+      <bendpoint w1="281" h1="-9" w2="2" h2="314"/>
+    </edge>
+  </node>
+  <node name="修改采购申请" x="402" y="38" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="结束" x="128" y="445" width="132" height="36"/>
+</root-container>

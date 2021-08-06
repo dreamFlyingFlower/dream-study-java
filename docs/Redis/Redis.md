@@ -108,14 +108,24 @@
 ## 适用场景
 
 * 缓存
-* 取最新N个数据的操作
+* 取最新N个数据的操作:zincrby
 * 排行榜类的应用,取TOP N操作,前面操作以时间为权重,这个是以某个条件为权重
-* 计数器应用
 * 存储关系,比如社交关系
 * 获取某段时间所有数据排重值,使用set,比如某段时间访问的用户id,或者是客户端ip
 * 构建对队列系统,list可以构建栈和队列,使用zset构建优先级队列
 * 实时分析系统,如访问频率控制
 * 模拟类似于httpsession这种需要设定过期时间的功能
+* 分布式锁:setnx
+* 分布式唯一主键生成:incrby
+* 计数器:incr
+* 限流:incr
+* 购物车
+* 用户消息时间线timeline,list,双向链表
+* 抽奖:spop myset
+* 点赞,签到,打卡:sadd,srem,sismember,smembers,scard
+* 商品标签
+* 商品筛选:sdiff set1 set20->获取差集;sinter set1 set2->获取交集;sunion set1 set2->获取并集
+* 用户关注,推荐模型
 
 
 

@@ -208,6 +208,68 @@ List<Map<${String},${Object}>> ${listMap} = new ArrayList<>();${cursor}
 ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 ```
 
+* apim,Java,add a @ApiModel to a class entity
+
+```java
+/**
+ * ${comment}
+ * 
+ * @auther 飞花梦影
+ * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
+ * @git {@link https://github.com/dreamFlyingFlower}
+ */
+@ApiModel(description = "${comment}")${imp:import(io.swagger.annotations.ApiModel)}
+```
+
+* apimp,Java type members,add a @ApiModelProperty to a field
+
+```java
+/**
+ * ${comment}
+ */
+@ApiModelProperty("${comment}")${cursor}${imp:import(io.swagger.annotations.ApiModelProperty)}
+```
+
+* lombokAll,Java,add lombok all annotation
+
+```java
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString)}
+```
+
+* lombokData,Java,import lombok data builder
+
+```java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.NoArgsConstructor)}
+```
+
+* lombokGetSet,Java,import lombok getter and setter
+
+```java
+@Getter
+@Setter${imp:import(lombok.Getter,lombok.Setter)}
+```
+
+* lombokSuperAll,Java,add lombok all annotation with superbuilder
+
+```java
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder${imp:import(lombok.AllArgsConstructor,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString,lombok.experimental.SuperBuilder)}
+```
+
+
+
 
 
 ## Maven

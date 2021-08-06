@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns=""  name="payment">
+
+
+	<start-state name="填写报销单">
+		<task name="填写报销单">
+			<description>
+				payment.write.bill
+			</description>
+			<controller>
+				<variable access="write" name="title"></variable>
+				<variable access="write" name="moneycount"></variable>
+				<variable access="write" name="remark"></variable>
+			</controller>
+</task>
+		<transition to="部门经理审批"></transition>
+	</start-state>
+
+
+	<task-node name="部门经理审批">
+		<task name="部门经理审批">
+			<description>
+				payment.manager.approve
+			</description>
+			<assignment class="com.test.assignment.ManagerAssignment"></assignment>
+			<controller>
+				<variable access="read" name="title"></variable>
+				<variable access="read" name="moneycount"></variable>
+				<variable access="read" name="remark"></variable>
+				<variable access="read" name="issueperson"></variable>
+			</controller>
+		</task>
+		<transition to="判断报销金额" name="agree"></transition>
+		<transition to="财务处理" name="disagree"></transition>
+	</task-node>
+
+	<decision name="判断报销金额" expression='#{money_count&gt;1000?"morethousand":"lessthousand"}'>
+		<transition to="总经理审批" name="morethousand"></transition>
+		<transition to="财务处理" name="lessthousand"></transition>
+	</decision>
+
+	<task-node name="总经理审批">
+		<task name="总经理审批">
+			<description>
+				payment.super.manager.approve
+			</description>
+			<assignment actor-id="supermanager"></assignment>
+			<controller>
+				<variable access="read" name="title"></variable>
+				<variable access="read" name="moneycount"></variable>
+				<variable access="read" name="remark"></variable>
+				<variable access="read" name="issueperson"></variable>
+			</controller>
+		</task>
+		<transition to="财务处理"></transition>
+	</task-node>
+
+	<task-node name="财务处理">
+		<task name="报销财务处理">
+			<description>
+				payment.cashier.process
+			</description>
+			<assignment actor-id="cashier"></assignment>
+			<controller>
+				<variable access="read" name="title"></variable>
+				<variable access="read" name="moneycount"></variable>
+				<variable access="read" name="remark"></variable>
+				<variable access="read" name="issueperson"></variable>
+			</controller>
+		</task>
+		<transition to="通知报销人员报销结果"></transition>
+	</task-node>
+
+	<node name="通知报销人员报销结果">
+		<action class="com.test.constants.NotifyPaymentAction" name="通知报销人员报销结果"></action>
+		<transition to="报销结束"></transition>
+	</node>
+
+
+	<end-state name="报销结束"></end-state>
+
+
+</process-definition>

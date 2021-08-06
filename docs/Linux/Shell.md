@@ -83,6 +83,22 @@
 
 # 变量
 
+
+
+## 系统变量
+
+* HOME
+* PWD
+* SHELL
+* USER
+* PATH
+* dirname $path:提取目录
+* basename $path:提取文件名
+
+
+
+## 普通变量
+
 * linux中任何一个字符串(不带引号)都会被认为是命令进行执行,加上$则会执行该字符串指向的值
 
   ```shell
@@ -206,6 +222,26 @@
   * \["$test" = "str2"\]:正确,此时不管test是否有值,都可以正常比较.test未赋值,也会认识为""
   
 * str1 != str2:字符串不相同,不能使用!==代替
+
+* ${str:index}:从位置index开始提取字符串,index从0开始
+
+* ${str:index:length}:在str中从位置index开始提取长度为$length的子串
+
+* ${str#substring}:从str变量的开头删除最短匹配substring的子串
+
+* ${str##substring}:从str变量的开头删除最长匹配substring的子串
+
+* ${str%substring}:从str变量的结尾删除最短匹配substring的子串
+
+* ${str%%substring}:从str变量的结尾删除最长匹配substring的子串
+
+* ${str/substring/replace}:使用replace来代替第一个匹配的substring
+
+* ${str//substring/replace}:使用replace代替所有匹配的substring
+
+* ${str/#substring/replace}:如果str的前缀匹配substring, 那么就用replace来代替匹配到的substring
+
+* ${str/%substring/replace}:如果str的后缀匹配substring, 那么就用replace来代替匹配到的substring
 
 * 忽略大小写
 
@@ -449,6 +485,270 @@ done
 
 
 
+# 运维
+
+
+
+## Zabbix
+
+* 是一个分布式监控系统
+* 它将采集到的数据存放到数据库,然后对其进行分析整理,达到条件触发告警
+* 可以监控CPU负荷,内存使用,磁盘使用,网络状况,端口监视,日志监视等
+* 对系统硬件以及端口,进程信息进行监控,包含后台服务,数据库以及前端界面
+* 但是因为消耗资源较多的缘故,如果监控的主机非常多时,可能会出现监控超时,告警超时等现象
+
+
+
+## Exhibitor
+
+
+
+## Cacti
+
+* 英文含义为仙人掌,是一套基于 PHP,MySQL,SNMP 和 RRDtool开发的网络流量监测图形分析工具
+
+
+
+## Nagios
+
+* 是一个企业级的监控系统,可监控服务的运行状态和网络信息等,并能监视所指定的本地或远程主机参数以及服务,同时提供异常告警通知功能等
+
+* Nagios可运行在Linux和UNIX平台上,同时提供一个可选的基于浏览器的Web界面,以方便系统管理人员查看网络状态,各种系统问题,以及日志等
+* Nagios 的功能侧重于监控服务的可用性,能及时根据触发条件告警
+
+
+
+## Prometheus
+
+* 多维的数据模型,基于时间序列的Key,Value键值对
+* 灵活的查询和聚合语言PromQL
+* 提供本地存储和分布式存储
+* 通过基于HTTP的Pull模型采集时间序列数据
+* 可利用Pushgateway(Prometheus的可选中间件)实现Push模式
+* 可通过动态服务发现或静态配置发现目标机器
+* 支持多种图表和数据大盘
+
+
+
+## Grafana
+
+* 是一款采用 go 语言编写的开源应用,主要用于大规模指标数据的可视化展现
+
+
+
+
+
+# 磁盘阵列
+
+
+
+## RAID0
+
+* 最简单的磁阵,2块硬盘串联,数据打散之后分别存储在不同的盘上,读从2块盘上读取
+* 若是有一块磁盘坏了,数据就会不完整
+
+
+
+## RAID1
+
+* 解决了RAID0的缺点,多了一块冗余磁盘,不必担心数据的丢失
+* 多的磁盘类似于镜像,也可以从镜像上读取数据.数据写入的时候同时写入镜像和主节点
+* 缺点是浪费了一块磁盘
+
+
+
+## RAID5
+
+* 3块盘,在RAID0的基础上加了一个校验的磁盘,若是一块磁盘损坏,可以通过校验盘进行恢复
+
+
+
+## RAID10
+
+* 是RAID0和RAID1结合起来,读RAID一零
+* 通常是4块磁盘的倍数,2块磁盘先用RAID1做镜像数据,之后再把2个RAID1做RAID0处理
+* 相当于数据分别存在2个RAID1上,每个RAID1里的主磁盘数据用镜像保证数据安全
+
+
+
+
+
+# 一些命令
+
+## 文件磁盘相关
+
+```shell
+# 打开文件数目
+lsof | wc -l
+
+# 删除0字节文件
+find -type f -size 0 -exec rm -rf {} \;
+
+# 进入分区的挂载点,找出占用空间最多的文件或目录
+du -cks * | sort -rn | head -n 10
+
+# 磁盘 I/O 负载,检查I/O使用率(%util)是否超过 100%
+iostat -x 1 2
+
+# 统计服务器下面所有的 jpg 的文件的大小
+find / -name *.jpg -exec wc -c {} \;|awk '{print $1}'|awk '{a+=$1}END{print a}'
+
+# 匹配Root行,将no替换成yes
+sed -i '/Root/s/no/yes/' /etc/ssh/sshd_config
+
+# 用EOF在SHELL显示多个信息
+cat << EOF
++--------------------------------------------------------------+
+|       === Welcome to Tunoff services ===                |
++--------------------------------------------------------------+
+EOF
+```
+
+
+
+## MySQL相关
+
+```shell
+# 给MySQL建软链接
+cd /usr/local/mysql/bin
+for i in *
+do 
+ln /usr/local/mysql/bin/$i /usr/bin/$i
+done
+
+# 杀掉MySQL进程
+ps aux |grep mysql |grep -v grep  |awk '{print $2}' |xargs kill -9
+killall -TERM mysqld
+kill -9 `cat /usr/local/apache2/logs/httpd.pid`
+```
+
+
+
+## 网络相关
+
+```shell
+# 从网卡获取IP
+ifconfig eth0 |grep "inet addr:" |awk '{print $2}'| cut -c 6-  
+ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'
+
+# kudzu查看网卡型号
+kudzu --probe --class=network
+
+# 网络负载,检查网络流量(rxbyt/s,txbyt/s)是否过高
+sar -n DEV
+
+# 检查是否有网络错误(drop fifo colls carrier)
+netstat -i
+cat /proc/net/dev
+
+# 网络连接数目
+netstat -an | grep -E “^(tcp)” | cut -c 68- | sort | uniq -c | sort -n
+
+# 查看http并发数及TCP连接状态
+netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
+
+# tcpdump抓包,用来防止80端口被人攻击时可以分析数据
+tcpdump -c 10000 -i eth0 -n dst port 80 > /root/pkts
+
+# 然后检查IP的重复数并从小到大排序,注意 “-t\ +0”中间是两个空格
+less pkts | awk {'printf $3"\n"'} | cut -d. -f 1-4 | sort | uniq -c | awk {'printf $1" "$2"\n"'} | sort -n -t\ +0
+
+# 打印cache里的URL
+grep -r -a jpg /data/cache/* | strings | grep "http:" | awk -F'http:' '{print "http:"$2;}'
+```
+
+
+
+## 系统相关
+
+```shell
+# 获取内存大小
+free -m |grep "Mem" | awk '{print $2}'
+
+# 查看系统自启动的服务
+chkconfig --list | awk '{if ($5=="3:on") print $1}'
+
+# 显示运行3级别开启的服务
+ls /etc/rc3.d/S* |cut -c 15-
+```
+
+
+
+## 端口相关
+
+```shell
+# 查看指定端口的使用情况
+netstat -an -t | grep ":80" | grep ESTABLISHED | awk '{printf "%s %s\n",$5,$6}' | sort
+
+# 杀掉80端口相关的进程
+lsof -i :80|grep -v “ID”|awk ‘{print “kill -9”,$2}’|sh
+```
+
+
+
+## CPU相关
+```shell
+# CPU负载,检查前三个输出值是否超过了系统逻辑CPU的4倍
+cat /proc/loadavg
+
+# CPU负载,检查%idle是否过低,比如小于5%
+mpstat 1 1
+```
+
+
+
+## 日志相关
+
+```shell
+# 系统日志
+cat /var/log/rflogview/*errors
+
+# 检查是否有异常错误记录
+grep -i error /var/log/messages
+grep -i fail /var/log/messages
+
+# 核心日志,检查是否有异常错误记录
+dmesg
+
+# 日志,配置/etc/log.d/logwatch.conf,将Mailto设置为自己的email地址,启动mail服务(sendmail或者postfix),这样就可以每天收到日志报告了,缺省logwatch只报告昨天的日志
+logwatch –print
+
+# 获得所有的日志分析结果
+logwatch –print –range all
+
+# 获得更具体的日志分析结果,不仅仅是出错日志
+logwatch –print –detail high
+```
+
+
+
+## 进程相关
+
+```shell
+# 进程总数
+ps aux | wc -l
+
+# 查看进程数,按内存大小排序
+ps -e -o "%C : %p : %z : %a"|sort -k5 -nr
+
+# 查看进程数,按CPU利用率排序
+ps -e -o "%C : %p : %z : %a"|sort -nr
+
+# 清除僵死进程
+ps -eal | awk '{ if ($2 == "Z") {print $4}}' | kill -9
+
+# 可运行进程数目,列给出的是可运行进程的数目,检查其是否超过系统逻辑CPU的4倍
+vmwtat 1 5
+
+# 观察是否有异常进程
+top -id 1
+
+# 查看有多少个活动的java进程
+netstat -anp | grep java | grep ^tcp | wc -l
+```
+
+
+
 # 实际案例
 
 ## 查看端口是否正常
@@ -582,225 +882,63 @@ rename "_xxx.html" ".jepg" *_xxx.html
 
 
 
-# 运维
-
-
-
-## Zabbix
-
-* 是一个分布式监控系统
-* 它将采集到的数据存放到数据库,然后对其进行分析整理,达到条件触发告警
-* 可以监控CPU负荷,内存使用,磁盘使用,网络状况,端口监视,日志监视等
-* 对系统硬件以及端口,进程信息进行监控,包含后台服务,数据库以及前端界面
-* 但是因为消耗资源较多的缘故,如果监控的主机非常多时,可能会出现监控超时,告警超时等现象
-
-
-
-## Exhibitor
-
-
-
-## Cacti
-
-* 英文含义为仙人掌,是一套基于 PHP,MySQL,SNMP 和 RRDtool开发的网络流量监测图形分析工具
-
-
-
-## Nagios
-
-* 是一个企业级的监控系统,可监控服务的运行状态和网络信息等,并能监视所指定的本地或远程主机参数以及服务,同时提供异常告警通知功能等
-
-* Nagios可运行在Linux和UNIX平台上,同时提供一个可选的基于浏览器的Web界面,以方便系统管理人员查看网络状态,各种系统问题,以及日志等
-* Nagios 的功能侧重于监控服务的可用性,能及时根据触发条件告警
-
-
-
-## Prometheus
-
-* 多维的数据模型,基于时间序列的Key,Value键值对
-* 灵活的查询和聚合语言PromQL
-* 提供本地存储和分布式存储
-* 通过基于HTTP的Pull模型采集时间序列数据
-* 可利用Pushgateway(Prometheus的可选中间件)实现Push模式
-* 可通过动态服务发现或静态配置发现目标机器
-* 支持多种图表和数据大盘
-
-
-
-## Grafana
-
-* 是一款采用 go 语言编写的开源应用,主要用于大规模指标数据的可视化展现
-
-
-
-
-
-# 磁盘阵列
-
-
-
-## RAID0
-
-* 最简单的磁阵,2块硬盘串联,数据打散之后分别存储在不同的盘上,读从2块盘上读取
-* 若是有一块磁盘坏了,数据就会不完整
-
-
-
-## RAID1
-
-* 解决了RAID0的缺点,多了一块冗余磁盘,不必担心数据的丢失
-* 多的磁盘类似于镜像,也可以从镜像上读取数据.数据写入的时候同时写入镜像和主节点
-* 缺点是浪费了一块磁盘
-
-
-
-## RAID5
-
-* 3块盘,在RAID0的基础上加了一个校验的磁盘,若是一块磁盘损坏,可以通过校验盘进行恢复
-
-
-
-## RAID10
-
-* 是RAID0和RAID1结合起来,读RAID一零
-* 通常是4块磁盘的倍数,2块磁盘先用RAID1做镜像数据,之后再把2个RAID1做RAID0处理
-* 相当于数据分别存在2个RAID1上,每个RAID1里的主磁盘数据用镜像保证数据安全
-
-
-
-
-
-# 一些命令
+## 判空
 
 ```shell
-# 删除0字节文件
-find -type f -size 0 -exec rm -rf {} \;
+#!/bin/sh
+read -p "请输入参数:" word
+if  [ ! -n "$word" ] ;then
+    echo "请输入参数!"
+else
+    echo "输入参数为:$word"
+fi
+```
 
-# 查看进程,按内存从大到小排列
-PS -e -o "%C : %p : %z : %a"|sort -k5 -nr
+```shell
+#!/bin/bash
+if [ ! -n "$1" ] ;then
+    echo "请输入参数!"
+else
+    echo "输入参数为:$1"
+fi
+if [ -z "$1" ]; then
+    echo "请输入参数!"
+fi
+```
 
-# 按 CPU 利用率从大到小排列
-ps -e -o "%C : %p : %z : %a"|sort -nr
+```shell
+#!/bin/bash
+if [ $# -eq 0 ];then
+    echo "请输入参数!"
+fi
+```
 
-# 打印 cache 里的URL
-grep -r -a jpg /data/cache/* | strings | grep "http:" | awk -F'http:' '{print "http:"$2;}'
 
-# 查看 http 的并发请求数及其 TCP 连接状态
-netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
 
-# 匹配 Root 一行,将 no 替换成 yes
-sed -i '/Root/s/no/yes/' /etc/ssh/sshd_config
+## 内存不足发邮件
 
-# 如何杀掉 MySQL 进程
-ps aux |grep mysql |grep -v grep  |awk '{print $2}' |xargs kill -9
-killall -TERM mysqld
-kill -9 `cat /usr/local/apache2/logs/httpd.pid`
+```shell
+#!/bin/bash
+# 单位为M
+FREE=`free -m|awk 'NR==3{print $NF}'`
+[ "$FREE" -lt 100 ]&&{
+	echo "内存不足$FREE" >/opt/mail.txt
+	mail -s "free is too low" 12345678@163.com </op/mail.txt
+}
+```
 
-# 显示运行 3 级别开启的服务
-ls /etc/rc3.d/S* |cut -c 15-
 
-# 如何在编写 SHELL 显示多个信息,用 EOF
-cat << EOF
-+--------------------------------------------------------------+
-|       === Welcome to Tunoff services ===                |
-+--------------------------------------------------------------+
-EOF
 
-# 给 MySQL 建软链接
-cd /usr/local/mysql/bin
-for i in *
-do 
-ln /usr/local/mysql/bin/$i /usr/bin/$i
-done
+## 批量重命名带有空格文件
 
-# 取 IP 地址
-ifconfig eth0 |grep "inet addr:" |awk '{print $2}'| cut -c 6-  
-ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'
-
-# 内存的大小
-free -m |grep "Mem" | awk '{print $2}'
-
-# 查看指定端口的使用情况并输出相关信息
-netstat -an -t | grep ":80" | grep ESTABLISHED | awk '{printf "%s %s\n",$5,$6}' | sort
-
-# 查看 Apache 的并发请求数及其 TCP 连接状态
-netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
-
-# 统计服务器下面所有的 jpg 的文件的大小
-find / -name *.jpg -exec wc -c {} \;|awk '{print $1}'|awk '{a+=$1}END{print a}'
-
-# CPU负载,检查前三个输出值是否超过了系统逻辑 CPU 的4倍
-cat /proc/loadavg
-
-# CPU负载,检查 %idle 是否过低,比如小于5%
-mpstat 1 1
-
-# 进入分区的挂载点,找出占用空间最多的文件或目录
-du -cks * | sort -rn | head -n 10
-
-# 磁盘 I/O 负载,检查I/O使用率(%util)是否超过 100%
-iostat -x 1 2
-
-# 网络负载,检查网络流量(rxbyt/s,txbyt/s)是否过高
-sar -n DEV
-
-# 检查是否有网络错误(drop fifo colls carrier)
-netstat -i
-cat /proc/net/dev
-
-# 网络连接数目
-netstat -an | grep -E “^(tcp)” | cut -c 68- | sort | uniq -c | sort -n
-
-# 进程总数
-ps aux | wc -l
-
-# 可运行进程数目,列给出的是可运行进程的数目,检查其是否超过系统逻辑 CPU 的4倍
-vmwtat 1 5
-
-# 进程,观察是否有异常进程
-top -id 1
-
-# 系统日志
-cat /var/log/rflogview/*errors
-
-# 检查是否有异常错误记录
-grep -i error /var/log/messages
-grep -i fail /var/log/messages
-
-# 核心日志,检查是否有异常错误记录
-dmesg
-
-# 打开文件数目
-lsof | wc -l
-
-# 日志,配置/etc/log.d/logwatch.conf,将Mailto设置为自己的email地址,启动mail服务(sendmail或者postfix),这样就可以每天收到日志报告了,缺省logwatch只报告昨天的日志
-logwatch –print
-
-# 获得所有的日志分析结果
-logwatch –print –range all
-
-# 获得更具体的日志分析结果,不仅仅是出错日志
-logwatch –print –detail high
-
-# 杀掉80端口相关的进程
-lsof -i :80|grep -v “ID”|awk ‘{print “kill -9”,$2}’|sh
-
-# 清除僵死进程
-ps -eal | awk '{ if ($2 == "Z") {print $4}}' | kill -9
-
-# tcpdump 抓包,用来防止80端口被人攻击时可以分析数据
-tcpdump -c 10000 -i eth0 -n dst port 80 > /root/pkts
-
-# 然后检查IP的重复数并从小到大排序,注意 “-t\ +0”中间是两个空格
-less pkts | awk {'printf $3"\n"'} | cut -d. -f 1-4 | sort | uniq -c | awk {'printf $1" "$2"\n"'} | sort -n -t\ +0
-
-# 查看有多少个活动的 php-cgi 进程
-netstat -anp | grep php-cgi | grep ^tcp | wc -l
-
-# 查看系统自启动的服务
-chkconfig --list | awk '{if ($5=="3:on") print $1}'
-
-# kudzu 查看网卡型号
-kudzu --probe --class=network
+```shell
+function processFilePathWithSpace(){ 
+	find $1 -name "* *" | while read line
+    do 
+    	newFile=`echo $line | sed 's/[ ][ ]*/_/g'`
+    	mv "$line" $newFile
+    	logInfo "mv $line $newFile $?"
+    done
+}
 ```
 

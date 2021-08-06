@@ -21,14 +21,22 @@
 
 # Keymap
 
-* Main menu->Refactor->Rename:添加快捷键F2
-* Other->Show Intention Actions:去掉Alt+Enter,改为CTRL+1
+
+
+## Main menu
+
+* Refactor->Rename:添加快捷键F2
+* Code->Code Completion:移除Ctrl+空格,添加ALT+/
+
+
+
+## Other
+
+* Show Intention Actions/Show Context Actions:去掉Alt+Enter,改为CTRL+1
 
 
 
 # Editor->General
-
-* File->Settings->Editor->General:编辑配置
 
 * Change font size(Zoom) with Ctrl+Mouse Wheel:鼠标滚轮控制字体大小
 
@@ -58,9 +66,12 @@
 
 
 
-### 系统默认自动补全
+## Postfix Completion
 
-* 需自行修改,用在变量后面
+* serr->syse
+* souf->sysof
+* sout->syso
+* soutv->sysov
 
 
 
@@ -230,6 +241,12 @@
 
 
 
+## General
+
+* Duplicated code fragment:改为黄色警告,重复代码提醒
+
+
+
 ## Java
 
 
@@ -258,6 +275,22 @@
 ### Serialization issues
 
 * Serializable class without serialVersionUID:勾选,右键菜单生成序列号
+
+
+
+## Spring
+
+
+
+### Spring Core
+
+
+
+#### Code
+
+* Field injection waring:不勾选
+
+
 
 # Editor->File and Code templates
 
@@ -423,6 +456,19 @@
 
 
 
+## Background Image Plus +
+
+* 更换IDEA背景
+
+
+
+## Stack trace to UML
+
+* 根据JVM异常堆栈画UML时序图和通信图
+* Analyze -> Open Stack trace to UML plugin + Generate UML diagrams from stacktrace from debug
+
+
+
 ## Xcode-Dark Theme
 
 * 该主题可适用于蓝色背景
@@ -432,6 +478,12 @@
 ## GsonFormat
 
 * 将Json字符串转为实体类
+
+
+
+## SequenceDiagram
+
+* 调用链路自动生成时序图,右键->Sequence Diagaram 即可调出
 
 
 
