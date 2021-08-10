@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- configuration:scan->true,当配置文件被修改时,是否刷新配置, scanPeriod->当scan为true时,刷新间隔,默认1分钟,如60 seconds -->
+<!-- configuration:scan->true,当配置文件被修改时,是否刷新配置, scanPeriod->当scan为true时,刷新间隔,默认1分钟,如60 
+	seconds -->
 <configuration>
 	<!-- 定义全局变量,日志存储的根目录 -->
 	<property name="log.file" value="${catalina.base}/logs"></property>
 	<!-- 控制台打印日志的相关配置 -->
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
 		<!-- 日志格式 -->
 		<encoder>
 			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] - %m%n</pattern>
@@ -13,15 +15,16 @@
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<!-- 过滤的级别 -->
 			<level>INFO</level>
-			<!-- 匹配时的操作：接收（记录） -->
+			<!-- 匹配时的操作:ACCEPT,接收记录;DENY:拒绝,不记录 -->
 			<onMatch>ACCEPT</onMatch>
-			<!-- 不匹配时的操作：拒绝（不记录） -->
+			<!-- 不匹配时的操作 -->
 			<onMismatch>ACCEPT</onMismatch>
 		</filter>
 	</appender>
 
 	<!-- 文件保存日志的相关配置 -->
-	<appender name="ERROR-OUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="ERROR-OUT"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!-- 保存日志文件的路径 -->
 		<file>${log.file}/error.log</file>
 		<!-- 日志格式 -->
@@ -32,23 +35,60 @@
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<!-- 过滤的级别 -->
 			<level>ERROR</level>
-			<!-- 匹配时的操作：接收（记录） -->
 			<onMatch>ACCEPT</onMatch>
-			<!-- 不匹配时的操作：拒绝（不记录） -->
 			<onMismatch>DENY</onMismatch>
 		</filter>
-		<!-- 循环政策：基于时间创建日志文件 -->
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+		<!-- 循环政策:基于时间创建日志文件 -->
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- 日志文件名格式 -->
-			<fileNamePattern>${log.file}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
-			<!-- 最大保存时间：30天 -->
+			<fileNamePattern>${log.file}/error.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- 最大 MB 超过最大值,会重新建一个文件 -->
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<!-- 最大保存时间:30天 -->
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
 	</appender>
 
-	<!-- 基于dubug处理日志：具体控制台或者文件对日志级别的处理还要看所在appender配置的filter，如果没有配置filter，则使用root配置 -->
+	<!-- 基于dubug处理日志:具体控制台或者文件对日志级别的处理还要看所在appender配置的filter,如果没有配置filter,则使用root配置 -->
 	<root level="info">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="ERROR-OUT" />
 	</root>
+
+	<!-- springProfile:整合SpringBoot时使用,若不整合,可直接使用root -->
+	<!-- logger:设置某一个包或者具体的某一个类的日志打印级别,以及指定appender.仅有一个name属性,可选的level和addtivity -->
+	<!-- name:用来指定受此logger约束的某一个包或者具体的某一个类 -->
+	<!-- level:设置打印级别:TRACE,DEBUG,INFO,WARN,ERROR,ALL,OFF.特殊值INHERITED或NULL,代表强制执行上级的级别 -->
+	<!-- 如果未设置此属性,那么当前logger将会继承上级的级别 -->
+	<!-- addtivity:是否向上级logger传递打印信息.默认是true -->
+
+	<!-- root节点是必选节点,用来指定最基础的日志输出级别,只有一个level属性 -->
+	<!-- level:设置打印级别,不能设置为INHERITED或NULL.默认DEBUG.可以包含零个或多个appender -->
+
+	<!-- 开发,全真环境:打印控制台 -->
+	<springProfile name="dev,real">
+		<logger name="com.wy" level="debug" />
+		<root level="info">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="DEBUG_FILE" />
+			<appender-ref ref="INFO_FILE" />
+			<appender-ref ref="WARN_FILE" />
+			<appender-ref ref="ERROR_FILE" />
+		</root>
+	</springProfile>
+
+
+	<!-- 生产环境:输出到文档 -->
+	<springProfile name="prod">
+		<logger name="com.wy" level="info" />
+		<root level="info">
+			<appender-ref ref="ERROR_FILE" />
+			<appender-ref ref="WARN_FILE" />
+		</root>
+	</springProfile>
 </configuration>

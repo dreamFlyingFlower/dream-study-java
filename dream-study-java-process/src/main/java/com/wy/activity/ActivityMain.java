@@ -10,6 +10,15 @@ import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.delegate.event.ActivitiEvent;
+import org.activiti.engine.delegate.event.ActivitiEventListener;
+import org.activiti.engine.delegate.event.ActivitiEventType;
+import org.activiti.engine.impl.asyncexecutor.AsyncExecutor;
+import org.activiti.engine.impl.asyncexecutor.DefaultAsyncJobExecutor;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.interceptor.AbstractCommandInterceptor;
+import org.activiti.engine.impl.interceptor.CommandInterceptor;
+import org.activiti.engine.impl.jobexecutor.TimerStartEventJobHandler;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -19,26 +28,81 @@ import org.activiti.engine.task.Task;
 import com.google.common.collect.Maps;
 
 /**
- * activity流程图
+ * activiti流程引擎
  * 
- * @apiNote 核心API:ProcessEnigne,可通过该API操作以下service:
- *          RepositoryService:负责流程定义文件的管理,操作静态服务管理,流程文件中的xml
- *          RuntimeService:流程控制,对流程进行启动,挂起等 TaskService:对人工任务进行增删改查等操作,操作权限等
- *          IdentityService:对用户和用户组的管理 FormService:对流程任务中的表单进行解析渲染
- *          HistoryService:主要对执行完成的任务进行查询等 ManagementService:对流程基础和定时任务状态的管理
- *          DynamicBpmService:动态对流程的模型进行修改
- * @apiNote 数据表分类: ACT_GE_*:通用数据表;ACT_RE_*:流程定义存储表;ACT_ID_*:身份信息表;
- *          ACT_RU_*:运行时数据库表;ACT_HI_*:历史数据库表;
- *          ACT_RE_DEPLOYMENT:流程部署记录表;ACT_RE_PROCDEF:流程定义信息表;
- *          ACT_RE_MODEL:模型信息表(用于web设计器);ACT_PROCDED_INFO:流程定义动态改变信息表;
- *          ACT_ID_USER:用户基本信息;ACT_ID_INFO:用户扩展信息;
- *          ACT_ID_GROUP:群组;ACT_ID_MEMBERSHIP:用户和群组关联;
- *          ACT_RU_EXECUTION:流程实例与分支执行信息;ACT_RU_TASK:用户任务信息;
- *          ACT_RU_VARIABLE:变量信息;ACT_RU_IDENTITYLINK:参与者相关信息;
- *          ACT_RU_EVENT_SUBSCR:事件监听表;ACT_RU_JOB:作业表; ACT_RU_TIMER_JOB:定时器表;
- *          ACT_RU_SUSPENDED_JOB:暂停作业表; ACT_RU_DEADLETTER_JOB:死信表;
- * @author ParadiseWY
- * @date 2019年8月6日
+ * 核心API:ProcessEnigne,可通过该API操作以下service:
+ * 
+ * <pre>
+ * RepositoryService:负责流程定义文件的管理,操作静态服务管理,流程文件中的xml
+ * RuntimeService:流程控制,对流程进行启动,挂起等 
+ * TaskService:对人工任务进行增删改查等操作,操作权限等
+ * IdentityService:对用户和用户组的管理 
+ * FormService:对流程任务中的表单进行解析渲染
+ * HistoryService:主要对执行完成的任务进行查询等 
+ * ManagementService:对流程基础和定时任务状态的管理
+ * DynamicBpmService:动态对流程的模型进行修改
+ * </pre>
+ * 
+ * activiti事件监听:
+ * 
+ * <pre>
+ * {@link ActivitiEvent}:事件对象接口
+ * {@link ActivitiEventListener}:事件监听器,实现该接口可对监听事件做个性化处理
+ * {@link ActivitiEventType}:监听类型,判断监听事件时的事件类型
+ * </pre>
+ * 
+ * Command命令拦截器,主要是对流程中各种节点进行拦截:
+ * 
+ * <pre>
+ * {@link CommandInterceptor}:Command拦截器主接口
+ * {@link AbstractCommandInterceptor}:默认实现的抽象拦截器
+ * {@link ProcessEngineConfigurationImpl#customPreCommandInterceptors}:根据实现手动配置,前置命令拦截器
+ * {@link ProcessEngineConfigurationImpl#customPostCommandInterceptors}:根据实现手动配置,后置命令拦截器
+ * {@link ProcessEngineConfigurationImpl#commandInvoker}:配置在最后的拦截器
+ * </pre>
+ *
+ * 数据表分类:
+ * 
+ * <pre>
+ * ACT_GE_*:通用数据表;
+ * ACT_RE_*:流程定义存储表;
+ * ACT_ID_*:身份信息表;
+ * ACT_RU_*:运行时数据库表;
+ * ACT_HI_*:历史数据库表;
+ * ACT_RE_DEPLOYMENT:流程部署记录表;
+ * ACT_RE_PROCDEF:流程定义信息表;
+ * ACT_RE_MODEL:模型信息表(用于web设计器);
+ * ACT_PROCDED_INFO:流程定义动态改变信息表;
+ * ACT_ID_USER:用户基本信息;
+ * ACT_ID_INFO:用户扩展信息;
+ * ACT_ID_GROUP:群组;
+ * ACT_ID_MEMBERSHIP:用户和群组关联;
+ * ACT_RU_EXECUTION:流程实例与分支执行信息;
+ * ACT_RU_TASK:用户任务信息;
+ * ACT_RU_VARIABLE:变量信息;
+ * ACT_RU_IDENTITYLINK:参与者相关信息;
+ * ACT_RU_EVENT_SUBSCR:事件监听表;
+ * ACT_RU_JOB:作业表; ACT_RU_TIMER_JOB:定时器表;
+ * ACT_RU_SUSPENDED_JOB:暂停作业表;
+ * ACT_RU_DEADLETTER_JOB:死信表;
+ * </pre>
+ * 
+ * 作业(Job)执行器,流程定义定时启动流程:
+ * 
+ * <pre>
+ * {@link AsyncExecutor}:作业执行器主要接口
+ * {@link ProcessEngineConfiguration#asyncExecutorActivate}:是否使用作业执行器
+ * {@link ProcessEngineConfiguration#asyncExecutor}:作业执行器实现类
+ * ->{@link DefaultAsyncJobExecutor}:默认作业执行器实现类
+ * {@link TimerStartEventJobHandler}:开始执行任务实现类
+ * timeDate:指定启动时间,在流程图xml的startEvent标签中使用
+ * timeDuration:指定持续时间间隔后执行,在流程图xml的startEvent标签中使用
+ * timeCycle:指定事件段后周期执行,在流程图xml的startEvent标签中使用.如R5/PT10S,执行5次,间隔10S
+ * </pre>
+ * 
+ * @author 飞花梦影
+ * @date 2021-08-06 11:21:07
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class ActivityMain {
 
@@ -55,8 +119,7 @@ public class ActivityMain {
 
 	private static ProcessEngine extracted() {
 		// 在内存中创建流程图引擎
-		ProcessEngineConfiguration pec = ProcessEngineConfiguration
-				.createStandaloneInMemProcessEngineConfiguration();
+		ProcessEngineConfiguration pec = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration();
 		// ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("流程图的xml文件地址");
 		ProcessEngine processEngine = pec.buildProcessEngine();
 		String name = processEngine.getName();
@@ -89,20 +152,23 @@ public class ActivityMain {
 		repositoryService.addCandidateStarterGroup(deployId, "groupid");
 		System.out.println(deployId);
 		// 流程定义对象
-		ProcessDefinition definition = repositoryService.createProcessDefinitionQuery()
-				.deploymentId(deployId).singleResult();
+		ProcessDefinition definition =
+				repositoryService.createProcessDefinitionQuery().deploymentId(deployId).singleResult();
 		return definition;
 	}
 
-	private static ProcessInstance extracted(ProcessEngine processEngine,
-			ProcessDefinition definition) {
+	private static ProcessInstance extracted(ProcessEngine processEngine, ProcessDefinition definition) {
 		// 流程启动
 		RuntimeService runtimeService = processEngine.getRuntimeService();
 		// 用流程定义的id或key或message启动,推荐使用id和key,因为唯一
-		ProcessInstance processInstance = runtimeService
-				.startProcessInstanceById(definition.getId());
+		ProcessInstance processInstance = runtimeService.startProcessInstanceById(definition.getId());
 		// runtimeService.startProcessInstanceByKey(definition.getKey());
 		System.out.println(processInstance.getActivityId());
+		// 获得流程事件日志
+		processEngine.getManagementService()
+				.getEventLogEntriesByProcessInstanceId(processInstance.getProcessInstanceId());
+		// 获得流程中所有定时任务
+		processEngine.getManagementService().createTimerJobQuery().list();
 		// 返回流程实例对象
 		return processInstance;
 	}
@@ -130,8 +196,8 @@ public class ActivityMain {
 		taskService.getIdentityLinksForTask(singleResult.getId());
 		// 查询指定了userid为待办人的任务列表
 		taskService.createTaskQuery().taskAssignee("userid").listPage(0, 100);
-		taskService.createAttachment("url", singleResult.getId(), processInstance.getId(), "附件的名称",
-				"附件的描述", "http://url地址");
+		taskService.createAttachment("url", singleResult.getId(), processInstance.getId(), "附件的名称", "附件的描述",
+				"http://url地址");
 		taskService.getAttachment(singleResult.getId());
 		taskService.addComment(singleResult.getId(), processInstance.getId(), "context");
 		taskService.getComment(singleResult.getId());
@@ -144,8 +210,8 @@ public class ActivityMain {
 			// 完成任务,也可以在完成任务的时候加一些参数
 			taskService.complete(task.getId(), Maps.newHashMap());
 			// 查看结果
-			processEngine.getRuntimeService().createProcessInstanceQuery()
-					.processInstanceId(processInstance.getId()).singleResult();
+			processEngine.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstance.getId())
+					.singleResult();
 		}
 
 		HistoryService historyService = processEngine.getHistoryService();
