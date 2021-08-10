@@ -14,13 +14,14 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 一个下载的例子
+ * 
  * @author wanyang
  */
 public class DownLoadFilter implements Filter {
 
 	@Override
 	public void destroy() {
-		
+
 	}
 
 	/**
@@ -29,16 +30,16 @@ public class DownLoadFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain arg2)
 			throws IOException, ServletException {
-		HttpServletResponse resp = (HttpServletResponse)response;
+		HttpServletResponse resp = (HttpServletResponse) response;
 		resp.setHeader("content-disposition", "attachment;filename=22.xlsx");
-		//获得本地文件的输入流
+		// 获得本地文件的输入流
 		InputStream is = this.getClass().getResourceAsStream("222.xlsx");
-		//获得响应的输出流
+		// 获得响应的输出流
 		OutputStream os = resp.getOutputStream();
 		byte[] bytes = new byte[1024];
-		int i =0;
-		while((i = is.read()) != -1) {
-			os.write(bytes,0,i);
+		int i = 0;
+		while ((i = is.read()) != -1) {
+			os.write(bytes, 0, i);
 		}
 		os.close();
 		is.close();
@@ -46,8 +47,6 @@ public class DownLoadFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {
-		
+
 	}
-
-
 }

@@ -12,7 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 简单的跨域请求拦截器
- * @author wanyang
+ * 
+ * @author 飞花梦影
+ * @date 2021-08-10 20:36:41
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class CorsFilter implements Filter {
 
@@ -23,7 +26,6 @@ public class CorsFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
-		
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 		// 允许跨域访问的域
 		response.setHeader("Access-Control-Allow-Origin", "*");
@@ -35,10 +37,10 @@ public class CorsFilter implements Filter {
 		response.setHeader("Access-Control-Allow-Credentials", "true");
 		// 允许脚本访问的返回头
 		// response.setHeader("Access-Control-Expose-Headers", arg1);
-		// 允许自定义的头部，以逗号隔开，大小写不敏感
+		// 允许自定义的头部,以逗号隔开,大小写不敏感
 		response.setHeader("Access-Control-Allow-Headers",
 				"Accept,Origin, Content-Disposition,Authorization,No-Cache, X-Requested-With, If-Modified-Since, "
-				+ "Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With,userId,token");
+						+ "Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With,userId,token");
 		// 若需要实现ajax跨域访问session,则需要修改请求头如下
 		// response.setHeader("Access-Control-Allow-Origin",
 		// response.getHeader("Origin"));
@@ -49,5 +51,4 @@ public class CorsFilter implements Filter {
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {
 	}
-
 }

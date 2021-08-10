@@ -4,14 +4,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
-public class BaseProxy{
+public class BaseProxy {
 
-	private BaseProxy(){
-		
+	private BaseProxy() {
+
 	}
-	
-	public static Object ProxyBase(Class<?> clazz, Class<?>[]interfaces,InvocationHandler T){
-		if(null == T){
+
+	public static Object ProxyBase(Class<?> clazz, Class<?>[] interfaces, InvocationHandler T) {
+		if (null == T) {
 			return null;
 		}
 		// 获得与指定类装载器和一组接口相关的代理类类型对象

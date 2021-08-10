@@ -1,4 +1,4 @@
-package com.wy.interceptor;
+package com.wy.example;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,7 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AuthInterceptor implements HandlerInterceptor {
+public class MyInterceptor implements HandlerInterceptor {
 
 	/**
 	 * 该方法将会在处理请求之前调用,在controller之前调用,若存在多个拦截器,则按配置顺序进行调用
