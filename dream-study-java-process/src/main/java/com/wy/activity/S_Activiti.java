@@ -24,6 +24,19 @@ import org.activiti.engine.impl.cmd.SignalEventReceivedCmd;
 import org.activiti.engine.impl.interceptor.AbstractCommandInterceptor;
 import org.activiti.engine.impl.interceptor.CommandInterceptor;
 import org.activiti.engine.impl.jobexecutor.TimerStartEventJobHandler;
+import org.activiti.engine.impl.persistence.entity.ByteArrayEntityImpl;
+import org.activiti.engine.impl.persistence.entity.DeploymentEntityImpl;
+import org.activiti.engine.impl.persistence.entity.EventLogEntryEntityImpl;
+import org.activiti.engine.impl.persistence.entity.EventSubscriptionEntityImpl;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntityImpl;
+import org.activiti.engine.impl.persistence.entity.HistoricProcessInstanceEntityImpl;
+import org.activiti.engine.impl.persistence.entity.IdentityLinkEntityImpl;
+import org.activiti.engine.impl.persistence.entity.JobEntityImpl;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntityImpl;
+import org.activiti.engine.impl.persistence.entity.PropertyEntityImpl;
+import org.activiti.engine.impl.persistence.entity.TaskEntityImpl;
+import org.activiti.engine.impl.persistence.entity.TimerJobEntityImpl;
+import org.activiti.engine.impl.persistence.entity.VariableInstanceEntityImpl;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.DeploymentQuery;
@@ -94,26 +107,39 @@ import com.wy.collection.MapTool;
  * 
  * <pre>
  * ACT_GE_*:通用数据表;
+ * ->ACT_GE_PROPERTY:属性表,保存流程引擎的kv键值属性,{@link PropertyEntityImpl}
+ * ->ACT_GE_BYTEARRAY:资源表,存储流程定义相关的资源,{@link ByteArrayEntityImpl}
  * ACT_RE_*:流程定义存储表;
- * ACT_ID_*:身份信息表;
- * ACT_RU_*:运行时数据库表;
- * ACT_HI_*:历史数据库表;
- * ACT_RE_DEPLOYMENT:流程部署记录表;
- * ACT_RE_PROCDEF:流程定义信息表;
- * ACT_RE_MODEL:模型信息表(用于web设计器);
+ * ->ACT_RE_DEPLOYMENT:流程部署记录表,{@link DeploymentEntityImpl}
+ * ->ACT_RE_PROCDEF:流程定义信息表,{@link ProcessDefinitionEntityImpl}
+ * ->ACT_RE_MODEL:模型信息表(用于web设计器);
  * ACT_PROCDED_INFO:流程定义动态改变信息表;
- * ACT_ID_USER:用户基本信息;
- * ACT_ID_INFO:用户扩展信息;
- * ACT_ID_GROUP:群组;
- * ACT_ID_MEMBERSHIP:用户和群组关联;
- * ACT_RU_EXECUTION:流程实例与分支执行信息;
- * ACT_RU_TASK:用户任务信息;
- * ACT_RU_VARIABLE:变量信息;
- * ACT_RU_IDENTITYLINK:参与者相关信息;
- * ACT_RU_EVENT_SUBSCR:事件监听表;
- * ACT_RU_JOB:作业表; ACT_RU_TIMER_JOB:定时器表;
- * ACT_RU_SUSPENDED_JOB:暂停作业表;
- * ACT_RU_DEADLETTER_JOB:死信表;
+ * ACT_ID_*:身份信息表,版本7以上已废弃;
+ * ->ACT_ID_USER:用户基本信息;
+ * ->ACT_ID_INFO:用户扩展信息;
+ * ->ACT_ID_GROUP:群组;
+ * ->ACT_ID_MEMBERSHIP:用户和群组关联;
+ * ACT_RU_*:运行时数据库表;
+ * ->ACT_RU_EXECUTION:流程实例与分支执行信息,{@link ExecutionEntityImpl}
+ * ->ACT_RU_TASK:用户任务信息,{@link TaskEntityImpl}
+ * ->ACT_RU_VARIABLE:变量信息,{@link VariableInstanceEntityImpl}
+ * ->ACT_RU_IDENTITYLINK:参与者相关信息,{@link IdentityLinkEntityImpl}
+ * ->ACT_RU_EVENT_SUBSCR:事件监听表,{@link EventSubscriptionEntityImpl}
+ * ->ACT_RU_JOB:作业表,{@link JobEntityImpl}
+ * ->ACT_RU_TIMER_JOB:定时器表,{@link TimerJobEntityImpl}
+ * ->ACT_RU_SUSPENDED_JOB:暂停作业表;
+ * ->ACT_RU_DEADLETTER_JOB:死信表;
+ * ACT_HI_*:历史数据库表;
+ * ->ACT_HI_PROCINST:历史流程实例表,{@link HistoricProcessInstanceEntityImpl}
+ * ->ACT_HI_ACTINST:历史节点信息表
+ * ->ACT_HI_TASKINST:历史任务表
+ * ->ACT_HI_VARINST:历史变量
+ * ->ACT_HI_IDENTITYLINK:历史参与者
+ * ->ACT_HI_DETAIL:历史变更
+ * ->ACT_HI_ATTACHMENT:附件
+ * ->ACT_HI_COMMENT:评论
+ * ->ACT_HI_LOG:事件日志
+ * ACT_EVT_LOG:事件日志表,{@link EventLogEntryEntityImpl}
  * </pre>
  * 
  * 作业(Job)执行器,流程定义定时启动流程:
