@@ -16,6 +16,8 @@ import org.activiti.engine.TaskService;
 import org.activiti.engine.delegate.event.ActivitiEvent;
 import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.delegate.event.ActivitiEventType;
+import org.activiti.engine.delegate.event.BaseEntityEventListener;
+import org.activiti.engine.delegate.event.impl.ActivitiEventImpl;
 import org.activiti.engine.impl.asyncexecutor.AsyncExecutor;
 import org.activiti.engine.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -91,6 +93,9 @@ import com.wy.collection.MapTool;
  * {@link ActivitiEvent}:事件对象接口
  * {@link ActivitiEventListener}:事件监听器,实现该接口可对监听事件做个性化处理
  * {@link ActivitiEventType}:监听类型,判断监听事件时的事件类型
+ * {@link BaseEntityEventListener}:对实体类数据的监听,若更关心数据的操作,可继承该类监听
+ * {@link ProcessEngineConfigurationImpl#eventListeners}:将实现ActivitiEventListener的类设置其中
+ * {@link ProcessEngineConfigurationImpl#typedEventListeners}:所有实现ActivitiEventListener的类集合
  * </pre>
  * 
  * Command命令拦截器,主要是对流程中各种节点进行拦截:
@@ -101,6 +106,24 @@ import com.wy.collection.MapTool;
  * {@link ProcessEngineConfigurationImpl#customPreCommandInterceptors}:根据实现手动配置,前置命令拦截器
  * {@link ProcessEngineConfigurationImpl#customPostCommandInterceptors}:根据实现手动配置,后置命令拦截器
  * {@link ProcessEngineConfigurationImpl#commandInvoker}:配置在最后的拦截器
+ * </pre>
+ * 
+ * 作业(Job)执行器,流程定义定时启动流程:
+ * 
+ * <pre>
+ * {@link AsyncExecutor}:作业执行器主要接口
+ * {@link ProcessEngineConfiguration#asyncExecutorActivate}:是否使用作业执行器
+ * {@link ProcessEngineConfiguration#asyncExecutor}:作业执行器实现类
+ * ->{@link DefaultAsyncJobExecutor}:默认作业执行器实现类
+ * {@link TimerStartEventJobHandler}:开始执行任务实现类
+ * timeDate:指定启动时间,在流程图xml的startEvent标签中使用
+ * timeDuration:指定持续时间间隔后执行,在流程图xml的startEvent标签中使用
+ * timeCycle:指定事件段后周期执行,在流程图xml的startEvent标签中使用.如R5/PT10S,执行5次,间隔10S
+ * 
+ * {@link JobQuery}:查询一般工作
+ * {@link TimerJobQuery}:查询定时工作
+ * {@link SuspendedJobQuery}:查询中断工作
+ * {@link DeadLetterJobQuery}:查询无法执行的工作
  * </pre>
  *
  * 数据表分类:
@@ -140,24 +163,6 @@ import com.wy.collection.MapTool;
  * ->ACT_HI_COMMENT:评论
  * ->ACT_HI_LOG:事件日志
  * ACT_EVT_LOG:事件日志表,{@link EventLogEntryEntityImpl}
- * </pre>
- * 
- * 作业(Job)执行器,流程定义定时启动流程:
- * 
- * <pre>
- * {@link AsyncExecutor}:作业执行器主要接口
- * {@link ProcessEngineConfiguration#asyncExecutorActivate}:是否使用作业执行器
- * {@link ProcessEngineConfiguration#asyncExecutor}:作业执行器实现类
- * ->{@link DefaultAsyncJobExecutor}:默认作业执行器实现类
- * {@link TimerStartEventJobHandler}:开始执行任务实现类
- * timeDate:指定启动时间,在流程图xml的startEvent标签中使用
- * timeDuration:指定持续时间间隔后执行,在流程图xml的startEvent标签中使用
- * timeCycle:指定事件段后周期执行,在流程图xml的startEvent标签中使用.如R5/PT10S,执行5次,间隔10S
- * 
- * {@link JobQuery}:查询一般工作
- * {@link TimerJobQuery}:查询定时工作
- * {@link SuspendedJobQuery}:查询中断工作
- * {@link DeadLetterJobQuery}:查询无法执行的工作
  * </pre>
  * 
  * @author 飞花梦影
@@ -249,6 +254,10 @@ public class S_Activiti {
 		runtimeService.getVariables(processInstance.getId());
 		// 在流程引擎运行过程中修改参数
 		runtimeService.setVariable(processInstance.getId(), "test1", "test1");
+		// 将自定义的事件监听加入到activit中
+		runtimeService.addEventListener(new MyActivitiListener());
+		// 设置事件监听的类型
+		runtimeService.dispatchEvent(new ActivitiEventImpl(ActivitiEventType.CUSTOM));
 		// 获得所有的流程引擎执行对象,即processInstance执行对象
 		List<Execution> executions = runtimeService.createExecutionQuery().list();
 		for (Execution execution : executions) {
