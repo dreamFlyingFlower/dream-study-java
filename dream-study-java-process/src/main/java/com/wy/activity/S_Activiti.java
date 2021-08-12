@@ -57,7 +57,7 @@ import com.google.common.collect.Maps;
 import com.wy.collection.MapTool;
 
 /**
- * Activiti流程引擎
+ * Activiti流程引擎,可画流程图的网站{@link https://bpmn.io/}
  * 
  * Activiti中的常用组件,核心API{@link ProcessEnigne},可通过该API操作以下service:
  * 

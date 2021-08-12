@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<process-definition  xmlns=""  name="payment">
-
-
+<process-definition xmlns="" name="payment">
 	<start-state name="填写报销单">
 		<task name="填写报销单">
 			<description>
@@ -13,10 +11,9 @@
 				<variable access="write" name="moneycount"></variable>
 				<variable access="write" name="remark"></variable>
 			</controller>
-</task>
+		</task>
 		<transition to="部门经理审批"></transition>
 	</start-state>
-
 
 	<task-node name="部门经理审批">
 		<task name="部门经理审批">
@@ -77,8 +74,5 @@
 		<transition to="报销结束"></transition>
 	</node>
 
-
 	<end-state name="报销结束"></end-state>
-
-
 </process-definition>
