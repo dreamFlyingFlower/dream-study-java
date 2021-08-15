@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
+	expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://bpmn.io/bpmn">
+
+	<process id="testProcess" name="testProcess" isExecutable="true" key="testProcess">
+		<!-- 并行网关 -->
+		<parallelGateway id="testParallel" name="testParallel"/>
+		<!-- 开始节点,信号事件启动和常规的启动一样 -->
+		<startEvent id="startevent1" name="Start"></startEvent>
+		<endEvent id="endevent1" name="End"></endEvent>
+		<userTask id="usertask1" name="并行1"></userTask>
+		<userTask id="usertask2" name="并行2"></userTask>
+		<sequenceFlow id="flow1" sourceRef="startevent1" targetRef="testParallel"></sequenceFlow>
+		<!-- 从并行流程中分出2条分支,同时进行事件,不分先后 -->
+		<sequenceFlow id="flow2" sourceRef="testParallel" targetRef="usertask1"></sequenceFlow>
+		<sequenceFlow id="flow3" sourceRef="testParallel" targetRef="usertask2"></sequenceFlow>
+		<parallelGateway id="testParallel1" name="testParallel1"/>
+		<!-- 上述2条分支都进行完成时,再进行合并,不能只完成一个就继续下面的流程 -->
+		<sequenceFlow id="flow4" sourceRef="usertask1" targetRef="testParallel1"></sequenceFlow>
+		<sequenceFlow id="flow5" sourceRef="usertask2" targetRef="testParallel1"></sequenceFlow>
+		<userTask id="usertask3" name="并行结束"></userTask>
+		<sequenceFlow id="flow6" sourceRef="testParallel1" targetRef="usertask3"></sequenceFlow>
+		<sequenceFlow id="flow7" sourceRef="usertask3" targetRef="endevent1"></sequenceFlow>
+	</process>
+</definitions>

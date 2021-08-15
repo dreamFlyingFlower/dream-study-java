@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.itheimaoa.domain.process.Audition">
+		<id name="aid">
+			<generator class="assigned"></generator>
+		</id>
+		<property name="agree"></property>
+		<property name="approveTime"></property>
+		<property name="interviewTime"></property>
+		<property name="comment" length="300"></property>
+		<property name="message" length="300"></property>
+		<property name="resumePath" length="400"></property>
+		<property name="status" length="40"></property>
+		<property name="title" length="40"></property>
+		<property name="uptime"></property>
+		<property name="score"></property>
+		<property name="close"></property>
+		<many-to-one name="employee" class="com.itheimaoa.domain.privilege.Employee"></many-to-one>
+		<many-to-one name="apply" class="com.itheimaoa.domain.process.Apply" ></many-to-one>
+	</class>
+</hibernate-mapping>

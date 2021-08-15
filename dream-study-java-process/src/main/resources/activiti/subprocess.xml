@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
+	expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://bpmn.io/bpmn">
+
+	<process id="testProcess" name="testProcess" isExecutable="true" key="testProcess">
+		<!-- 开始节点 -->
+		<startEvent id="startevent1" name="Start"></startEvent>
+
+		<!-- 子流程 -->
+		<subProcess id="testSubProcess">
+			<startEvent id="startevent2" name="Start"></startEvent>
+			<endEvent id="endevent2" name="End"></endEvent>
+			<userTask id="usertask1" name="任务1"></userTask>
+			<userTask id="usertask2" name="任务2"></userTask>
+		</subProcess>
+
+		<userTask id="usertask3" name="任务3"></userTask>
+		<endEvent id="endevent1" name="End"></endEvent>
+
+		<sequenceFlow id="flow1" sourceRef="startevent1" targetRef="testSubProcess"></sequenceFlow>
+		<sequenceFlow id="flow2" sourceRef="testSubProcess" targetRef="usertask3"></sequenceFlow>
+		<sequenceFlow id="flow3" sourceRef="usertask3" targetRef="endevent1"></sequenceFlow>
+		
+		<sequenceFlow id="flow4" sourceRef="startevent2" targetRef="usertask1"></sequenceFlow>
+		<sequenceFlow id="flow5" sourceRef="usertask1" targetRef="usertask2"></sequenceFlow>
+		<sequenceFlow id="flow6" sourceRef="usertask2" targetRef="endevent2"></sequenceFlow>
+	</process>
+</definitions>

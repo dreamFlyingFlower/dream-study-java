@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
+	expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://bpmn.io/bpmn">
+	
+	<!-- 信号开始事件,信号可以被任何事件捕捉,消息需要指定流程编号 -->
+	<signal id="testSignal" name="testSignal" />
+	<process id="testSignalProcess" name="testSignalProcess" isExecutable="true" key="testSignalProcess">
+		<!-- 开始节点,信号事件启动和常规的启动一样 -->
+		<startEvent id="startevent1" name="Start">
+			<signalEventDefinition id="testSignalEvent" signalRef="testSignal"/>
+		</startEvent>
+		<!-- 结束节点 -->
+		<endEvent id="endevent1" name="End"></endEvent>
+		<!-- 用户任务 -->
+		<userTask id="usertask1" name="审批" activiti:assignee="#{userID}"></userTask>
+		<!-- 具体流程走向,每一条线构成一个sequenceFlow标签 -->
+		<sequenceFlow id="flow1" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow>
+		<sequenceFlow id="flow2" sourceRef="usertask1" targetRef="endevent1"></sequenceFlow>
+		
+		<!-- 信号中间事件:抛出的异常或捕获的事件会被信号捕捉 -->
+		<intermediateThrowEvent id="testThrowEvent" name="Alert">
+			<signalEventDefinition id="testThrowEventDF" signalRef="testSignal"/>
+		</intermediateThrowEvent>
+		<intermediateCatchEvent id="testCatchEvent" name="Catch">
+			<signalEventDefinition id="testCatchEventDF" signalRef="testSignal"/>
+		</intermediateCatchEvent>
+	</process>
+</definitions>

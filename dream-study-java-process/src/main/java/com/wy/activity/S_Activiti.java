@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.ReceiveTask;
+import org.activiti.bpmn.model.ScriptTask;
+import org.activiti.bpmn.model.SendTask;
+import org.activiti.bpmn.model.ServiceTask;
+import org.activiti.bpmn.model.UserTask;
 import org.activiti.engine.DynamicBpmnService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.ManagementService;
@@ -53,7 +57,6 @@ import org.activiti.engine.runtime.SuspendedJobQuery;
 import org.activiti.engine.runtime.TimerJobQuery;
 import org.activiti.engine.task.Task;
 
-import com.google.common.collect.Maps;
 import com.wy.collection.MapTool;
 
 /**
@@ -163,6 +166,34 @@ import com.wy.collection.MapTool;
  * ->ACT_HI_COMMENT:评论
  * ->ACT_HI_LOG:事件日志
  * ACT_EVT_LOG:事件日志表,{@link EventLogEntryEntityImpl}
+ * </pre>
+ * 
+ * 核心任务流程:
+ * 
+ * <pre>
+ * {@link ServiceTask}:调用外部服务或自动执行程序
+ * {@link SendTask}:发出任务,处理向外部发送消息的任务
+ * {@link ReceiveTask}:接收任务,接收外部发送过来的消息
+ * {@link UserTask}:需要人参与的任务
+ * {@link ScriptTask}:脚本任务,执行定义好的脚本程序
+ * </pre>
+ * 
+ * 网关类型:
+ * 
+ * <pre>
+ * Exclusive Gateway:单一网关,单一条件,菱形图形中间是一个X
+ * Parallel Gateway:并行网关,多条线路同时进行,多条线路都完成之后再进行合并.菱形图形中间是一个+
+ * Inclusive Gateway:包容性网关,包含单一网关和并行网关.菱形图形中间是一个⚪
+ * Event-based Gateway:基于事件网关,事件进行到此处时会暂停下来.菱形图形事件是双圆加五边形
+ * </pre>
+ * 
+ * 子流程:
+ * 
+ * <pre>
+ * Sub-Process:子流程
+ * Event Sub-Process:事件子流程
+ * Transcation Sub-Process:事务子流程
+ * Call Activity:调用式子流程
  * </pre>
  * 
  * @author 飞花梦影
@@ -322,7 +353,7 @@ public class S_Activiti {
 			System.out.println(item.getName());
 			taskService.complete(item.getId());
 			// 完成任务,也可以在完成任务的时候加一些参数
-			taskService.complete(item.getId(), Maps.newHashMap());
+			taskService.complete(item.getId(), MapTool.newHashMap());
 			// 查看结果
 			processEngine.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstance.getId())
 					.singleResult();

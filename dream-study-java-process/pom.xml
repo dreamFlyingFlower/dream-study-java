@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.6.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<version>2.4.2</version>
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dream.flying.flower</groupId>
 	<artifactId>dream-study-java-process</artifactId>
@@ -26,14 +25,60 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jbpm/jbpm-flow -->
 		<dependency>
-			<groupId>org.jbpm</groupId>
-			<artifactId>jbpm-flow</artifactId>
-			<version>7.46.0.Final</version>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-jboss</artifactId>
+			<version>4.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-console-graphView-plugin</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-console-integration</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-console-reports</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-console-form-plugin</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-db</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jbpm.jbpm4/jbpm-api -->
+		<dependency>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-api</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jbpm.jbpm4/jbpm-bpmn -->
+		<dependency>
+			<groupId>org.jbpm.jbpm4</groupId>
+			<artifactId>jbpm-bpmn</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jbpm/jbpm-flow -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.jbpm</groupId> -->
+		<!-- <artifactId>jbpm-flow</artifactId> -->
+		<!-- <version>7.46.0.Final</version> -->
+		<!-- </dependency> -->
 		<!-- https://mvnrepository.com/artifact/org.activiti/activiti-spring-boot-starter -->
 		<dependency>
 			<groupId>org.activiti</groupId>
@@ -41,11 +86,27 @@
 			<version>7.1.0.M5</version>
 		</dependency>
 		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>2.1.4</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		<dependency>
 			<groupId>dream.flying.flower</groupId>
-			<artifactId>dream-study-java-service</artifactId>
+			<artifactId>dream-tool-third</artifactId>
 			<version>0.0.1</version>
 		</dependency>
 
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

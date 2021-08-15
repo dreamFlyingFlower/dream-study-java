@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.itheimaoa.domain.process.Apply">
+		<id name="aid">
+			<generator class="assigned"></generator>
+		</id>
+		<property name="applyTime"></property>
+		<property name="className" length="40"></property>
+		<property name="close"></property>
+		<property name="courseName" length="40"></property>
+		<property name="extraScore"></property>
+		<property name="lastAccessTime"></property>
+		<property name="pi" length="40"></property>
+		<property name="score" ></property>
+		<property name="status" length="40"></property>
+		<property name="success"></property>
+		<property name="title" length="40"></property>
+		<many-to-one name="customer" class="com.itheimaoa.domain.customer.Customer" not-null="true"/>
+        <set name="resumes">
+			<key>
+				<column name="aid"></column>
+			</key>
+			<one-to-many class="com.itheimaoa.domain.process.Resume" />
+		</set> 
+        <set name="tests">
+			<key>
+				<column name="aid"></column>
+			</key>
+			<one-to-many class="com.itheimaoa.domain.process.Test" />
+		</set> 
+        <set name="qualifications">
+			<key>
+				<column name="aid"></column>
+			</key>
+			<one-to-many class="com.itheimaoa.domain.process.Qualification" />
+		</set> 
+        <set name="exams">
+			<key>
+				<column name="aid"></column>
+			</key>
+			<one-to-many class="com.itheimaoa.domain.process.Exam" />
+		</set> 
+	</class>
+</hibernate-mapping>
