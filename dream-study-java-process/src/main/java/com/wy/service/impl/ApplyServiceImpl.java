@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Resource;
-
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,22 +32,22 @@ import com.wy.service.TestService;
 @Transactional
 public class ApplyServiceImpl extends AbstractService<Apply, String> implements ApplyService {
 
-	@Resource
+	@Autowired
 	private ProcessEngine processEngine;
 
-	@Resource
+	@Autowired
 	private ResumeService resumeService;
 
-	@Resource
+	@Autowired
 	private TestService testService;
 
-	@Resource
+	@Autowired
 	private QualificationService qualificationService;
 
-	@Resource
+	@Autowired
 	private ExamService examService;
 
-	@Resource
+	@Autowired
 	private AuditionService auditionService;
 
 	/**
@@ -57,31 +56,16 @@ public class ApplyServiceImpl extends AbstractService<Apply, String> implements 
 	@Override
 	public void startApply(Customer customer) {
 		Apply apply = new Apply();
-		/**
-		 * 初始化用户
-		 */
 		apply.setCustomer(customer);
-		/**
-		 * 该用户选择的课程的名称
-		 */
 		if (customer.getIntentionCourse() != null && !"".equals(customer.getIntentionCourse())) {
 			apply.setCourseName(customer.getIntentionCourse());
 		}
-		/**
-		 * 状态提示信息
-		 */
 		apply.setStatus(Const.SUBMIT_RESUME);
-		/**
-		 * 给apply设置一个主键
-		 */
 		apply.setAid(UUID.randomUUID().toString());
 		Map<String, Object> map = new HashMap<>();
 		map.put("customerId", customer.getId());
 		map.put("applyId", apply.getAid());
 		ProcessInstance pi = processEngine.getRuntimeService().startProcessInstanceByKey("itheimaTask", map);
-		/**
-		 * 把piid存放在apply表中
-		 */
 		apply.setPi(pi.getId());
 		super.save(apply);
 	}
@@ -125,9 +109,7 @@ public class ApplyServiceImpl extends AbstractService<Apply, String> implements 
 		}
 		// 设置自荐信属性, 保存数据库
 		resume.setApply(apply);
-		/**
-		 * 设置自荐信的主键
-		 */
+		// 设置自荐信的主键
 		resume.setRid(UUID.randomUUID().toString());
 		resume.setTitle(customer.getName() + "_自荐信");
 		resumeService.save(resume);

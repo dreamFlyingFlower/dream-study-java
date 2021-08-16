@@ -73,7 +73,7 @@ import com.wy.collection.MapTool;
  * ->{@link ProcessDefinitionQuery}:流程定义文件查询对象
  * ->{@link BpmnModel}:流程定义的Java格式
  * {@link RuntimeService}:启动流程及对流程数据的控制,触发流程操作,接收消息和信号.每次部署id会变,但key不会变,使用key最准确
- * ->{@link ProcessInstance}:流程实例,继承自Execution.一次工作流业务的数据实体
+ * ->{@link ProcessInstance}:流程实例,继承自Execution.一次工作流业务的数据实体,一个ProcessInstance包含一个或多个Execution
  * ->{@link Execution}:执行流查询,流程实例中具体的执行路径
  * {@link TaskService}:对用户任务进行增删改查等,设置用户任务的权限(拥有者,候选人,办理人).给用户任务添加任务附件,评论和事件记录
  * {@link HistoryService}:主要对执行完成的任务进行查询等 
@@ -265,6 +265,10 @@ public class S_Activiti {
 		// 流程定义与用户以及用户组建立关联,与业务相关
 		repositoryService.addCandidateStarterUser(deployId, "userId");
 		repositoryService.addCandidateStarterGroup(deployId, "groupid");
+		// 普通删除,如果当前规则下有正在执行的流程,抛异常
+		// repositoryService.deleteDeployment(deployId);
+		// 级联删除,会删除和当前规则相关的所有信息,正在执行的信息,包括历史信息
+		// repositoryService.deleteDeployment(deployId, true);
 		System.out.println(deployId);
 		// 流程定义对象
 		ProcessDefinition definition =

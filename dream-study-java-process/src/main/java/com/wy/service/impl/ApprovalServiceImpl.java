@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.task.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,25 +32,25 @@ import com.wy.service.TestService;
 @Transactional
 public class ApprovalServiceImpl extends AbstractService<Apply, String> implements ApprovalService {
 
-	@Resource
+	@Autowired
 	private ProcessEngine processEngine;
 
-	@Resource
+	@Autowired
 	private ApplyService applyService;
 
-	@Resource
+	@Autowired
 	private ResumeService resumeService;
 
-	@Resource
+	@Autowired
 	private TestService testService;
 
-	@Resource
+	@Autowired
 	private QualificationService qualificationService;
 
-	@Resource
+	@Autowired
 	private ExamService examService;
 
-	@Resource
+	@Autowired
 	private AuditionService auditionService;
 
 	/**
@@ -60,9 +59,7 @@ public class ApprovalServiceImpl extends AbstractService<Apply, String> implemen
 	@Override
 	public Map<Resume, Task> listResume(String eid) {
 		Map<Resume, Task> rtMap = new HashMap<Resume, Task>();
-		/**
-		 * 把当前登陆人能够审批的所有的自荐信审批的任务全部查询出来了
-		 */
+		// 把当前登陆人能够审批的所有的自荐信审批的任务全部查询出来了
 		List<Task> tasks =
 				processEngine.getTaskService().createTaskQuery().taskCandidateUser(eid).taskName("自荐信审批").list();
 		for (Task t : tasks) {
@@ -92,8 +89,7 @@ public class ApprovalServiceImpl extends AbstractService<Apply, String> implemen
 		for (Task t : tasks) {
 			String applyId = (String) processEngine.getTaskService().getVariable(t.getId(), "applyId");
 			Apply apply = applyService.getById(applyId);
-
-			// 这块有问题
+			// FIXME 这块有问题
 			List<Test> tests = testService.findTestsByApplyId(apply.getAid());
 			for (Test test : tests) {
 				if (test.getEmployee() == null) {
@@ -112,7 +108,7 @@ public class ApprovalServiceImpl extends AbstractService<Apply, String> implemen
 		for (Task t : tasks) {
 			String applyId = (String) processEngine.getTaskService().getVariable(t.getId(), "applyId");
 			Apply apply = applyService.getById(applyId);
-			// 这块有问题
+			// FIXME 这块有问题
 			List<Qualification> qualifications = qualificationService.findQualificationsByApplyId(apply.getAid());
 			for (Qualification q : qualifications) {
 				if (q.getEmployee() == null) {
@@ -131,7 +127,7 @@ public class ApprovalServiceImpl extends AbstractService<Apply, String> implemen
 		for (Task t : tasks) {
 			String applyId = (String) processEngine.getTaskService().getVariable(t.getId(), "applyId");
 			Apply apply = applyService.getById(applyId);
-			// 这块有问题
+			// FIXME 这块有问题
 			List<Exam> exams = examService.findExamsByApplyId(apply.getAid());
 			for (Exam e : exams) {
 				if (e.getEmployee() == null) {
@@ -150,7 +146,7 @@ public class ApprovalServiceImpl extends AbstractService<Apply, String> implemen
 		for (Task t : tasks) {
 			String applyId = (String) processEngine.getTaskService().getVariable(t.getId(), "applyId");
 			Apply apply = applyService.getById(applyId);
-			// 这块有问题
+			// FIXME 这块有问题
 			List<Audition> auditions = auditionService.findAuditionsByApplyId(apply.getAid());
 			for (Audition a : auditions) {
 				if (a.getEmployee() == null) {
