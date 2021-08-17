@@ -12,7 +12,7 @@
     <sequenceFlow id="flow3" sourceRef="usertask2" targetRef="exclusivegateway1"></sequenceFlow>
     <sequenceFlow id="flow4" sourceRef="exclusivegateway1" targetRef="usertask1"></sequenceFlow>
     <userTask id="usertask3" name="提交入学考试"></userTask>
-    <sequenceFlow id="flow5" sourceRef="exclusivegateway1" targetRef="usertask3"></sequenceFlow>
+    <sequenceFlow id="flow5" name="提交成功" sourceRef="exclusivegateway1" targetRef="usertask3" skipExpression="${reply == true}"></sequenceFlow>
     <userTask id="usertask4" name="入学考试审批"></userTask>
     <sequenceFlow id="flow6" sourceRef="usertask3" targetRef="usertask4"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="审批是否通过"></exclusiveGateway>
@@ -51,7 +51,7 @@
         <omgdi:waypoint x="145.0" y="137.0"></omgdi:waypoint>
         <omgdi:waypoint x="260.0" y="137.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="16.0" width="100.0" x="145.0" y="137.0"></omgdc:Bounds>
+          <omgdc:Bounds height="16.0" width="95.0" x="145.0" y="137.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
@@ -71,6 +71,9 @@
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
         <omgdi:waypoint x="659.0" y="157.0"></omgdi:waypoint>
         <omgdi:waypoint x="659.0" y="260.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="100.0" x="659.0" y="157.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
         <omgdi:waypoint x="712.0" y="287.0"></omgdi:waypoint>

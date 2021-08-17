@@ -1,11 +1,13 @@
 package com.wy.activity;
 
+import org.activiti.api.process.runtime.events.listener.ProcessRuntimeEventListener;
+import org.activiti.api.task.runtime.events.listener.TaskRuntimeEventListener;
 import org.activiti.engine.delegate.event.ActivitiEvent;
 import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.delegate.event.ActivitiEventType;
 
 /**
- * 实现Activiti监听器
+ * 实现Activiti监听器,有各种监听器{@link TaskRuntimeEventListener},{@link ProcessRuntimeEventListener}等
  *
  * @author 飞花梦影
  * @date 2021-08-12 08:43:39
