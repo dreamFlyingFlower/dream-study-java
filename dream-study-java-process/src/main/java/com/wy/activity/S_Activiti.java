@@ -55,6 +55,7 @@ import org.activiti.engine.runtime.JobQuery;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.runtime.SuspendedJobQuery;
 import org.activiti.engine.runtime.TimerJobQuery;
+import org.activiti.engine.task.DelegationState;
 import org.activiti.engine.task.Task;
 
 import com.wy.collection.MapTool;
@@ -336,14 +337,63 @@ public class S_Activiti {
 		taskService.addCandidateUser(task.getId(), "userId");
 		// 指定任务的候选组
 		taskService.addCandidateGroup(task.getId(), "groupId");
-		// 查询没有指定待办人的任务列表
-		taskService.createTaskQuery().taskUnassigned().listPage(0, 100);
-		// 查询没有指定待办人,但是候选列表中有特定待办人的任务李彪
+		// 查询没有指定待办人,但是候选列表中有特定待办人的任务
 		taskService.createTaskQuery().taskCandidateUser("userid").taskUnassigned().listPage(0, 100);
 		// 获得已经指定了待办人的任务列表
 		taskService.getIdentityLinksForTask(task.getId());
-		// 查询指定了userid为待办人的任务列表
-		taskService.createTaskQuery().taskAssignee("userid").listPage(0, 100);
+		taskService.createTaskQuery()
+				// 返回指定名称的任务
+				.taskName("name").taskNameLike("name")
+				// 返回指定描述的任务
+				.taskDescription("descripe").taskDescriptionLike("descripe")
+				// 返回指定优先级的任务
+				.taskPriority(1)
+				// 返回指定优先级以下/以上的任务
+				.taskMaxPriority(5).taskMinPriority(1)
+				// 返回指定了userid为待办人的任务
+				.taskAssignee("userid").taskAssigneeLike("userid")
+				// 返回指定拥有者的任务
+				.taskOwner("owner").taskOwnerLike("owner")
+				// 返回没有指定待办人的任务,如果传false,该值会被忽略
+				.taskUnassigned()
+				// 返回指定代理状态的任务
+				.taskDelegationState(DelegationState.PENDING)
+				// 返回可以被指定用户领取的任务,包含将用户设置为直接候选人和用户作为候选群组一员的情况
+				.taskCandidateUser("user")
+				// 返回可以被指定群组中用户领取的任务
+				.taskCandidateGroup("group")
+				// 返回指定用户参与过的任务
+				.taskInvolvedUser("user")
+				// 返回指定任务定义id的任务
+				.taskDefinitionKey("key").taskDefinitionKeyLike("key")
+				// 返回作为指定id的流程实例的一部分任务
+				.processInstanceId("processinstanceid")
+				// 返回作为指定key的流程实例的一部分任务
+				.processInstanceBusinessKey("businesskey").processDefinitionKeyLike("businesskey")
+				// 返回作为指定流程定义key的流程实例的一部分任务
+				.processDefinitionKey("processdefinitionkey").processDefinitionKey("processdefinitionkey")
+				// 返回作为指定流程定义名称的流程实例的一部分任务
+				.processDefinitionName("name").processDefinitionNameLike("name")
+				// 返回作为指定id分支的一分部的任务
+				.executionId("exeid")
+				// 返回只当创建时间的任务
+				.taskCreatedOn(null).taskCreatedBefore(null).taskCreatedAfter(null)
+				// 返回指定持续时间的任务
+				.taskDueDate(null).taskDueBefore(null).taskDueAfter(null)
+				// 返回没有设置持续时间的任务,如果值为false,则忽略该值
+				.withoutTaskDueDate()
+				// 返回非子任务的任务
+				.excludeSubtasks()
+				// 若为true,只返回未挂起的任务;若为false,只返回作为挂起流程一部分的任务
+				.active()
+				// 返回包含任务变量的任务
+				.includeTaskLocalVariables()
+				// 返回结果中包含变量的任务
+				.includeProcessVariables()
+				// 排序
+				.orderByTaskCreateTime()
+				// 分页
+				.listPage(0, 100);
 		// 指定任务的附件
 		taskService.createAttachment("url", task.getId(), processInstance.getId(), "附件的名称", "附件的描述", "http://url地址");
 		taskService.getAttachment(task.getId());
@@ -372,7 +422,27 @@ public class S_Activiti {
 	public static void handlerHistory(ProcessEngine processEngine) {
 		HistoryService historyService = processEngine.getHistoryService();
 		// HistoricProcessInstance历史流程实例实体
-		historyService.createHistoricProcessInstanceQuery().list();
+		historyService.createHistoricProcessInstanceQuery()
+				// 指定历史流程实例id
+				.processInstanceId("")
+				// 历史流程实例的流程定义key
+				.processDefinitionKey("")
+				// 历史流程实例的流程定义id
+				.processDefinitionId("")
+				// 历史流程实例的businessKey
+				.processInstanceBusinessKey("")
+				// 历史流程实例的参与者
+				.involvedUser("")
+				// 返回历史流程实例结束历史
+				.finished().finishedBefore(null).finishedAfter(null)
+				// 历史流程实例的上级流程实例id
+				.superProcessInstanceId("")
+				// 返回非子流程的历史流程实例
+				.excludeSubprocesses(true)
+				// 返回指定时间开始的历史流程实例
+				.startedBy(null).startedAfter(null).startedBefore(null)
+				// 是否应该返回历史流程实例变量
+				.includeProcessVariables().list();
 		// HistoricVariableInstance流程或任务变量值的实体
 		historyService.createHistoricVariableInstanceQuery().list();
 		// HistoricActivityInstance单个活动节点执行的信息
