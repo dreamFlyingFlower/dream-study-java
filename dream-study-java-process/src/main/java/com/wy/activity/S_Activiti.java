@@ -57,6 +57,8 @@ import org.activiti.engine.runtime.SuspendedJobQuery;
 import org.activiti.engine.runtime.TimerJobQuery;
 import org.activiti.engine.task.DelegationState;
 import org.activiti.engine.task.Task;
+import org.activiti.spring.ProcessEngineFactoryBean;
+import org.activiti.spring.SpringProcessEngineConfiguration;
 
 import com.wy.collection.MapTool;
 
@@ -128,6 +130,15 @@ import com.wy.collection.MapTool;
  * {@link TimerJobQuery}:查询定时工作
  * {@link SuspendedJobQuery}:查询中断工作
  * {@link DeadLetterJobQuery}:查询无法执行的工作
+ * </pre>
+ * 
+ * 历史数据级别,需要在配置文件中开启并设置:
+ * 
+ * <pre>
+ * none:默认值,忽略所有历史存档.这是流程执行时性能最好的状态,但没有任何历史信息可用
+ * 	activity:保存所有流程实例和活动实例信息.在流程实例结束时,最后一个流程实例的最新变量值将赋值给历史变量.不保存过程中的信息
+ * 	audit:保存所有流程实例信息,活动信息,保证所有的变量和提交的表单属性保持同步.这样所有用户交互信息都是可追溯的,可以用来审计
+ * 	full:最高级别的历史信息存档,也是最慢的.这个级别存储发生在审核以及所有其它细节的信息,主要是更新流程变量
  * </pre>
  *
  * 数据表分类:
@@ -203,6 +214,13 @@ import com.wy.collection.MapTool;
  * Call Activity:调用式子流程
  * </pre>
  * 
+ * Spring集成Activiti:
+ * 
+ * <pre>
+ * {@link ProcessEngineAutoConfiguration}:自动注入Activiti,构建{@link SpringProcessEngineConfiguration}并注入Spring上下文
+ * {@link ProcessEngineFactoryBean}:利用自动注入的{@link ProcessEngineConfiguration}构建{@link ProcessEngine}
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2021-08-09 20:46:10
  * @git {@link https://github.com/dreamFlyingFlower}
@@ -228,6 +246,10 @@ public class S_Activiti {
 		// 在内存中创建流程图引擎
 		ProcessEngineConfiguration pec = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration();
 		// ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("流程图的xml文件地址");
+		// 设置历史数据的级别
+		pec.setHistoryLevel(null)
+				// 设置邮箱用户名
+				.setMailServerUsername(null);
 		ProcessEngine processEngine = pec.buildProcessEngine();
 		String name = processEngine.getName();
 		String version = ProcessEngine.VERSION;
@@ -343,6 +365,8 @@ public class S_Activiti {
 		taskService.addCandidateUser(task.getId(), "userId");
 		// 指定任务的候选组
 		taskService.addCandidateGroup(task.getId(), "groupId");
+		// 设置任务局部变量,也可以在DelegateTask,TaskListener中设置
+		taskService.setVariableLocal(null, null, task);
 		// 查询没有指定待办人,但是候选列表中有特定待办人的任务
 		taskService.createTaskQuery().taskCandidateUser("userid").taskUnassigned().listPage(0, 100);
 		// 获得已经指定了待办人的任务列表
@@ -421,13 +445,13 @@ public class S_Activiti {
 	}
 
 	/**
-	 * 对历史数据进行操作
+	 * 对历史数据进行操作,即使流程结束,该数据仍然保存在数据库中,需要开启相关配置.注意清理历史数据
 	 * 
 	 * @param processEngine 流程引擎实例
 	 */
 	public static void handlerHistory(ProcessEngine processEngine) {
 		HistoryService historyService = processEngine.getHistoryService();
-		// HistoricProcessInstance历史流程实例实体
+		// HistoricProcessInstance:历史流程实例实体,包含当前和已经结束的流程实例信息
 		historyService.createHistoricProcessInstanceQuery()
 				// 指定历史流程实例id
 				.processInstanceId("")
@@ -449,7 +473,7 @@ public class S_Activiti {
 				.startedBy(null).startedAfter(null).startedBefore(null)
 				// 是否应该返回历史流程实例变量
 				.includeProcessVariables().list();
-		// HistoricTaskInstance用户任务实例的信息
+		// HistoricTaskInstance:用户任务实例的信息,包含关于当前和过去的(已完成或已删除)任务实例信息
 		historyService.createHistoricTaskInstanceQuery()
 				// 历史任务实例id
 				.taskId("")
@@ -494,15 +518,19 @@ public class S_Activiti {
 				.taskDueDate(null).taskDueBefore(null).taskDueAfter(null)
 				// 返回没有设置持续时间的历史任务实例,当设置为false时会忽略这个参数
 				.withoutTaskDueDate()
-				// 只返回在指定时间完成的历史任务实例
+				// 返回在指定时间完成的历史任务实例
 				.taskCompletedOn(null).taskCompletedBefore(null).taskCompletedAfter(null)
-				// 只返回指定创建时间的历史任务实例
+				// 返回指定创建时间的历史任务实例
 				.taskCreatedOn(null).taskCreatedBefore(null).taskCreatedAfter(null)
 				// 表示是否应该返回历史任务实例局部变量
 				.includeTaskLocalVariables()
 				// 表示是否应该返回历史任务实例全局变量
-				.includeProcessVariables().list();
-		// HistoricVariableInstance流程或任务变量值的实体
+				.includeProcessVariables()
+				// 返回删除原因包含指定字符串的历史任务
+				.taskDeleteReason(null).taskDeleteReasonLike(null)
+				// 花费时间最长的排序
+				.orderByHistoricTaskInstanceDuration().list();
+		// HistoricVariableInstance:流程或任务变量值的实体,包含最新的流程变量或任务变量
 		historyService.createHistoricVariableInstanceQuery()
 				// 历史变量实例的流程实例id
 				.processInstanceId(null)
@@ -512,7 +540,7 @@ public class S_Activiti {
 				.excludeTaskVariables()
 				// 历史变量实例的变量名称
 				.variableName(null).variableNameLike(null).list();
-		// HistoricActivityInstance单个活动节点执行的信息
+		// HistoricActivityInstance:单个活动节点执行的信息,包含一个活动(流程上的节点)的执行信息
 		historyService.createHistoricActivityInstanceQuery()
 				// 活动实例id
 				.activityId(null)
@@ -520,7 +548,7 @@ public class S_Activiti {
 				.activityInstanceId(null)
 				// 历史活动实例的名称
 				.activityName(null)
-				// 历史活动实例的元素类型
+				// 历史活动实例的元素类型,如serviceTask
 				.activityType(null)
 				// 历史活动实例的分支id
 				.executionId(null)
@@ -532,8 +560,10 @@ public class S_Activiti {
 				.processInstanceId(null)
 				// 历史活动实例的流程定义id
 				.processDefinitionId(null).list();
-		// HistoricDetail历史流程活动任务详细信息
+		// HistoricDetail:历史流程活动任务详细信息,包含历史流程实例,活动实例,任务实例的各种信息
 		historyService.createHistoricDetailQuery()
+				// 流程实例中产生的可变更新信息,某些变量名可能包含多个HistoricVariableUpdate实体
+				.variableUpdates()
 				// 历史细节的id
 				.id(null)
 				// 历史细节的流程实例id
