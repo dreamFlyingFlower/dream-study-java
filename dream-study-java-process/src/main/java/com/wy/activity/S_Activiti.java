@@ -133,20 +133,17 @@ import com.wy.collection.MapTool;
  * 数据表分类:
  * 
  * <pre>
- * ACT_GE_*:通用数据表;
+ * ACT_GE_*:通用数据表
  * ->ACT_GE_PROPERTY:属性表,保存流程引擎的kv键值属性,{@link PropertyEntityImpl}
  * ->ACT_GE_BYTEARRAY:资源表,存储流程定义相关的资源,{@link ByteArrayEntityImpl}
- * ACT_RE_*:流程定义存储表;
+ * 
+ * ACT_RE_*:流程定义存储表.RE表示repository,包含了流程定义和流程静态资源(图片,规则,等等)
  * ->ACT_RE_DEPLOYMENT:流程部署记录表,{@link DeploymentEntityImpl}
  * ->ACT_RE_PROCDEF:流程定义信息表,{@link ProcessDefinitionEntityImpl}
- * ->ACT_RE_MODEL:模型信息表(用于web设计器);
- * ACT_PROCDED_INFO:流程定义动态改变信息表;
- * ACT_ID_*:身份信息表,版本7以上已废弃;
- * ->ACT_ID_USER:用户基本信息;
- * ->ACT_ID_INFO:用户扩展信息;
- * ->ACT_ID_GROUP:群组;
- * ->ACT_ID_MEMBERSHIP:用户和群组关联;
- * ACT_RU_*:运行时数据库表;
+ * ->ACT_RE_MODEL:模型信息表(用于web设计器)
+ * 
+ * ACT_RU_*:运行时数据库表.RU表示runtime,包含流程实例,任务,变量,异步任务等运行中的数据.
+ * 		Activiti只在流程实例执行过程中保存这些数据,在流程结束时就会删除这些记录
  * ->ACT_RU_EXECUTION:流程实例与分支执行信息,{@link ExecutionEntityImpl}
  * ->ACT_RU_TASK:用户任务信息,{@link TaskEntityImpl}
  * ->ACT_RU_VARIABLE:变量信息,{@link VariableInstanceEntityImpl}
@@ -154,9 +151,10 @@ import com.wy.collection.MapTool;
  * ->ACT_RU_EVENT_SUBSCR:事件监听表,{@link EventSubscriptionEntityImpl}
  * ->ACT_RU_JOB:作业表,{@link JobEntityImpl}
  * ->ACT_RU_TIMER_JOB:定时器表,{@link TimerJobEntityImpl}
- * ->ACT_RU_SUSPENDED_JOB:暂停作业表;
- * ->ACT_RU_DEADLETTER_JOB:死信表;
- * ACT_HI_*:历史数据库表;
+ * ->ACT_RU_SUSPENDED_JOB:暂停作业表
+ * ->ACT_RU_DEADLETTER_JOB:死信表
+ * 
+ * ACT_HI_*:历史数据库表.HI表示history,这些表包含历史数据,比如历史流程实例,变量,任务等等
  * ->ACT_HI_PROCINST:历史流程实例表,{@link HistoricProcessInstanceEntityImpl}
  * ->ACT_HI_ACTINST:历史节点信息表
  * ->ACT_HI_TASKINST:历史任务表
@@ -166,7 +164,15 @@ import com.wy.collection.MapTool;
  * ->ACT_HI_ATTACHMENT:附件
  * ->ACT_HI_COMMENT:评论
  * ->ACT_HI_LOG:事件日志
+ * 
+ * ACT_ID_*:身份信息表,版本7以上已废弃
+ * ->ACT_ID_USER:用户基本信息
+ * ->ACT_ID_INFO:用户扩展信息
+ * ->ACT_ID_GROUP:群组
+ * ->ACT_ID_MEMBERSHIP:用户和群组关联
+ * 
  * ACT_EVT_LOG:事件日志表,{@link EventLogEntryEntityImpl}
+ * ACT_PROCDED_INFO:流程定义动态改变信息表
  * </pre>
  * 
  * 核心任务流程:
@@ -443,14 +449,101 @@ public class S_Activiti {
 				.startedBy(null).startedAfter(null).startedBefore(null)
 				// 是否应该返回历史流程实例变量
 				.includeProcessVariables().list();
-		// HistoricVariableInstance流程或任务变量值的实体
-		historyService.createHistoricVariableInstanceQuery().list();
-		// HistoricActivityInstance单个活动节点执行的信息
-		historyService.createHistoricActivityInstanceQuery().list();
 		// HistoricTaskInstance用户任务实例的信息
-		historyService.createHistoricTaskInstanceQuery().list();
+		historyService.createHistoricTaskInstanceQuery()
+				// 历史任务实例id
+				.taskId("")
+				// 历史任务实例的流程实例id
+				.processInstanceId("")
+				// 历史任务实例的流程定义key
+				.processDefinitionKey("").processDefinitionKeyLike("")
+				// 历史任务实例的流程定义id
+				.processDefinitionId("")
+				// 历史任务实例的流程定义名称
+				.processDefinitionName("").processDefinitionNameLike("")
+				// 历史任务实例的流程实例businessKey
+				.processInstanceBusinessKey(null).processInstanceBusinessKeyLike(null)
+				.processInstanceBusinessKeyLikeIgnoreCase(null)
+				// 历史任务实例的分支id
+				.executionId(null)
+				// 流程的任务部分的流程定义key
+				.taskDefinitionKey(null)
+				// 历史任务实例的任务名称
+				.taskName(null).taskNameLike(null).taskNameLikeIgnoreCase(null)
+				// 历史任务实例的任务描述
+				.taskDescription(null).taskDescriptionLike(null).taskDescriptionLikeIgnoreCase(null)
+				// 历史任务实例对应的流程定义的任务定义key
+				.taskDefinitionKey(null).taskDefinitionKeyLike(null)
+				// 历史任务实例的删除任务原因
+				.taskDeleteReason(null).taskDeleteReasonLike(null)
+				// 历史任务实例的负责人
+				.taskAssignee(null).taskAssigneeLike(null).taskAssigneeLikeIgnoreCase(null)
+				// 历史任务实例的原拥有者
+				.taskOwner(null).taskOwnerLike(null).taskOwnerLikeIgnoreCase(null)
+				// 历史任务实例的参与者
+				.taskInvolvedUser(null)
+				// 历史任务实例的优先级
+				.taskPriority(null)
+				// 表示是否历史任务实例已经结束了
+				.finished().unfinished()
+				// 表示历史任务实例的流程实例是否已经结束了
+				.processFinished()
+				// 历史任务实例的可能的上级任务id
+				.taskParentTaskId(null)
+				// 返回指定持续时间的历史任务实例
+				.taskDueDate(null).taskDueBefore(null).taskDueAfter(null)
+				// 返回没有设置持续时间的历史任务实例,当设置为false时会忽略这个参数
+				.withoutTaskDueDate()
+				// 只返回在指定时间完成的历史任务实例
+				.taskCompletedOn(null).taskCompletedBefore(null).taskCompletedAfter(null)
+				// 只返回指定创建时间的历史任务实例
+				.taskCreatedOn(null).taskCreatedBefore(null).taskCreatedAfter(null)
+				// 表示是否应该返回历史任务实例局部变量
+				.includeTaskLocalVariables()
+				// 表示是否应该返回历史任务实例全局变量
+				.includeProcessVariables().list();
+		// HistoricVariableInstance流程或任务变量值的实体
+		historyService.createHistoricVariableInstanceQuery()
+				// 历史变量实例的流程实例id
+				.processInstanceId(null)
+				// 历史变量实例的任务id
+				.taskId(null).taskIds(null)
+				// 表示从结果中排除任务变量
+				.excludeTaskVariables()
+				// 历史变量实例的变量名称
+				.variableName(null).variableNameLike(null).list();
+		// HistoricActivityInstance单个活动节点执行的信息
+		historyService.createHistoricActivityInstanceQuery()
+				// 活动实例id
+				.activityId(null)
+				// 历史活动实例id
+				.activityInstanceId(null)
+				// 历史活动实例的名称
+				.activityName(null)
+				// 历史活动实例的元素类型
+				.activityType(null)
+				// 历史活动实例的分支id
+				.executionId(null)
+				// 表示历史活动实例是否完成
+				.finished()
+				// 历史活动实例的负责人
+				.taskAssignee(null)
+				// 历史活动实例的流程实例id
+				.processInstanceId(null)
+				// 历史活动实例的流程定义id
+				.processDefinitionId(null).list();
 		// HistoricDetail历史流程活动任务详细信息
-		historyService.createHistoricDetailQuery().list();
+		historyService.createHistoricDetailQuery()
+				// 历史细节的id
+				.id(null)
+				// 历史细节的流程实例id
+				.processInstanceId(null)
+				// 历史细节的分支id
+				.executionId(null)
+				// 历史细节的活动实例id
+				.activityInstanceId(null)
+				// 历史细节的任务id
+				.taskId(null).list();
 		// 删除流程实例相关的历史
 		historyService.deleteHistoricProcessInstance("processInstanceId");
 		// 删除任务相关的历史
