@@ -24,6 +24,9 @@ import org.activiti.engine.delegate.event.BaseEntityEventListener;
 import org.activiti.engine.delegate.event.impl.ActivitiEventImpl;
 import org.activiti.engine.impl.asyncexecutor.AsyncExecutor;
 import org.activiti.engine.impl.asyncexecutor.DefaultAsyncJobExecutor;
+import org.activiti.engine.impl.bpmn.parser.BpmnParse;
+import org.activiti.engine.impl.bpmn.parser.BpmnParser;
+import org.activiti.engine.impl.bpmn.parser.handler.AbstractBpmnParseHandler;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.cmd.MessageEventReceivedCmd;
 import org.activiti.engine.impl.cmd.SignalEventReceivedCmd;
@@ -43,6 +46,7 @@ import org.activiti.engine.impl.persistence.entity.PropertyEntityImpl;
 import org.activiti.engine.impl.persistence.entity.TaskEntityImpl;
 import org.activiti.engine.impl.persistence.entity.TimerJobEntityImpl;
 import org.activiti.engine.impl.persistence.entity.VariableInstanceEntityImpl;
+import org.activiti.engine.parse.BpmnParseHandler;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.DeploymentQuery;
@@ -84,7 +88,7 @@ import com.wy.collection.MapTool;
  * {@link HistoryService}:主要对执行完成的任务进行查询等 
  * {@link ManagementService}:对流程基础运行,数据库,定时任务状态的管理
  * {@link DynamicBpmnService}:动态对流程的模型进行修改
- * {@link FormService}:对流程任务中的表单进行解析渲染
+ * {@link FormService}:对流程任务中的表单进行解析渲染,7以上已经废弃
  * </pre>
  * 
  * 流程触发:
@@ -114,6 +118,22 @@ import com.wy.collection.MapTool;
  * {@link ProcessEngineConfigurationImpl#customPreCommandInterceptors}:根据实现手动配置,前置命令拦截器
  * {@link ProcessEngineConfigurationImpl#customPostCommandInterceptors}:根据实现手动配置,后置命令拦截器
  * {@link ProcessEngineConfigurationImpl#commandInvoker}:配置在最后的拦截器
+ * </pre>
+ * 
+ * 流程解析器{@link BpmnParser}
+ * 
+ * <pre>
+ * {@link BpmnParser}:对于每个流程,BpmnParser都会创建一个新的{@link BpmnParse}实例,这个实例会作为解析过程中的容器来使用.
+ * {@link BpmnParseHandler}:解析流程时产生的文件处理实例
+ * {@link ProcessEngineConfigurationImpl#setPreBpmnParseHandlers}:根据实现手动配置,前置流程解析器
+ * {@link ProcessEngineConfigurationImpl#setPostBpmnParseHandlers}:根据实现手动配置,后置流程解析器
+ * {@link ProcessEngineConfigurationImpl#setCustomDefaultBpmnParseHandlers}:替换默认BpmnParseHandler实例,慎用 
+ * {@link AbstractBpmnParseHandler}:若想解析自定义的元素,可继承该类,实现getHandledType()和executeParse()
+ * 
+ * 解析过程:对于每个BPMN2.0元素,引擎中都会有一个对应的BpmnParseHandler实例.
+ * 		解析器会保存一个BPMN2.0元素与BpmnParseHandler实例的映射.
+ * 		Activiti默认使用BpmnParseHandler来处理所有支持的元素,也使用它来提供执行监听器,以支持流程历史.
+ * 		向Activiti引擎中添加自定义的BpmnParseHandler实例,经常看到的用例是把执行监听器添加到对应的环节来处理一些事件队列
  * </pre>
  * 
  * 作业(Job)执行器,流程定义定时启动流程:
