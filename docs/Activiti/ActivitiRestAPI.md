@@ -1,16 +1,8 @@
-# Activiti
+# ActivitiRestAPI
 
 
 
 # 概述
-
-* 流程引擎
-
-
-
-
-
-# REST API
 
 
 
@@ -43,8 +35,7 @@
 
 
 
-
-## 通用参数
+# 通用参数
 
 | 参数  | 默认值             | 描述                                           |
 | ----- | ------------------ | ---------------------------------------------- |
@@ -55,11 +46,11 @@
 
 
 
-## 部署API
+# 部署
 
 
 
-### 部署列表
+## 部署列表
 
 ```http
 GET repository/deployments
@@ -97,7 +88,7 @@ GET repository/deployments
 
 
 
-### 获得一个部署
+## 获得一个部署
 
 ```http
 GET repository/deployments/{deploymentId}
@@ -123,7 +114,7 @@ GET repository/deployments/{deploymentId}
 
 
 
-### 创建新部署
+## 创建新部署
 
 ```http
 POST repository/deployments 
@@ -147,7 +138,7 @@ POST repository/deployments
 
 
 
-### 删除部署
+## 删除部署
 
 ```http
 DELETE repository/deployments/{deploymentId}
@@ -161,7 +152,7 @@ DELETE repository/deployments/{deploymentId}
 
 
 
-### 列出部署内的资源
+## 列出部署内的资源
 
 ```http
 GET repository/deployments/{deploymentId}/resources
@@ -203,7 +194,7 @@ GET repository/deployments/{deploymentId}/resources
 
 
 
-### 获取部署资源
+## 获取部署资源
 
 ```http
 GET repository/deployments/{deploymentId}/resources/{resourceId}
@@ -230,7 +221,7 @@ GET repository/deployments/{deploymentId}/resources/{resourceId}
 
 
 
-### 获取部署资源的内容
+## 获取部署资源的内容
 
 ```http
 GET repository/deployments/{deploymentId}/resourcedata/{resourceId}
@@ -249,11 +240,11 @@ GET repository/deployments/{deploymentId}/resourcedata/{resourceId}
 
 
 
-## 流程定义
+# 流程定义
 
 
 
-### 流程定义列表
+## 流程定义列表
 
 ```http
 GET repository/process-definitions
@@ -314,7 +305,7 @@ GET repository/process-definitions
 
 
 
-### 获得一个流程定义
+## 获得一个流程定义
 
 ```http
 GET repository/process-definitions/{processDefinitionId}
@@ -353,7 +344,7 @@ GET repository/process-definitions/{processDefinitionId}
 
 
 
-### 更新流程定义的分类
+## 更新流程定义的分类
 
 ```http
 PUT repository/process-definitions/{processDefinitionId}
@@ -369,7 +360,7 @@ PUT repository/process-definitions/{processDefinitionId}
 
 
 
-### 获得一个流程定义的资源内容
+## 获得一个流程定义的资源内容
 
 ```http
 GET repository/process-definitions/{processDefinitionId}/resourcedata
@@ -383,7 +374,7 @@ GET repository/process-definitions/{processDefinitionId}/resourcedata
 
  
 
-### 获得流程定义的BPMN模型
+## 获得流程定义的BPMN模型
 
 ```http
 GET repository/process-definitions/{processDefinitionId}/model
@@ -419,7 +410,7 @@ GET repository/process-definitions/{processDefinitionId}/model
 
 
 
-### 暂停流程定义
+## 暂停流程定义
 
 ```http
 PUT repository/process-definitions/{processDefinitionId}
@@ -445,7 +436,7 @@ PUT repository/process-definitions/{processDefinitionId}
 
 
 
-### 激活流程定义
+## 激活流程定义
 
 ```http
 PUT repository/process-definitions/{processDefinitionId}
@@ -463,7 +454,7 @@ PUT repository/process-definitions/{processDefinitionId}
 
 
 
-### 获得流程定义的所有候选启动者
+## 获得流程定义的所有候选启动者
 
 ```http
 GET repository/process-definitions/{processDefinitionId}/identitylinks
@@ -496,7 +487,7 @@ GET repository/process-definitions/{processDefinitionId}/identitylinks
 
 
 
-### 为流程定义添加一个候选启动者
+## 为流程定义添加一个候选启动者
 
 ```http
 POST repository/process-definitions/{processDefinitionId}/identitylinks
@@ -539,7 +530,7 @@ POST repository/process-definitions/{processDefinitionId}/identitylinks
 
 
 
-### 删除流程定义的候选启动者
+## 删除流程定义的候选启动者
 
 ```http
 DELETE repository/process-definitions/{processDefinitionId}/identitylinks/{family}/{identityId}
@@ -566,7 +557,7 @@ DELETE repository/process-definitions/{processDefinitionId}/identitylinks/{famil
 
 
 
-### 获得流程定义的一个候选启动者
+## 获得流程定义的一个候选启动者
 
 ```http
 GET repository/process-definitions/{processDefinitionId}/identitylinks/{family}/{identityId}
@@ -593,11 +584,11 @@ GET repository/process-definitions/{processDefinitionId}/identitylinks/{family}/
 
 
 
-## 模型
+# 模型
 
 
 
-### 获得模型列表
+## 获得模型列表
 
 ```http
 GET repository/models
@@ -652,7 +643,7 @@ GET repository/models
 
 
 
-### 获得一个模型
+## 获得一个模型
 
 ```http
 GET repository/models/{modelId}
@@ -684,7 +675,7 @@ GET repository/models/{modelId}
 
 
 
-### 更新模型
+## 更新模型
 
 ```http
 PUT repository/models/{modelId}
@@ -723,7 +714,7 @@ PUT repository/models/{modelId}
 
 
 
-### 新建模型
+## 新建模型
 
 ```http
 POST repository/models
@@ -762,7 +753,7 @@ POST repository/models
 
 
 
-### 删除模型
+## 删除模型
 
 ```http
 DELETE repository/models/{modelId}
@@ -770,7 +761,7 @@ DELETE repository/models/{modelId}
 
 
 
-### 获得模型的可编译源码
+## 获得模型的可编译源码
 
 ```http
 GET repository/models/{modelId}/source
@@ -782,7 +773,7 @@ GET repository/models/{modelId}/source
 
 
 
-### 设置模型的可编辑源码
+## 设置模型的可编辑源码
 
 ```http
 PUT repository/models/{modelId}/source
@@ -794,7 +785,7 @@ PUT repository/models/{modelId}/source
 
 
 
-### 获得模型的附加可编辑源码
+## 获得模型的附加可编辑源码
 
 ```http
 GET repository/models/{modelId}/source-extra
@@ -806,7 +797,7 @@ GET repository/models/{modelId}/source-extra
 
 
 
-### 设置模型的附加可编辑源码
+## 设置模型的附加可编辑源码
 
 ```http
 PUT repository/models/{modelId}/source-extra
@@ -818,11 +809,11 @@ PUT repository/models/{modelId}/source-extra
 
 
 
-## 流程实例
+# 流程实例
 
 
 
-### 获得流程实例
+## 获得流程实例
 
 ```http
 GET runtime/process-instances/{processInstanceId}
@@ -843,7 +834,7 @@ GET runtime/process-instances/{processInstanceId}
 
 
 
-### 删除流程实例
+## 删除流程实例
 
 ```http
 DELETE runtime/process-instances/{processInstanceId}
@@ -857,7 +848,7 @@ DELETE runtime/process-instances/{processInstanceId}
 
  
 
-### 激活或挂起流程实例
+## 激活或挂起流程实例
 
 ```http
 PUT runtime/process-instances/{processInstanceId}
@@ -889,7 +880,7 @@ PUT runtime/process-instances/{processInstanceId}
 
  
 
-### 启动流程实例
+## 启动流程实例
 
 ```http
 POST runtime/process-instances
@@ -969,7 +960,7 @@ POST runtime/process-instances
 
 
 
-### 显示流程实例列表
+## 显示流程实例列表
 
 ```http
 GET runtime/process-instances
@@ -1016,7 +1007,7 @@ GET runtime/process-instances
 
 
 
-### 查询流程实例
+## 查询流程实例
 
 ```http
 POST query/process-instances
@@ -1069,7 +1060,7 @@ POST query/process-instances
 
 
 
-### 获得流程实例的流程图
+## 获得流程实例的流程图
 
 ```http
 GET runtime/process-instances/{processInstanceId}
@@ -1096,7 +1087,7 @@ GET runtime/process-instances/{processInstanceId}
 
 
 
-### 获得流程实例的参与者
+## 获得流程实例的参与者
 
 ```http
 GET runtime/process-instances/{processInstanceId}/identitylinks
@@ -1131,7 +1122,7 @@ GET runtime/process-instances/{processInstanceId}/identitylinks
 
 
 
-### 为流程实例添加一个参与者
+## 为流程实例添加一个参与者
 
 ```http
 POST runtime/process-instances/{processInstanceId}/identitylinks
@@ -1160,7 +1151,7 @@ POST runtime/process-instances/{processInstanceId}/identitylinks
 
 
 
-### 删除一个流程实例的参与者
+## 删除一个流程实例的参与者
 
 ```http
 DELETE runtime/process-instances/{processInstanceId}/identitylinks/users/{userId}/{type}
@@ -1189,7 +1180,7 @@ DELETE runtime/process-instances/{processInstanceId}/identitylinks/users/{userId
 
 
 
-### 列出流程实例的变量
+## 列出流程实例的变量
 
 ```http
 GET runtime/process-instances/{processInstanceId}/variables
@@ -1227,7 +1218,7 @@ GET runtime/process-instances/{processInstanceId}/variables
 
 
 
-### 获得流程实例的一个变量
+## 获得流程实例的一个变量
 
 ```http
 GET runtime/process-instances/{processInstanceId}/variables/{variableName}
@@ -1255,7 +1246,7 @@ GET runtime/process-instances/{processInstanceId}/variables/{variableName}
 
 
 
-### 创建或更新流程实例变量
+## 创建或更新流程实例变量
 
 ```http
 POST runtime/process-instances/{processInstanceId}/variables
@@ -1302,7 +1293,7 @@ PUT runtime/process-instances/{processInstanceId}/variables
 
 
 
-### 更新一个流程实例变量
+## 更新一个流程实例变量
 
 ```http
 PUT runtime/process-instances/{processInstanceId}/variables/{variableName}
@@ -1340,7 +1331,7 @@ PUT runtime/process-instances/{processInstanceId}/variables/{variableName}
 
 
 
-### 创建一个新的二进制流程变量
+## 创建一个新的二进制流程变量
 
 ```http
 POST runtime/process-instances/{processInstanceId}/variables
@@ -1371,7 +1362,7 @@ POST runtime/process-instances/{processInstanceId}/variables
 
  
 
-### 更新一个二进制的流程实例变量
+## 更新一个二进制的流程实例变量
 
 ```http
 PUT runtime/process-instances/{processInstanceId}/variables
@@ -1402,11 +1393,11 @@ PUT runtime/process-instances/{processInstanceId}/variables
 
  
 
-## 分支
+# 分支
 
 
 
-### 获取一个分支
+## 获取一个分支
 
 ```http
 GET runtime/executions/{executionId}
@@ -1435,7 +1426,7 @@ GET runtime/executions/{executionId}
 
 
 
-### 对分支执行操作
+## 对分支执行操作
 
 ```http
 PUT runtime/executions/{executionId}
@@ -1498,7 +1489,7 @@ PUT runtime/executions/{executionId}
 
 
 
-### 获得一个分支的所有活动节点
+## 获得一个分支的所有活动节点
 
 ```http
 GET runtime/executions/{executionId}/activities
@@ -1523,7 +1514,7 @@ GET runtime/executions/{executionId}/activities
 
 
 
-### 获取分支列表
+## 获取分支列表
 
 ```http
 GET repository/executions
@@ -1577,7 +1568,7 @@ GET repository/executions
 
 
 
-### 查询分支
+## 查询分支
 
 ```http
 POST query/executions
@@ -1650,7 +1641,7 @@ POST query/executions
 
 
 
-### 获取分支的变量列表
+## 获取分支的变量列表
 
 ```
 GET runtime/executions/{executionId}/variables?scope={scope}
@@ -1689,7 +1680,7 @@ GET runtime/executions/{executionId}/variables?scope={scope}
 
 
 
-### 获得分支的一个变量
+## 获得分支的一个变量
 
 ```
 GET runtime/executions/{executionId}/variables/{variableName}?scope={scope}
@@ -1718,7 +1709,7 @@ GET runtime/executions/{executionId}/variables/{variableName}?scope={scope}
 
 
 
-### 新建或更新分支变量
+## 新建或更新分支变量
 
 ```
 POST runtime/executions/{executionId}/variables
@@ -1766,7 +1757,7 @@ PUT runtime/executions/{executionId}/variables
 
 
 
-### 更新分支变量
+## 更新分支变量
 
 ```
 PUT runtime/executions/{executionId}/variables/{variableName}
@@ -1805,7 +1796,7 @@ PUT runtime/executions/{executionId}/variables/{variableName}
 
 
 
-### 创建一个二进制变量
+## 创建一个二进制变量
 
 ```
 POST runtime/executions/{executionId}/variables
@@ -1838,7 +1829,7 @@ POST runtime/executions/{executionId}/variables
 
  
 
-### 更新已经已存在的二进制分支变量
+## 更新已经已存在的二进制分支变量
 
 ```
 PUT runtime/executions/{executionId}/variables/{variableName}
@@ -1871,11 +1862,11 @@ PUT runtime/executions/{executionId}/variables/{variableName}
 
  
 
-## 任务
+# 任务
 
 
 
-### 获取任务
+## 获取任务
 
 ```
 GET runtime/tasks/{taskId}
@@ -1908,7 +1899,7 @@ GET runtime/tasks/{taskId}
 
 
 
-### 任务列表
+## 任务列表
 
 ```
 GET runtime/tasks
@@ -1948,7 +1939,7 @@ GET runtime/tasks
 
 
 
-### 查询任务
+## 查询任务
 
 ```
 POST query/tasks
@@ -2017,7 +2008,7 @@ POST query/tasks
 
 
 
-### 更新任务
+## 更新任务
 
 ```
 PUT runtime/tasks/{taskId}
@@ -2048,7 +2039,7 @@ PUT runtime/tasks/{taskId}
 
 
 
-### 操作任务
+## 操作任务
 
 ```
 POST runtime/tasks/{taskId}
@@ -2103,7 +2094,7 @@ POST runtime/tasks/{taskId}
 
 
 
-### 删除任务
+## 删除任务
 
 ```
 DELETE runtime/tasks/{taskId}?cascadeHistory={cascadeHistory}&deleteReason={deleteReason}
@@ -2119,7 +2110,7 @@ DELETE runtime/tasks/{taskId}?cascadeHistory={cascadeHistory}&deleteReason={dele
 
  
 
-### 获得任务的变量
+## 获得任务的变量
 
 ```
 GET runtime/tasks/{taskId}/variables?scope={scope}
@@ -2158,7 +2149,7 @@ GET runtime/tasks/{taskId}/variables?scope={scope}
 
 
 
-### 获取任务的一个变量
+## 获取任务的一个变量
 
 ```
 GET runtime/tasks/{taskId}/variables/{variableName}?scope={scope}
@@ -2187,7 +2178,7 @@ GET runtime/tasks/{taskId}/variables/{variableName}?scope={scope}
 
 
 
-### 获取变量的二进制数据
+## 获取变量的二进制数据
 
 ```
 GET runtime/tasks/{taskId}/variables/{variableName}/data?scope={scope}
@@ -2207,7 +2198,7 @@ GET runtime/tasks/{taskId}/variables/{variableName}/data?scope={scope}
 
 
 
-### 创建任务变量
+## 创建任务变量
 
 ```
 POST runtime/tasks/{taskId}/variables
@@ -2260,7 +2251,7 @@ POST runtime/tasks/{taskId}/variables
 
  
 
-### 创建二进制任务变量
+## 创建二进制任务变量
 
 ```
 POST runtime/tasks/{taskId}/variables
@@ -2294,7 +2285,7 @@ POST runtime/tasks/{taskId}/variables
 
  
 
-### 更新任务的一个已有变量
+## 更新任务的一个已有变量
 
 ```
 PUT runtime/tasks/{taskId}/variables/{variableName}
@@ -2340,7 +2331,7 @@ PUT runtime/tasks/{taskId}/variables/{variableName}
 
  
 
-### 更新一个二进制任务变量
+## 更新一个二进制任务变量
 
 ```
 PUT runtime/tasks/{taskId}/variables/{variableName}
@@ -2375,7 +2366,7 @@ PUT runtime/tasks/{taskId}/variables/{variableName}
 
  
 
-### 删除任务变量
+## 删除任务变量
 
 ```
 DELETE runtime/tasks/{taskId}/variables/{variableName}?scope={scope}
@@ -2391,7 +2382,7 @@ DELETE runtime/tasks/{taskId}/variables/{variableName}?scope={scope}
 
  
 
-### 删除任务的所有局部变量
+## 删除任务的所有局部变量
 
 ```
 DELETE runtime/tasks/{taskId}/variables
@@ -2405,7 +2396,7 @@ DELETE runtime/tasks/{taskId}/variables
 
  
 
-### 获得任务的所有IdentityLink
+## 获得任务的所有IdentityLink
 
 ```
 GET runtime/tasks/{taskId}/identitylinks
@@ -2440,7 +2431,7 @@ GET runtime/tasks/{taskId}/identitylinks
 
 
 
-### 获得一个任务的所有组或用户的IdentityLink
+## 获得一个任务的所有组或用户的IdentityLink
 
 ```
 GET runtime/tasks/{taskId}/identitylinks/users
@@ -2451,7 +2442,7 @@ GET runtime/tasks/{taskId}/identitylinks/groups
 
 
 
-### 获得一个任务的一个IdentityLink
+## 获得一个任务的一个IdentityLink
 
 ```
 GET runtime/tasks/{taskId}/identitylinks/{family}/{identityId}/{type}
@@ -2479,7 +2470,7 @@ GET runtime/tasks/{taskId}/identitylinks/{family}/{identityId}/{type}
 
 
 
-### 为任务创建一个IdentityLink
+## 为任务创建一个IdentityLink
 
 ```
 POST runtime/tasks/{taskId}/identitylinks
@@ -2524,7 +2515,7 @@ POST runtime/tasks/{taskId}/identitylinks
 
 
 
-### 删除任务的一个IdentityLink
+## 删除任务的一个IdentityLink
 
 ```
 DELETE runtime/tasks/{taskId}/identitylinks/{family}/{identityId}/{type}
@@ -2541,7 +2532,7 @@ DELETE runtime/tasks/{taskId}/identitylinks/{family}/{identityId}/{type}
 
  
 
-### 为任务创建评论
+## 为任务创建评论
 
 ```
 POST runtime/tasks/{taskId}/comments
@@ -2576,7 +2567,7 @@ POST runtime/tasks/{taskId}/comments
 
 
 
-### 获得任务的所有评论
+## 获得任务的所有评论
 
 ```
 GET runtime/tasks/{taskId}/comments
@@ -2611,7 +2602,7 @@ GET runtime/tasks/{taskId}/comments
 
  
 
-### 获得任务的一个评论
+## 获得任务的一个评论
 
 ```
 GET runtime/tasks/{taskId}/comments/{commentId}
@@ -2639,7 +2630,7 @@ GET runtime/tasks/{taskId}/comments/{commentId}
 
  
 
-### 删除任务的一条评论
+## 删除任务的一条评论
 
 ```
 DELETE runtime/tasks/{taskId}/comments/{commentId}
@@ -2654,7 +2645,7 @@ DELETE runtime/tasks/{taskId}/comments/{commentId}
 
  
 
-### 获得任务的所有事件
+## 获得任务的所有事件
 
 ```
 GET runtime/tasks/{taskId}/events
@@ -2689,7 +2680,7 @@ GET runtime/tasks/{taskId}/events
 
  
 
-### 获得任务的一个事件
+## 获得任务的一个事件
 
 ```
 GET runtime/tasks/{taskId}/events/{eventId}
@@ -2722,7 +2713,7 @@ GET runtime/tasks/{taskId}/events/{eventId}
 
  
 
-### 为任务创建一个附件,包含外部资源的链接
+## 为任务创建一个附件,包含外部资源的链接
 
 ```
 POST runtime/tasks/{taskId}/attachments
@@ -2767,7 +2758,7 @@ POST runtime/tasks/{taskId}/attachments
 
  
 
-### 为任务创建一个附件,包含附件文件
+## 为任务创建一个附件,包含附件文件
 
 ```
 POST runtime/tasks/{taskId}/attachments
@@ -2805,7 +2796,7 @@ POST runtime/tasks/{taskId}/attachments
 
  
 
-### 获得任务的所有附件
+## 获得任务的所有附件
 
 ```
 GET runtime/tasks/{taskId}/attachments
@@ -2850,7 +2841,7 @@ GET runtime/tasks/{taskId}/attachments
 
  
 
-### 获得任务的一个附件
+## 获得任务的一个附件
 
 ```
 GET runtime/tasks/{taskId}/attachments/{attachmentId}
@@ -2888,7 +2879,7 @@ GET runtime/tasks/{taskId}/attachments/{attachmentId}
 
  
 
-### 获取附件的内容
+## 获取附件的内容
 
 ```
 GET runtime/tasks/{taskId}/attachment/{attachmentId}/content
@@ -2907,7 +2898,7 @@ GET runtime/tasks/{taskId}/attachment/{attachmentId}/content
 
 
 
-### 删除任务的一个附件
+## 删除任务的一个附件
 
 ```
 DELETE runtime/tasks/{taskId}/attachments/{attachmentId}
@@ -2922,11 +2913,11 @@ DELETE runtime/tasks/{taskId}/attachments/{attachmentId}
 
 
 
-## 历史
+# 历史
 
 
 
-### 获得历史流程实例
+## 获得历史流程实例
 
 ```
 GET history/historic-process-instances/{processInstanceId}
@@ -2966,7 +2957,7 @@ GET history/historic-process-instances/{processInstanceId}
 
 
 
-### 历史流程实例列表
+## 历史流程实例列表
 
 ```
 GET history/historic-process-instances
@@ -3012,7 +3003,7 @@ GET history/historic-process-instances
 
 
 
-### 查询历史流程实例
+## 查询历史流程实例
 
 ```
 POST query/historic-process-instances
@@ -3078,7 +3069,7 @@ POST query/historic-process-instances
 
 
 
-### 删除历史流程实例
+## 删除历史流程实例
 
 ```
 DELETE history/historic-process-instances/{processInstanceId}
@@ -3086,7 +3077,7 @@ DELETE history/historic-process-instances/{processInstanceId}
 
  
 
-### 获取历史流程实例的IdentityLink
+## 获取历史流程实例的IdentityLink
 
 ```
 GET history/historic-process-instance/{processInstanceId}/identitylinks
@@ -3112,7 +3103,7 @@ GET history/historic-process-instance/{processInstanceId}/identitylinks
 
 
 
-### 获取历史流程实例变量的二进制数据
+## 获取历史流程实例变量的二进制数据
 
 ```
 GET history/historic-process-instances/{processInstanceId}/variables/{variableName}/data
@@ -3124,7 +3115,7 @@ GET history/historic-process-instances/{processInstanceId}/variables/{variableNa
 
 
 
-### 获得单独历史任务实例
+## 获得单独历史任务实例
 
 ```
 GET history/historic-task-instances/{taskId}
@@ -3164,7 +3155,7 @@ GET history/historic-task-instances/{taskId}
 
 
 
-### 获取历史任务实例
+## 获取历史任务实例
 
 ```
 GET history/historic-task-instances
@@ -3226,7 +3217,7 @@ GET history/historic-task-instances
 
 
 
-### 查询历史任务实例
+## 查询历史任务实例
 
 ```
 POST query/historic-task-instances
@@ -3308,7 +3299,7 @@ POST query/historic-task-instances
 
 
 
-### 删除历史任务实例
+## 删除历史任务实例
 
 ```
 DELETE history/historic-task-instances/{taskId}
@@ -3316,7 +3307,7 @@ DELETE history/historic-task-instances/{taskId}
 
  
 
-### 获得历史任务实例的IdentityLink
+## 获得历史任务实例的IdentityLink
 
 ```
 GET history/historic-task-instance/{taskId}/identitylinks
@@ -3342,7 +3333,7 @@ GET history/historic-task-instance/{taskId}/identitylinks
 
 
 
-### 获取历史任务实例变量的二进制值
+## 获取历史任务实例变量的二进制值
 
 ```
 GET history/historic-task-instances/{taskId}/variables/{variableName}/data
@@ -3354,7 +3345,7 @@ GET history/historic-task-instances/{taskId}/variables/{variableName}/data
 
 
 
-### 获取历史活动实例
+## 获取历史活动实例
 
 ```
 GET history/historic-activity-instances
@@ -3393,7 +3384,7 @@ GET history/historic-activity-instances
 
 
 
-### 查询历史活动实例
+## 查询历史活动实例
 
 ```
 POST query/historic-activity-instances
@@ -3444,7 +3435,7 @@ POST query/historic-activity-instances
 
 
 
-### 列出历史变量实例
+## 列出历史变量实例
 
 ```
 GET history/historic-variable-instances
@@ -3477,7 +3468,7 @@ GET history/historic-variable-instances
 
 
 
-### 查询历史变量实例
+## 查询历史变量实例
 
 ```
 POST query/historic-variable-instances
@@ -3532,7 +3523,7 @@ POST query/historic-variable-instances
 
 
 
-### 获取历史任务实例变量的二进制值
+## 获取历史任务实例变量的二进制值
 
 ```
 GET history/historic-variable-instances/{varInstanceId}/data
@@ -3544,7 +3535,7 @@ GET history/historic-variable-instances/{varInstanceId}/data
 
 
 
-### 获取历史细节
+## 获取历史细节
 
 ```
 GET history/historic-detail
@@ -3585,7 +3576,7 @@ GET history/historic-detail
 
 
 
-### 查询历史细节
+## 查询历史细节
 
 ```
 POST query/historic-detail
@@ -3638,7 +3629,7 @@ POST query/historic-detail
 
 
 
-### 获取历史细节变量的二进制数据
+## 获取历史细节变量的二进制数据
 
 ```
 GET history/historic-detail/{detailId}/data
@@ -3650,7 +3641,7 @@ GET history/historic-detail/{detailId}/data
 
 
 
-## 表单
+# 表单
 
 
 
@@ -3658,7 +3649,7 @@ GET history/historic-detail/{detailId}/data
 
 
 
-### 获取表单数据
+## 获取表单数据
 
 ```
 GET form/form-data
@@ -3719,7 +3710,7 @@ GET form/form-data
 
 
 
-### 提交任务表单数据
+## 提交任务表单数据
 
 ```
 POST form/form-data
@@ -3772,11 +3763,11 @@ POST form/form-data
 
 
 
-## 数据库表
+# 数据库表
 
 
 
-### 表列表
+## 表列表
 
 ```
 GET management/tables
@@ -3806,7 +3797,7 @@ GET management/tables
 
 
 
-### 获得一张表
+## 获得一张表
 
 ```
 GET management/tables/{tableName}
@@ -3832,7 +3823,7 @@ GET management/tables/{tableName}
 
  
 
-### 获得表的列信息
+## 获得表的列信息
 
 ```
 GET management/tables/{tableName}/columns
@@ -3870,7 +3861,7 @@ GET management/tables/{tableName}/columns
 
  
 
-### 获得表的行数据
+## 获得表的行数据
 
 ```
 GET management/tables/{tableName}/data
@@ -3919,11 +3910,11 @@ GET management/tables/{tableName}/data
 
  
 
-## 引擎
+# 引擎
 
 
 
-### 获得引擎属性
+## 获得引擎属性
 
 ```
 GET management/properties
@@ -3943,7 +3934,7 @@ GET management/properties
 
  
 
-### 获得引擎信息
+## 获得引擎信息
 
 ```
 GET management/engine
@@ -3964,11 +3955,11 @@ GET management/engine
 
  
 
-## 作业
+# 作业
 
 
 
-### 获取一个作业
+## 获取一个作业
 
 ```
 GET management/jobs/{jobId}
@@ -4002,7 +3993,7 @@ GET management/jobs/{jobId}
 
  
 
-### 删除作业
+## 删除作业
 
 ```
 DELETE management/jobs/{jobId}
@@ -4016,7 +4007,7 @@ DELETE management/jobs/{jobId}
 
  
 
-### 执行作业
+## 执行作业
 
 ```
 POST management/jobs/{jobId}
@@ -4038,7 +4029,7 @@ POST management/jobs/{jobId}
 
  
 
-### 获得作业的异常堆栈
+## 获得作业的异常堆栈
 
 ```
 GET management/jobs/{jobId}/exception-stracktrace
@@ -4052,7 +4043,7 @@ GET management/jobs/{jobId}/exception-stracktrace
 
  
 
-### 获得作业列表
+## 获得作业列表
 
 ```
 GET management/jobs
@@ -4108,7 +4099,7 @@ GET management/jobs
 
  
 
-## 用户
+# 用户
 
 
 
@@ -4116,7 +4107,7 @@ GET management/jobs
 
 
 
-### 获得一个用户
+## 获得一个用户
 
 ```
 GET identity/users/{userId}
@@ -4144,7 +4135,7 @@ GET identity/users/{userId}
 
  
 
-### 获取用户列表
+## 获取用户列表
 
 ```
 GET identity/users
@@ -4203,7 +4194,7 @@ GET identity/users
 
  
 
-### 更新用户
+## 更新用户
 
 ```
 PUT identity/users/{userId}
@@ -4228,7 +4219,7 @@ PUT identity/users/{userId}
 
 
 
-### 创建用户
+## 创建用户
 
 ```
 POST identity/users
@@ -4252,7 +4243,7 @@ POST identity/users
 
 
 
-### 删除用户
+## 删除用户
 
 ```
 DELETE identity/users/{userId}
@@ -4266,7 +4257,7 @@ DELETE identity/users/{userId}
 
  
 
-### 获取用户图片
+## 获取用户图片
 
 ```
 GET identity/users/{userId}/picture
@@ -4284,7 +4275,7 @@ GET identity/users/{userId}/picture
 
  
 
-### 更新用户图片
+## 更新用户图片
 
 ```
 GET identity/users/{userId}/picture
@@ -4304,7 +4295,7 @@ GET identity/users/{userId}/picture
 
  
 
-### 列出用户列表
+## 列出用户列表
 
 ```
 PUT identity/users/{userId}/info
@@ -4335,7 +4326,7 @@ PUT identity/users/{userId}/info
 
  
 
-### 获取用户信息
+## 获取用户信息
 
 ```
 GET identity/users/{userId}/info/{key}
@@ -4362,7 +4353,7 @@ GET identity/users/{userId}/info/{key}
 
  
 
-### 更新用户的信息
+## 更新用户的信息
 
 ```
 PUT identity/users/{userId}/info/{key}
@@ -4397,7 +4388,7 @@ PUT identity/users/{userId}/info/{key}
 
  
 
-### 创建用户信息条目
+## 创建用户信息条目
 
 ```
 POST identity/users/{userId}/info
@@ -4432,7 +4423,7 @@ POST identity/users/{userId}/info
 
  
 
-### 删除用户的信息
+## 删除用户的信息
 
 ```
 DELETE identity/users/{userId}/info/{key}
@@ -4447,7 +4438,7 @@ DELETE identity/users/{userId}/info/{key}
 
  
 
-## 群组
+# 群组
 
 
 
@@ -4455,7 +4446,7 @@ DELETE identity/users/{userId}/info/{key}
 
 
 
-### 获得群组
+## 获得群组
 
 ```
 GET identity/groups/{groupId}
@@ -4482,7 +4473,7 @@ GET identity/groups/{groupId}
 
  
 
-### 获取群组列表
+## 获取群组列表
 
 ```
 GET identity/groups
@@ -4525,7 +4516,7 @@ GET identity/groups
 
  
 
-### 更新群组
+## 更新群组
 
 ```
 PUT identity/groups/{groupId}
@@ -4548,7 +4539,7 @@ PUT identity/groups/{groupId}
 
 
 
-### 创建群组
+## 创建群组
 
 ```
 POST identity/groups
@@ -4570,7 +4561,7 @@ POST identity/groups
 
 
 
-### 删除群组
+## 删除群组
 
 ```
 DELETE identity/groups/{groupId}
@@ -4584,13 +4575,13 @@ DELETE identity/groups/{groupId}
 
   
 
-### 获取群组的成员
+## 获取群组的成员
 
 `identity/groups/members`不允许使用GET.使用 `identity/users?memberOfGroup=sales` URL来获得某个群组下的所有成员.
 
 
 
-### 为群组添加一个成员
+## 为群组添加一个成员
 
 ```
 POST identity/groups/{groupId}/members
@@ -4626,7 +4617,7 @@ POST identity/groups/{groupId}/members
 
 
 
-### 删除群组的成员
+## 删除群组的成员
 
 ```
 DELETE identity/groups/{groupId}/members/{userId}

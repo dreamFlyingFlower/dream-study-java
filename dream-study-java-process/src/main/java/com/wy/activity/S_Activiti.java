@@ -59,6 +59,8 @@ import org.activiti.engine.task.DelegationState;
 import org.activiti.engine.task.Task;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringProcessEngineConfiguration;
+import org.activiti.spring.boot.ActivitiProperties;
+import org.activiti.spring.boot.ProcessEngineAutoConfiguration;
 
 import com.wy.collection.MapTool;
 
@@ -214,11 +216,13 @@ import com.wy.collection.MapTool;
  * Call Activity:调用式子流程
  * </pre>
  * 
- * Spring集成Activiti:
+ * Spring集成Activiti,在启动时会默认加载资源目录下的/processes/目录下的流程(bpmn)文件:
  * 
  * <pre>
- * {@link ProcessEngineAutoConfiguration}:自动注入Activiti,构建{@link SpringProcessEngineConfiguration}并注入Spring上下文
+ * {@link ProcessEngineAutoConfiguration}:自动注入Activiti相关配置,如数据库,事务,历史数据库等,
+ * 		构建{@link SpringProcessEngineConfiguration}并注入Spring上下文
  * {@link ProcessEngineFactoryBean}:利用自动注入的{@link ProcessEngineConfiguration}构建{@link ProcessEngine}
+ * {@link ActivitiProperties}:Activiti相关配置,定义资源文件目录,文件后缀,是否使用历史数据等
  * </pre>
  * 
  * @author 飞花梦影
@@ -245,7 +249,10 @@ public class S_Activiti {
 	public static ProcessEngine createProcessEngine() {
 		// 在内存中创建流程图引擎
 		ProcessEngineConfiguration pec = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration();
+		// ProcessEngineConfiguration.createProcessEngineConfigurationFromResourceDefault();
 		// ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("流程图的xml文件地址");
+		// ProcessEngineConfiguration.createProcessEngineConfigurationFromInputStream("流程文件的流地址");
+
 		// 设置历史数据的级别
 		pec.setHistoryLevel(null)
 				// 设置邮箱用户名
