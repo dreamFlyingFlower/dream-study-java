@@ -266,6 +266,588 @@ executionId=%X{mdcExecutionId} mdcProcessInstanceID=%X{mdcProcessInstanceID} mdc
 
 
 
+
+
+# Activiti API
+
+
+
+## 流程引擎的API和服务
+
+
+
+### ProcessEngine
+
+* ProcessEngine可以获得很多囊括工作流/BPM方法的服务,ProcessEngine和服务类都是线程安全的,可以在整个服务器中仅保持一个引用就可以了
+
+```java
+ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+RuntimeService runtimeService = processEngine.getRuntimeService();
+RepositoryService repositoryService = processEngine.getRepositoryService();
+TaskService taskService = processEngine.getTaskService();
+ManagementService managementService = processEngine.getManagementService();
+HistoryService historyService = processEngine.getHistoryService();
+// 在7以上版本中废弃
+IdentityService identityService = processEngine.getIdentityService();
+FormService formService = processEngine.getFormService();
+```
+
+* `ProcessEngines.getDefaultProcessEngine()`会在第一次调用时初始化并创建一个流程引擎,可以创建和关闭所有流程引擎:`ProcessEngines.init()`和 `ProcessEngines.destroy()`
+* ProcessEngines会扫描所有`activiti.cfg.xml` 和 `activiti-context.xml` 文件
+* `activiti.cfg.xml`文件流程引擎会使用Activiti的经典方式构建： `ProcessEngineConfiguration.createProcessEngineConfigurationFromInputStream(inputStream).buildProcessEngine()`
+* `activiti-context.xml`文件流程引擎会使用Spring方法构建:先创建一个Spring的环境, 然后通过环境获得流程引擎
+* 所有服务都是无状态的.这意味着可以在多节点集群环境下运行Activiti,每个节点都指向同一个数据库, 不用担心哪个机器实际执行前端的调用.无论在哪里执行服务都没有问题
+
+
+
+### RepositoryService
+
+* **RepositoryService**是使用Activiti引擎时最先接触的服务.它提供了管理和控制`发布包`和`流程定义`的操作
+* 流程定义是BPMN 2.0流程的java实现,它包含了一个流程每个环节的结构和行为
+* `发布包`是Activiti引擎的打包单位,一个发布包可以包含多个BPMN 2.0 xml文件和其他资源
+* 开发者可以自由选择把任意资源包含到发布包中.既可以把一个单独的BPMN 2.0 xml文件放到发布包里,也可以把整个流程和相关资源都放在一起(比如,hr-processes实例可以包含hr流程相关的任何资源),可以通过`RepositoryService`来`部署`这种发布包.
+* 发布一个发布包,意味着把它上传到引擎中,所有流程都会在保存进数据库之前分析解析好.从这点来说,系统知道这个发布包的存在,发布包中包含的流程就已经可以启动了
+* 除此之外,服务可以查询引擎中的发布包和流程定义;暂停或激活发布包,对应全部和特定流程定义. 暂停意味着它们不能再执行任何操作了,激活是对应的反向操作
+
+- 获得多种资源,像是包含在发布包里的文件, 或引擎自动生成的流程图
+- 获得流程定义的pojo版本, 可以用来通过java解析流程,而不必通过xml
+
+
+
+### RuntimeService
+
+* 正如`RepositoryService`负责静态信息(比如,不会改变的数据,至少是不怎么改变的),**RuntimeService**正好是完全相反的,它负责启动一个流程定义的新实例
+* 流程定义定义了流程各个节点的结构和行为,流程实例就是这样一个流程定义的实例
+* 对每个流程定义来说,同一时间会有很多实例在执行
+* `RuntimeService`也可以用来获取和保存`流程变量`,这些数据是特定于某个流程实例的,并会被很多流程中的节点使用(比如一个排他网关常常使用流程变量来决定选择哪条路径继续流程)
+* `Runtimeservice`也能查询流程实例和执行,执行对应BPMN 2.0中的`'token'`,基本上执行指向流程实例当前在哪里
+* `RuntimeService`可以在流程实例等待外部触发时使用,这时可以用来继续流程实例
+* 流程实例可以有很多`暂停状态`,而服务提供了多种方法来触发实例,接受外部触发后,流程实例就会继续执行
+
+
+
+### TaskService
+
+* 任务是由真实人员执行的,是Activiti引擎的核心功能.所有与任务有关的功能都包含在**TaskService**中
+
+- 查询分配给用户或组的任务
+- 创建*独立运行*任务.这些任务与流程实例无关
+- 手工设置任务的执行者,或者这些用户通过何种方式与任务关联
+- 认领并完成一个任务.认领意味着一个人期望成为任务的执行者,即这个用户会完成这个任务通
+
+
+
+### IdentityService
+
+* Activiti7及以上版本中已经剔除了该组件
+* **IdentityService**非常简单,它可以管理(创建,更新,删除,查询...)群组和用户
+* Activiti执行时并没有对用户进行检查.例如,任务可以分配给任何人,但是引擎不会校验系统中是否存在这个用户.这是Activiti引擎也可以使用外部服务,比如ldap,活动目录,等等
+
+
+
+### FormService
+
+* Activiti7及以上版本中已经剔除了该组件
+* **FormService**是一个可选服务.即使不使用它,Activiti也可以完美运行,不会损失任何功能
+* 这个服务提供了*启动表单*和*任务表单*两个概念.*启动表单*会在流程实例启动之前展示给用户, *任务表单*会在用户完成任务时展示
+* Activiti支持在BPMN 2.0流程定义中设置这些表单,这个服务以一种简单的方式将数据暴露出来
+
+
+
+### HistoryService
+
+* **HistoryService**提供了Activiti引擎手机的所有历史数据.
+* 在执行流程时,引擎会保存很多数据（根据配置）,比如流程实例启动时间,任务的参与者, 完成任务的时间,每个流程实例的执行路径,等等. 这个服务主要通过查询功能来获得这些数据
+
+
+
+### ManagementService
+
+* **ManagementService**在使用Activiti的定制环境中基本上不会用到,它可以查询数据库的表和表的元数据
+* 它提供了查询和管理异步操作的功能.Activiti的异步操作用途很多,比如定时器,异步操作, 延迟暂停,激活等
+
+
+
+## 异常策略
+
+* Activiti中的基础异常为ActivitiException,一个非检查异常,这个异常可以在任何时候被API抛出
+* 为避免过多的异常继承,下面的子类用于特定的场合. 流程引擎和API调用的其他场合不会使用下面的异常, 它们会抛出一个普通的`ActivitiExceptions`
+  * `ActivitiWrongDbException`:当Activiti引擎发现数据库版本号和引擎版本号不一致时抛出
+  * `ActivitiOptimisticLockingException`:对同一数据进行并发方法并出现乐观锁时抛出
+  * `ActivitiClassLoadingException`:当无法找到需要加载的类或在加载类时出现了错误
+  * `ActivitiObjectNotFoundException`:当请求或操作的对应不存在时抛出
+  * `ActivitiIllegalArgumentException`:这个异常表示调用Activiti API时传入了一个非法的参数,可能是引擎配置中的非法值,或提供了一个非法制,或流程定义中使用的非法值
+  * `ActivitiTaskAlreadyClaimedException`:当任务已被认领,再调用`taskService.claim()`就会抛出
+
+
+
+## 使用Activiti的服务
+
+* 这个小例子的最终目标是做一个工作业务流程, 演示公司中简单的请假申请:
+
+![](001.png)
+
+
+
+### 发布流程
+
+* 任何与静态资源有关的数据都可以通过**RepositoryService**访问
+* 创建一个新的xml文件 `Test.bpmn20.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<definitions id="definitions"
+             targetNamespace="http://activiti.org/bpmn20"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn">
+    <process id="vacationRequest" name="Vacation request">
+        <startEvent id="request" activiti:initiator="employeeName">
+            <extensionElements>
+                <activiti:formProperty id="numberOfDays" name="Number of days" type="long" value="1" required="true"/>
+                <activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
+                <activiti:formProperty id="vacationMotivation" name="Motivation" type="string" />
+            </extensionElements>
+        </startEvent>
+        <sequenceFlow id="flow1" sourceRef="request" targetRef="handleRequest" />
+
+        <userTask id="handleRequest" name="Handle vacation request" >
+            <documentation>
+                ${employeeName} would like to take ${numberOfDays} day(s) of vacation (Motivation: ${vacationMotivation}).
+            </documentation>
+            <extensionElements>
+                <activiti:formProperty id="vacationApproved" name="Do you approve this vacation" type="enum" required="true">
+                    <activiti:value id="true" name="Approve" />
+                    <activiti:value id="false" name="Reject" />
+                </activiti:formProperty>
+                <activiti:formProperty id="managerMotivation" name="Motivation" type="string" />
+            </extensionElements>
+            <potentialOwner>
+                <resourceAssignmentExpression>
+                    <formalExpression>management</formalExpression>
+                </resourceAssignmentExpression>
+            </potentialOwner>
+        </userTask>
+        <sequenceFlow id="flow2" sourceRef="handleRequest" targetRef="requestApprovedDecision" />
+        <exclusiveGateway id="requestApprovedDecision" name="Request approved?" />
+        <sequenceFlow id="flow3" sourceRef="requestApprovedDecision" targetRef="sendApprovalMail">
+            <conditionExpression xsi:type="tFormalExpression">${vacationApproved == 'true'}</conditionExpression>
+        </sequenceFlow>
+        <task id="sendApprovalMail" name="Send confirmation e-mail" />
+        <sequenceFlow id="flow4" sourceRef="sendApprovalMail" targetRef="theEnd1" />
+        <endEvent id="theEnd1" />
+        <sequenceFlow id="flow5" sourceRef="requestApprovedDecision" targetRef="adjustVacationRequestTask">
+            <conditionExpression xsi:type="tFormalExpression">${vacationApproved == 'false'}</conditionExpression>
+        </sequenceFlow>
+        <userTask id="adjustVacationRequestTask" name="Adjust vacation request">
+            <documentation>
+                Your manager has disapproved your vacation request for ${numberOfDays} days.
+                Reason: ${managerMotivation}
+            </documentation>
+            <extensionElements>
+                <activiti:formProperty id="numberOfDays" name="Number of days" value="${numberOfDays}" type="long" required="true"/>
+                <activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" value="${startDate}" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
+                <activiti:formProperty id="vacationMotivation" name="Motivation" value="${vacationMotivation}" type="string" />
+                <activiti:formProperty id="resendRequest" name="Resend vacation request to manager?" type="enum" required="true">
+                    <activiti:value id="true" name="Yes" />
+                    <activiti:value id="false" name="No" />
+                </activiti:formProperty>
+            </extensionElements>
+            <humanPerformer>
+                <resourceAssignmentExpression>
+                    <formalExpression>${employeeName}</formalExpression>
+                </resourceAssignmentExpression>
+            </humanPerformer>
+        </userTask>
+        <sequenceFlow id="flow6" sourceRef="adjustVacationRequestTask" targetRef="resendRequestDecision" />
+        <exclusiveGateway id="resendRequestDecision" name="Resend request?" />
+        <sequenceFlow id="flow7" sourceRef="resendRequestDecision" targetRef="handleRequest">
+            <conditionExpression xsi:type="tFormalExpression">${resendRequest == 'true'}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow8" sourceRef="resendRequestDecision" targetRef="theEnd2">
+            <conditionExpression xsi:type="tFormalExpression">${resendRequest == 'false'}</conditionExpression>
+        </sequenceFlow>
+        <endEvent id="theEnd2" />
+    </process>
+</definitions>
+```
+
+* 为了让Activiti引擎知道这个流程,必须先进行发布.发布意味着引擎会把BPMN 2.0 xml解析成可以执行的东西,发布包中的所有流程定义都会添加到数据库中. 这样,当引擎重启时,它依然可以获得已发布的流程
+
+```java
+ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+RepositoryService repositoryService = processEngine.getRepositoryService();
+repositoryService.createDeployment()
+    .addClasspathResource("org/activiti/test/VacationRequest.bpmn20.xml")
+    .deploy();
+Log.info("Number of process definitions: " + repositoryService.createProcessDefinitionQuery().count());       
+```
+
+
+
+### 启动一个流程实例
+
+* 把流程定义发布到Activiti引擎后,可以基于它发起新流程实例.对每个流程定义,都可以有很多流程实例.流程定义是蓝图,流程实例是它的一个运行的执行
+* 所有与流程运行状态相关的东西都可以通过**RuntimeService**获得.有很多方法可以启动一个新流程实例
+* 在下面的代码中,使用定义在流程定义xml 中的key来启动流程实例.也可以在流程实例启动时添加一些流程变量,因为第一个用户任务的表达式需要这些变量.流程变量经常会被用到,因为它们赋予来自同一个流程定义的不同流程实例的特别含义.简单来说,流程变量是区分流程实例的关键
+
+```java
+Map<String, Object> variables = new HashMap<String, Object>();
+variables.put("employeeName", "Kermit");
+variables.put("numberOfDays", new Integer(4));
+variables.put("vacationMotivation", "I'm really tired!");
+RuntimeService runtimeService = processEngine.getRuntimeService();
+ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("vacationRequest", variables);
+// Verify that we started a new process instance
+Log.info("Number of process instances: " + runtimeService.createProcessInstanceQuery().count());
+```
+
+
+
+### 完成任务
+
+* 流程启动后,第一步就是用户任务.这是必须由系统用户处理的一个环节
+* 通常,用户会有一个任务列表,展示了所有必须由整个用户处理的任务
+
+```java
+TaskService taskService = processEngine.getTaskService();
+List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup("management").list();
+for (Task task : tasks) {
+    Log.info("Task available: " + task.getName());
+}
+```
+
+* 为了让流程实例继续运行,需要完成整个任务.对Activiti来说,就是需要`complete`任务
+
+```java
+Task task = tasks.get(0);
+Map<String, Object> taskVariables = new HashMap<String, Object>();
+taskVariables.put("vacationApproved", "false");
+taskVariables.put("managerMotivation", "We have a tight deadline!");
+taskService.complete(task.getId(), taskVariables);
+```
+
+* 流程实例会进入到下一个环节.在这里例子中,下一环节允许员工通过表单调整原始的请假申请.员工可以重新提交请假申请, 这会使流程重新进入到第一个任务
+
+
+
+### 挂起/激活一个流程
+
+* 当挂起流程定义时,就不能创建新流程了(会抛出一个异常).可以通过`RepositoryService`挂起一个流程
+
+```java
+repositoryService.suspendProcessDefinitionByKey("vacationRequest");
+try {
+    runtimeService.startProcessInstanceByKey("vacationRequest");
+} catch (ActivitiException e) {
+    e.printStackTrace();
+}
+```
+
+* 要想重新激活一个流程定义,可以调用`repositoryService.activateProcessDefinitionXXX`方法
+* 挂起流程实例时,流程不能继续执行,异步操作也不会执行
+  * 挂起流程实例可以调用 `runtimeService.suspendProcessInstance`方法
+  * 激活流程实例可以调用`runtimeService.activateProcessInstanceXXX`方法
+
+
+
+## 查询API
+
+* 有两种方法可以从引擎中查询数据:查询API和原生查询
+* 查询API提供了完全类型安全的API,可以为自己的查询条件添加很多条件,所有条件都以AND组合和精确的排序条件
+
+```java
+List<Task> tasks = taskService.createTaskQuery()
+    .taskAssignee("kermit")
+    .processVariableValueEquals("orderId", "0815")
+    .orderByDueDate().asc()
+    .list();
+```
+
+* 需要更强大的查询时,比如使用OR条件或不能使用查询API实现的条件.这时,可是使用原生查询,它可以编写自己的SQL查询,返回类型由使用的查询对象决定,数据会映射到正确的对象上.比如,任务,流程实例,执行等等.因为查询会作用在数据库上,必须使用数据库中定义的表名和列名.这要求了解内部数据结构,因此使用原生查询时一定要注意.表名可以通过API获得,可以尽量减少对数据库的依赖
+
+```java
+List<Task> tasks = taskService.createNativeTaskQuery()
+    .sql("SELECT count(*) FROM " + managementService.getTableName(Task.class) + " T WHERE T.NAME_ = #{taskName}")
+    .parameter("taskName", "gonzoTask").list();
+long count = taskService.createNativeTaskQuery()
+    .sql("SELECT count(*) FROM " + managementService.getTableName(Task.class)+" T1,"
+         + managementService.getTableName(VariableInstanceEntity.class) + " V1 WHERE V1.TASK_ID_ = T1.ID_").count();
+```
+
+
+
+## 表达式
+
+* Activiti使用UEL处理表达式
+* UEL即*统一表达式语言*,它是EE6规范的一部分([EE6规范](http://docs.oracle.com/javaee/6/tutorial/doc/gjddd.html)).为了在所有运行环境都支持最新UEL的所有共嫩个,我们使用了一个JUEL的修改版本
+* 表达式可以用在很多场景下,比如[Java服务任务](http://www.mossle.com/docs/activiti/#bpmnJavaServiceTaskXML),[执行监听器](http://www.mossle.com/docs/activiti/#executionListeners),[任务监听器](http://www.mossle.com/docs/activiti/#taskListeners)和[条件流](http://www.mossle.com/docs/activiti/#conditionalSequenceFlowXml).虽然有两重表达式,值表达式和方法表达式,Activiti进行了抽象,所以两者可以同样使用在需要`表达式`的场景中
+
+- **Value expression**:解析为值.默认所有流程变量,所有spring bean可以使用
+  - `${myVar}`,`${myBean.myProperty}`
+
+- **Method expression**:调用一个方法,使用或不使用参数.**当调用一个无参数的方法时,要在方法名后添加空的括号(以区分值表达式).**传递的参数可以是字符串也可以是表达式,它们会被自动解析
+  - `${printer.print()}`,`${myBean.addNewOrder('orderName')}`,`${myBean.doSomething(myVar, execution)}`
+- 注意这些表达式支持解析原始类型(包括比较),bean,list,数组和map
+- 在所有流程实例中,表达式中还可以使用一些默认对象
+  - `execution`:`DelegateExecution`提供外出执行的额外信息
+  - `task`:`DelegateTask`提供当前任务的额外信息.**注意,只对任务监听器的表达式有效.**
+  - `authenticatedUserId`:当前登录的用户id.如果没有用户登录,这个变量就不可用
+
+
+
+## 单元测试
+
+* 业务流程是软件项目的一部分,它也应该和普通的业务流程一样进行测试:使用单元测试. 因为Activiti是一个嵌入式的java引擎, 为业务流程编写单元测试和写普通单元测试完全一样
+* Activiti支持JUnit 3和4进行单元测试.使用JUnit 3时, 必须集成`ActivitiTestCase`. 它通过保护的成员变量提供ProcessEngine和服务,在测试的`setup()`中, 默认会使用classpath下的`activiti.cfg.xml`初始化流程引擎.想使用不同的配置文件,可以重写*getConfigurationResource()*方法. 如果配置文件相同的话,对应的流程引擎会被静态缓存, 就可以用于多个单元测试
+* 继承`ActivitiTestCase`,可以在测试方法上使用 `org.activiti.engine.test.Deployment`注解
+* 测试执行前,与测试类在同一个包下的,格式为`testClassName.testMethod.bpmn20.xml`的资源文件会被部署
+* 测试结束后,发布包也会被删除,包括所有相关的流程实例,任务,等等
+* `Deployment`注解可以直接设置资源的位置
+
+```java
+public class MyBusinessProcessTest extends ActivitiTestCase {
+    @Deployment
+    public void testSimpleProcess() {
+        runtimeService.startProcessInstanceByKey("simpleProcess");
+        Task task = taskService.createTaskQuery().singleResult();
+        assertEquals("My Task", task.getName());
+        taskService.complete(task.getId());
+        assertEquals(0, runtimeService.createProcessInstanceQuery().count());
+    }
+}
+```
+
+* 要想在使用JUnit 4编写单元测试时获得同样的功能,可以使用`ActivitiRule`.通过它,可以通过getter方法获得流程引擎和各种服务
+* 和 `ActivitiTestCase`一样,使用这个`Rule`也会启用`org.activiti.engine.test.Deployment`注解,它会在classpath下查找默认的配置文件.如果配置文件相同的话,对应的流程引擎会被静态缓存, 就可以用于多个单元测试
+
+```java
+public class MyBusinessProcessTest {
+
+    @Rule
+    public ActivitiRule activitiRule = new ActivitiRule();
+
+    @Test
+    @Deployment
+    public void ruleUsageExample() {
+        RuntimeService runtimeService = activitiRule.getRuntimeService();
+        runtimeService.startProcessInstanceByKey("ruleUsage");
+        TaskService taskService = activitiRule.getTaskService();
+        Task task = taskService.createTaskQuery().singleResult();
+        assertEquals("My Task", task.getName());
+        taskService.complete(task.getId());
+        assertEquals(0, runtimeService.createProcessInstanceQuery().count());
+    }
+}
+```
+
+
+
+## Web应用中的流程引擎
+
+* `ProcessEngine`是线程安全的,可以在多线程下共享.在web应用中, 意味着可以在容器启动时创建流程引擎, 在容器关闭时关闭流程引擎
+
+```java
+public class ProcessEnginesServletContextListener implements ServletContextListener {
+
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        ProcessEngines.init();
+    }
+
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+        ProcessEngines.destroy();
+    }
+}
+```
+
+* `contextInitialized`方法会执行`ProcessEngines.init()`,这会查找classpath下的`activiti.cfg.xml`文件,根据配置文件创建一个`ProcessEngine`.如果classpath中包含多个配置文件,确认它们有不同的名字,当需要使用流程引擎时,可以通过`ProcessEngines.getDefaultProcessEngine()`或`ProcessEngines.getProcessEngine("myName")`
+* 当然,也可以使用其他方式创建流程引擎
+* ContextListener中的`contextDestroyed`方法会执行`ProcessEngines.destroy()`.这会关闭所有初始化的流程引擎
+
+# 部署
+
+
+
+## 业务文档
+
+为了部署流程,它们不得不包装在一个业务文档中.一个业务文档是Activiti引擎部署的单元.一个业务文档相当与一个压缩文件,它包含BPMN2.0流程,任务表单,规则和其他任意类型的文件. 大体上,业务文档是包含命名资源的容器.
+
+当一个业务文档被部署,它将会自动扫描以 `.bpmn20.xml` 或者`.bpmn`作为扩展名的BPMN文件.每个那样的文件都将会被解析并且可能会包含多个流程定义.
+
+### Note
+
+业务归档中的Java类**将不能够添加到类路径下**.为了能够让流程运行,必须把存在于业务归档程中的流程定义使用的所有自定义的类（例如：Java服务任务或者实现事件的监听器）放在activiti引擎的类路径下：
+
+### 编程式部署
+
+通过一个压缩文件（支持Zip和Bar）部署业务归档,它看起来像这样：
+
+```
+String barFileName = "path/to/process-one.bar";
+ZipInputStream inputStream = new ZipInputStream(new FileInputStream(barFileName));
+ 
+repositoryService.createDeployment()
+    .name("process-one.bar")
+    .addZipInputStream(inputStream)
+    .deploy();
+        
+```
+
+它也可以通过一个独立资源（例如bpmn,xml等）构建部署. 详细信息请查看javadocs.
+
+### 通过Activiti Explorer控制台部署
+
+Activiti web控制台允许你通过web界面的用户接口上传一个bar格式的压缩文件（或者一个`bpmn20.xml`格式的文件）. 选择*Management* *标签* 和 点击 *Deployment*:
+
+![http://www.mossle.com/docs/activiti/images/deployment.explorer.png](file:///C:/Users/paradise/AppData/Local/Temp/msohtmlclip1/01/clip_image016.jpg)
+
+现在将会有一个弹出窗口允许你从电脑上面选择一个文件,或者你可以简单的拖拽到指定的区域（如果你的浏览器支持）.
+
+![http://www.mossle.com/docs/activiti/images/deployment.explorer.2.png](file:///C:/Users/paradise/AppData/Local/Temp/msohtmlclip1/01/clip_image018.jpg)
+
+## 外部资源
+
+流程定义保存在Activiti所支持的数据库中.当使用服务任务、执行监听器或者从Activiti配置文件中配置的Spring beans时,流程定义能够引用这些委托类. 这些类或者Spring配置文件对于所有流程引擎中可能执行的流程定义必须是可用的.
+
+### Java类
+
+当流程实例被启动的时候,在流程中被使用的所有自定义类（例如：服务任务中使用的JavaDelegates、事件监听器、任务监听器,...）应该存在与流程引擎的类路径下.
+
+然后,在部署业务文档时,这些类不必都存在于类路径下.当使用Ant部署一个新的业务文档时,这意味着你的委托类不必存在与类路径下.
+
+当你使用示例设置并添加你自定义的类,你应该添加包含自定义类的jar包到activiti-explorer控制台或者activiti-rest 的webapp lib文件夹中.以及不要忽略包含你自定义类的依赖关系（如果有）. 另外,你还可以包含你自己的依赖添加到你的Tomcat容器的安装目录中的`${tomcat.home}/lib`.
+
+### 在流程中使用Spring beans
+
+当表达式或者脚本使用Spring beans时,这些beans对于引擎执行流程定义时必须是可用的.如果你将要构建你自己的web应用并且按照[Spring集成这一章](http://www.mossle.com/docs/activiti/#springintegration)中描述那样在你的应用上下文配置流程引擎,这个看上去非常的简单.但是要记住,如果你也在使用 Activiti rest web应用,那么也应该更新 Activiti rest web应用的上下文. 你可以把在`activiti-rest/lib/activiti-cfg.jar` 文件中的`activiti.cfg.xml`替换成你的Spring上下文配置的`activiti-context.xml`文件.
+
+### 创建独立应用
+
+你可以考虑把Activiti rest web 应用加入到你的web应用之中,因此,就仅仅只需要配置一个 `ProcessEngine`,从而不用确保所有的流程引擎的所有委托类在类路径下面并且是否使用正确的spring配置.
+
+## 流程定义的版本
+
+BPMN中并没有版本的概念,没有版本也是不错的,因为可执行的BPMN流程作为你开发项目的一部分存在版本控制系统的知识库中（例如 SVN,Git 或者Mercurial）. 而在Activiti中,流程定义的版本是在部署时创建的.在部署的时候,流程定义被存储到Activiti使用的数据库之前,Activiti讲会自动给 `流程定义` 分配一个版本号.
+
+对于业务文档中每一个的流程定义,都会通过下列部署执行初始化属性`key`, `version`, `name` 和 `id`:
+
+- XML文件中流程定义（流程模型）的 `id`属性被当做是流程定义的 `key`属性.     
+- XML文件中的流程模型的`name`     属性被当做是流程定义的 `name`     属性.如果该name属性并没有指定,那么id属性被当做是name.     
+- 带有特定key的流程定义在第一次部署的时候,将会自动分配版本号为1,对于之后部署相同key的流程定义时候,这次部署的版本号将会设置为比当前最大的版本号大1的值.该key属性被用来区别不同的流程定义.     
+- 流程定义中的id属性被设置为     {processDefinitionKey}:{processDefinitionVersion}:{generated-id}, 这里的`generated-id`是一个唯一的数字被添加,用于确保在集群环境中缓存的流程定义的唯一性.     
+
+举个流程的例子 
+
+```
+<definitions id="myDefinitions" >
+  <process id="myProcess" name="My important process" >
+    ...
+```
+
+当部署了这个流程定义之后,在数据库中的流程定义看起来像这样：
+
+**Table 6.1.** 
+
+| id              | key       | name                 | version |
+| --------------- | --------- | -------------------- | ------- |
+| myProcess:1:676 | myProcess | My important process | 1       |
+
+
+ 假设我们现在部署用一个流程的最新版本号（例如 改变用户任务）,但是流程定义的`id`保持不变. 流程定义表将包含以下列表信息：
+
+**Table 6.2.** 
+
+| id              | key       | name                 | version |
+| --------------- | --------- | -------------------- | ------- |
+| myProcess:1:676 | myProcess | My important process | 1       |
+| myProcess:2:870 | myProcess | My important process | 2       |
+
+
+ 当 `runtimeService.startProcessInstanceByKey("myProcess")`方法被调用时,它将会使用流程定义版本号为2的,因为这是最新版本的流程定义.可以说每次流程定义创建流程实例时,都会默认使用最新版本的流程定义.
+
+我们应该创建第二个流程,在Activiti中,如下,定义并且部署它,该流程定义会添加到流程定义表中.
+
+```
+<definitions id="myNewDefinitions" >
+  <process id="myNewProcess" name="My important process" >
+    ...
+```
+
+这个表结构看起来像这样: 
+
+**Table 6.3.** 
+
+| id                  | key          | name                 | version |
+| ------------------- | ------------ | -------------------- | ------- |
+| myProcess:1:676     | myProcess    | My important process | 1       |
+| myProcess:2:870     | myProcess    | My important process | 2       |
+| myNewProcess:1:1033 | myNewProcess | My important process | 1       |
+
+ 
+
+注意：为何新流程的key与我们的第一个流程是不同的？尽管流程定义的名称是相同的（当然,我们应该也是可以改变这一点的）,Activiti仅仅只考虑`id`属性判断流程.因此,新的流程定义部署的版本号为1.
+
+## 提供流程图片
+
+流程定义的流程图可以被添加到部署中,该流程图将会持久化到Activiti所使用的数据库中并且可以通过Activiti的API进行访问.该流程图也可以被用来在Activiti Explorer控制台中的流程中进行显示. 
+
+如果在我们的类路径下面有一个流程,`org/activiti/expenseProcess.bpmn20.xml` ,该流程定义有一个流程key 'expense'. 以下遵循流程定义图片的命名规范（按照这个特地顺序）： 
+
+- 如果在部署时一个图片资源已经存在,它是BPMN2.0的XML文件名后面是流程定义的key并且是一个图片的后缀.那么该图片将被使用.在我们的例子中, 这应该是 `org/activiti/expenseProcess.expense.png`（或者     jpg/gif）.如果你在一个BPMN2.0 XML文件中定义多个流程定义图片,这种方式更有意义.每个流程定义图片的文件名中都将会有一个流程定义key.     
+- 如果并没有这样的图片存在,部署的时候寻找与匹配BPMN2.0     XML 文件的名称的图片资源.在我们的例子中,这应该是`org/activiti/expenseProcess.png`.     注意：这意味着在同一个BPMN2.0 XML文件夹中的**每个流程定义**都会有相同的流程定义图片.因此,在每一个BPMN     2.0 XML文件夹中仅仅只有一个流程定义,这绝对是不会有问题的. 
+
+当使用编程式的部署方式： 
+
+```
+repositoryService.createDeployment()
+  .name("expense-process.bar")
+  .addClasspathResource("org/activiti/expenseProcess.bpmn20.xml")
+  .addClasspathResource("org/activiti/expenseProcess.png")
+  .deploy();
+```
+
+接下来,可以通过API来获取流程定义图片资源：
+
+```
+  ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                                                         .processDefinitionKey("expense")
+                                                         .singleResult();
+ 
+  String diagramResourceName = processDefinition.getDiagramResourceName();
+  InputStream imageStream = repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), diagramResourceName);
+       
+```
+
+## 自动生成流程图片
+
+在部署的情况下没有提供图片,在 [上一节](http://www.mossle.com/docs/activiti/#providingProcessDiagram)中描述,如果流程定义中包含必要的'图像交换'信息时,Activiti流程引擎竟会自动生成一个图像.
+
+该资源可以按照部署时[ 提供流程图片](http://www.mossle.com/docs/activiti/#providingProcessDiagram)完全相同的方式获取.
+
+![http://www.mossle.com/docs/activiti/images/deployment.image.generation.png](file:///C:/Users/paradise/AppData/Local/Temp/msohtmlclip1/01/clip_image002.jpg)
+
+如果,因为某种原因,在部署的时候,并不需要或者不必要生成流程定义图片,那么就需要在流程引擎配置的属性中使用`isCreateDiagramOnDeploy`：
+
+```
+<property name="createDiagramOnDeploy" value="false" />
+```
+
+现在就不会生成流程定义图片. 
+
+## 类别
+
+部署和流程定义都是用户定义的类别.流程定义类别在BPMN文件中属性的初始化的值`<definitions ... targetNamespace="yourCategory" ...` 
+
+部署类别是可以直接使用API进行指定的看起来想这样：
+
+```
+repositoryService
+    .createDeployment()
+    .category("yourCategory")
+    ...
+    .deploy();
+```
+
 # Spring集成
 
 
@@ -480,6 +1062,149 @@ public class MyBusinessProcessTest {
     <property name="processEngine" ref="processEngine" />
 </bean>
 ```
+
+
+
+
+
+# 表单
+
+* Activiti7之后无表单模块
+* Activiti提供了一种方便而且灵活的方式在业务流程中以手工方式添加表单
+* 对表单的支持有2种方式:通过表单属性对内置表单进行渲染和外置表单进行渲染
+
+
+
+## 表单属性
+
+* 业务流程相关联的所有信息要么是包含自身的流程变量,要么是通过流程变量的引用.Activiti支持存储复杂的Java对象作为流程变量,如`序列化`对象,Jpa实体对象或者整个XML文档作为`字符串`
+* 用户是在启动一个流程和完成用户任务时,与流程进行交互的.表单需要某个UI技术渲染之后才能够与用户进行交互.为了能够使用不同UI技术变得容易,流程定义包含一个对流程变量中复杂的Java类型对象到一个properties的`Map<String,String>`类型的转换逻辑
+* 使用Activiti API的方法查看公开的属性信息.然后,任意UI技术都能够在这些属性上面构建一个表单.该属性专门(并且更多局限性)为流程变量提供了一个视图. 表单所需要显示的属性可以从FormData中获取
+
+```java
+StartFormData FormService.getStartFormData(String processDefinitionId);
+// 或者
+TaskFormdata FormService.getTaskFormData(String taskId);
+```
+
+* 在默认情况下,内置的表单引擎,sees这些变量就像对待流程变量一样.如果任务表单属性和流程变量是一对一的关系,那么任务表单属性就不需要进行申明了
+
+```xml
+<startEvent id="start" />
+```
+
+* 当执行到开始事件时,所有的流程变量都是可用的,但会是一个空值,因为没有定义具体的映射
+
+```java
+formService.getStartFormData(String processDefinitionId).getFormProperties();
+```
+
+* 在上面的实例中,所有被提交的属性都将会作为流程变量被存储在Activiti使用的数据库中.这意味着在一个表单中新添加一个简单的input输入字段,也会作为一个新的变量被存储
+* 属性来自于流程变量,但不一定非要作为流程变量存储起来.例如,流程变量可能是JPA实体Address,在某种UI技术中使用的表单属性`StreetName`可能会关联到一个表达式 `#{address.street}`
+* 类似的,用户提交的表单属性应该作为流程变量进行存储或者使用UEL值表达式将其作为流程变量的一个嵌套属性进行存储,例如`#{address.street}`
+* 同样的,提交的表单属性默认的行为是作为流程变量进行存储,除非一个`formProperty` 申明了其他规则
+* 类型转换同样也可以应用于表单数据和流程变量之间处理的一部分
+  * 表单属性`room`将会被映射为String类型流程变量 `room`
+  * 表单属性`duration`将会被映射为java.lang.Long类型流程变量 `duration`
+  * 表单属性`speaker`将会被映射为流程变量 `SpeakerName`.它只能够在TaskFormData对象中使用.如果属性speaker提交,将会抛出一个ActivitiException的异常.类似的,将其属性设置为`readable="false"`,该属性就会在FormData进行排除,但是在提交后仍然会对其进行处理
+  * 表单属性`street`将会映射为JavaBean `address`的属性`street`,作为String类型的流程变量.当提交的表单属性并没有提供并且required="true"时,那么就会抛出一个异常
+
+```xml
+<userTask id="task">
+  <extensionElements>
+    <activiti:formProperty id="room" />
+    <activiti:formProperty id="duration" type="long"/>
+    <activiti:formProperty id="speaker" variable="SpeakerName" writable="false" />
+    <activiti:formProperty id="street" expression="#{address.street}" required="true" />
+  </extensionElements>
+</userTask>
+```
+
+- 表单数据也可以作为FormData的一部分提供类型元数据.该FormData可以从`StartFormData FormService.getStartFormData(String processDefinitionId)`和`TaskFormdata FormService.getTaskFormData(String taskId)`方法的返回值中获取
+- 支持以下的几种表单属性类型
+  - `string` (org.activiti.engine.impl.form.StringFormType)
+  - `long` (org.activiti.engine.impl.form.LongFormType)
+  - `enum`     (org.activiti.engine.impl.form.EnumFormType)
+  - `date`     (org.activiti.engine.impl.form.DateFormType)
+  - `boolean`     (org.activiti.engine.impl.form.BooleanFormType)
+- 对于申明每一个表单属性,以下的`FormProperty`信息可以通过`formService.getStartFormData(processDefinitionId).getFormProperties()` 和 `formService.getTaskFormData(taskId.getFormProperties()`获取
+
+```java
+public interface FormProperty {
+    /**
+
+  the key used to submit the property in {@link FormService#submitStartFormData(String, java.util.Map)}
+   * or {@link FormService#submitTaskFormData(String, java.util.Map)} */
+    String getId();
+    /** the display label */
+    String getName();
+    /** one of the types defined in this interface like e.g. {@link #TYPE_STRING} */
+    FormType getType();
+    /** optional value that should be used to display in this property */
+    String getValue();
+    /** is this property read to be displayed in the form and made accessible with the methods
+   * {@link FormService#getStartFormData(String)} and {@link FormService#getTaskFormData(String)}. */
+    boolean isReadable();
+    /** is this property expected when a user submits the form? */
+    boolean isWritable();
+    /** is this property a required input field */
+    boolean isRequired();
+}
+```
+
+
+
+```xml
+<startEvent id="start">
+    <extensionElements>
+        <activiti:formProperty id="speaker"
+                               name="Speaker"
+                               variable="SpeakerName"
+                               type="string" />
+        <activiti:formProperty id="start"
+                               type="date"
+                               datePattern="dd-MMM-yyyy" />
+        <activiti:formProperty id="direction" type="enum">
+            <activiti:value id="left" name="Go Left" />
+            <activiti:value id="right" name="Go Right" />
+            <activiti:value id="up" name="Go Up" />
+            <activiti:value id="down" name="Go Down" />
+        </activiti:formProperty>
+    </extensionElements>
+</startEvent>
+```
+
+* 所有的表单属性信息都可以通过API访问
+  * `formProperty.getType().getName()`:获取类型的名称
+  * `formProperty.getType().getInformation("datePattern")`:获取日期的匹配方式
+  * `formProperty.getType().getInformation("values")`:获取枚举值
+* Activiti控制台支持表单属性并且可以根据表单定义对表单进行渲染.例如下面的XML片段
+
+```xml
+<startEvent ... >
+    <extensionElements>
+        <activiti:formProperty id="numberOfDays" name="Number of days" value="${numberOfDays}" type="long" required="true"/>
+        <activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" value="${startDate}" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
+        <activiti:formProperty id="vacationMotivation" name="Motivation" value="${vacationMotivation}" type="string" />
+    </extensionElements>
+    </userTask>
+```
+
+* 当使用 Activiti控制台时,它将会被渲染成流程的启动表单
+
+
+
+## 外置表单的渲染
+
+* 该API同样也允许你执行Activiti流程引擎之外的方式渲染你自己的任务表单.这些步骤说明你可以用你自己的方式对任务表单进行渲染
+* 本质上,所有需要渲染的表单属性都是通过2个服务方法中的一个进行装配的:
+  * `StartFormData FormService.getStartFormData(processDefinitionId)` 
+  * `TaskFormdata FormService.getTaskFormData(taskId)`
+* 表单属性可以通过`FormService.submitStartFormData(processDefinitionId,properties)`, `FormService.submitStartFormData(taskId,properties)`2种方式进行提交
+* 可以将任何表单模版资源放进要部署的业务文档之中,如果你想要将它们按照流程的版本进行存储.它将会在部署中作为一种可用的资源
+* 使用`ProcessDefinition.getDeploymentId()`和` RepositoryService.getResourceAsStream(deploymentId,resourceName)` 获取部署上去的表单模版.这样就可以获取表单模版定义文件 ,就可以在自己的应用中渲染/显示表单
+* 也可以使用该功能获取任务表单之外的其他的部署资源用于其他的目的
+* 属性`<userTask activiti:formKey="..."`可通过 ` FormService.getStartFormData( processDefinitionId).getFormKey()` 和 `FormService.getTaskFormData( taskId).getFormKey()`暴露出来.可以使用这个存储部署的模版中的全名(例如`org/activiti/example/form/my-custom-form.xml`),但这并不是必须的.例如,可以在表单属性中存储一个通用的key,然后运用一种算法或者换转去得到你实际使用的模版.当你想要通过不同UI技术渲染不能的表单,这可能更加方便.例如,使用正常屏幕大小的web应用程序的表单,移动手机小屏幕的表单和甚至可能是IM表单和email表单模版
 
 
 
