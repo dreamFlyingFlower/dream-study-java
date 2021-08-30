@@ -1,11 +1,18 @@
 package com.wy.redis;
 
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
+
+import com.wy.digest.DigestTool;
 
 /**
  * Redis的分布式锁:redisson,需要添加相关依赖
@@ -20,7 +27,15 @@ public class RedisLock {
 	@Autowired
 	private RedissonClient redissonClient;
 
-	public void test() throws Exception {
+	@Autowired
+	private RedisTemplate<String, String> stringRedisTemplate;
+
+	/**
+	 * 使用Redisson做分布式锁
+	 * 
+	 * @throws Exception
+	 */
+	public void redissonLock() throws Exception {
 		// 获取一把锁,只要锁的名称一样就是同一把锁
 		RLock lock = redissonClient.getLock("lock");
 		try {
@@ -63,6 +78,35 @@ public class RedisLock {
 		} finally {
 			// 解锁
 			lock.unlock();
+		}
+	}
+
+	/**
+	 * 直接使用redis做分布式锁
+	 * 
+	 * @throws InterruptedException
+	 */
+	public void redisLock() throws InterruptedException {
+		// 生成的随机uuid,避免删除锁时删除其他线程的锁
+		String uuid = DigestTool.uuid();
+		// 分布式锁占坑,设置过期时间,必须和加锁一起作为原子性操作
+		Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.SECONDS);
+		if (lock) {
+			try {
+				// 加锁成功执行业务
+				// do something
+			} finally {
+				// 利用redis的脚本功能执行删除的操作,删除自己的锁,需要原子环境,否则可能锁刚过期,删除的是别人的锁
+				String script =
+						"if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
+				// 该操作可以返回操作是否成功,1成功,0失败
+				stringRedisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class), Arrays.asList("lock"),
+						uuid);
+			}
+		} else {
+			// 加锁失败,自旋,必须要休眠一定时间,否则对cpu消耗极大,且容易抛异常
+			TimeUnit.MILLISECONDS.sleep(100);
+			redisLock();
 		}
 	}
 }

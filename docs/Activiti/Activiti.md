@@ -1,11 +1,11 @@
-# Activiti
+Activiti
 
 
 
 # 概述
 
 * 流程引擎
-* [官网](http://activiti.org),7以下版本中包含大部分已经打好的JAR源码
+* [官网](http://Activiti.org),7以下版本中包含大部分已经打好的JAR源码
 
 
 
@@ -15,22 +15,22 @@
 
 ## ProcessEngine
 
-* Activiti流程引擎的配置文件是名为`activiti.cfg.xml`的XML文件,和[Spring方式创建流程引擎](http://www.mossle.com/docs/activiti/#springintegration) **不**一样
-* 获得`ProcessEngine`最简单的办法是使用`org.activiti.engine.ProcessEngines`类
+* Activiti流程引擎的配置文件是名为`Activiti.cfg.xml`的XML文件,和[Spring方式创建流程引擎](http://www.mossle.com/docs/Activiti/#springintegration) **不**一样
+* 获得`ProcessEngine`最简单的办法是使用`org.Activiti.engine.ProcessEngines`类
 
 ```java
 ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
 ```
 
-* 它会在classpath下搜索`activiti.cfg.xml`,并基于这个文件中的配置构建引擎
+* 它会在classpath下搜索`Activiti.cfg.xml`,并基于这个文件中的配置构建引擎
 
 ```xml
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
-        <property name="jdbcUrl" value="jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000" />
+    <bean id="processEngineConfiguration" class="org.Activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+        <property name="jdbcUrl" value="jdbc:h2:mem:Activiti;DB_CLOSE_DELAY=1000" />
         <property name="jdbcDriver" value="org.h2.Driver" />
         <property name="jdbcUsername" value="sa" />
         <property name="jdbcPassword" value="" />
@@ -72,10 +72,10 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 
 ## ProcessEngineConfiguration
 
-* `activiti.cfg.xml`必须包含一个id为`processEngineConfiguration`的bean
+* `Activiti.cfg.xml`必须包含一个id为`processEngineConfiguration`的bean
 
 ```xml
- <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+ <bean id="processEngineConfiguration" class="org.Activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
 ```
 
 * 这个bean会用来构建`ProcessEngine`.有多个类可以用来定义`processEngineConfiguration`.
@@ -105,12 +105,12 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 ```xml
 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" >
   <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-  <property name="url" value="jdbc:mysql://localhost:3306/activiti" />
-  <property name="username" value="activiti" />
-  <property name="password" value="activiti" />
+  <property name="url" value="jdbc:mysql://localhost:3306/Activiti" />
+  <property name="username" value="Activiti" />
+  <property name="password" value="Activiti" />
   <property name="defaultAutoCommit" value="false" />
 </bean>
-<bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+<bean id="processEngineConfiguration" class="org.Activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
     <property name="dataSource" ref="dataSource" />
 ```
 
@@ -139,12 +139,12 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 
 ## 创建数据库表
 
-- 把activiti-engine的jar放到classpath下
+- 把Activiti-engine的jar放到classpath下
 - 添加对应的数据库驱动
-- 把Activiti配置文件(activiti.cfg.xml*)放到classpath下,指向指定数据库
+- 把Activiti配置文件(Activiti.cfg.xml*)放到classpath下,指向指定数据库
 - 执行*DbSchemaCreate*类的main方法
 - 只有数据库管理员可以执行DDL语句.SQL DDL语句可以从Activiti下载页或Activiti发布目录里找到,在`database`子目录下.
-- 脚本包含在引擎的jar中(*activiti-engine-x.jar*),在*org/activiti/db/create*包下
+- 脚本包含在引擎的jar中(*Activiti-engine-x.jar*),在*org/Activiti/db/create*包下
 
 
 
@@ -164,11 +164,11 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 
 * 在执行更新之前要先备份数据库
 * 默认每次构建流程引擎时都会进行版本检测,都在应用启动或Activiti webapp启动时发生.如果Activiti发现数据库表的版本与依赖库的版本不同,就会抛出异常
-* 要升级,要把下面的配置 放到activiti.cfg.xml配置文件里
+* 要升级,要把下面的配置 放到Activiti.cfg.xml配置文件里
 
 ```xml
 <beans ... >
-  <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+  <bean id="processEngineConfiguration" class="org.Activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
     <property name="databaseSchemaUpdate" value="true" />
   </bean>
 </beans>
@@ -210,7 +210,7 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 
 ## 为表达式和脚本暴露配置
 
-* 默认`activiti.cfg.xml`和你自己的Spring配置文件中所有bean都可以在表达式和脚本中使用
+* 默认`Activiti.cfg.xml`和你自己的Spring配置文件中所有bean都可以在表达式和脚本中使用
 * 如果想限制配置文件中的bean的可见性,可以配置流程引擎配置的beans配置
 * `ProcessEngineConfiguration`的beans是一个map.当指定了这个参数,只有包含这个map中的bean可以在表达式和脚本中使用.通过在map中指定的名称来决定暴露的bean
 
@@ -226,11 +226,11 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 ```
 
 * 这个配置会把默认的hashmap缓存替换成LRU缓存,来提供限制.这个配置的最佳值跟流程定义的总数有关, 实际使用中会具体使用多少流程定义也有关
-* 可以注入自己的缓存实现.必须实现org.activiti.engine.impl.persistence.deploy.DeploymentCache
+* 可以注入自己的缓存实现.必须实现org.Activiti.engine.impl.persistence.deploy.DeploymentCache
 
 ```xml
 <property name="processDefinitionCache">
-  <bean class="org.activiti.MyCache" />
+  <bean class="org.Activiti.MyCache" />
 </property>
 ```
 
@@ -242,16 +242,16 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 
 
 
-* 默认activiti-engine依赖中没有提供SLF4J绑定的jar,需要根据实际需要使用日志框架
+* 默认Activiti-engine依赖中没有提供SLF4J绑定的jar,需要根据实际需要使用日志框架
 * 如果没有添加任何实现jar,SLF4J会使用NOP-logger,不使用任何日志,不会发出警告,而且什么日志都不会记录
-* activiti-explorer和activiti-rest应用都使用了Log4j绑定
+* Activiti-explorer和Activiti-rest应用都使用了Log4j绑定
 * 如果容器classpath中存在commons-logging,为了把spring日志转发给SLF4J,需要使用桥接.如果容器提供了commons-logging实现,请参考http://www.slf4j.org/codes.html#release来确保稳定性
 
 
 
 ## 映射诊断上下文
 
-* activiti支持slf4j的MDC功能,如下的基础信息会传递到日志中记录:
+* Activiti支持slf4j的MDC功能,如下的基础信息会传递到日志中记录:
   * 流程定义Id标记为mdcProcessDefinitionID
   * 流程实例Id标记为mdcProcessInstanceID
   * 分支Id标记为mdcexecutionId
@@ -294,9 +294,9 @@ FormService formService = processEngine.getFormService();
 ```
 
 * `ProcessEngines.getDefaultProcessEngine()`会在第一次调用时初始化并创建一个流程引擎,可以创建和关闭所有流程引擎:`ProcessEngines.init()`和 `ProcessEngines.destroy()`
-* ProcessEngines会扫描所有`activiti.cfg.xml` 和 `activiti-context.xml` 文件
-* `activiti.cfg.xml`文件流程引擎会使用Activiti的经典方式构建： `ProcessEngineConfiguration.createProcessEngineConfigurationFromInputStream(inputStream).buildProcessEngine()`
-* `activiti-context.xml`文件流程引擎会使用Spring方法构建:先创建一个Spring的环境, 然后通过环境获得流程引擎
+* ProcessEngines会扫描所有`Activiti.cfg.xml` 和 `Activiti-context.xml` 文件
+* `Activiti.cfg.xml`文件流程引擎会使用Activiti的经典方式构建: `ProcessEngineConfiguration.createProcessEngineConfigurationFromInputStream(inputStream).buildProcessEngine()`
+* `Activiti-context.xml`文件流程引擎会使用Spring方法构建:先创建一个Spring的环境, 然后通过环境获得流程引擎
 * 所有服务都是无状态的.这意味着可以在多节点集群环境下运行Activiti,每个节点都指向同一个数据库, 不用担心哪个机器实际执行前端的调用.无论在哪里执行服务都没有问题
 
 
@@ -398,16 +398,16 @@ FormService formService = processEngine.getFormService();
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <definitions id="definitions"
-             targetNamespace="http://activiti.org/bpmn20"
+             targetNamespace="http://Activiti.org/bpmn20"
              xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xmlns:activiti="http://activiti.org/bpmn">
+             xmlns:Activiti="http://Activiti.org/bpmn">
     <process id="vacationRequest" name="Vacation request">
-        <startEvent id="request" activiti:initiator="employeeName">
+        <startEvent id="request" Activiti:initiator="employeeName">
             <extensionElements>
-                <activiti:formProperty id="numberOfDays" name="Number of days" type="long" value="1" required="true"/>
-                <activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
-                <activiti:formProperty id="vacationMotivation" name="Motivation" type="string" />
+                <Activiti:formProperty id="numberOfDays" name="Number of days" type="long" value="1" required="true"/>
+                <Activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
+                <Activiti:formProperty id="vacationMotivation" name="Motivation" type="string" />
             </extensionElements>
         </startEvent>
         <sequenceFlow id="flow1" sourceRef="request" targetRef="handleRequest" />
@@ -417,11 +417,11 @@ FormService formService = processEngine.getFormService();
                 ${employeeName} would like to take ${numberOfDays} day(s) of vacation (Motivation: ${vacationMotivation}).
             </documentation>
             <extensionElements>
-                <activiti:formProperty id="vacationApproved" name="Do you approve this vacation" type="enum" required="true">
-                    <activiti:value id="true" name="Approve" />
-                    <activiti:value id="false" name="Reject" />
-                </activiti:formProperty>
-                <activiti:formProperty id="managerMotivation" name="Motivation" type="string" />
+                <Activiti:formProperty id="vacationApproved" name="Do you approve this vacation" type="enum" required="true">
+                    <Activiti:value id="true" name="Approve" />
+                    <Activiti:value id="false" name="Reject" />
+                </Activiti:formProperty>
+                <Activiti:formProperty id="managerMotivation" name="Motivation" type="string" />
             </extensionElements>
             <potentialOwner>
                 <resourceAssignmentExpression>
@@ -446,13 +446,13 @@ FormService formService = processEngine.getFormService();
                 Reason: ${managerMotivation}
             </documentation>
             <extensionElements>
-                <activiti:formProperty id="numberOfDays" name="Number of days" value="${numberOfDays}" type="long" required="true"/>
-                <activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" value="${startDate}" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
-                <activiti:formProperty id="vacationMotivation" name="Motivation" value="${vacationMotivation}" type="string" />
-                <activiti:formProperty id="resendRequest" name="Resend vacation request to manager?" type="enum" required="true">
-                    <activiti:value id="true" name="Yes" />
-                    <activiti:value id="false" name="No" />
-                </activiti:formProperty>
+                <Activiti:formProperty id="numberOfDays" name="Number of days" value="${numberOfDays}" type="long" required="true"/>
+                <Activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" value="${startDate}" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
+                <Activiti:formProperty id="vacationMotivation" name="Motivation" value="${vacationMotivation}" type="string" />
+                <Activiti:formProperty id="resendRequest" name="Resend vacation request to manager?" type="enum" required="true">
+                    <Activiti:value id="true" name="Yes" />
+                    <Activiti:value id="false" name="No" />
+                </Activiti:formProperty>
             </extensionElements>
             <humanPerformer>
                 <resourceAssignmentExpression>
@@ -479,7 +479,7 @@ FormService formService = processEngine.getFormService();
 ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
 RepositoryService repositoryService = processEngine.getRepositoryService();
 repositoryService.createDeployment()
-    .addClasspathResource("org/activiti/test/VacationRequest.bpmn20.xml")
+    .addClasspathResource("org/Activiti/test/VacationRequest.bpmn20.xml")
     .deploy();
 Log.info("Number of process definitions: " + repositoryService.createProcessDefinitionQuery().count());       
 ```
@@ -582,7 +582,7 @@ long count = taskService.createNativeTaskQuery()
 
 * Activiti使用UEL处理表达式
 * UEL即*统一表达式语言*,它是EE6规范的一部分([EE6规范](http://docs.oracle.com/javaee/6/tutorial/doc/gjddd.html)).为了在所有运行环境都支持最新UEL的所有共嫩个,我们使用了一个JUEL的修改版本
-* 表达式可以用在很多场景下,比如[Java服务任务](http://www.mossle.com/docs/activiti/#bpmnJavaServiceTaskXML),[执行监听器](http://www.mossle.com/docs/activiti/#executionListeners),[任务监听器](http://www.mossle.com/docs/activiti/#taskListeners)和[条件流](http://www.mossle.com/docs/activiti/#conditionalSequenceFlowXml).虽然有两重表达式,值表达式和方法表达式,Activiti进行了抽象,所以两者可以同样使用在需要`表达式`的场景中
+* 表达式可以用在很多场景下,比如[Java服务任务](http://www.mossle.com/docs/Activiti/#bpmnJavaServiceTaskXML),[执行监听器](http://www.mossle.com/docs/Activiti/#executionListeners),[任务监听器](http://www.mossle.com/docs/Activiti/#taskListeners)和[条件流](http://www.mossle.com/docs/Activiti/#conditionalSequenceFlowXml).虽然有两重表达式,值表达式和方法表达式,Activiti进行了抽象,所以两者可以同样使用在需要`表达式`的场景中
 
 - **Value expression**:解析为值.默认所有流程变量,所有spring bean可以使用
   - `${myVar}`,`${myBean.myProperty}`
@@ -600,8 +600,8 @@ long count = taskService.createNativeTaskQuery()
 ## 单元测试
 
 * 业务流程是软件项目的一部分,它也应该和普通的业务流程一样进行测试:使用单元测试. 因为Activiti是一个嵌入式的java引擎, 为业务流程编写单元测试和写普通单元测试完全一样
-* Activiti支持JUnit 3和4进行单元测试.使用JUnit 3时, 必须集成`ActivitiTestCase`. 它通过保护的成员变量提供ProcessEngine和服务,在测试的`setup()`中, 默认会使用classpath下的`activiti.cfg.xml`初始化流程引擎.想使用不同的配置文件,可以重写*getConfigurationResource()*方法. 如果配置文件相同的话,对应的流程引擎会被静态缓存, 就可以用于多个单元测试
-* 继承`ActivitiTestCase`,可以在测试方法上使用 `org.activiti.engine.test.Deployment`注解
+* Activiti支持JUnit 3和4进行单元测试.使用JUnit 3时, 必须集成`ActivitiTestCase`. 它通过保护的成员变量提供ProcessEngine和服务,在测试的`setup()`中, 默认会使用classpath下的`Activiti.cfg.xml`初始化流程引擎.想使用不同的配置文件,可以重写*getConfigurationResource()*方法. 如果配置文件相同的话,对应的流程引擎会被静态缓存, 就可以用于多个单元测试
+* 继承`ActivitiTestCase`,可以在测试方法上使用 `org.Activiti.engine.test.Deployment`注解
 * 测试执行前,与测试类在同一个包下的,格式为`testClassName.testMethod.bpmn20.xml`的资源文件会被部署
 * 测试结束后,发布包也会被删除,包括所有相关的流程实例,任务,等等
 * `Deployment`注解可以直接设置资源的位置
@@ -620,20 +620,20 @@ public class MyBusinessProcessTest extends ActivitiTestCase {
 ```
 
 * 要想在使用JUnit 4编写单元测试时获得同样的功能,可以使用`ActivitiRule`.通过它,可以通过getter方法获得流程引擎和各种服务
-* 和 `ActivitiTestCase`一样,使用这个`Rule`也会启用`org.activiti.engine.test.Deployment`注解,它会在classpath下查找默认的配置文件.如果配置文件相同的话,对应的流程引擎会被静态缓存, 就可以用于多个单元测试
+* 和 `ActivitiTestCase`一样,使用这个`Rule`也会启用`org.Activiti.engine.test.Deployment`注解,它会在classpath下查找默认的配置文件.如果配置文件相同的话,对应的流程引擎会被静态缓存, 就可以用于多个单元测试
 
 ```java
 public class MyBusinessProcessTest {
 
     @Rule
-    public ActivitiRule activitiRule = new ActivitiRule();
+    public ActivitiRule ActivitiRule = new ActivitiRule();
 
     @Test
     @Deployment
     public void ruleUsageExample() {
-        RuntimeService runtimeService = activitiRule.getRuntimeService();
+        RuntimeService runtimeService = ActivitiRule.getRuntimeService();
         runtimeService.startProcessInstanceByKey("ruleUsage");
-        TaskService taskService = activitiRule.getTaskService();
+        TaskService taskService = ActivitiRule.getTaskService();
         Task task = taskService.createTaskQuery().singleResult();
         assertEquals("My Task", task.getName());
         taskService.complete(task.getId());
@@ -661,7 +661,7 @@ public class ProcessEnginesServletContextListener implements ServletContextListe
 }
 ```
 
-* `contextInitialized`方法会执行`ProcessEngines.init()`,这会查找classpath下的`activiti.cfg.xml`文件,根据配置文件创建一个`ProcessEngine`.如果classpath中包含多个配置文件,确认它们有不同的名字,当需要使用流程引擎时,可以通过`ProcessEngines.getDefaultProcessEngine()`或`ProcessEngines.getProcessEngine("myName")`
+* `contextInitialized`方法会执行`ProcessEngines.init()`,这会查找classpath下的`Activiti.cfg.xml`文件,根据配置文件创建一个`ProcessEngine`.如果classpath中包含多个配置文件,确认它们有不同的名字,当需要使用流程引擎时,可以通过`ProcessEngines.getDefaultProcessEngine()`或`ProcessEngines.getProcessEngine("myName")`
 * 当然,也可以使用其他方式创建流程引擎
 * ContextListener中的`contextDestroyed`方法会执行`ProcessEngines.destroy()`.这会关闭所有初始化的流程引擎
 
@@ -674,7 +674,7 @@ public class ProcessEnginesServletContextListener implements ServletContextListe
 * 为了部署流程,它们不得不包装在一个业务文档中
 * 一个业务文档是Activiti引擎部署的单元,相当与一个压缩文件,它包含BPMN2.0流程,任务表单,规则和其他任意类型的文件.大体上,业务文档是包含命名资源的容器
 * 当一个业务文档被部署,它将会自动扫描`.bpmn20.xml` 或者`.bpmn`结尾的BPMN文件,每个文件都将会被解析并且可能会包含多个流程定义
-* 业务归档中的Java类**将不能够添加到类路径下**.为了能够让流程运行,必须把存在于业务归档程中的流程定义使用的所有自定义的类(例如Java服务任务或者实现事件的监听器)放在activiti引擎的类路径下
+* 业务归档中的Java类**将不能够添加到类路径下**.为了能够让流程运行,必须把存在于业务归档程中的流程定义使用的所有自定义的类(例如Java服务任务或者实现事件的监听器)放在Activiti引擎的类路径下
 
 
 
@@ -717,14 +717,14 @@ repositoryService.createDeployment()
 
 * 当流程实例被启动的时候,在流程中被使用的所有自定义类(如服务任务中使用的JavaDelegates,事件监听器,任务监听器等)应该存在与流程引擎的类路径下
 * 然后,在部署业务文档时,这些类不必都存在于类路径下.当使用Ant部署一个新的业务文档时,这意味着委托类不必存在与类路径下
-* 当使用示例设置并添加自定义类时,应该添加包含自定义类的jar包到activiti-explorer控制台或activiti-rest 的webapp lib文件夹中
+* 当使用示例设置并添加自定义类时,应该添加包含自定义类的jar包到Activiti-explorer控制台或Activiti-rest 的webapp lib文件夹中
 * 不要忽略自定义类的依赖.另外,还可以包含自己的依赖添加到Tomcat目录中的`${tomcat.home}/lib`
 
 
 
 ### 在流程中使用Spring beans
 
-当表达式或者脚本使用Spring beans时,这些beans对于引擎执行流程定义时必须是可用的.如果要构建自己的Web应用并且按照Spring集成中描述那样在应用上下文配置流程引擎是非常简单的.但是如果要使用 Activiti rest web应用,那么也应该更新 Activiti rest web应用的上下文.可以把在`activiti-rest/lib/activiti-cfg.jar` 文件中的`activiti.cfg.xml`替换成Spring上下文配置的`activiti-context.xml`文件
+当表达式或者脚本使用Spring beans时,这些beans对于引擎执行流程定义时必须是可用的.如果要构建自己的Web应用并且按照Spring集成中描述那样在应用上下文配置流程引擎是非常简单的.但是如果要使用 Activiti rest web应用,那么也应该更新 Activiti rest web应用的上下文.可以把在`Activiti-rest/lib/Activiti-cfg.jar` 文件中的`Activiti.cfg.xml`替换成Spring上下文配置的`Activiti-context.xml`文件
 
 
 
@@ -794,7 +794,7 @@ repositoryService.createDeployment()
 
 * 流程定义的流程图可以被添加到部署中,该流程图将会持久化到数据库中并且可以通过API进行访问.该流程图也可以被用来在Activiti Explorer控制台中的流程中进行显示
 
-* 如果在我们的类路径下面有一个流程,`org/activiti/expenseProcess.bpmn20.xml`,该流程定义有一个流程key expense. 以下遵循流程定义图片的命名规范
+* 如果在我们的类路径下面有一个流程,`org/Activiti/expenseProcess.bpmn20.xml`,该流程定义有一个流程key expense. 以下遵循流程定义图片的命名规范
   * 如果在部署时一个图片资源已经存在,它是BPMN2.0的XML文件名后面是流程定义的key并且是一个图片的后缀,那么该图片将被使用.如果在一个BPMN2.0 XML文件中定义多个流程定义图片,这种方式更有意义.每个流程定义图片的文件名中都将会有一个流程定义key
   * 如果并没有这样的图片存在,部署的时候寻找与匹配BPMN2.0 XML文件的名称的图片资源.这意味着在同一个BPMN2.0 XML文件夹中的**每个流程定义**都会有相同的流程定义图片
 
@@ -803,8 +803,8 @@ repositoryService.createDeployment()
 ```java
 repositoryService.createDeployment()
     .name("expense-process.bar")
-    .addClasspathResource("org/activiti/expenseProcess.bpmn20.xml")
-    .addClasspathResource("org/activiti/expenseProcess.png")
+    .addClasspathResource("org/Activiti/expenseProcess.bpmn20.xml")
+    .addClasspathResource("org/Activiti/expenseProcess.png")
     .deploy();
 ```
 
@@ -873,7 +873,7 @@ repositoryService
 
     <bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="driverClass" value="org.h2.Driver" />
-        <property name="url" value="jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000" />
+        <property name="url" value="jdbc:h2:mem:Activiti;DB_CLOSE_DELAY=1000" />
         <property name="username" value="sa" />
         <property name="password" value="" />
     </bean>
@@ -882,14 +882,14 @@ repositoryService
         <property name="dataSource" ref="dataSource" />
     </bean>
 
-    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+    <bean id="processEngineConfiguration" class="org.Activiti.spring.SpringProcessEngineConfiguration">
         <property name="dataSource" ref="dataSource" />
         <property name="transactionManager" ref="transactionManager" />
         <property name="databaseSchemaUpdate" value="true" />
         <property name="jobExecutorActivate" value="false" />
     </bean>
 
-    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    <bean id="processEngine" class="org.Activiti.spring.ProcessEngineFactoryBean">
         <property name="processEngineConfiguration" ref="processEngineConfiguration" />
     </bean>
 
@@ -906,17 +906,17 @@ repositoryService
 <beans>  
   ...
   <tx:annotation-driven transaction-manager="transactionManager"/>
-  <bean id="userBean" class="org.activiti.spring.test.UserBean">
+  <bean id="userBean" class="org.Activiti.spring.test.UserBean">
     <property name="runtimeService" ref="runtimeService" />
   </bean>
-  <bean id="printer" class="org.activiti.spring.test.Printer" />
+  <bean id="printer" class="org.Activiti.spring.test.Printer" />
 </beans>
 ```
 
 * 使用任意的一种Spring创建应用上下文的方式创建其Spring应用上下文.在这个例子中你可以使用类路径下面的XML资源来配置我们的Spring应用上下文:
 
 ```java
-ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("org/activiti/examples/spring/SpringTransactionIntegrationTest-context.xml");
+ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("org/Activiti/examples/spring/SpringTransactionIntegrationTest-context.xml");
 ```
 
 * 此时可以得到Activiti的服务beans并且调用该服务上面的方法
@@ -925,7 +925,7 @@ ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationC
 ```java
 RepositoryService repositoryService = (RepositoryService) applicationContext.getBean("repositoryService");
 String deploymentId = repositoryService.createDeployment()
-    .addClasspathResource("org/activiti/spring/test/hello.bpmn20.xml")
+    .addClasspathResource("org/Activiti/spring/test/hello.bpmn20.xml")
     .deploy()
     .getId();
 ```
@@ -962,13 +962,13 @@ public class UserBean {
 
 ## 表达式
 
-* 当使用ProcessEngineFactoryBean时,默认情况下,在BPMN流程中的所有[表达式](http://www.mossle.com/docs/activiti/#apiExpressions)都将会看见所有的Spring beans.它可以限制你在表达式中暴露出的beans或者甚至可以在你的配置中使用一个Map不暴露任何beans
+* 当使用ProcessEngineFactoryBean时,默认情况下,在BPMN流程中的所有[表达式](http://www.mossle.com/docs/Activiti/#apiExpressions)都将会看见所有的Spring beans.它可以限制你在表达式中暴露出的beans或者甚至可以在你的配置中使用一个Map不暴露任何beans
 * 下面的例子暴露了一个单例bean(printer),可以把printer当作关键字使用
 * 想要不暴露任何beans,仅仅只需要在SpringProcessEngineConfiguration中传递一个空的list作为beans的属性
 * 当不设置beans的属性时,在应用上下文中Spring beans都是可以使用的
 
 ```xml
-<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+<bean id="processEngineConfiguration" class="org.Activiti.spring.SpringProcessEngineConfiguration">
     ...
     <property name="beans">
         <map>
@@ -977,7 +977,7 @@ public class UserBean {
     </property>
 </bean>
 
-<bean id="printer" class="org.activiti.examples.spring.Printer" />
+<bean id="printer" class="org.Activiti.examples.spring.Printer" />
 
 ```
 
@@ -988,7 +988,7 @@ public class UserBean {
     <process id="helloProcess">
         <startEvent id="start" />
         <sequenceFlow id="flow1" sourceRef="start" targetRef="print" />
-        <serviceTask id="print" activiti:expression="#{printer.printMessage()}" />
+        <serviceTask id="print" Activiti:expression="#{printer.printMessage()}" />
         <sequenceFlow id="flow2" sourceRef="print" targetRef="end" />
         <endEvent id="end" />
     </process>
@@ -999,7 +999,7 @@ public class UserBean {
 
 ```xml
 <beans ...>
-  <bean id="printer" class="org.activiti.examples.spring.Printer" />
+  <bean id="printer" class="org.Activiti.examples.spring.Printer" />
 </beans>
 ```
 
@@ -1012,12 +1012,12 @@ public class UserBean {
 * 自动部署有过滤以防止资源重新部署的功能,只有当这个资源真正发生改变的时候,它才会向Activiti使用的数据库创建新的部署
 
 ```xml
-<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+<bean id="processEngineConfiguration" class="org.Activiti.spring.SpringProcessEngineConfiguration">
     ...
-    <property name="deploymentResources" value="classpath*:/org/activiti/spring/test/autodeployment/autodeploy.*.bpmn20.xml" />
+    <property name="deploymentResources" value="classpath*:/org/Activiti/spring/test/autodeployment/autodeploy.*.bpmn20.xml" />
 </bean>
 
-<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+<bean id="processEngine" class="org.Activiti.spring.ProcessEngineFactoryBean">
     <property name="processEngineConfiguration" ref="processEngineConfiguration" />
 </bean>
 ```
@@ -1026,11 +1026,11 @@ public class UserBean {
 
 ## 单元测试
 
-* 当集成Spring时,使用标准的[Activiti测试工具类](http://www.mossle.com/docs/activiti/#apiUnitTesting)是非常容易的对业务流程进行测试
+* 当集成Spring时,使用标准的[Activiti测试工具类](http://www.mossle.com/docs/Activiti/#apiUnitTesting)是非常容易的对业务流程进行测试
 
 ```java
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:org/activiti/spring/test/junit4/springTypicalUsageTest-context.xml")
+@ContextConfiguration("classpath:org/Activiti/spring/test/junit4/springTypicalUsageTest-context.xml")
 public class MyBusinessProcessTest {
 
   @Autowired
@@ -1041,7 +1041,7 @@ public class MyBusinessProcessTest {
 
   @Autowired
   @Rule
-  public ActivitiRule activitiSpringRule;
+  public ActivitiRule ActivitiSpringRule;
 
   @Test
   @Deployment
@@ -1055,10 +1055,10 @@ public class MyBusinessProcessTest {
 }
 ```
 
-* 对于这种方式,需要在Spring配置中定义一个org.activiti.engine.test.ActivitiRule
+* 对于这种方式,需要在Spring配置中定义一个org.Activiti.engine.test.ActivitiRule
 
 ```xml
-<bean id="activitiRule" class="org.activiti.engine.test.ActivitiRule">
+<bean id="ActivitiRule" class="org.Activiti.engine.test.ActivitiRule">
     <property name="processEngine" ref="processEngine" />
 </bean>
 ```
@@ -1112,21 +1112,21 @@ formService.getStartFormData(String processDefinitionId).getFormProperties();
 ```xml
 <userTask id="task">
   <extensionElements>
-    <activiti:formProperty id="room" />
-    <activiti:formProperty id="duration" type="long"/>
-    <activiti:formProperty id="speaker" variable="SpeakerName" writable="false" />
-    <activiti:formProperty id="street" expression="#{address.street}" required="true" />
+    <Activiti:formProperty id="room" />
+    <Activiti:formProperty id="duration" type="long"/>
+    <Activiti:formProperty id="speaker" variable="SpeakerName" writable="false" />
+    <Activiti:formProperty id="street" expression="#{address.street}" required="true" />
   </extensionElements>
 </userTask>
 ```
 
 - 表单数据也可以作为FormData的一部分提供类型元数据.该FormData可以从`StartFormData FormService.getStartFormData(String processDefinitionId)`和`TaskFormdata FormService.getTaskFormData(String taskId)`方法的返回值中获取
 - 支持以下的几种表单属性类型
-  - `string` (org.activiti.engine.impl.form.StringFormType)
-  - `long` (org.activiti.engine.impl.form.LongFormType)
-  - `enum`     (org.activiti.engine.impl.form.EnumFormType)
-  - `date`     (org.activiti.engine.impl.form.DateFormType)
-  - `boolean`     (org.activiti.engine.impl.form.BooleanFormType)
+  - `string` (org.Activiti.engine.impl.form.StringFormType)
+  - `long` (org.Activiti.engine.impl.form.LongFormType)
+  - `enum`     (org.Activiti.engine.impl.form.EnumFormType)
+  - `date`     (org.Activiti.engine.impl.form.DateFormType)
+  - `boolean`     (org.Activiti.engine.impl.form.BooleanFormType)
 - 对于申明每一个表单属性,以下的`FormProperty`信息可以通过`formService.getStartFormData(processDefinitionId).getFormProperties()` 和 `formService.getTaskFormData(taskId.getFormProperties()`获取
 
 ```java
@@ -1157,19 +1157,19 @@ public interface FormProperty {
 ```xml
 <startEvent id="start">
     <extensionElements>
-        <activiti:formProperty id="speaker"
+        <Activiti:formProperty id="speaker"
                                name="Speaker"
                                variable="SpeakerName"
                                type="string" />
-        <activiti:formProperty id="start"
+        <Activiti:formProperty id="start"
                                type="date"
                                datePattern="dd-MMM-yyyy" />
-        <activiti:formProperty id="direction" type="enum">
-            <activiti:value id="left" name="Go Left" />
-            <activiti:value id="right" name="Go Right" />
-            <activiti:value id="up" name="Go Up" />
-            <activiti:value id="down" name="Go Down" />
-        </activiti:formProperty>
+        <Activiti:formProperty id="direction" type="enum">
+            <Activiti:value id="left" name="Go Left" />
+            <Activiti:value id="right" name="Go Right" />
+            <Activiti:value id="up" name="Go Up" />
+            <Activiti:value id="down" name="Go Down" />
+        </Activiti:formProperty>
     </extensionElements>
 </startEvent>
 ```
@@ -1183,9 +1183,9 @@ public interface FormProperty {
 ```xml
 <startEvent ... >
     <extensionElements>
-        <activiti:formProperty id="numberOfDays" name="Number of days" value="${numberOfDays}" type="long" required="true"/>
-        <activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" value="${startDate}" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
-        <activiti:formProperty id="vacationMotivation" name="Motivation" value="${vacationMotivation}" type="string" />
+        <Activiti:formProperty id="numberOfDays" name="Number of days" value="${numberOfDays}" type="long" required="true"/>
+        <Activiti:formProperty id="startDate" name="First day of holiday (dd-MM-yyy)" value="${startDate}" datePattern="dd-MM-yyyy hh:mm" type="date" required="true" />
+        <Activiti:formProperty id="vacationMotivation" name="Motivation" value="${vacationMotivation}" type="string" />
     </extensionElements>
     </userTask>
 ```
@@ -1204,7 +1204,7 @@ public interface FormProperty {
 * 可以将任何表单模版资源放进要部署的业务文档之中,如果你想要将它们按照流程的版本进行存储.它将会在部署中作为一种可用的资源
 * 使用`ProcessDefinition.getDeploymentId()`和` RepositoryService.getResourceAsStream(deploymentId,resourceName)` 获取部署上去的表单模版.这样就可以获取表单模版定义文件 ,就可以在自己的应用中渲染/显示表单
 * 也可以使用该功能获取任务表单之外的其他的部署资源用于其他的目的
-* 属性`<userTask activiti:formKey="..."`可通过 ` FormService.getStartFormData( processDefinitionId).getFormKey()` 和 `FormService.getTaskFormData( taskId).getFormKey()`暴露出来.可以使用这个存储部署的模版中的全名(例如`org/activiti/example/form/my-custom-form.xml`),但这并不是必须的.例如,可以在表单属性中存储一个通用的key,然后运用一种算法或者换转去得到你实际使用的模版.当你想要通过不同UI技术渲染不能的表单,这可能更加方便.例如,使用正常屏幕大小的web应用程序的表单,移动手机小屏幕的表单和甚至可能是IM表单和email表单模版
+* 属性`<userTask Activiti:formKey="..."`可通过 ` FormService.getStartFormData( processDefinitionId).getFormKey()` 和 `FormService.getTaskFormData( taskId).getFormKey()`暴露出来.可以使用这个存储部署的模版中的全名(例如`org/Activiti/example/form/my-custom-form.xml`),但这并不是必须的.例如,可以在表单属性中存储一个通用的key,然后运用一种算法或者换转去得到你实际使用的模版.当你想要通过不同UI技术渲染不能的表单,这可能更加方便.例如,使用正常屏幕大小的web应用程序的表单,移动手机小屏幕的表单和甚至可能是IM表单和email表单模版
 
 
 
@@ -1220,14 +1220,14 @@ public interface FormProperty {
 ```xml
 <property name="preBpmnParseHandlers">
     <list>
-        <bean class="org.activiti.parsing.MyFirstBpmnParseHandler" />
+        <bean class="org.Activiti.parsing.MyFirstBpmnParseHandler" />
     </list>
 </property>
 
 <property name="postBpmnParseHandlers">
     <list>
-        <bean class="org.activiti.parsing.MySecondBpmnParseHandler" />
-        <bean class="org.activiti.parsing.MyThirdBpmnParseHandler" />
+        <bean class="org.Activiti.parsing.MySecondBpmnParseHandler" />
+        <bean class="org.Activiti.parsing.MyThirdBpmnParseHandler" />
     </list>
 </property>
 ```
@@ -1301,7 +1301,7 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ```xml
 <property name="idGenerator">
-    <bean class="org.activiti.engine.impl.persistence.StrongUuidGenerator" />
+    <bean class="org.Activiti.engine.impl.persistence.StrongUuidGenerator" />
 </property>
 ```
 
@@ -1432,6 +1432,653 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 
+
+
+# Activiti Explorer
+
+* Activiti Explorer,也称之为Activiti控制台
+* Activiti控制台是一个web应用程序,当我们从Activiti的官方网站下载Activiti的压缩zip文件时候,Activiti控制台在${Activiti_home}/wars文件夹下面
+* 控制台的目的并不是创建一个完善的web应用程序,仅仅是为客户端用户准备的应用程序,但是却能够练习和展示Activiti的功能
+* 控制台仅仅只是一个示例Demo,使用了一个内存数据库,可以很容易换成自己的数据库(WEB-INF下的applicationContext.xml)
+
+![](083.png)
+
+* 登录进该控制台会看见四个比较大的图标按钮用于显示主要功能
+  * **Tasks**:任务管理功能.如果你是办理人,可以看见运行中流程实例的自己的待办任务,或者你可以拾取组任务.控制台涉及的功能,子任务的工作,不同角色的人等等.控制台也可以允许创建一个独立的任务,该任务并没有关联任何流程实例
+  * **Process**:显示部署的流程定义列表,并且可以启动一个新的流程实例
+  * **Reporting**:生成报表和显示之前保存历史的结果数据
+  * **Manage**:当登录的用户具有超级管理员权限才能够看见.用于管理Activiti的流程引擎:管理用于和组,执行和查看停止的jobs,查看数据库和部署新的流程定义
+
+
+
+## 流程图
+
+* 控制台包含的功能,使用JS框架自动生成一张流程图.当流程定义XML包含BPMN注入信息时,该流程图才能生成.当流程定义XML中并没有BPMN注入信息但部署时包含一张流程图,该图片也将会被显示
+
+![](084.png)
+
+* 若并不想使用Javascript生成流程图,你可以在ui.properties文件中禁用它
+
+```properties
+activiti.ui.jsdiagram = false
+```
+
+* 除了在控制台上面显示流程图,控制台也会很容易的包含你想要查看的流程图.下面的URL将会显示流程定义图片,根据留存定义的ID:
+
+```http
+http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinitionId=reviewSaledLead:1:36
+```
+
+* 也可以显示当前流程实例的状态,通过添加一个processInstanceId的请求参数,如下:
+
+```http
+http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinitionId=reviewSaledLead:1:36&processInstanceId=41
+```
+
+
+
+## 任务
+
+![](085.png)
+
+- **Inbox:**显示登录用户需要办理的所有任务列表
+- **My tasks:**显示登录用户任务拥有者的任务列表.当你创建一个独立的任务,你可以自动化操作该任务
+- **Queued:**显示不用的组任务列表,并且登录用户在该组中.这里的所有任务都必须先拾取然后才能够完成
+- **Involved:**显示登录用户被参与的任务(即不是办理人和任务拥有者)
+- **归档**包含已经完成的(历史的)任务
+
+
+
+## 启动流程实例
+
+* 在**流程定义**选项卡,允许你查看Activiti流程引擎部署的所有流程定义.可以使用页面顶部右边的按钮启动一个新的流程实例.如果该流程定义有一个启动[表单](http://www.mossle.com/docs/activiti/#forms),那么在启动流程实例之前就先显示表单
+
+![](086.png)
+
+
+
+## 我的流程实例
+
+* 在**我的流程** 选项卡,显示当前登录用户未完成的用户任务的所有流程实例
+
+![](087.png)
+
+
+
+## 管理
+
+* 该功能只有当登录用户是权限组*admin*中的成员时才会显示.点击 *Manage* 图标,提供以下选项列表 
+* **数据库**:在数据库中显示Activiti有关内容.当开发流程或者排除故障等问题的时候是非常有用的
+
+![](088.png)
+
+- **部署**:显示当前流程引擎的部署,并且可以看见部署的内容,包括流程定义,流程图,业务规则等等
+
+![](089.png)
+
+* 当点击*部署*时,也可以上传新的部署.从计算机中选择一个业务文档或者一个BPMN20.XML文件,或者简单的拖拽到指定的区域就可以部署一个新的业务流程
+
+![](090.png)
+
+- **Jobs**:在左边显示当前的作业(定时器等)并且运行手动执行他们.如果作业失败,就会显示所有的异常
+
+![](091.png)
+
+- **用户和组管理用户和组**:7以上版本已废弃.创建,修改和删除用户和组.关联用户和组,这样他们就会有更多的权限或者他们能够看见在任务分配给特地的组
+
+![](092.png)
+
+
+
+## 报表
+
+* 控制台附带了一些报表例子且能很轻松的在系统中添加新的报表.报表功能是位于主功能中的**报表**按钮
+
+![](093.png)
+
+* 如果要让报表工作,控制台需要配置历史的级别不能够没有.这默认的配置是满足这一要求的
+* 目前,该报表选项卡会显示2个子选项卡:
+  * **生成报表**:显示系统中已知的报表列表.允许运行生成的报表
+  * **保存报表**:显示之前保存的所有报表列表.注意,这里仅仅显示的是个人保存的报表,并且不能看见其他人保存的报表
+* 流程的数据被用于生成报表中的列表和图标,使用流程生成报表数据有几个优势:
+  * 该流程能够直接访问Activiti流程引擎的内部,他直接可以使用流程引擎访问数据库
+  * 作业执行器能够用于任何其他的流程.这意味着能够异步生存流程或者仅仅异步执行某些步骤.这也意味着可以使用定时器
+  * 可以用已知的工具和已知的概念创建一个新的报表.同时,没有新的概念,服务或者应用被需要.部署或者上传一个新的报表与部署一个新的流程是一样的
+  * 可以使用BPMN2.0结构.这意味着所有的东西,比如并行网关,可以实现基于数据或用户请求输入生成分支
+* 生成报表数据的流程定义需要把activiti-report设置为分类,这样就能在Explorer的报表列表中显示出来
+* 能够看到报表的唯一要求是,流程会创建一个名为**reportData**的流程变量.这个变量必须是json对象的二进制数组,必须保存到Activiti的历史表中 (所以要求引擎必须启用历史功能),可以在后面报表保存时获取
+
+![](094.png)
+
+
+
+### 报告数据JSON
+
+* 报表流程必须生成一个变量*reportData*,这是一个要展现给用户的JSON数据. 这个json看起来像这样:
+
+```json
+{
+    "title": "My Report",
+    "datasets": [
+        {
+            "type" : "lineChart",
+            "description" : "My first chart",
+            "xaxis" : "Year"
+            "yaxis" : "Total sales"
+            "data" :
+            {
+            "2010" : 50,
+            "2011" : 33,
+            "2012" : 17,
+            "2013" : 87,
+        }
+        }
+    ]
+}
+```
+
+* json数据会在Explorer中获取,并用来生成图表或列表. json的元素为:
+  * **title**:这个报表的标题
+  * **datasets**:是数据集的数组,对应报表中不同的图表和列表
+  * **type**:每个数据集都有一个类型,这个类型用来决定如何渲染数据.支持的值:pieChart,lineChart,barChart和list
+  * **description**:每个图表可以 在报表中显示一个可选的描述
+  * **x 和yaxis**:只对 *lineChart*类型起作用.这个可选参数可以修改图表坐标系的名称
+  * **data**:这是实际的数据. 数据是一个key-value格式的json对象
+
+
+
+### 实例流程
+
+* 下面的例子演示了一个流程实例总览报表.流程本身只包含一个脚本任务使用js生成json数据集.虽然所有Explorer中的例子都使用js,但也可以使用java服务任务.执行流程最后的结果就是*reportData*变量保存着数据
+* 下面的例子只能运行在JDK 7+环境中,因为使用了JS引擎
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="activiti-report">
+    <process id="process-instance-overview-report" name="Process Instance Overview" isExecutable="true">
+        <startEvent id="startevent1" name="Start" />
+        <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="generateDataset" />
+        <scriptTask id="generateDataset" name="Execute script" scriptFormat="JavaScript" activiti:autoStoreVariables="false">
+            <script><![CDATA[
+               importPackage(java.sql);
+               importPackage(java.lang);
+               importPackage(org.activiti.explorer.reporting);
+
+               var result = ReportingUtil.executeSelectSqlQuery("SELECT PD.NAME_, PD.VERSION_ , count(*) FROM ACT_HI_PROCINST PI inner join ACT_RE_PROCDEF PD on PI.PROC_DEF_ID_ = PD.ID_ group by PROC_DEF_ID_");
+
+               var reportData = {};
+               reportData.datasets = [];
+
+               var dataset = {};
+               dataset.type = "pieChart";
+               dataset.description = "Process instance overview (" + new java.util.Date() + ")";
+               dataset.data = {};
+
+               while (result.next()) { // process results one row at a time
+                 var name = result.getString(1);
+                 var version = result.getLong(2)
+                 var count = result.getLong(3);
+                 dataset.data[name + " (v" + version + ")"] = count;
+               }
+               reportData.datasets.push(dataset);
+
+               execution.setVariable("reportData", new java.lang.String(JSON.stringify(reportData)).getBytes("UTF-8"));
+          ]]></script>
+        </scriptTask>
+        <sequenceFlow id="flow3" sourceRef="generateDataset" targetRef="theEnd" />
+        <endEvent id="theEnd" />
+    </process>
+</definitions>
+```
+
+* 除了流程xml顶部的标准xml,主要区别是*targetNamespace*设置为**activiti-report**, 把分类设置为与部署的流程定义一样的名称
+* 脚本的第一行只是进行一些导入,避免每次使用时,都要写包名
+* 第一个有意义的代码是使用*ReportingUtil*读取activiti数据库,返回结果是*JDBC结果集*.查询语句下面,JS创建了使用的json
+* 最后一行脚本有一点儿奇怪.首先需要把json对象转换成字符串,使用JS函数*JSON.stringify()*.字符串需要保存为二进制数组类型的变量.这是一个技术问题:二进制数组的大小是无限的,但是字符串的长度有限制.这就是为什么JS字符串必须转换成一个java字符串,以获得转换成二进制的功能
+* 兼容JDK 6及更高版本的流程有一些区别,原生json无法使用,因此提供了帮助类(*ReportData* 和 *Dataset*)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="activiti-report">
+    <process id="process-instance-overview-report" name="Process Instance Overview" isExecutable="true">
+        <startEvent id="startevent1" name="Start" />
+        <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="generateDataset" />
+        <scriptTask id="generateDataset" name="Execute script" scriptFormat="js" activiti:autoStoreVariables="false">
+            <script><![CDATA[
+               importPackage(java.sql);
+               importPackage(java.lang);
+               importPackage(org.activiti.explorer.reporting);
+
+               var result = ReportingUtil.executeSelectSqlQuery("SELECT PD.NAME_, PD.VERSION_ , count(*) FROM ACT_HI_PROCINST PI inner join ACT_RE_PROCDEF PD on PI.PROC_DEF_ID_ = PD.ID_ group by PROC_DEF_ID_");
+               var reportData = new ReportData;
+               var dataset = reportData.newDataset();
+               dataset.type = "pieChart";
+               dataset.description = "Process instance overview (" + new java.util.Date() + ")"
+               while (result.next()) { // process results one row at a time
+                 var name = result.getString(1);
+                 var version = result.getLong(2);
+                 var count = result.getLong(3);
+                 dataset.add(name + " (v" + version + ")", count);
+               }
+               execution.setVariable("reportData", reportData.toBytes());
+          ]]></script>
+        </scriptTask>
+        <sequenceFlow id="flow3" sourceRef="generateDataset" targetRef="theEnd" />
+        <endEvent id="theEnd" />
+    </process>
+</definitions>
+```
+
+
+
+### 报告开始表单
+
+* 因为报表是使用普通流程来生成的,所以表单功能也可以使用.直接在开始事件里加一个开始表单,Explorer就会在生成报表之前 把它展示给用户
+
+```xml
+<startEvent id="startevent1" name="Start">
+    <extensionElements>
+        <activiti:formProperty id="processDefinition" name="Select process definition" type="processDefinition" required="true" />
+        <activiti:formProperty id="chartType" name="Chart type" type="enum" required="true">
+            <activiti:value id="pieChart" name="Pie chart" />
+            <activiti:value id="barChart" name="Bar chart" />
+        </activiti:formProperty>
+    </extensionElements>
+</startEvent>
+```
+
+* 这会为用户渲染一个普通的表单:
+
+![](095.png)
+
+* 表单属性会在启动流程时提交,然后它们就可以像普通流程变量一样使用,脚本中可以使用它们来生成数据
+
+```js
+ var processDefinition = execution.getVariable("processDefinition");
+```
+
+
+
+### 流程例子
+
+对于默认的,控制台包含4个报表例子:
+
+- **Employee productivity**:员工的工作效率.报表演示使用折线图和开始表单,报表的脚本也比其他例子要复杂,因为数据会在脚本中先进行解释,再保存到报表数据中
+- **Helpdesk**:一线与升级.使用饼图进行展示,结合两个不同的数据库查询结果
+- **Process instance overview**:流程实例总览,使用多个数据集的报表实例.报表包含使用相同数据的饼图和列表视图,展示多种数据集可以用来在一个页面中生成不同图表
+- **Task duration**:任务持续时间,另一个使用开始表单的例子,会使用对应的变量来动态生成SQL查询语句
+
+
+
+## 修改数据库
+
+* 如果修改控制台例子所用的数据库,改变属性文件`apps/apache-tomcat-8.x/webapps/activiti-explorer/WEB-INF/classes/db.properties`.同样,在类路径下放上合适的数据库驱动(Tomcat 共享类库或者在 `apps/apache-tomcat-8.x/webapps/activiti-explorer/WEB-INF/lib/`中
+
+
+
+# Activiti Modeler
+
+* Activiti Modeler是一个BPMN web建模组件,它是Activiti Explorer应用的一部分
+* 当运行Activiti Explorer使用默认配置时,模型工作台中会有一个示例流程
+
+![](096.png)
+
+
+
+## 编辑模型
+
+* 点击模型工作区的编辑按钮,会打开Modeler.屏幕左侧是BPMN元素工具面板,也可以使用Activiti的扩展组件,可以在需要时把新元素拖拽到画布中,屏幕右侧是选中额元素的和苏醒
+* 例子中选中了一个用户任务,可以填写用户任务的属性,比如分配,表单属性和持续时间.点击屏幕右上方的关闭按钮就可以返回Activiti Exporer
+
+![](097.png)
+
+
+
+## 导入模型
+
+* 也可以把模型导入到模型工作台中,然后就可以在Activiti Modeler中进行编辑.点击导入按钮,选择.bpmn或.bpmn20.xml文件,BPMN XML文件必须包含BPMN DI(坐标)信息
+
+![](098.png)
+
+
+
+## 流程定义转成可编辑模型
+
+* 发布的流程定义可以转换成模型,然后就可以在Activiti Modeler中编辑了,注意流程定义必须包含BPMN DI(坐标)信息
+
+![](099.png)
+
+
+
+## 模型导出
+
+* 模型工作区中的模型可以导出成BPMN XML文件.选择模型操作选项中的导出选项
+
+![](100.png)
+
+
+
+## 模型部署到Activiti
+
+* 在模型设置好所有运行所需的属性之后,它就可以发布到Activiti引擎里. 选择模型操作选项中的发布选项
+
+![](101.png)
+
+
+
+# 集成CDI
+
+* Activiti-cdi模块提供Activiti的可配置型和cdi扩展,需要手动添加依赖,7以上版本已废弃
+
+- 支持@BusinessProcessScoped,绑定到流程实例的cdi bean
+- 流程为cdi bean支持自定义EL处理器
+- 使用注解为流程实例提供声明式控制
+- Activiti可以挂接在cdi事件总线上
+- 支持Java EE和Java SE,支持Spring
+- 支持单元测试
+- 添加依赖:
+
+```xml
+<dependency>
+    <groupId>org.activiti</groupId>
+    <artifactId>activiti-cdi</artifactId>
+    <version>6.0.0</version>
+</dependency>
+```
+
+
+
+## 设置Activiti-cdi
+
+
+
+### 查找流程引擎
+
+* cdi需要访问ProcessEngine,为实现此功能,使用`org.activiti.cdi.spi.ProcessEngineLookup`在运行期进行查找
+* cdi模块使用默认的名为`org.activiti.cdi.impl.LocalProcessEngineLookup`的实现,它使用`ProcessEngines`这个工具类来查找ProcessEngine
+* 默认配置下,使用`ProcessEngines#NAME_DEFAULT`来查找ProcessEngine.这个类可能是使用了自定义名称的子类.需要把activiti.cfg.xml`放在classpath下
+* Activiti cdi使用java.util.ServiceLoader处理`org.activiti.cdi.spi.ProcessEngineLookup`的实例.接口实现需写在`META-INF/services/org.activiti.cdi.spi.ProcessEngineLookup`的文本文件中,写全类名
+* 如果没有提供自定义的`org.Activiti.cdi.spi.ProcessEngineLookup`实现,Activiti会使用默认的`LocalProcessEngineLookup`实现.这时需要将activiti.cfg.xml放到classpath下
+
+
+
+### 配置ProcessEngine
+
+* 实际的配置依赖于选用的ProcessEngineLookup策略.主要结合LocalProcessEngineLookup讨论可用的配置, 这需要在classpath下提供一个spring的activiti.cfg.xml
+* Activiti提供了不同的ProcessEngineConfiguration实现,主要是依赖实际使用的事务管理策略
+* activiti-cdi模块对事务的要求不严格,意味着任何事务管理策略都可以使用.cdi模块提供两种自定义ProcessEngineConfiguration实现:
+  * `org.Activiti.cdi.CdiJtaProcessEngineConfiguration`:Activiti的JtaProcessEngineConfiguration的子类,用于在Activiti使用JTA管理的事务环境
+  * `org.Activiti.cdi.CdiStandaloneProcessEngineConfiguration`:Activiti的StandaloneProcessEngineConfiguration的子类,用于在Activiti使用简单JDBC事务环境
+* JBoss 7下的Activiti.cfg.xml文件的例子:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- lookup the JTA-Transaction manager -->
+    <bean id="transactionManager" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:jboss/TransactionManager"></property>
+        <property name="resourceRef" value="true" />
+    </bean>
+
+    <!-- process engine configuration -->
+    <bean id="processEngineConfiguration"
+          class="org.Activiti.cdi.CdiJtaProcessEngineConfiguration">
+        <!-- lookup the default Jboss datasource -->
+        <property name="dataSourceJndiName" value="java:jboss/datasources/ExampleDS" />
+        <property name="databaseType" value="h2" />
+        <property name="transactionManager" ref="transactionManager" />
+        <!-- using externally managed transactions -->
+        <property name="transactionsExternallyManaged" value="true" />
+        <property name="databaseSchemaUpdate" value="true" />
+    </bean>
+</beans>
+```
+
+* Glassfish 3.1.1下的例子,假设已经配置了名为jdbc/Activiti的datasource:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- lookup the JTA-Transaction manager -->
+    <bean id="transactionManager" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:appserver/TransactionManager"></property>
+        <property name="resourceRef" value="true" />
+    </bean>
+
+    <!-- process engine configuration -->
+    <bean id="processEngineConfiguration"
+          class="org.Activiti.cdi.CdiJtaProcessEngineConfiguration">
+        <property name="dataSourceJndiName" value="jdbc/Activiti" />
+        <property name="transactionManager" ref="transactionManager" />
+        <!-- using externally managed transactions -->
+        <property name="transactionsExternallyManaged" value="true" />
+        <property name="databaseSchemaUpdate" value="true" />
+    </bean>
+</beans>
+```
+
+* 上面的额配置需要spring-context模块
+* 在Java SE环境下的配置和创建ProcessEngine章节中一样,使用CdiStandaloneProcessEngineConfiguration替换StandaloneProcessEngineConfiguration
+
+
+
+### 发布流程
+
+* 可以使用标准的activiti-api发布流程(`RepositoryService`).另外,activiti-cdi提供自动发布 classpath下`processes.xml`中列出的流程的方式.下面是一个processes.xml文件的例子:
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- list the processes to be deployed -->
+<processes>
+    <process resource="diagrams/myProcess.bpmn20.xml" />
+    <process resource="diagrams/myOtherProcess.bpmn20.xml" />
+</processes>
+```
+
+
+
+## 基于CDI环境的流程执行
+
+* BPMN业务流程通常是一个长时间运行的操作,包含了用户和系统任务的操作. 运行过程中,流程会分成多个单独的工作单元,由用户和应用逻辑执行
+* 在activiti-cdi中,流程实例可以分配到cdi环境中,关联展现成一个工作单元.如果工作单元太复杂,比如如果实现的用户任务是不同形式的复杂顺序,可以在这个操作中保持non-process-scoped状态. 默认配置下,流程实例分配到broadest激活环境,就会启动交互,如果交互环境没有激活,就会返回到请求中
+
+
+
+### 与流程实例进行关联交互
+
+* 处理@BusinessProcessScoped,或注入流程变量时,我们实现了激活的cdi环境与流程实例的关联.activiti-cdi提供了`org.Activiti.cdi.BusinessProcess`来控制关联,特别是:
+  * `startProcessBy*(...)`:对应Activiti的`RuntimeService`中的相关方法,允许启动和随后向关联的业务流程
+  * `resumeProcessById(processInstanceId)`:允许通过提供的id来关联流程实例
+  * `resumeTaskById(taskId)`:允许通过提供的id来关联任务,扩展情况下,也关联相应的流程实例
+* 一个工作单元完成后,`completeTask()`可以调用来解除流程实例和会话/请求的关联.这会通知activiti当前任务已经完成,并让流程实例继续执行
+* `BusinessProcess`是`@Named` bean,意思是导出的方法可以通过表达式语言调用,比如在JSF页面中
+* 下面的JSF 2代码启动一个新的交互,把它分配给一个用户任务实例,id作为一个请求参数传递,比如`pageName.jsf?taskId=XX`
+
+```jsp
+<f:metadata>
+    <f:viewParam name="taskId" />
+    <f:event type="preRenderView" listener="#{businessProcess.startTask(taskId, true)}" />
+</f:metadata>
+```
+
+
+
+### 声明式流程控制
+
+* activiti-cdi允许通过注解声明启动流程实例和完成任务
+* `org.activiti.cdi.annotation.StartProcess`注解允许通过key或name启动流程实例.流程实例会在注解的方法返回*之后*启动.比如:
+
+```java
+@StartProcess("authorizeBusinessTripRequest")
+public String submitRequest(BusinessTripRequest request) {
+    // do some work
+    return "success";
+}
+```
+
+* 根据activiti的配置,注解方法的代码和启动流程实例 会在同一个事务中执行
+* `org.Activiti.cdi.annotation.CompleteTask`事务的使用方式相同:
+
+```java
+@CompleteTask(endConversation=false)
+public String authorizeBusinessTrip() {
+    // do some work
+    return "success";
+}
+```
+
+* `CompleteTask`注解可以结束当前会话.默认行为会在Activiti返回后结束会话.可以禁用结束会话的功能, 实例可以参考上述代码
+
+
+
+### 在流程中引用bean
+
+* activiti-cdi使用自定义解析器把CDI bean暴露到Activiti El中.这就可以在流程中引用这些bean:
+
+```xml
+<userTask id="authorizeBusinessTrip" name="Authorize Business Trip"
+                       Activiti:assignee="#{authorizingManager.account.username}" />
+```
+
+* authorizingManager可以是生产者方法提供的bean:
+
+```java
+@Inject
+@ProcessVariable
+Object businessTripRequesterUsername;
+
+@Produces
+@Named
+public Employee authorizingManager() {
+    TypedQuery<Employee> query = entityManager.createQuery("SELECT e FROM Employee e WHERE e.account.username='"+ businessTripRequesterUsername + "'", Employee.class);
+    Employee employee = query.getSingleResult();
+    return employee.getManager();
+}
+```
+
+* 可以使用同样的方法在服务任务中调用EJB的业务方法, 使用`Activiti:expression="myEjb.method()"`扩展,这要求在`MyEjb`类中使用`@Named`注解
+
+
+
+### BusinessProcessScoped
+
+* 使用activiti-cdi,bean的生命周期可以绑定到流程实例上
+* 为了扩展,可以提供一个自定义的环境实现,命名为BusinessProcessContext.BusinessProcessScoped bean的实例会作为流程变量保存到当前流程实例中
+* *BusinessProcessScoped bean需要是**PassivationCapable**(比如序列化).* 下面是例子:
+
+```java
+@Named
+@BusinessProcessScoped
+public class BusinessTripRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String startDate;
+    private String endDate;
+    // ...
+}
+```
+
+* 有时我们需要使用流程作用域bean,没有与流程实例关联,比如启动流程之前
+  * 如果当前流程实例没有激活,BusinessProcessScoped bean实例会暂时保存在局部作用域里
+  * 如果作用域后来与业务流程实例关联了,bean实例会刷新到流程实例里
+
+
+
+### 注入流程变量
+
+* 流程变量可以实现用于注入,activiti-CDI支持以下方式:
+  * `@BusinessProcessScoped`使用`@Inject属性名`实现类型安全的注入
+  * 使用`@ProcessVariable(name?)`修饰符实现对类型不安全的流程变量的注入
+
+```java
+@Inject 
+@ProcessVariable 
+Object accountNumber;
+
+@Inject 
+@ProcessVariable("accountNumber") 
+Object account;
+```
+
+* 为了通过EL引用流程变量,可以简单实用如下方式:
+  * `@Named @BusinessProcessScoped` beans可以直接引用
+  * 其他流程变量可以使用`ProcessVariables` bean来使用
+
+```java
+#{processVariables['accountNumber']}
+```
+
+
+
+### 接收流程事件
+
+
+
+* Activiti可以挂在CDI的事件总线上.这样就可以使用标准CDI事件机制来监听流程事件,为了启用Activiti的CDI事件支持,需要在配置中启用对应的解析监听器:
+
+```xml
+<property name="postBpmnParseHandlers">
+    <list>
+        <bean class="org.Activiti.cdi.impl.event.CdiEventSupportBpmnParseHandler" />
+    </list>
+</property>
+```
+
+* 现在Activiti已经配置成使用CDI事件总线发布事件.下面给出了如何在CDI bean中处理事件的方式.在CDI,可以使用`@Observes`注解声明特定的事件监听器.事件监听是类型安全的.流程事件类型是`org.Activiti.cdi.BusinessProcessEvent`.下面是一个简单事件监听方法的例子:
+
+```java
+public void onProcessEvent(@Observes BusinessProcessEvent businessProcessEvent) {
+    // handle event
+}
+```
+
+* 监听器可以监听所有事件.如果想限制监听器接收的事件类型,我们可以添加修饰注解:
+  * `@BusinessProcess`:限制指定流程定义的事件.比如:`@Observes @BusinessProcess("billingProcess") BusinessProcessEvent evt;`
+  * `@StartActivity`:限制指定环节的事件.比如:`@Observes @StartActivity("shipGoods") BusinessProcessEvent evt;` 在进入id为"shipGoods"的环节时会触发
+  * `@EndActivity`:限制指定环节的事件.比如:`@Observes @EndActivity("shipGoods") BusinessProcessEvent evt;`.在离开id为shipGoods的环节时会触发     
+  * `@TakeTransition`:限制指定连线的事件
+* 修饰命名可以自由组合.比如,为了接收shipmentProcess流程中所有离开shipGoods环节的事件,可以编写如下监听方法:
+
+```java
+public void beforeShippingGoods(@Observes @BusinessProcess("shippingProcess") @EndActivity("shipGoods") BusinessProcessEvent evt) {
+    // handle event
+}
+```
+
+* 默认配置下,事件监听器是同步调用,并在同一个事务环境中.CDI事务性监听器(只在JavaEE / EJB环境下有效),可以控制监听器什么时候处理事件,比如,可以保证监听器只在事件中的事务成功之后才处理:
+
+```java
+public void onShipmentSuceeded(@Observes(during=TransactionPhase.AFTER_SUCCESS) @BusinessProcess("shippingProcess") @EndActivity("shipGoods") BusinessProcessEvent evt) {
+    // send email to customer.
+}
+```
+
+
+
+### 更多功能
+
+- 流程引擎和服务都可以注入:`@Inject ProcessEngine, RepositoryService, TaskService`, ... 
+- 当前流程实例和任务可以注入:`@Inject ProcessInstance, Task`
+- 当前业务标识可以注入:`@Inject @BusinessKey String businessKey`
+- 当前流程实例id可以注入 :`@Inject @ProcessInstanceId String pid`
+
+
+
 # 集成LDAP
 
 * Activit7以下版本中才会该功能,非重点
@@ -1445,8 +2092,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ```xml
 <dependency>
-    <groupId>org.activiti</groupId>
-    <artifactId>activiti-ldap</artifactId>
+    <groupId>org.Activiti</groupId>
+    <artifactId>Activiti-ldap</artifactId>
     <version>latest.version</version>
 </dependency>
 ```
@@ -1463,7 +2110,7 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 配置
 
-* 集成LDAP需要通过向流程引擎中的`configurators`注入`org.activiti.ldap.LDAPConfigurator`的实例来实现.这个类是高度可扩展的:如果默认的实现不符合用例的话,可以很容易的重写方法,很多依赖的bean都是可插拔的
+* 集成LDAP需要通过向流程引擎中的`configurators`注入`org.Activiti.ldap.LDAPConfigurator`的实例来实现.这个类是高度可扩展的:如果默认的实现不符合用例的话,可以很容易的重写方法,很多依赖的bean都是可插拔的
 * 一个实例配置
 
 ```xml
@@ -1471,14 +2118,14 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
     ...
     <property name="configurators">
         <list>
-            <bean class="org.activiti.ldap.LDAPConfigurator">
+            <bean class="org.Activiti.ldap.LDAPConfigurator">
                 <!-- Server connection params -->
                 <property name="server" value="ldap://localhost" />
                 <property name="port" value="33389" />
-                <property name="user" value="uid=admin, ou=users, o=activiti" />
+                <property name="user" value="uid=admin, ou=users, o=Activiti" />
                 <property name="password" value="pass" />
                 <!-- Query params -->
-                <property name="baseDn" value="o=activiti" />
+                <property name="baseDn" value="o=Activiti" />
                 <property name="queryUserByUserId" value="(&(objectClass=inetOrgPerson)(uid={0}))" />
                 <property name="queryUserByFullNameLike" value="(&(objectClass=inetOrgPerson)(|({0}=*{1}*)({2}=*{3}*)))" />
                 <property name="queryGroupsForUser" value="(&(objectClass=groupOfUniqueNames)(uniqueMember={0}))" />
@@ -1498,7 +2145,7 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 属性
 
-* `org.activiti.ldap.LDAPConfigurator`可以配置的属性:
+* `org.Activiti.ldap.LDAPConfigurator`可以配置的属性:
   * server:LDAP服务器地址,如ldap://localhost:33389
   * port:LDAP运行的端口
   * user:连接LDAP使用的账号
@@ -1524,7 +2171,7 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
   *  ldapUserManagerFactory:设置LDAPUserManagerFactory的自定义实例,如果默认实现不满足需求.LDAPUserManagerFactory的实例 
   *   ldapGroupManagerFactory:设置LDAPGroupManagerFactory的自定义实例,如果默认实现不满足需求.LDAPGroupManagerFactory的实例  
   *   ldapMemberShipManagerFactory:设置LDAPMembershipManagerFactory的自定义实例,如果默认实现不满足需求.不常用,因为正常情况下LDAP会自己管理关联关系.LDAPMembershipManagerFactory的实例  
-  *  ldapQueryBuilder:设置自定义查询构造器,如果默认实现不满足需求.LDAPQueryBuilder实例用在LDAPUserManager和LDAPGroupManager中,执行对LDAP的查询.默认实现会使用配置的queryGroupsForUser和queryUserById属性.org.activiti.ldap.LDAPQueryBuilder的实例  
+  *  ldapQueryBuilder:设置自定义查询构造器,如果默认实现不满足需求.LDAPQueryBuilder实例用在LDAPUserManager和LDAPGroupManager中,执行对LDAP的查询.默认实现会使用配置的queryGroupsForUser和queryUserById属性.org.Activiti.ldap.LDAPQueryBuilder的实例  
   *  groupCacheSize:组缓存的大小.这是一个LRU缓存,用来缓存用户的组,可以避免每次查询用户的组时,都要访问LDAP.如果值小于0,就不会创建缓存.默认为-1,所以不会进行缓存
   *   groupCacheExpirationTime:设置组缓存的过期时间,单位为毫秒.当获取特定用户的组时,并且组缓存也启用了,组会保存到缓存中,并使用这个属性设置的时间.例如,当组在00:00被获取,过期时间为30分钟,那么所有在00:30之后进行的查询都不会使用缓存,而是再次去LDAP查询.因此所有在00:00 - 00:30 进行的查询都会使用缓存.默认1小时
 * 在使用活动目录(AD)时,Activiti论坛中的人们反映对于活动目录(AD),InitialDirContext需要设置为Context.REFERRAL,可以通过customConnectionParameters传递
@@ -1533,10 +2180,10 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## Explorer集成LDAP
 
-- 将上面的LDAP配置添加到`activiti-standalone-context.xml`中
-- 把activiti-ldap jar放到WEB-INF/lib目录下
+- 将上面的LDAP配置添加到`Activiti-standalone-context.xml`中
+- 把Activiti-ldap jar放到WEB-INF/lib目录下
 - 删除`demoDataGenerator` bean,因为它会尝试插入数据(集成LDAP不允许这么做)
-- 将下面的配置添加到`activiti-ui.context`的`explorerApp` bean中:
+- 将下面的配置添加到`Activiti-ui.context`的`explorerApp` bean中:
 
 ```xml
 <property name="adminGroups">
