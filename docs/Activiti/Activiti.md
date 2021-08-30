@@ -1,11 +1,29 @@
-Activiti
+# Activiti
 
 
 
 # 概述
 
 * 流程引擎
-* [官网](http://Activiti.org),7以下版本中包含大部分已经打好的JAR源码
+* [官网](http://activiti.org),7以下版本中包含大部分已经打好的WAR源码
+
+
+
+# 安装
+
+
+
+* 从Activiti网站下载activit-6.0.0.zip的压缩文件后,加压后可直接将wars文件夹中的war复制到tomcat/webapps下
+
+- 执行tomcat的bin目录下的startup.bat或startup.sh启动服务器
+- tomcat启动后,打开浏览器访问相应地址:
+  - http://localhost:8080/activiti-app,默认admin/test登录
+  - http://localhost:8080/activit-admin,默认admin/admin登录
+  - http://localhost:8080/activit-rest,默认admin/test登录,这不是一个网页,是API
+- activiti-app默认使用H2内存数据库,可修改WEB-INF下相关数据库文件地址 
+- activiti-app是流程引擎的用户控制台,使用它来启动新流程,分配任务,查看并认领任务等.这个工具也可以用来管理Activiti引擎
+- Activiti App演示实例只是一种简单快速展示Activiti的功能的方式,但是并不是说只能使用这种方式使用Activiti
+- Activiti只是一个jar,可以内嵌到任何Java环境中:swing或者Tomcat, JBoss, WebSphere等.也可以把Activiti作为一个典型的单独运行的BPM服务器运行,只要java可以做的,Activiti也可以
 
 
 
@@ -242,9 +260,9 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 
 
 
-* 默认Activiti-engine依赖中没有提供SLF4J绑定的jar,需要根据实际需要使用日志框架
+* 默认activiti-engine依赖中没有提供SLF4J绑定的jar,需要根据实际需要使用日志框架
 * 如果没有添加任何实现jar,SLF4J会使用NOP-logger,不使用任何日志,不会发出警告,而且什么日志都不会记录
-* Activiti-explorer和Activiti-rest应用都使用了Log4j绑定
+* activiti-app和activiti-rest应用都使用了Log4j绑定
 * 如果容器classpath中存在commons-logging,为了把spring日志转发给SLF4J,需要使用桥接.如果容器提供了commons-logging实现,请参考http://www.slf4j.org/codes.html#release来确保稳定性
 
 
@@ -695,9 +713,9 @@ repositoryService.createDeployment()
 
 
 
-### Activiti Explorer部署
+### Activiti War部署
 
-* Activiti Web控制台允许通过Web界面的用户接口上传一个bar格式的压缩文件(或`bpmn20.xml`格式的文件),选择*Management* *标签* 和 点击 *Deployment*
+* activit-admin,activiti-app允许通过Web界面的用户接口上传一个bar格式的压缩文件(或`bpmn20.xml`格式的文件),选择*Management* *标签* 和 点击 *Deployment*
 
 ![](002.png)
 
@@ -717,7 +735,7 @@ repositoryService.createDeployment()
 
 * 当流程实例被启动的时候,在流程中被使用的所有自定义类(如服务任务中使用的JavaDelegates,事件监听器,任务监听器等)应该存在与流程引擎的类路径下
 * 然后,在部署业务文档时,这些类不必都存在于类路径下.当使用Ant部署一个新的业务文档时,这意味着委托类不必存在与类路径下
-* 当使用示例设置并添加自定义类时,应该添加包含自定义类的jar包到Activiti-explorer控制台或Activiti-rest 的webapp lib文件夹中
+* 当使用示例设置并添加自定义类时,应该添加包含自定义类的jar包到activiti-admin控制台或activiti-rest 的webapp lib文件夹中
 * 不要忽略自定义类的依赖.另外,还可以包含自己的依赖添加到Tomcat目录中的`${tomcat.home}/lib`
 
 
@@ -1434,9 +1452,9 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 
-# Activiti Explorer
+# Activiti Admin
 
-* Activiti Explorer,也称之为Activiti控制台
+* Activiti Admin,也称之为Activiti控制台
 * Activiti控制台是一个web应用程序,当我们从Activiti的官方网站下载Activiti的压缩zip文件时候,Activiti控制台在${Activiti_home}/wars文件夹下面
 * 控制台的目的并不是创建一个完善的web应用程序,仅仅是为客户端用户准备的应用程序,但是却能够练习和展示Activiti的功能
 * 控制台仅仅只是一个示例Demo,使用了一个内存数据库,可以很容易换成自己的数据库(WEB-INF下的applicationContext.xml)
@@ -1446,7 +1464,7 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 * 登录进该控制台会看见四个比较大的图标按钮用于显示主要功能
   * **Tasks**:任务管理功能.如果你是办理人,可以看见运行中流程实例的自己的待办任务,或者你可以拾取组任务.控制台涉及的功能,子任务的工作,不同角色的人等等.控制台也可以允许创建一个独立的任务,该任务并没有关联任何流程实例
   * **Process**:显示部署的流程定义列表,并且可以启动一个新的流程实例
-  * **Reporting**:生成报表和显示之前保存历史的结果数据
+  * **Reporting**:生成报表和显示之前保存历史的结果数据,在版本6中取消
   * **Manage**:当登录的用户具有超级管理员权限才能够看见.用于管理Activiti的流程引擎:管理用于和组,执行和查看停止的jobs,查看数据库和部署新的流程定义
 
 

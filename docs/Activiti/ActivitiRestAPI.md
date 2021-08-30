@@ -6,7 +6,7 @@
 
 
 
-* 在Activiti7版本之前,activiti-rest.war包含了内置的REST API,将该JAR部署到Tomcat即可访问
+* 在Activiti7版本之前,activiti-rest.war包含了内置的REST API,将该JAR部署到Tomcat即可访问,访问的url为ip:port/activiti-app/service(版本6),各个版本不一样
 
 * REST API使用JSON格式,它是基于[Restlet](http://www.restlet.org)开发的
 
