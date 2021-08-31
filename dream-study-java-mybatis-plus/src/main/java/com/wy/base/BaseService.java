@@ -99,12 +99,20 @@ public interface BaseService<T, ID extends Serializable> extends IService<T> {
 	int hasValue(T t);
 
 	/**
+	 * 根据实体类中的非空参数进行相等判断删除数据
+	 * 
+	 * @param t 实体数据
+	 * @return 删除结果.默认返回boolean,true->删除成功,false->删除失败
+	 */
+	Object delete(T t);
+
+	/**
 	 * 根据主键删除单条数据
 	 * 
 	 * @param id 主键编号
 	 * @return 删除结果.默认返回boolean,true->删除成功,false->删除失败
 	 */
-	Object remove(ID id);
+	Object deleteById(ID id);
 
 	/**
 	 * 根据主键删除多条数据
@@ -112,5 +120,5 @@ public interface BaseService<T, ID extends Serializable> extends IService<T> {
 	 * @param ids 主键编号列表
 	 * @return 删除结果.默认返回boolean,true->删除成功,false->删除失败
 	 */
-	Object removes(List<ID> ids);
+	Object deleteByIds(List<ID> ids);
 }

@@ -38,7 +38,7 @@ import com.wy.service.UserService;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Service
-public class UserServiceImpl extends AbstractService<User, Long> implements UserService {
+public class UserServiceImpl extends AbstractService<UserMapper, User, Long> implements UserService {
 
 	@Autowired
 	private UserMapper userMapper;

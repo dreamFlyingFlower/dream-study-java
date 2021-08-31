@@ -100,15 +100,27 @@ public abstract class AbstractCrl<T, ID extends Serializable> extends QueryCrl<T
 	}
 
 	/**
+	 * 根据实体类中的非空参数进行相等判断删除数据
+	 * 
+	 * @param t 实体数据
+	 * @return 影响行数
+	 */
+	@ApiOperation("根据实体类中的非空参数进行相等判断删除数据")
+	@PostMapping("delete")
+	public Result<?> delete(@ApiParam("主键编号") @RequestBody T t) {
+		return Result.ok(baseService.delete(t));
+	}
+
+	/**
 	 * 根据主键删除单条数据
 	 * 
 	 * @param id 主键编号
 	 * @return 影响行数
 	 */
 	@ApiOperation("根据主键删除单条数据")
-	@GetMapping("remove/{id}")
-	public Result<?> remove(@ApiParam("主键编号") @PathVariable ID id) {
-		return Result.ok(baseService.remove(id));
+	@GetMapping("deleteById/{id}")
+	public Result<?> deleteById(@ApiParam("主键编号") @PathVariable ID id) {
+		return Result.ok(baseService.deleteById(id));
 	}
 
 	/**
@@ -118,8 +130,8 @@ public abstract class AbstractCrl<T, ID extends Serializable> extends QueryCrl<T
 	 * @return 影响行数
 	 */
 	@ApiOperation("根据主键删除单条数据")
-	@PostMapping("removes")
-	public Result<?> removes(@ApiParam("主键编号列表") @RequestBody List<ID> ids) {
-		return Result.ok(baseService.removes(ids));
+	@PostMapping("deleteByIds")
+	public Result<?> deleteByIds(@ApiParam("主键编号列表") @RequestBody List<ID> ids) {
+		return Result.ok(baseService.deleteByIds(ids));
 	}
 }
