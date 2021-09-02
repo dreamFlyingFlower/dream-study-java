@@ -2,6 +2,8 @@ package com.wy.netty.fixedleng;
 
 import java.nio.charset.Charset;
 
+import com.wy.util.NettyUtils;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -16,10 +18,10 @@ import io.netty.handler.codec.string.StringDecoder;
 
 public class S_Server {
 
-	// 监听线程组，监听客户端请求
+	// 监听线程组,监听客户端请求
 	private EventLoopGroup acceptorGroup = null;
 
-	// 处理客户端相关操作线程组，负责处理与客户端的数据通讯
+	// 处理客户端相关操作线程组,负责处理与客户端的数据通讯
 	private EventLoopGroup clientGroup = null;
 
 	// 服务启动相关配置信息
@@ -39,7 +41,7 @@ public class S_Server {
 		bootstrap.channel(NioServerSocketChannel.class);
 		// 设定缓冲区大小
 		bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
-		// SO_SNDBUF发送缓冲区，SO_RCVBUF接收缓冲区，SO_KEEPALIVE开启心跳监测（保证连接有效）
+		// SO_SNDBUF发送缓冲区,SO_RCVBUF接收缓冲区,SO_KEEPALIVE开启心跳监测(保证连接有效)
 		bootstrap.option(ChannelOption.SO_SNDBUF, 16 * 1024).option(ChannelOption.SO_RCVBUF, 16 * 1024)
 				.option(ChannelOption.SO_KEEPALIVE, true);
 	}
@@ -51,9 +53,9 @@ public class S_Server {
 			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ChannelHandler[] acceptorHandlers = new ChannelHandler[3];
-				// 定长Handler。通过构造参数设置消息长度（单位是字节）。发送的消息长度不足可以使用空格补全。
+				// 定长Handler。通过构造参数设置消息长度(单位是字节).发送的消息长度不足可以使用空格补全。
 				acceptorHandlers[0] = new FixedLengthFrameDecoder(5);
-				// 字符串解码器Handler，会自动处理channelRead方法的msg参数，将ByteBuf类型的数据转换为字符串对象
+				// 字符串解码器Handler,会自动处理channelRead方法的msg参数,将ByteBuf类型的数据转换为字符串对象
 				acceptorHandlers[1] = new StringDecoder(Charset.forName("UTF-8"));
 				acceptorHandlers[2] = new S_ServerHandler();
 				ch.pipeline().addLast(acceptorHandlers);
@@ -79,13 +81,7 @@ public class S_Server {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != server) {
 				server.release();
 			}

@@ -1,8 +1,10 @@
 package com.wy.netty.protocol;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
+import com.wy.util.NettyUtils;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -16,16 +18,18 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 
 /**
- * @description 利用给定的协议解决粘包问题,协议格式为HEADcontent-length:xxxxHEADBODYxxxxxxBODY
- * @author ParadiseWy
- * @date 2019年5月14日 下午9:36:26
- * @git {@link https://github.com/mygodness100}
+ * 利用给定的协议解决粘包问题,协议格式为HEADcontent-length:xxxxHEADBODYxxxxxxBODY
+ * 
+ * @author 飞花梦影
+ * @date 2021-09-02 23:37:39
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @SuppressWarnings("resource")
 public class S_Client {
 
 	// 处理请求和处理服务端响应的线程组
 	private EventLoopGroup group = null;
+
 	// 服务启动相关配置信息
 	private Bootstrap bootstrap = null;
 
@@ -48,7 +52,7 @@ public class S_Client {
 
 			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
-				ch.pipeline().addLast(new StringDecoder(Charset.forName("UTF-8")));
+				ch.pipeline().addLast(new StringDecoder(StandardCharsets.UTF_8));
 				ch.pipeline().addLast(handlers);
 			}
 		});
@@ -66,7 +70,6 @@ public class S_Client {
 		try {
 			client = new S_Client();
 			future = client.doRequest("localhost", 9999, new S_ClientHandler());
-
 			Scanner s = null;
 			while (true) {
 				s = new Scanner(System.in);
@@ -74,23 +77,16 @@ public class S_Client {
 				String line = s.nextLine();
 				line = S_ClientHandler.ProtocolParser.transferTo(line);
 				System.out.println("client send protocol content : " + line);
-				future.channel().writeAndFlush(Unpooled.copiedBuffer(line.getBytes("UTF-8")));
+				future.channel().writeAndFlush(Unpooled.copiedBuffer(line.getBytes(StandardCharsets.UTF_8)));
 				TimeUnit.SECONDS.sleep(1);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != client) {
 				client.release();
 			}
 		}
 	}
-
 }

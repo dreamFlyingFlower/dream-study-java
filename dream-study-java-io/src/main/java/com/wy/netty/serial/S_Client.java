@@ -1,6 +1,3 @@
-/**
- * 1. 单线程组 2. Bootstrap配置启动信息 3. 注册业务处理Handler 4. connect连接服务，并发起请求
- */
 package com.wy.netty.serial;
 
 import java.util.Random;
@@ -9,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import com.wy.io.ZipTool;
 import com.wy.model.NtClient;
 import com.wy.util.MarshallingUtils;
+import com.wy.util.NettyUtils;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -76,13 +74,7 @@ public class S_Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != client) {
 				client.release();
 			}

@@ -1,6 +1,7 @@
 package com.wy.netty.timer;
 
 import com.wy.util.MarshallingUtils;
+import com.wy.util.NettyUtils;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -13,20 +14,25 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 
 /**
- * @description 定时任务服务端,ReadTimeoutHandler处理定时任务,不是一个Shareable修饰的handler
- *              所以每次都必须新建一个handler实例,否则可能会出现数据异常
- * @author ParadiseWy
- * @date 2019年5月15日 下午8:44:49
- * @git {@link https://github.com/mygodness100}
+ * 定时任务服务端
+ * 
+ * ReadTimeoutHandler处理定时任务,不是一个Shareable修饰的handler.所以每次都必须新建一个handler实例,否则可能会出现数据异常
+ * 
+ * @author 飞花梦影
+ * @date 2021-09-02 23:27:44
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_Server {
-	// 监听线程组，监听客户端请求
+
+	// 监听线程组,监听客户端请求
 	private EventLoopGroup acceptorGroup = null;
-	// 处理客户端相关操作线程组，负责处理与客户端的数据通讯
+
+	// 处理客户端相关操作线程组,负责处理与客户端的数据通讯
 	private EventLoopGroup clientGroup = null;
+
 	// 服务启动相关配置信息
 	private ServerBootstrap bootstrap = null;
-	
+
 	public static void main(String[] args) {
 		ChannelFuture future = null;
 		S_Server server = null;
@@ -38,13 +44,7 @@ public class S_Server {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != server) {
 				server.release();
 			}
@@ -65,16 +65,16 @@ public class S_Server {
 		bootstrap.channel(NioServerSocketChannel.class);
 		// 设定缓冲区大小
 		bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
-		// SO_SNDBUF发送缓冲区，SO_RCVBUF接收缓冲区，SO_KEEPALIVE开启心跳监测（保证连接有效）
-		bootstrap.option(ChannelOption.SO_SNDBUF, 16 * 1024)
-				.option(ChannelOption.SO_RCVBUF, 16 * 1024)
+		// SO_SNDBUF发送缓冲区,SO_RCVBUF接收缓冲区,SO_KEEPALIVE开启心跳监测(保证连接有效)
+		bootstrap.option(ChannelOption.SO_SNDBUF, 16 * 1024).option(ChannelOption.SO_RCVBUF, 16 * 1024)
 				.option(ChannelOption.SO_KEEPALIVE, true);
-		// 增加日志Handler，日志级别为info
+		// 增加日志Handler,日志级别为info
 		// bootstrap.handler(new LoggingHandler(LogLevel.INFO));
 	}
 
 	public ChannelFuture doAccept(int port) throws InterruptedException {
 		bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+
 			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ch.pipeline().addLast(MarshallingUtils.buildMarshallingDecoder());

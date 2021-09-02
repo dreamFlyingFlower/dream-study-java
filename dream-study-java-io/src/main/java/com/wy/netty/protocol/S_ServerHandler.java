@@ -1,10 +1,6 @@
-/**
- * @Sharable注解 - 
- *  代表当前Handler是一个可以分享的处理器。也就意味着，服务器注册此Handler后，可以分享给多个客户端同时使用。
- *  如果不使用注解描述类型，则每次客户端请求时，必须为客户端重新创建一个新的Handler对象。
- *  
- */
 package com.wy.netty.protocol;
+
+import java.nio.charset.StandardCharsets;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -28,7 +24,7 @@ public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 		String line = "server message";
 		line = ProtocolParser.transferTo(line);
 		System.out.println("server send protocol content : " + line);
-		ctx.writeAndFlush(Unpooled.copiedBuffer(line.getBytes("UTF-8")));
+		ctx.writeAndFlush(Unpooled.copiedBuffer(line.getBytes(StandardCharsets.UTF_8)));
 	}
 
 	// 异常处理逻辑
@@ -40,6 +36,7 @@ public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	static class ProtocolParser {
+
 		public static String parse(String message) {
 			String[] temp = message.split("HEADBODY");
 			temp[0] = temp[0].substring(4);
@@ -56,5 +53,4 @@ public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 			return message;
 		}
 	}
-
 }

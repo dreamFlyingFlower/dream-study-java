@@ -7,6 +7,10 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 /**
  * http协议文件传输
+ * 
+ * @author 飞花梦影
+ * @date 2021-09-02 23:44:35
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class HttpFileServer {
 
@@ -23,12 +27,14 @@ public class HttpFileServer {
 		} else {
 			port = 8089;
 		}
-		new HttpFileServer(port).run();// 启动服务
+		new HttpFileServer(port).run();
 	}
 
 	public void run() throws Exception {
-		EventLoopGroup bossGroup = new NioEventLoopGroup();// 线程一 //这个是用于serversocketchannel的event
-		EventLoopGroup workerGroup = new NioEventLoopGroup();// 线程二//这个是用于处理accept到的channel
+		// 线程一,用于serversocketchannel的event
+		EventLoopGroup bossGroup = new NioEventLoopGroup();
+		// 线程二,用于处理accept到的channel
+		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)

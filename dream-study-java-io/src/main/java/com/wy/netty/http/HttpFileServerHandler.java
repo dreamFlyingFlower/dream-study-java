@@ -56,18 +56,22 @@ import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 
 /**
- * @description 在页面上展示一个当前路径下的所有文件夹以及文件的上下级结构图,类似于linux的文件目录
- *              点击目录的时候,若是目录就展示下一级,若是文件就下载
- * @author ParadiseWy
- * @date 2019年5月25日 下午1:38:31
- * @git {@link https://github.com/mygodness100}
+ * 在页面上展示当前路径下的所有文件夹以及文件的上下级结构图,类似于linux文件目录.点击目录时,若是目录就展示下一级,若是文件就下载
+ * 
+ * @author 飞花梦影
+ * @date 2021-09-02 23:45:19
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
+
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
+
 	public static final int HTTP_CACHE_SECONDS = 60;
+
 	private final boolean useSendFile;
+
 	private static final Pattern INSECURE_URI = Pattern.compile(".*[<>&\"].*");
 
 	public HttpFileServerHandler(boolean useSendFile) {
@@ -78,8 +82,7 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 	 * 类似channelRead方法,在5.0的jar中,该方式名字为messageReceived,可见SimpleChannelInboundHandler注释
 	 */
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request)
-			throws Exception {
+	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
 		if (!request.decoderResult().isSuccess()) {
 			sendError(ctx, BAD_REQUEST);
 			return;
@@ -159,18 +162,17 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 		// Write the content.
 		ChannelFuture sendFileFuture;
 		if (useSendFile) {
-			sendFileFuture = ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength),
-					ctx.newProgressivePromise());
+			sendFileFuture =
+					ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength), ctx.newProgressivePromise());
 		} else {
-			sendFileFuture = ctx.write(new ChunkedFile(raf, 0, fileLength, 8192),
-					ctx.newProgressivePromise());
+			sendFileFuture = ctx.write(new ChunkedFile(raf, 0, fileLength, 8192), ctx.newProgressivePromise());
 		}
 
 		// 一些特殊的业务逻辑
 		sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
+
 			@Override
-			public void operationProgressed(ChannelProgressiveFuture future, long progress,
-					long total) {
+			public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
 				if (total < 0) {
 					System.err.println("Transfer progress: " + progress);
 				} else {
@@ -225,9 +227,8 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 
 		// Simplistic dumb security check.
 		// You will have to do something serious in the production environment.
-		if (uri.contains(File.separator + '.') || uri.contains('.' + File.separator)
-				|| uri.startsWith(".") || uri.endsWith(".")
-				|| INSECURE_URI.matcher(uri).matches()) {
+		if (uri.contains(File.separator + '.') || uri.contains('.' + File.separator) || uri.startsWith(".")
+				|| uri.endsWith(".") || INSECURE_URI.matcher(uri).matches()) {
 			return null;
 		}
 
@@ -235,8 +236,7 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 		return System.getProperty("user.dir") + File.separator + uri;
 	}
 
-	private static final Pattern ALLOWED_FILE_NAME = Pattern
-			.compile("[A-Za-z0-9][-_A-Za-z0-9\\.]*");
+	private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[A-Za-z0-9][-_A-Za-z0-9\\.]*");
 
 	private static void sendListing(ChannelHandlerContext ctx, File dir) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
@@ -281,7 +281,6 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 	private static void sendRedirect(ChannelHandlerContext ctx, String newUri) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, FOUND);
 		response.headers().set(LOCATION, newUri);
-
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
@@ -290,7 +289,6 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status,
 				Unpooled.copiedBuffer("Failure: " + status.toString() + "\r\n", CharsetUtil.UTF_8));
 		response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
-
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
@@ -298,51 +296,50 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 	/**
 	 * When file timestamp is the same as what the browser is sending up, send a
 	 * "304 Not Modified"
+	 * 
 	 * @param ctx Context
 	 */
 	private static void sendNotModified(ChannelHandlerContext ctx) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, NOT_MODIFIED);
 		setDateHeader(response);
-
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
 
 	/**
 	 * Sets the Date header for the HTTP response
+	 * 
 	 * @param response HTTP response
 	 */
 	private static void setDateHeader(FullHttpResponse response) {
 		SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
 		dateFormatter.setTimeZone(TimeZone.getTimeZone(HTTP_DATE_GMT_TIMEZONE));
-
 		Calendar time = new GregorianCalendar();
 		response.headers().set(DATE, dateFormatter.format(time.getTime()));
 	}
 
 	/**
 	 * Sets the Date and Cache headers for the HTTP Response
+	 * 
 	 * @param response HTTP response
 	 * @param fileToCache file to extract content type
 	 */
 	private static void setDateAndCacheHeaders(HttpResponse response, File fileToCache) {
 		SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
 		dateFormatter.setTimeZone(TimeZone.getTimeZone(HTTP_DATE_GMT_TIMEZONE));
-
 		// Date header
 		Calendar time = new GregorianCalendar();
 		response.headers().set(DATE, dateFormatter.format(time.getTime()));
-
 		// Add cache headers
 		time.add(Calendar.SECOND, HTTP_CACHE_SECONDS);
 		response.headers().set(EXPIRES, dateFormatter.format(time.getTime()));
 		response.headers().set(CACHE_CONTROL, "private, max-age=" + HTTP_CACHE_SECONDS);
-		response.headers().set(LAST_MODIFIED,
-				dateFormatter.format(new Date(fileToCache.lastModified())));
+		response.headers().set(LAST_MODIFIED, dateFormatter.format(new Date(fileToCache.lastModified())));
 	}
 
 	/**
 	 * Sets the content type header for the HTTP Response
+	 * 
 	 * @param response HTTP response
 	 * @param file file to extract content type
 	 */

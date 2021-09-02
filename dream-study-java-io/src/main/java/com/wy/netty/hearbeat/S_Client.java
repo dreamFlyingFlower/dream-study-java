@@ -1,6 +1,7 @@
 package com.wy.netty.hearbeat;
 
 import com.wy.util.MarshallingUtils;
+import com.wy.util.NettyUtils;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -65,13 +66,7 @@ public class S_Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != client) {
 				client.release();
 			}

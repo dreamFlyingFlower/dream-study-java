@@ -14,10 +14,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 
 	private static List<String> credentials = new ArrayList<>();
+
 	private static final String HEATBEAT_SUCCESS = "SERVER_RETURN_HEATBEAT_SUCCESS";
 
 	public S_ServerHandler() {
-		// 初始化客户端列表信息。一般通过配置文件读取或数据库读取。
+		// 初始化客户端列表信息,一般通过配置文件读取或数据库读取
 		credentials.add("192.168.199.222_WIN-QIUB2JF5TDP");
 	}
 
@@ -41,7 +42,10 @@ public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	/**
-	 * 身份检查。检查客户端身份是否有效。 客户端身份信息应该是通过数据库或数据文件定制的。 身份通过 - 返回确认消息。 身份无效 - 断开连接
+	 * 身份检查,检查客户端身份是否有效.
+	 * 
+	 * 客户端身份信息应该通过数据库或数据文件定制.身份通过 - 返回确认消息.身份无效 - 断开连接
+	 * 
 	 * @param ctx
 	 * @param credential
 	 */
@@ -62,5 +66,4 @@ public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 		// cause.printStackTrace();
 		ctx.close();
 	}
-
 }

@@ -1,8 +1,10 @@
 package com.wy.netty.fixedleng;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
+import com.wy.util.NettyUtils;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -53,7 +55,7 @@ public class S_Client {
 				ChannelHandler[] handlers = new ChannelHandler[3];
 				handlers[0] = new FixedLengthFrameDecoder(3);
 				// 字符串解码器Handler,会自动处理channelRead方法的msg参数,将ByteBuf类型的数据转换为字符串对象
-				handlers[1] = new StringDecoder(Charset.forName("UTF-8"));
+				handlers[1] = new StringDecoder(StandardCharsets.UTF_8);
 				handlers[2] = new S_ClientHandler();
 
 				ch.pipeline().addLast(handlers);
@@ -91,13 +93,7 @@ public class S_Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != client) {
 				client.release();
 			}

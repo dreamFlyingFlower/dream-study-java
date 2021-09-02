@@ -7,8 +7,7 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		System.out.println("from server : ClassName - " + msg.getClass().getName() + " ; message : "
-				+ msg.toString());
+		System.out.println("from server : ClassName - " + msg.getClass().getName() + " ; message : " + msg.toString());
 	}
 
 	@Override
@@ -17,5 +16,4 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 		cause.printStackTrace();
 		ctx.close();
 	}
-
 }

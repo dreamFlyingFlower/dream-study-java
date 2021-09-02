@@ -24,8 +24,11 @@ import io.netty.util.ReferenceCountUtil;
 public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
 	private ScheduledFuture<?> heatbeat;
+
 	private InetAddress remoteAddr;
+
 	private static final String HEATBEAT_SUCCESS = "SERVER_RETURN_HEATBEAT_SUCCESS";
 
 	@Override
@@ -36,7 +39,7 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 		String computerName = System.getenv().get("COMPUTERNAME");
 		String credentials = this.remoteAddr.getHostAddress() + "_" + computerName;
 		System.out.println(credentials);
-		// 发送到服务器，作为信息比对证书
+		// 发送到服务器,作为信息比对证书
 		ctx.writeAndFlush(credentials);
 	}
 
@@ -45,8 +48,8 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 		try {
 			if (msg instanceof String) {
 				if (HEATBEAT_SUCCESS.equals(msg)) {
-					this.heatbeat = this.executorService.scheduleWithFixedDelay(
-							new HeatbeatTask(ctx), 0L, 2L, TimeUnit.SECONDS);
+					this.heatbeat = this.executorService.scheduleWithFixedDelay(new HeatbeatTask(ctx), 0L, 2L,
+							TimeUnit.SECONDS);
 					System.out.println("client receive - " + msg);
 				} else {
 					System.out.println("client receive - " + msg);
@@ -70,6 +73,7 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	class HeatbeatTask implements Runnable {
+
 		private ChannelHandlerContext ctx;
 
 		public HeatbeatTask() {
@@ -108,22 +112,18 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 				List<String> msgList = null;
 				for (FileSystem fs : list) {
 					msgList = new ArrayList<>();
-					msgList.add(fs.getDevName() + "总大小:    "
-							+ sigar.getFileSystemUsage(fs.getDirName()).getTotal() + "KB");
-					msgList.add(fs.getDevName() + "剩余大小:    "
-							+ sigar.getFileSystemUsage(fs.getDirName()).getFree() + "KB");
+					msgList.add(fs.getDevName() + "总大小:" + sigar.getFileSystemUsage(fs.getDirName()).getTotal() + "KB");
+					msgList.add(fs.getDevName() + "剩余大小:" + sigar.getFileSystemUsage(fs.getDirName()).getFree() + "KB");
 					fileSysMsgMap.put(fs.getDevName(), msgList);
 				}
 
 				msg.setCpuMsgMap(cpuMsgMap);
 				msg.setMemMsgMap(memMsgMap);
 				msg.setFileSysMsgMap(fileSysMsgMap);
-
 				ctx.writeAndFlush(msg);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-
 }

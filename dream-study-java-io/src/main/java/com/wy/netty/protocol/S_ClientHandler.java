@@ -18,7 +18,7 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 			}
 			System.out.println("from server : " + message);
 		} finally {
-			// 用于释放缓存。避免内存溢出
+			// 用于释放缓存,避免内存溢出
 			ReferenceCountUtil.release(msg);
 		}
 	}
@@ -31,6 +31,7 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	static class ProtocolParser {
+
 		public static String parse(String message) {
 			String[] temp = message.split("HEADBODY");
 			temp[0] = temp[0].substring(4);
@@ -47,5 +48,4 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 			return message;
 		}
 	}
-
 }
