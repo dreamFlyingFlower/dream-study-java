@@ -12,7 +12,7 @@ public class S_ClientDelimiterHandler extends ChannelInboundHandlerAdapter {
 			String message = msg.toString();
 			System.out.println("from server : " + message);
 		} finally {
-			// 用于释放缓存。避免内存溢出
+			// 用于释放缓存,避免内存溢出
 			ReferenceCountUtil.release(msg);
 		}
 	}

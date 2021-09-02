@@ -9,10 +9,11 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 /**
- * @description AIO客户端
- * @author ParadiseWY
- * @date 2019年4月23日 下午2:06:50
- * @git {@link https://github.com/mygodness100}
+ * AIO客户端
+ * 
+ * @author 飞花梦影
+ * @date 2019-04-23 12:06:50
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class AIOClient {
 
@@ -21,7 +22,7 @@ public class AIOClient {
 	public AIOClient(String host, int port) {
 		init(host, port);
 	}
-	
+
 	public static void main(String[] args) {
 		AIOClient client = new AIOClient("localhost", 8889);
 		Scanner s = new Scanner(System.in);
@@ -57,7 +58,7 @@ public class AIOClient {
 		try {
 			channel.read(buffer).get();
 			buffer.flip();
-			System.out.println(new String(buffer.array(),StandardCharsets.UTF_8));
+			System.out.println(new String(buffer.array(), StandardCharsets.UTF_8));
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}

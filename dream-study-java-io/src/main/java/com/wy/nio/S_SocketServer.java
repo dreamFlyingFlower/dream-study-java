@@ -31,6 +31,7 @@ public class S_SocketServer {
 	}
 
 	private void initServer(int i) throws IOException {
+		// 开启服务通道
 		ServerSocketChannel serverChannel = ServerSocketChannel.open();
 		// 设置为非阻塞
 		// 在非阻塞模式下,read方法只传输立即可用的数据,如果没有可用的数据,返回0
@@ -51,7 +52,7 @@ public class S_SocketServer {
 			// 等待客户连接
 			// selector模型,多路复用,此处会有阻塞,当没有任何链接或读写需要处理时,等待客户端连接
 			this.selector.select();
-			// 返回选中的通道标记集合,保存的是通道的标记
+			// 返回选中的通道标记集合,保存的是通道的标记,相当于通道的ID
 			Iterator<SelectionKey> iterator = this.selector.selectedKeys().iterator();
 			// 轮询处理多个请求
 			while (iterator.hasNext()) {
@@ -61,7 +62,7 @@ public class S_SocketServer {
 					// 处理请求
 					handler(key);
 				}
-				// 从集合中删除
+				// 从集合中删除,下次循环根据新的通道列表再次执行必要的业务逻辑
 				iterator.remove();
 			}
 		}
@@ -101,7 +102,19 @@ public class S_SocketServer {
 			// buf.flip();
 			// buf.remaining();获取buffer中有效数据长度
 			// 当流中没有数据的时候,read读到的是0,而不是-1,-1是流已经关闭了
-			while (channel.read(buf) != 0) {
+			int readLength = channel.read(buf);
+			if (readLength == -1) {
+				// 关闭通道
+				key.channel().close();
+				// 关闭连接
+				key.cancel();
+				return;
+			}
+			while (readLength != 0) {
+				// 字节数组,保存具体数据的,Buffer.remaining()是获取Buffer中有效数据长度的方法
+				// byte[] datas = new byte[buf.remaining()];
+				// 是将Buffer中的有效数据保存到字节数组中
+				// buf.get(datas);
 				String info = new String(buf.array(), 0, buf.position(), StandardCharsets.UTF_8.displayName());
 				System.out.println(info);
 				buf.clear();
@@ -113,6 +126,8 @@ public class S_SocketServer {
 			// 关闭连接
 			// key.cancel();
 			// System.out.println("客户端关闭了");
+			// 注册通道,标记为写操作
+			channel.register(this.selector, SelectionKey.OP_WRITE);
 		} else if (key.isConnectable()) {
 			// 连接建立后事件
 		}

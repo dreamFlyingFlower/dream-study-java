@@ -1,7 +1,6 @@
 package com.wy.netty.fixedleng;
 
 import java.nio.charset.Charset;
-
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -18,16 +17,18 @@ import io.netty.handler.codec.FixedLengthFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 /**
- * @description 利用netty的定长机制解决粘包问题
- * @author ParadiseWy 
- * @date 2019年5月14日 下午9:35:00
- * @git {@link https://github.com/mygodness100}
+ * 利用netty的定长机制解决粘包问题
+ * 
+ * @author 飞花梦影
+ * @date 2021-09-02 17:30:07
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @SuppressWarnings("resource")
 public class S_Client {
 
 	// 处理请求和处理服务端响应的线程组
 	private EventLoopGroup group = null;
+
 	// 服务启动相关配置信息
 	private Bootstrap bootstrap = null;
 
@@ -51,7 +52,7 @@ public class S_Client {
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ChannelHandler[] handlers = new ChannelHandler[3];
 				handlers[0] = new FixedLengthFrameDecoder(3);
-				// 字符串解码器Handler，会自动处理channelRead方法的msg参数，将ByteBuf类型的数据转换为字符串对象
+				// 字符串解码器Handler,会自动处理channelRead方法的msg参数,将ByteBuf类型的数据转换为字符串对象
 				handlers[1] = new StringDecoder(Charset.forName("UTF-8"));
 				handlers[2] = new S_ClientHandler();
 
@@ -71,9 +72,7 @@ public class S_Client {
 		ChannelFuture future = null;
 		try {
 			client = new S_Client();
-
 			future = client.doRequest("localhost", 9999);
-
 			Scanner s = null;
 			while (true) {
 				s = new Scanner(System.in);
@@ -104,5 +103,4 @@ public class S_Client {
 			}
 		}
 	}
-
 }

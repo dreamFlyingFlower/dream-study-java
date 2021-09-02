@@ -10,7 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  */
 public class HttpFileServer {
 
-	private final int port;// 端口
+	private final int port;
 
 	public HttpFileServer(int port) {
 		this.port = port;

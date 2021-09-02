@@ -15,10 +15,13 @@ import io.netty.handler.codec.FixedLengthFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 public class S_Server {
+
 	// 监听线程组，监听客户端请求
 	private EventLoopGroup acceptorGroup = null;
+
 	// 处理客户端相关操作线程组，负责处理与客户端的数据通讯
 	private EventLoopGroup clientGroup = null;
+
 	// 服务启动相关配置信息
 	private ServerBootstrap bootstrap = null;
 
@@ -37,8 +40,7 @@ public class S_Server {
 		// 设定缓冲区大小
 		bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
 		// SO_SNDBUF发送缓冲区，SO_RCVBUF接收缓冲区，SO_KEEPALIVE开启心跳监测（保证连接有效）
-		bootstrap.option(ChannelOption.SO_SNDBUF, 16 * 1024)
-				.option(ChannelOption.SO_RCVBUF, 16 * 1024)
+		bootstrap.option(ChannelOption.SO_SNDBUF, 16 * 1024).option(ChannelOption.SO_RCVBUF, 16 * 1024)
 				.option(ChannelOption.SO_KEEPALIVE, true);
 	}
 
@@ -71,7 +73,6 @@ public class S_Server {
 		S_Server server = null;
 		try {
 			server = new S_Server();
-
 			future = server.doAccept(9999);
 			System.out.println("server started.");
 			future.channel().closeFuture().sync();
@@ -85,11 +86,9 @@ public class S_Server {
 					e.printStackTrace();
 				}
 			}
-
 			if (null != server) {
 				server.release();
 			}
 		}
 	}
-
 }

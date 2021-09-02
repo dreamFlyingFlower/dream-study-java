@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class S_ServerHandler extends ChannelInboundHandlerAdapter {
-	
+
 	// 业务处理逻辑
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -14,7 +14,6 @@ public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 		String line = "ok ";
 		ctx.writeAndFlush(Unpooled.copiedBuffer(line.getBytes("UTF-8")));
 	}
-	
 
 	// 异常处理逻辑
 	@Override
@@ -23,5 +22,4 @@ public class S_ServerHandler extends ChannelInboundHandlerAdapter {
 		// cause.printStackTrace();
 		ctx.close();
 	}
-
 }

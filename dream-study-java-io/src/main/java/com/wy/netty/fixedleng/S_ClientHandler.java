@@ -8,10 +8,10 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		try{
+		try {
 			String message = msg.toString();
 			System.out.println("from server : " + message);
-		}finally{
+		} finally {
 			// 用于释放缓存。避免内存溢出
 			ReferenceCountUtil.release(msg);
 		}
@@ -23,5 +23,4 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 		// cause.printStackTrace();
 		ctx.close();
 	}
-
 }

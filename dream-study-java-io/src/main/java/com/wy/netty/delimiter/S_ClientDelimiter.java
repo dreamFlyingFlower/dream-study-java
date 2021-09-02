@@ -18,16 +18,18 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 /**
- * @description 利用特定分隔符方法解决粘包问题
- * @author ParadiseWy 
- * @date 2019年5月14日 下午9:30:30
- * @git {@link https://github.com/mygodness100}
+ * 利用特定分隔符方法解决粘包问题
+ * 
+ * @author 飞花梦影
+ * @date 2021-09-02 17:25:20
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @SuppressWarnings("resource")
 public class S_ClientDelimiter {
 
 	// 处理请求和处理服务端响应的线程组
 	private EventLoopGroup group = null;
+
 	// 服务启动相关配置信息
 	private Bootstrap bootstrap = null;
 
@@ -53,10 +55,9 @@ public class S_ClientDelimiter {
 				ByteBuf delimiter = Unpooled.copiedBuffer("$E$".getBytes());
 				ChannelHandler[] handlers = new ChannelHandler[3];
 				handlers[0] = new DelimiterBasedFrameDecoder(1024, delimiter);
-				// 字符串解码器Handler，会自动处理channelRead方法的msg参数，将ByteBuf类型的数据转换为字符串对象
+				// 字符串解码器Handler,会自动处理channelRead方法的msg参数,将ByteBuf类型的数据转换为字符串对象
 				handlers[1] = new StringDecoder(Charset.forName("UTF-8"));
 				handlers[2] = new S_ClientDelimiterHandler();
-
 				ch.pipeline().addLast(handlers);
 			}
 		});
@@ -73,9 +74,7 @@ public class S_ClientDelimiter {
 		ChannelFuture future = null;
 		try {
 			client = new S_ClientDelimiter();
-
 			future = client.doRequest("localhost", 9999);
-
 			Scanner s = null;
 			while (true) {
 				s = new Scanner(System.in);
@@ -99,5 +98,4 @@ public class S_ClientDelimiter {
 			}
 		}
 	}
-
 }
