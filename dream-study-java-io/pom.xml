@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.4.RELEASE</version>
+		<version>2.4.2</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dream.flying.flower</groupId>
@@ -30,7 +30,7 @@
 		</dependency>
 		<dependency>
 			<groupId>dream.flying.flower</groupId>
-			<artifactId>dream-tool-core</artifactId>
+			<artifactId>dream-tool-third</artifactId>
 			<version>0.0.1</version>
 		</dependency>
 
@@ -63,6 +63,12 @@
 			<version>1.0.0.0</version>
 			<classifier>distribution</classifier>
 			<type>zip</type>
+		</dependency>
+		<!-- 生成缩略图工具 -->
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.14</version>
 		</dependency>
 
 		<dependency>

@@ -3,6 +3,8 @@ package com.wy.netty;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+import com.wy.util.NettyUtils;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -48,9 +50,9 @@ public class S_NettyClient {
 	public ChannelFuture doRequest(String host, int port, final ChannelHandler... handlers)
 			throws InterruptedException {
 		/*
-		 * 客户端的Bootstrap没有childHandler方法。只有handler方法。
-		 * 方法含义等同ServerBootstrap中的childHandler 在客户端必须绑定处理器，也就是必须调用handler方法。
-		 * 服务器必须绑定处理器，必须调用childHandler方法。
+		 * 客户端的Bootstrap没有childHandler方法,只有handler().
+		 * 该方法含义等同ServerBootstrap中的childHandler().在客户端必须绑定处理器,也就是必须调用handler()
+		 * 服务器必须绑定处理器,必须调用childHandler()
 		 */
 		this.bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
@@ -59,7 +61,7 @@ public class S_NettyClient {
 				ch.pipeline().addLast(handlers);
 			}
 		});
-		// 建立连接。
+		// 建立连接
 		ChannelFuture future = this.bootstrap.connect(host, port).sync();
 		return future;
 	}
@@ -80,8 +82,8 @@ public class S_NettyClient {
 				System.out.print("enter message send to server (enter 'exit' for close client) > ");
 				String line = s.nextLine();
 				if ("exit".equals(line)) {
-					// addListener - 增加监听，当某条件满足的时候，触发监听器。
-					// ChannelFutureListener.CLOSE - 关闭监听器，代表ChannelFuture执行返回后，关闭连接。
+					// addListener - 增加监听,当某条件满足的时候,触发监听器
+					// ChannelFutureListener.CLOSE - 关闭监听器,代表ChannelFuture执行返回后,关闭连接
 					future.channel().writeAndFlush(Unpooled.copiedBuffer(line.getBytes("UTF-8")))
 							.addListener(ChannelFutureListener.CLOSE);
 					break;
@@ -92,13 +94,7 @@ public class S_NettyClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != client) {
 				client.release();
 			}

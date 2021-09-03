@@ -2,6 +2,8 @@ package com.wy.netty.delimiter;
 
 import java.nio.charset.Charset;
 
+import com.wy.util.NettyUtils;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -71,9 +73,9 @@ public class S_ServerDelimiter {
 				// 数据分隔符, 定义的数据分隔符一定是一个ByteBuf类型的数据对象。
 				ByteBuf delimiter = Unpooled.copiedBuffer("$E$".getBytes());
 				ChannelHandler[] acceptorHandlers = new ChannelHandler[3];
-				// 处理固定结束标记符号的Handler。这个Handler没有@Sharable注解修饰,
+				// 处理固定结束标记符号的Handler,这个Handler没有@Sharable注解修饰,
 				// 必须每次初始化通道时创建一个新对象
-				// 使用特殊符号分隔处理数据粘包问题,也要定义每个数据包最大长度。netty建议数据有最大长度。
+				// 使用特殊符号分隔处理数据粘包问题,也要定义每个数据包最大长度,netty建议数据有最大长度
 				acceptorHandlers[0] = new DelimiterBasedFrameDecoder(1024, delimiter);
 				// 字符串解码器Handler,会自动处理channelRead方法的msg参数,将ByteBuf类型的数据转换为字符串对象
 				acceptorHandlers[1] = new StringDecoder(Charset.forName("UTF-8"));
@@ -101,13 +103,7 @@ public class S_ServerDelimiter {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
-			if (null != future) {
-				try {
-					future.channel().closeFuture().sync();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			NettyUtils.closeFuture(future);
 			if (null != server) {
 				server.release();
 			}
