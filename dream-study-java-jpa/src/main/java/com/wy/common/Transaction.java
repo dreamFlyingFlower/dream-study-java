@@ -2,15 +2,18 @@ package com.wy.common;
 
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
 /**
- * spring事务说明
+ * Spring事务说明
  * 
  * {@link PlatformTransactionManager},{@link AbstractPlatformTransactionManager}:是spring用于管理事务的真正对象
  * {@link TransactionDefinition}:定义事务的隔离级别,超时信息,传播行为,是否只读等信息
- * TransactionStatus:事务状态,用于记录在事务管理中,事务的状态的对象
- * spring进行事务管理时,需要根据事务定义信息进行事务管理,在事务管理过程中,会产生各种状态,记录在状态管理中
+ * {@link TransactionStatus}:事务状态,用于记录在事务管理中,事务的状态的对象
+ * Spring进行事务管理时,需要根据事务定义信息进行事务管理,在事务管理过程中,会产生各种状态,记录在状态管理中
+ * {@link AbstractFallbackTransactionAttributeSource#getTransactionAttribute()}:事务回滚机制主要类主要方法,非public方法不回滚
  * 
  * 事务的特性:原子性,隔离性,一致性,持久性
  * 

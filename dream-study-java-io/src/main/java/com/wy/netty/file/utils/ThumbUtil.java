@@ -124,8 +124,6 @@ public class ThumbUtil {
 
 	/**
 	 * 利用Thumbnailator生成缩略图
-	 * 
-	 * @author liuyuanxian
 	 */
 	public void createThumbImage() {
 		// asBufferedImage() 返回BufferedImage

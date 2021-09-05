@@ -31,9 +31,9 @@ public class FileServerContainer {
 	/**
 	 * 文件上传的根目录
 	 */
-	private String fileBaseDirectory;
+	private String fileBaseDirectory = "D:\\test\\tmp";
 
-	private int port;
+	private int port = 9999;
 
 	private static FileServerContainer instance;
 
@@ -42,6 +42,10 @@ public class FileServerContainer {
 	public static FileServerContainer factoryMethod() {
 		log.info("初始化静态资源传输平台");
 		instance = new FileServerContainer();
+		instance.accounts.add(AccountServer.builder().userName("test1").pwd("123456").rootPath("D:\\test\\tmp").level(1)
+				.thumbHeight(100).thumbWidth(100).build());
+		instance.accounts.add(AccountServer.builder().userName("test2").pwd("123456").rootPath("D:\\test\\tmp").level(1)
+				.thumbHeight(100).thumbWidth(100).build());
 		return instance;
 	}
 

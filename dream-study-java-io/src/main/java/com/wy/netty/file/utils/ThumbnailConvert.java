@@ -15,7 +15,7 @@ public class ThumbnailConvert {
 		InputStreamReader ir = null;
 		LineNumberReader input = null;
 		try {
-			// linux下java执行指令：Runtime.getRuntime().exec (String str);
+			// linux下java执行指令:Runtime.getRuntime().exec (String str);
 			Process process = Runtime.getRuntime().exec(cmd);
 			ir = new InputStreamReader(process.getInputStream());
 			input = new LineNumberReader(ir);

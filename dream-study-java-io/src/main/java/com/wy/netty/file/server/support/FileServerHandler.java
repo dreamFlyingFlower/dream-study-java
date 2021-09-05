@@ -2,7 +2,6 @@ package com.wy.netty.file.server.support;
 
 import java.net.URI;
 
-import org.jboss.netty.channel.ChannelStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +20,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpChunkedInput;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -41,7 +40,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
  * @date 2021-09-03 12:06:56
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class FileServerHandler extends SimpleChannelInboundHandler<DefaultHttpRequest> {
+public class FileServerHandler extends SimpleChannelInboundHandler<DefaultFullHttpRequest> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FileServerHandler.class);
 
@@ -63,20 +62,15 @@ public class FileServerHandler extends SimpleChannelInboundHandler<DefaultHttpRe
 	// 请求参数
 	private RequestParam requestParams = new RequestParam();
 
-	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-		if (this.decoder != null)
-			this.decoder.cleanFiles();
-	}
-
 	@Override
-	public void channelRead0(ChannelHandlerContext ctx, DefaultHttpRequest e) throws Exception {
+	public void channelRead0(ChannelHandlerContext ctx, DefaultFullHttpRequest request) throws Exception {
 		if (!this.readingChunks) {
 			if (this.decoder != null) {
 				this.decoder.cleanFiles();
 				this.decoder = null;
 			}
 
-			HttpRequest request = this.request = e;
+			this.request = request;
 			URI uri = new URI(request.uri());
 
 			// 初始页面
@@ -91,7 +85,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<DefaultHttpRe
 				e1.printStackTrace();
 				e1.printStackTrace();
 				this.responseContent.append(e1.getMessage());
-
 				writeResponse(ctx.channel());
 				ctx.channel().close();
 				return;
@@ -103,7 +96,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<DefaultHttpRe
 				return;
 			}
 			// 说明还没有请求完成,继续
-			if (request.isChunked()) {
+			if (!request.release()) {
 				this.readingChunks = true;
 				LOGGER.info("文件分块操作....");
 			} else {
@@ -117,14 +110,13 @@ public class FileServerHandler extends SimpleChannelInboundHandler<DefaultHttpRe
 				this.responseContent.append(result);
 				// 给客户端响应信息
 				writeResponse(ctx.channel());
-				e.getFuture().addListener(ChannelFutureListener.CLOSE);
+				// request.getFuture().addListener(ChannelFutureListener.CLOSE);
 			}
 		} else {
-			HttpChunkedInput chunk = (HttpChunkedInput) e.getMessage();
+			HttpChunkedInput chunk = (HttpChunkedInput) request.copy();
 			try {
-				// chunk.getContent().capacity();
-				LOGGER.info("文件分块操作....文件大小：{} bytes", chunk.readChunk(ctx.alloc()).content().capacity());
-				this.decoder.offer(chunk);
+				LOGGER.info("文件分块操作....文件大小:{} bytes", chunk.readChunk(ctx.alloc()).content().capacity());
+				this.decoder.offer(chunk.readChunk(ctx.alloc()));
 			} catch (HttpPostRequestDecoder.ErrorDataDecoderException e1) {
 				e1.printStackTrace();
 				this.responseContent.append(e1.getMessage());
@@ -133,19 +125,19 @@ public class FileServerHandler extends SimpleChannelInboundHandler<DefaultHttpRe
 				return;
 			}
 
-			if (chunk.isLast()) {
+			if (chunk.isEndOfInput()) {
 				// 文件末尾
 				this.readingChunks = false;
-				LOGGER.info("到达文件内容的末尾，进行相应的文件处理操作....start");
+				LOGGER.info("到达文件内容的末尾,进行相应的文件处理操作....start");
 				RequestParamParser.parseParams(this.decoder, this.requestParams);
-				LOGGER.info("文件处理开始....requestParams参数解析：{}", requestParams);
+				LOGGER.info("文件处理开始....requestParams参数解析:{}", requestParams);
 				String result = FileServerHandlerFactory.process(this.requestParams);
-				LOGGER.info("文件处理结束....FileServerHandlerFactory处理结果：{}", result);
+				LOGGER.info("文件处理结束....FileServerHandlerFactory处理结果:{}", result);
 				this.responseContent.append(result);
 				// 给客户端响应信息
 				writeResponse(ctx.channel());
-				e.getFuture().addListener(ChannelFutureListener.CLOSE);
-				LOGGER.info("到达文件内容的末尾，进行相应的文件处理操作....end");
+				// request.getFuture().addListener(ChannelFutureListener.CLOSE);
+				LOGGER.info("到达文件内容的末尾,进行相应的文件处理操作....end");
 			}
 		}
 	}

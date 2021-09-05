@@ -16,7 +16,6 @@ public class JSONUtil {
 	 * 
 	 * @param obj
 	 * @return
-	 * @author:landyChris
 	 */
 	public static String toJSONString(Object obj) {
 		return JSON.toJSONString(obj);
@@ -28,7 +27,6 @@ public class JSONUtil {
 	 * @param json
 	 * @param clazz
 	 * @return
-	 * @author:landyChris
 	 */
 	public static <T> T parseObject(String json, Class<T> clazz) {
 		return JSON.parseObject(json, clazz);

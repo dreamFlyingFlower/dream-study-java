@@ -19,7 +19,6 @@ public abstract class AbstractFileServerHandler {
 	 * 
 	 * @param savePath 数据库保存的路径
 	 * @return
-	 * @author liuyuanxian
 	 */
 	protected String getRealPath(String savePath) {
 		return this.account.getRootPath() + savePath;

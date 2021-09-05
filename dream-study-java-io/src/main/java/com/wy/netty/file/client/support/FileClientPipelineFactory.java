@@ -20,7 +20,7 @@ public class FileClientPipelineFactory extends DefaultChannelPipeline {
 
 	private FileClientHandler clientHandler;
 
-	protected FileClientPipelineFactory(Channel channel) {
+	public FileClientPipelineFactory(Channel channel) {
 		super(channel);
 	}
 
