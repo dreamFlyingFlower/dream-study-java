@@ -1,9 +1,7 @@
 package com.wy;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.DefaultApplicationArguments;
@@ -12,6 +10,7 @@ import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -96,12 +95,19 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * ->{@link AnnotationConfigUtils.registerPostProcessor()}
  * ->{@link BeanDefinitionRegistry.registerBeanDefinition()}
  *
- * {@link AutowiredAnnotationBeanPostProcessor}:加载由{@link Autowired}和{@link Value}注解修饰的成员变量,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化
+ * {@link AutowiredAnnotationBeanPostProcessor}:加载由Autowired和Value注解修饰的成员变量,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化
  * {@link AnnotationConfigApplicationContext},{@link AnnotationConfigWebApplicationContext}:根据环境不同启动加载{@link Configuration}
+ * 
+ * {@link ApplicationContextInitializer}:在spring调用refreshed方法之前调用该方法.是为了对spring容器做进一步的控制
+ * 注入实现了该类的方法有2种:Configuration或者在META-INF的spring.factories中添加该类,可参照spring-autoconfigure包里的添加
+ * {@link CommandLineRunner}:在容器启动成功之后的最后一个回调,该回调执行之后容器就成功启动
+ * {@link ApplicationEvent}:自定义事件,需要发布的事件继承该接口
+ * {@link ApplicationListener}:事件监听.可以直接在listener上添加注解或者使用上下文添加到容器中
+ * {@link publishEvent}:发布事件,必须在refreshed之后调用.使用任何继承了上下文的context调用,传入ApplicationEvent
  * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @SpringBootApplication
 public class Application {

@@ -5,23 +5,13 @@ import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
-import com.wy.config.ConfigProperties;
+import com.wy.annotation.S_Annotation;
 import com.wy.listener.S_ApplicationContextInitializer;
 
 /**
@@ -38,42 +28,66 @@ import com.wy.listener.S_ApplicationContextInitializer;
  * 
  * 用户自定义的组件在spring上下加载完成,但是还没有刷新上下文之后注入到spring上下文中
  * 
+ * SpringBootApplication启动注解:
+ * 
+ * <pre>
  * {@link SpringBootApplication}:多注解的合体,扫描自动配置类,加载spring上下文
- * ->{@link SpringBootApplication#scanBasePackages()}:指定包扫描路径,默认扫描当前包以及子包,同{@link ComponentScan}
- *
+ * 		exclude():启动时需要排除的自动注入类,同 EnableAutoConfiguration 的exclude
+ * 		excludeName():启动时需要排除的自动注入类名,同 EnableAutoConfiguration 的excludeName
+ * 		scanBasePackages():启动时进行扫描的包名,不配置则默认扫描当前类以及子类,同 ComponentScan 
+ * 		scanBasePackageClasses():启动时进行扫描的特殊类,同 ComponentScan 
+ * ->{@link SpringBootConfiguration:作用等同于Configuration,只是起一个标识作用
+ * 
  * ->{@link EnableAutoConfiguration}:扫描加载自动配置类,会自动加载所有META-INF/spring.factories中配置的相关类
  * -->{@link AutoConfigurationPackage}:导入一个注册类,该注册类将获取运行@SpringBootApplication注解的包及相关信息
- * -->{@link Import}:将一个类注入到Spring中,功能和{@link Configuration}相同,在自定义自动注入类时会使用,通常修饰其他注解
+ * -->{@link Import}:将一个类注入到Spring中,需要添加Configuration,在自定义自动注入类时会使用,通常修饰其他注解
+ * --->{@link AutoConfigurationImportSelector}:实现 ImportSelector 接口,自动引入
+ * 		isEnabled():从配置文件中查找spring.boot.enableautoconfiguration,默认true自动配置
+ * 		selectImports():引入自动配置
+ * 		getAutoConfigurationEntry():装在自动配置相关类
+ * 		getCandidateConfigurations():从指定路径中获得需要自动加载的类
+ * ---->{@link SpringFactoriesLoader#loadFactoryNames()}
+ * ---->{@link SpringFactoriesLoader#loadSpringFactories()}:从META/spring.factories获得自动装配类,加载到spring上下文
  * 
- * --->{@link ImportSelector}:实现该接口的方法返回类的全路径,需要用{@link Import}引入,和Import不同的是该接口引入Class字符串
- * ---->{@link AutoConfigurationImportSelector#isEnabled}:从配置文件中查找spring.boot.enableautoconfiguration,默认true自动配置
- * ---->{@link AutoConfigurationImportSelector#selectImports()}:引入自动配置
- * ----->{@link AutoConfigurationImportSelector#getAutoConfigurationEntry()}
- * ------>{@link AutoConfigurationImportSelector#getCandidateConfigurations()}
- * ------->{@link SpringFactoriesLoader#loadFactoryNames()}
- * -------->{@link SpringFactoriesLoader#loadSpringFactories()}:从META/spring.factories获得自动装配类,加载到spring上下文中
+ * --->{@link ImportSelector}:实现该接口的方法返回类的全路径,需要Import引入,和Import不同的是该接口引入Class字符串
  * 
- * {@link SpringApplication#run}:主要是对spring上下文的解析,装配等,同时对EnableAutoConfiguration引入的其他类进行处理
+ * {@link SpringApplication#run}:主要是对Spring上下文的解析,装配等,同时对EnableAutoConfiguration引入的其他类进行处理
+ * </pre>
  * 
- * {@link Condition}:接口,判断在启动是否加载某个类,配合Conditional注解使用
- * {@link Conditional}:配合Condition使用,判断{@link Condition#matches}是否返回true来决定注解修饰的方法或类是否注册到Spring中
- * {@link ConditionalOnClass}:该注解判断当前环境中是否有某个类,有则该注解修饰的方法或类才加载
- * {@link ConditionalOnBean}:作用等同于ConditionalOnClass
- * {@link ConditionalOnMissingClass}:该注解判断当前环境中是否没有某个类,没有则该注解修饰的方法或类才加载
- * {@link ConditionalOnMissingBean}:作用等同于ConditionalOnMissingClass
- * {@link ConditionalOnWebApplication}:该注解判断当前环境是否为一个web应用,是则该注解修饰的类或方法才加载
- * {@link ConditionalOnNotWebApplication}:作用和ConditionalOnWebApplication相反,不是才加载
- * {@link ConditionalOnProperty}:该注解表示指定配置存在且等于某个给定值时类生效.若配置不存在,默认不生效
- * ->{@link ConditionalOnProperty#value()}:等同于name(),需要检查的配置中的属性名
- * ->{@link ConditionalOnProperty#prefix()}:需要检查的配置前缀,可写可不写
- * ->{@link ConditionalOnProperty#havingValue()}:检查value()指定属性的值是否equals该方法指定的值,true->配置生效,false->不生效
- * ->{@link ConditionalOnProperty#matchIfMissing()}:当value()指定属性的值不存在或错误时的行为,true->仍然加载,默认false->不加载
+ * 启动流程:
  * 
- * 其他自动注入配置见{@link ConfigProperties}
+ * <pre>
+ * 判断是否web环境
+ * 加载所有classpath下的META-INF/spring.factories的ApplicationContextInitizlizer
+ * 加载所有classpath下的META-INF/spring.factories的ApplicationListener
+ * 加载main方法所在的类
+ * 开始执行run方法
+ * 设置java.awt.headless系统变量
+ * 加载所有META-INF/spring.factories的SpringApplicationRunListener
+ * 执行所有SpringApplicationRunListener的started方法
+ * 实例化ApplicationArguments对象
+ * 创建environment
+ * 配置environment,将run方法的参数配置到environment
+ * 执行SpringApplicationRunListener的environmentPrepared方法
+ * 如果不是web环境,但是是web的environment,把这个web才environment转换成标准的environment
+ * 打印Banner
+ * 初始化ApplicationContext,如果是web环境,则实例化AnnotationConfigEmbeddedWebApplicationContext对象,否则实例化AnnotationConfigApplicationContext
+ * 如果beanNameGenerator不为空,将beanNameGenerator注入到context中
+ * 回调所有的ApplicationContextInitializer方法
+ * 执行SpringApplicationRunListener的contextPrepared方法
+ * 依次往spring容器中注入ApplicationArguments,Banner
+ * 加载所有的源到context中
+ * 执行所有的SpringApplicationRunListener的contextLoaded方法
+ * 执行context的refresh方法,并且调用contenxt的registerShutdownHook方法
+ * 回调,获取容器中所有的ApplicationRunner,CommandLineRunner接口,然后排序,依次调用
+ * 执行所有的SpringApplicationRunListener的finished方法
+ * </pre>
+ * 
+ * 其他自动注入配置见{@link S_Annotation}
  * 
  * @author 飞花梦影
  * @date 2020-12-02 22:23:38
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
 public class S_AutoConfig {

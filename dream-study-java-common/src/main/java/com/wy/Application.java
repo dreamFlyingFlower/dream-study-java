@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Tomcat:修改start.sh或catalina.bat,添加:JAVA_OPTS='-Xms256m -Xmx512m -XX:MaxNewSize=256m -XX:MaxPermSize=256m'
  * </pre>
  * 
+ * Druid的使用:ip:port/druid/index.html
+ * 
  * 一些工具以及问题
  * 
  * @apiNote JavavisualVM:java虚拟机性能分析工具<br>

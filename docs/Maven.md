@@ -48,7 +48,25 @@
 
 
 
-# 上传JAR到共有仓库
+# 创建本地maven模版
+* 控制台到maven项目中: mvn archetype:create-from-project
+* 构建成功后会在本项目的target\generated-sources\archetype目录下生成必要的文件
+* 控制台进入archetype目录下:mvn install.
+* 构建成功后会在本地仓库中生成一个archetype-catalog.xml的文件,可添加到eclipse的maven->archetype->add local中
+
+
+
+# 上传JAR到本地仓库
+
+```shell
+# DgroupId,DartifactId,Dversion:顾名思义是值依赖里的三项,随意填写
+# Dfile:指明需要导入的jar包的本地地址
+mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 -Dfile=E:\xxxx-0.0.1.jar -Dpackaging=jar
+```
+
+
+
+# 上传JAR到公有仓库
 
 * [教程1](https://www.sojson.com/blog/250.html),[教程2](https://www.cnblogs.com/binarylei/p/8628245.html)
 
