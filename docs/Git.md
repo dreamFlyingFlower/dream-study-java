@@ -1,12 +1,15 @@
 # Git
 
-## 常用命令
+
+
+# 常用命令
 
 * git init:将一个目录初始化为git仓库,必须是空目录
 
 * git clone [] url:将git远程仓库中的内容拉去到本地
 
   * -b branchname:拉取指定分支到本地，branchname为要拉取的分支名称
+  * --shallow: 克隆仓库,但是不包括版本历史信息
 
 * git remote []:查看本地库对应的远程仓库名称,默认都是origin,是一个标签
   * -v:查看拉取和提交的远程仓库名称和地址
@@ -20,15 +23,17 @@
   
   * rm name:删除一个源,若只有一个源的时候,不可删除.origin不可删除
   
-* git status:查看本地仓库和远程仓库的差异
+* git status []:查看本地仓库和远程仓库的差异
+
+  * -s:查看详情,会出现2个M,后面跟着文件名.第一列M表示版本库和处理中间状态有差异;第二M表示工作区和当前文件有差异.有时候只会有1列
 
 * git log [-n] [filename]:查看历史版本信息,会包含版本号,一长串的字符
   * -n:最近的n个版本
   * filename:指定文件的信息,文件需要带上路径
   
-* git pull:从远程仓库拉取最新的代码到本地仓库中
+* git pull []:从远程仓库拉取最新的代码到本地仓库中
 
-* git pull version:从远程仓库中拉去指定版本的,该版本号可从git log中获取
+  * version:从远程仓库中拉去指定版本的,该版本号可从git log中获取
 
 * git add -A:将修改的所有文件都添加到本地的预提交程序中
 
@@ -36,34 +41,32 @@
 
 * git commit [] :将git add中预提交的文件提交到本地仓库
 
-  * -am comment:提交所有同时提交注释,comment为注释,必须填写
+  * -am comment:提交所有同时提交注释,comment为注释,必须填写,a功能和git add -A相同
   * --amend:编辑提交的内容或信息
 
-* git push [] [origin master]:将本地仓库中的修改同步到远程仓库中,默认提交到origin master;若有过个git远程仓库,其中的origin要自定义命名,且和origin不一样,此时必须加上自定义名称和分支,如git push github master.若只是分支不一样,可以是git push origin aa,aa为分支名
+* git push [] [origin master]:将本地仓库中的修改同步到远程仓库中,默认提交到origin master;若有多个git远程仓库,origin要自定义命名,且和origin不一样,此时必须加上自定义名称和分支,如git push github master.若只是分支不一样,可以是git push origin aa,aa为分支名
 
   * -f:强制推送到远程仓库
 
-* git reset --hard [HEAD^]:将本地仓库中的数据回滚到上个版本
-
-* git reset --hard HEAD^2:将本地仓库中的数据回滚到上2个版本
-
-* git reset --hard version:将本地仓库中的数据回滚到指定版本
-
-* git reset --hard version filename:将指定文件回滚到指定版本
-
-* `git reset HEAD <file>`: 恢复暂存的文件
-
-* `git checkout -- <file>`: 丢弃修改
+* git checkout <file>:丢弃修改,将文件恢复到初始状态,已经被add进暂存区的文件不会被恢复
 
 * git rebase:将分支进行合并
 
 * git merge aa:将aa分支中的代码合并到当前分支,注意可能需要解决冲突
 
-* git config:对配置进行修改
+
+
+# git reset
+
+* git reset HEAD <file>:将暂存区的文件恢复到上一个版本.即将已经add的文件从暂存区退回到工作区.和checkout不同的是:reset恢复的是已经add到暂存区的,checkout恢复的是没有add到暂存区的
+* git reset --hard [HEAD^]:将本地仓库中的数据回滚到上个版本
+* git reset --hard HEAD^2:将本地仓库中的数据回滚到上2个版本
+* git reset --hard version:将本地仓库中的数据回滚到指定版本
+* git reset --hard version filename:将指定文件回滚到指定版本
 
 
 
-## git bransh
+# git bransh
 
 * `git branch []`:查看本地仓库当前分支
   * -a:查看所有分支
@@ -79,14 +82,14 @@
 
 
 
-## git log
+# git log
 
 * `git log`: 显示历史日志
 * `git log --all --graph --decorate`: 可视化历史记录(有向无环图)
 
 
 
-## git stash
+# git stash
 
 * git stash [save message]:执行存储时,保存当前工作进度,将工作区和暂存区恢复到修改之前
   * 该命令会将当前所有修改过的文件都恢复到没有修改之前,不能单独指定
@@ -104,7 +107,7 @@
 
 
 
-## git update-index
+# git update-index
 
 * git update-index --skip-worktree path:将某个已经添加到工作区的文件从工作区忽略,但是有不同的更新出现时,会造成冲突.即本地忽略提交,但是pull到不同内容还是会冲突
 * git update-index --no-skip-worktree path:将已经skip的文件重新添加到工作区
@@ -140,34 +143,35 @@
 
 
 
-## git diff
+# git diff
 
-* `git diff <filename>`: 显示与上一次提交之间的差异
-* `git diff <revision> <filename>`: 显示某个文件两个版本之间的差异
-
-
-
-## git config
-
-1. git config --global core.autocrlf []:windows,mac的换行符不一样,win是CRLF,mac是LF,不同开发者使用系统不一样会导致在比对时因为换行符的问题而出现差异
-   1. true:提交时转换为LF,检出时转换为CRLF
-   2. false:提交检出均不转换
-   3. input:提交时转换为LF,检出时不转换
-2. git config --global core.safecrlf []:全局设置git对换行符的行为权限
-   1. true:拒绝提交包含混合换行符的文件
-   2. false:允许提交包含混合换行符的文件
-   3. warn:提交包含混合换行符的文件时给出警告
-3. git update-index --assue-unchanged config.conf:设置config.conf文件忽略更新,不提交,但是也不从远程仓库删除
-4. git update-index --no-assume-unchanged config.conf:取消config.conf的忽略更新
-5. git config core.ignorecase false:设置忽略大小写配置,可检测到文件名大小写变更
-6. git config --global core.compression -1:默认zlib压缩方式,0不压缩
-7. git config --global http.postBuffer 524288000:配置git缓存大小500M或更大,需要拉取的文件比较大时使用
-8. git config --global http.lowSpeedLimit 0:配置git最低速度,git拉取速度较低时使用
-9. git config --global http.lowSpeedTime 99999:配置git最低速度可持续时间,单位秒,git拉取速度较低时使用
+* git diff <filename>: 显示与上一次提交之间的差异
+* git diff <revision> <filename>: 显示某个文件两个版本之间的差异
+* git diff --cached:暂存区和上一次提交的差异
 
 
 
-## 本地.git清理
+# git config
+
+* git config --global core.autocrlf []:windows,mac的换行符不一样,win是CRLF,mac是LF,不同开发者使用系统不一样会导致在比对时因为换行符的问题而出现差异
+  * true:提交时转换为LF,检出时转换为CRLF
+  * false:提交检出均不转换
+  * input:提交时转换为LF,检出时不转换
+* git config --global core.safecrlf []:全局设置git对换行符的行为权限
+  * true:拒绝提交包含混合换行符的文件
+  * false:允许提交包含混合换行符的文件
+  * warn:提交包含混合换行符的文件时给出警告
+* git update-index --assue-unchanged config.conf:设置config.conf文件忽略更新,不提交,但是也不从远程仓库删除
+* git update-index --no-assume-unchanged config.conf:取消config.conf的忽略更新
+* git config core.ignorecase false:设置忽略大小写配置,可检测到文件名大小写变更
+* git config --global core.compression -1:默认zlib压缩方式,0不压缩
+* git config --global http.postBuffer 524288000:配置git缓存大小500M或更大,需要拉取的文件比较大时使用
+* git config --global http.lowSpeedLimit 0:配置git最低速度,git拉取速度较低时使用
+* git config --global http.lowSpeedTime 99999:配置git最低速度可持续时间,单位秒,git拉取速度较低时使用
+
+
+
+# 本地.git清理
 
 * 本地.git目录会越用越大,需要清理
 * git verify-pack -v .git/objects/pack/pack-*.idx | sort -k 3 -g | tail -5:找出大文件前5个
@@ -212,15 +216,10 @@ git push --force
 
 
 
-## 其他
+# 其他
 
-- `git commit --amend`: 编辑提交的内容或信息
-- `git reset HEAD <file>`: 恢复暂存的文件
-- `git checkout -- <file>`: 丢弃修改
-- `git clone --shallow`: 克隆仓库,但是不包括版本历史信息
 - `git add -p`: 交互式暂存
 - `git blame`: 查看最后修改某行的人
-- `git stash`: 暂时移除工作目录下的修改内容
 - `git bisect`: 通过二分查找搜索历史记录
 - `.gitignore`: 指定不追踪的文件
 
