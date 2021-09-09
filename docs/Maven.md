@@ -31,6 +31,7 @@
 * mvn test-compile:编译测试程序
 * mvn test:执行测试程序
 * mvn package:程序打包成war或jar
+* mvn clean package -Dmaven.test.skip=ture:清理打包时跳过测试
 * mvn install:安装到本地的maven仓库中
 * mvn site:生成站点
 * mvn deploy:部署

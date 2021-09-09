@@ -2,6 +2,18 @@
 
 
 
+# 概述
+
+
+
+Head:指向当前分支,并非指向master.切换到那个分支就是指向那个分支
+
+工作区:当前分支存储目录
+
+暂存区:修改后的文件,经过add之后添加到的区域,只是一个概念
+
+
+
 # 常用命令
 
 * git init:将一个目录初始化为git仓库,必须是空目录
@@ -48,7 +60,7 @@
 
   * -f:强制推送到远程仓库
 
-* git checkout <file>:丢弃修改,将文件恢复到初始状态,已经被add进暂存区的文件不会被恢复
+* git checkout [<file>/<folder>]:将文件/目录恢复到初始状态,已经被add进暂存区的文件不会被恢复
 
 * git rebase:将分支进行合并
 
@@ -56,17 +68,27 @@
 
 
 
-# git reset
+# git config
 
-* git reset HEAD <file>:将暂存区的文件恢复到上一个版本.即将已经add的文件从暂存区退回到工作区.和checkout不同的是:reset恢复的是已经add到暂存区的,checkout恢复的是没有add到暂存区的
-* git reset --hard [HEAD^]:将本地仓库中的数据回滚到上个版本
-* git reset --hard HEAD^2:将本地仓库中的数据回滚到上2个版本
-* git reset --hard version:将本地仓库中的数据回滚到指定版本
-* git reset --hard version filename:将指定文件回滚到指定版本
+* git config --global core.autocrlf []:windows,mac的换行符不一样,win是CRLF,mac是LF,不同开发者使用系统不一样会导致在比对时因为换行符的问题而出现差异
+  * true:提交时转换为LF,检出时转换为CRLF
+  * false:提交检出均不转换
+  * input:提交时转换为LF,检出时不转换
+* git config --global core.safecrlf []:全局设置git对换行符的行为权限
+  * true:拒绝提交包含混合换行符的文件
+  * false:允许提交包含混合换行符的文件
+  * warn:提交包含混合换行符的文件时给出警告
+* git update-index --assue-unchanged config.conf:设置config.conf文件忽略更新,不提交,但是也不从远程仓库删除
+* git update-index --no-assume-unchanged config.conf:取消config.conf的忽略更新
+* git config core.ignorecase false:设置忽略大小写配置,可检测到文件名大小写变更
+* git config --global core.compression -1:默认zlib压缩方式,0不压缩
+* git config --global http.postBuffer 524288000:配置git缓存大小500M或更大,需要拉取的文件比较大时使用
+* git config --global http.lowSpeedLimit 0:配置git最低速度,git拉取速度较低时使用
+* git config --global http.lowSpeedTime 99999:配置git最低速度可持续时间,单位秒,git拉取速度较低时使用
 
 
 
-# git bransh
+# git branch
 
 * `git branch []`:查看本地仓库当前分支
   * -a:查看所有分支
@@ -151,23 +173,24 @@
 
 
 
-# git config
+# git reset
 
-* git config --global core.autocrlf []:windows,mac的换行符不一样,win是CRLF,mac是LF,不同开发者使用系统不一样会导致在比对时因为换行符的问题而出现差异
-  * true:提交时转换为LF,检出时转换为CRLF
-  * false:提交检出均不转换
-  * input:提交时转换为LF,检出时不转换
-* git config --global core.safecrlf []:全局设置git对换行符的行为权限
-  * true:拒绝提交包含混合换行符的文件
-  * false:允许提交包含混合换行符的文件
-  * warn:提交包含混合换行符的文件时给出警告
-* git update-index --assue-unchanged config.conf:设置config.conf文件忽略更新,不提交,但是也不从远程仓库删除
-* git update-index --no-assume-unchanged config.conf:取消config.conf的忽略更新
-* git config core.ignorecase false:设置忽略大小写配置,可检测到文件名大小写变更
-* git config --global core.compression -1:默认zlib压缩方式,0不压缩
-* git config --global http.postBuffer 524288000:配置git缓存大小500M或更大,需要拉取的文件比较大时使用
-* git config --global http.lowSpeedLimit 0:配置git最低速度,git拉取速度较低时使用
-* git config --global http.lowSpeedTime 99999:配置git最低速度可持续时间,单位秒,git拉取速度较低时使用
+git reset HEAD <file>:将当前分支暂存区的文件恢复到上一个版本,即将已经add的文件从暂存区退回到工作区,但是修改仍然存在.和checkout不同的是:
+
+* reset恢复的是已经add到暂存区的,且恢复之后修改仍然存在,只是重新回到了工作区
+* checkout恢复的是没有add到暂存区的,且将文件直接回退到上一个版本
+
+git reset --hard [HEAD^]:将本地仓库中的数据回滚到上个版本
+
+git reset --hard HEAD^2:将本地仓库中的数据回滚到上2个版本
+
+git reset --hard version:将本地仓库中的数据回滚到指定版本,version可从git log中查看
+
+git reset --hard version filename:将指定文件回滚到指定版本
+
+git reset --hard commtid:已经提交到暂存区的文件,恢复到指定commit
+
+git reset --soft commtid:将当前分支撤销到指定版本,但是暂存区和工作区不做撤销
 
 
 
@@ -225,9 +248,20 @@ git push --force
 
 
 
+# SSH
+
+* 打开git bash,直接输入ssh-keygen -t rsa -C "email地址",回车
+  * 之后会输入key的名称,不输则默认为id
+  * 输入密码,不输则为空
+* 若是windows系统,会在C/用户/用户名/下生成.ssh文件夹,里面会有id_rsa,id_rsa.pub
+* 用文本编辑器打开id_rsa.pub,复制里面的内容到github或gitee或gitlab的设置的ssh里面.之后本地提交修改到远程服务器可以不使用用户名和密码,直接通过ssh认证,更加方便安全
+* 添加了ssh之后,如果再pull,最好使用ssh方式,而且现在github已经不再支持使用密码模式提交修改
+
+
+
 # Gitlab
 
-## 一 安装
+## 安装
 
 ### yum安装
 
@@ -237,7 +271,7 @@ git push --force
 
 
 
-## 二 备份
+## 备份
 
 1. 备份时需要保持gitlab处于正常运行状态,直接执行gitlab-rake gitlab:backup:create进行备份
 
@@ -265,7 +299,7 @@ git push --force
 
    
 
-## 三 迁移恢复
+## 迁移恢复
 
 1. 在新服务器上安装相同版本的gitlab
 
@@ -287,7 +321,7 @@ git push --force
 
    
 
-## 四 升级
+## 升级
 
 1. 停止gitlab并备份
 
@@ -307,7 +341,7 @@ git push --force
 
 
 
-## 五 其他问题
+## 其他问题
 
 * 当push成功之后发现web管理界面没有改变,是需要清理缓存的原因
 
