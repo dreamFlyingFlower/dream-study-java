@@ -1,4 +1,4 @@
-package com.wy;
+package com.wy.jvm;
 
 /**
  * 类加载器(ClassLoader):顶层为BootStrap,该加载器并不属于Java类,而是为了加载Java类存在的原生(native)组件
