@@ -12,9 +12,13 @@
 
 * 类加载子系统:负责从文件系统或网络中加载class信息,加载的信息存放在方法区的内存空间中.除了类的信息外,方法区中可能还会存放运行时常量池信息,包括字符串字面量和数组常量
 * 方法区:存放类编译后字节码,包括静态变量,类信息,方法字节码.被所有线程共享
-* 元空间:存放类元数据,和永久代类似,都是方法区的实现
+* 元空间:Metaspace,存放类元数据,和永久代类似,都是方法区的实现
   * JDK8后,永久代被取消,存储于永久代的信息全部存入到本地内存中
   * 元空间不属于JVM,是直接使用本地内存,所有元空间大小只受本地内存大小限制
+  * 字符串存在永久代中,容易出现性能问题和内存溢出
+  * 类及方法的信息等比较难确定其大小,因此对于永久代的大小指定比较困难,太小容易出现永久代溢出,太大则容易导致老年代溢出
+  * 永久代会为 GC 带来不必要的复杂度,并且回收效率偏低
+  * Oracle 可能会将HotSpot 与 JRockit 合二为一
 * Java堆:虚拟机启动的时候建立,存放几乎所有的对象实例,并且所有线程共享堆空间
   * JDK7前,堆中有新生代,老年代和永久代,永久代主要存放常量池等不变的信息
   * JDK7后,还将存储常量,常量池信息,包括字符串字面量和数字常量
@@ -224,141 +228,302 @@ public class Sample{
 
 
 
-# GC算法
+# 内存模型
+
+![](JVM10.png)
+
+* 每一个线程有一个工作内存和主存独立
+* 工作内存存放主存中变量的值的拷贝
+* 当数据从主内存复制到工作存储时,必须出现两个动作:
+  * 由主内存执行的读(read)操作
+  * 由工作内存执行的相应的load操作
+* 当数据从工作内存拷贝到主内存时,也出现两个操作:
+  * 由工作内存执行的存储(store)操作
+  * 由主内存执行的相应的写(write)操作
+* 每一个操作都是原子的,即执行期间不会被中断
+* 对于普通变量,一个线程中更新的值,不能马上反应在其他变量中.如果需要在其他线程中立即可见,需要使用 volatile 关键字
 
 
 
-## 复制算法
+## Volatile
 
-核心思想就是将内存空间分为两块,每次只使用其中一块,在垃圾回收时,将正在使用的内存中的存留对象复制到未被使用的内存块中,之后去清除之前正在使用内存块中所有的对象,反复去交换两个内存的角色,完成垃圾收集
+![第19图片](JVM11.png)
 
+```java
+public class VolatileStopThread extends Thread{
+    private volatile boolean stop = false;
+    public void stopMe(){
+        stop=true;
+    }
 
+    public void run(){
+        int i=0;
+        while(!stop){
+            i++;
+        }
+        System.out.println("Stop thread");
+    }
 
-## 引用计数法
+    public static void main(String args[]) throws InterruptedException{
+        VolatileStopThread t=new VolatileStopThread();
+        t.start();
+        Thread.sleep(1000);
+        t.stopMe();
+        Thread.sleep(1000);
+    }
+}
+```
 
-这是个比较古老而经典的垃圾收集算法,核心就是在对象被其他对象引用时计数器加1,而当引用失效时则减1,但是这种方法有非常严重的问题:无法处理循环引用的情况,而且每次进行加减操作比较浪费系统性能
-
-
-
-## 标记清除法
-
-就是分为标记和清除两个阶段进行处理量内存中的对象,当然这种方式也有非常大的弊端,就是空间碎片问题,垃圾回收后的空间不是连续的,不连续的内存空间的工作效率要低于连续的内存空间
-
-
-
-## 标记压缩法
-
-标记压缩法在标记清除法基础上做了优化,把存活的对象压缩到内存一端,而后进行垃圾清理.java中老年代就是使用的标记压缩法
-
-
-
-## 分代算法
-
-根据对象的特点把内存分为N块,而后根据每个内存的特点使用不同的算法
-
-对于新生代和老年代来说,新生代回收的频率更高,但是每次回收耗时都很短,而老年代回收频率较低,但是耗时比较长,所以应该尽量减少老年代的GC
-
-
-
-## 分区算法
-
-将整个内存分为N多个小的独立空间,每个小空间都恶意独立使用,这样细粒度的控制一次回收多少个小空间的那些个小空间,而不是对整个空间进行GC,从而提升性能,并减少GC的停顿时间
-
-
-
-## GC停顿
-
-垃圾回收器的任务是识别和回收垃圾对象进行内存清理,为了让垃圾回收器可以高效的执行,大部分情况下,会要求系统进入一个停顿的状态.停顿的目的是终止所有应用线程,只有这样系统才不会有新的垃圾产生,同时停顿保证了系统状态在某一个瞬间的一致性,也有益于更好的标记垃圾对象,因此在垃圾会后时,都会产生应用停顿的现象
+* 没有volatile,服务运行后无法停止
+* 使用volatile之后,一个线程修改了变量,其他线程可以立即知道
+* volatile 不能代替锁.一般认为volatile 比锁性能好,但不绝对
+* 选择使用volatile的条件是:语义是否满足应用
+* 保证可见性的方法
+  * volatile
+  * synchronized:unlock之前,写变量值回主存
+  * final:一旦初始化完成,其他线程就可见
 
 
 
-# GC种类
+## 有序性
+
+* –在本线程内,操作都是有序的
+* 在线程外观察,操作都是无序的。（指令重排 或 主内存同步延时）
 
 
 
-## 串行回收器
-
-* 使用单线程进行垃圾回收.每次回收时,串行回收器只有一个工作线程,对于并行能力较弱的计算机来说,串行回收器的专注性和独占性往往有更好的性能表现.串行回收器可以在新生代和老年代使用.
-* -XX:+UseSerialGC:可以设置新生代串行回收器和老年代回收器
+## 指令重排
 
 
 
-## 并行回收器
+* 指令重排的基本原则:
+  * 程序顺序原则：一个线程内保证语义的串行性
+  * volatile规则：volatile变量的写,先发生于读
+  * 锁规则：解锁(unlock)必然发生在随后的加锁(lock)前
+  * 传递性：A先于B,B先于C 那么A必然先于C
+  * 线程的start方法先于它的每一个动作
+  * 线程的所有操作先于线程的终结（Thread.join()）
+  * 线程的中断（interrupt()）先于被中断线程的代码
+  * 对象的构造函数执行结束先于finalize()方法
 
-* 可以使用多线程同时进行垃圾回收
-* ParNew回收器是一个工作在新生代的垃圾回收器,他只是简单的将串行回收器多线程化,它的回收策略和算法和串行回收器一样
-* -XX:+UseParNewGC新生代回收器,老年代则使用串行回收器
-* -XX:ParallelGCThreads:指定ParNew的回收器线程数,一般最好和CPU核心数相当
+```java
+class OrderExample {
+    int a = 0;
+    boolean flag = false;
+
+    public void writer() {
+        a = 1;
+        flag = true;
+    }
+
+    public void reader() {
+        if (flag) {
+            int i =  a +1;
+        }
+    }
+}
+```
+
+* 线程内串行语义
+  * 写后读 a = 1;b = a; 写一个变量之后,再读这个位置
+  * 写后写 a = 1;a = 2; 写一个变量之后,再写这个变量
+  * 读后写 a = b;b = 1; 读一个变量之后,再写这个变量
+  * 以上语句不可重排
+  * 编译器不考虑多线程间的语义
+  * 可重排:a=1;b=2;
+* 会破坏线程间的有序性
+  * 线程A首先执行writer(),线程B线程接着执行reader()
+  * 线程B在int i=a+1 是不一定能看到a已经被赋值为1.因为在writer中,两句话顺序可能打乱
+  * 线程A:flag=true;a=1
+  * 线程B:flag=true(此时a=0)
+* 保证有序性的方法
+
+```java
+class OrderExample {
+    int a = 0;
+    boolean flag = false;
+    public synchronized void writer() {
+        a = 1;
+        flag = true;
+    }
+    public synchronized void reader() {
+        if (flag) {
+            int i =  a +1;
+        }
+    }
+}
+```
+
+* 同步后,即使做了writer重排,因为互斥的缘故,reader 线程看writer线程也是顺序执行的
+* 线程A:flag=true;a=1
+* 线程B:flag=true(此时a=1)
 
 
 
-## CMS回收器
+## 解释运行
 
-* ConcurrentMarkSweep,并发标记清除,使用的是标记清除法,主要关注系统停顿时间
-* -XX:+UseConcMarkSweepGC:设置是否使用该回收器
-* -XX:ConcGCThreads:设置并发线程数
-* CMS并不是独占的回收器,也就是说CMS回收的过程中,应用程序仍然在不停的工作,又会有新的垃圾不断产生,所以在使用CMS的过程中应该确保应用程序的内存足够.CMS不会等到应用程序饱和的时候采取回收垃圾,而是在某一个阀值的时候开始回收.如果内存使用率增长的很快,在CMS执行过程中已经出现了内存不足的情况,此时回收就会失败,虚拟机将启动老年代串行回收器进行垃圾回收,这会导致应用程序中断,直到垃圾回收完成后才会正常工作.这个过程GC停顿时间可能较长
-* -XX:CMSInitiatingOccupancyFraction:指定回收阀值,默认是68,也就是说当老年代的空间使用率达到68%的时候,会执行CMS回收
-* -XX:+UseCMSCompactAtFullCollection:使用CMS回收器之后,是否进行随便整理
-* -XX:CMSFullGCsBeforeCompaction:设置进行多少次CMS回收之后对内存进行一次压缩
+* 解释执行以解释方式运行字节码
+* 解释执行的意思是:读一句执行一句
 
 
 
-## G1回收器
+## 编译运行(JIT)
 
-* Garbage First,在jdk1.7中提出的垃圾回收器,从长期来看是为了取代CMS回收器,G1回收器拥有独特的垃圾回收策略,G1属于分代垃圾回收器,区分新生代和老年代,依然有eden和from/to区,它不要求整个eden或新生代,老年代的空间都连续,它使用了分区算法
-* 并行性:G1回收期间可多线程同时工作
-* 并发性:G1拥有与应用程序交替执行能力,部分工作可与应用程序同时执行,在整个GC期间不会完全阻塞应用
-* 分代GC:G1依然是一个分代收集器,但是它是兼顾新生代和老年代一起工作,之前的垃圾收集器在新生代,或老年代工作,这是一个很大的不同
-* 空间整理:G1在回收过程中,不会像CMS那样在若干次GC后需要进行碎片整理,G1采用了有效复制对象的方式,减少空间碎片
-* 可预见性:由于分区的原因,G1可以只选取部分区域进行回收,缩小了回收的范围,提升性能
-* 分区回收,优先回收话费时间少,垃圾比例高的区域
-* -XX:+UseG1GC:是否使用G1回收器
-* -XX:MaxGCPauseMillis:指定最大停顿时间,默认是200ms
-* -XX:ParallelGCThreads:设置并行回收的线程数量
-* -XX:G1HeapRegionSize:1,2,4,8,16,32,只有这几个值,单位是M.region有多大,该代码是在headpregion.cpp中
-
-
-
-## 次收集(Scavenge)
-
-* 新生代GC(Scavenge GC):指发生在新生代的GC,因为新生代的java对象大多数都是朝生夕死的,所以ScavengeGC比较频繁,一般回收速度也比较快.当eden空间不足时,会触发ScavengeGC
-* 一般情况下,当新对象生成,并且在eden申请空间失败时,就会触发ScavengeGC,对eden区域进行GC,清除非存活对象,并且把尚且存活的对象移动到Survivor(新生代的from和to)区.然后整理survivor的两个区.这种方式的GC是对年轻代的eden区进行,不会影响到老年代.
-
-
-
-## 全收集
-
-* 老年代(FullGC):发生在老年代的GC,出现了FullGC一般会伴随着至少一次的ScavengeGC.FullGC的速度一般会比ScavengeGC慢10倍以上.当老年代内存不足或显示调用system.gc()方式时,会触发FullGC
+* 将字节码编译成机器码
+* 直接执行机器码
+* 运行时编译
+* 编译后性能有数量级的提升
 
 
 
 # Jvm参数配置
 
 * 所有参数示例可参见common项目的com.wy.jvm包
-* -Xms:设置java启动初始堆大小,包括新生和老年代 
-* -Xmx:设置java能获得的最大堆大小.如-Xmx2048M
-* -Xmn:设置新生代大小,一般会设置为整个堆空间的1/3或1/4
-* -Xss:指定线程的最大栈空间大小
-* -XX:NewSize=n:设置新生代大小
-* -XX:SurvivorRatio=n: 设置新生代中eden和from/to空间比例,如2,表示eden/form=eden/to=2
-* -XX:MaxPermSize=n:设置老年代大小,默认是64M
-* -XX:PretenureSizeThreshold:指定占用内存多少的对象直接进入老年代.由系统计算得出,无默认值
-* -XX:MaxTenuringThreshold:默认15,只能设置0-15.指经多少次垃圾回收,对象实例从新生代进入老年代.在JDK8中并不会严格的按照该次数进行回收,又是即使没有达到指定次数仍然会进入老年代
-* -XX:+HandlePromotionFailure:空间分配担保.+表示开启,-表示禁用
-* -XX:NewRatio=n:设置新生代和老年代的比值,如为3,表示年轻代:老年代为1:3
-* -XX:+UseSerialGC:配置年轻代为串行回收器
-* -XX:+UseParallelGC:设置年轻代为并行收集器
-* -XX:+UseParalledlOldGC:设置老年代并行收集器
-* -XX:+UseConcMarkSweepGC:设置并发收集器
+
+* -verbose:gc:可以打印GC的简要信息
+
+  ```java
+  [GC 4790K->374K(15872K), 0.0001606 secs]
+  [GC 4790K->374K(15872K), 0.0001474 secs]
+  [GC 4790K->374K(15872K), 0.0001563 secs]
+  [GC 4790K->374K(15872K), 0.0001682 secs]
+  ```
+
 * -XX:+PrintGC:当虚拟机启动后,只要遇到GC就会打印日志
+
 * -XX:+PrintGCDetails:可以查看详细信息,包括各个区的情况
-* -XX:+PrintGCTimeStamps -Xloggc:filename
+
+  ```java
+  // eden为新生代伊甸区,from是s0,to是s1,tenured是老年代,compacting是JDK1.8之前的永久代,JDK1.8称为元空间Metaspace
+  Heap
+   def new generation  total 13824K, used 11223K [0x27e80000,0x28d80000,0x28d80000)
+    eden space 12288K, 91% used [0x27e80000, 0x28975f20, 0x28a80000)
+    from space 1536K,  0% used [0x28a80000, 0x28a80000, 0x28c00000)
+    to   space 1536K,  0% used [0x28c00000, 0x28c00000, 0x28d80000)
+   tenured generation  total 5120K, used 0K [0x28d80000, 0x29280000, 0x34680000)
+     the space 5120K,  0% used [0x28d80000, 0x28d80000, 0x28d80200, 0x29280000)
+   compacting perm gen total 12288K, used 142K [0x34680000, 0x35280000, 0x38680000)
+     the space 12288K, 1% used [0x34680000, 0x346a3a90, 0x346a3c00, 0x35280000)
+      ro space 10240K, 44% used [0x38680000, 0x38af73f0, 0x38af7400, 0x39080000)
+      rw space 12288K, 52% used [0x39080000, 0x396cdd28, 0x396cde00, 0x39c80000)
+  ```
+
+* -XX:+PrintGCTimeStamps:打印CG发生的时间戳
+
+* -XX:+PrintHeapAtGC:每次一次GC后,都打印堆信息
+
+* -XX:+TraceClassLoading:监控类的加载
+
+  ```java
+  [Loaded java.lang.Object from shared objects file]
+  [Loaded java.io.Serializable from shared objects file]
+  [Loaded java.lang.Comparable from shared objects file]
+  [Loaded java.lang.CharSequence from shared objects file]
+  [Loaded java.lang.String from shared objects file]
+  [Loaded java.lang.reflect.GenericDeclaration from shared objects file]
+  [Loaded java.lang.reflect.Type from shared objects file]
+  ```
+
+* -XX:+PrintClassHistogram:按下Ctrl+Break后,打印类的信息
+
+  ```java
+   // 分别显示:序号,实例数量,总大小,类型
+   num     #instances         #bytes  class name
+  ----------------------------------------------
+     1:        890617      470266000  [B
+     2:        890643       21375432  java.util.HashMap$Node
+     3:        890608       14249728  java.lang.Long
+     4:            13        8389712  [Ljava.util.HashMap$Node;
+     5:          2062         371680  [C
+     6:           463          41904  java.lang.Class
+  ```
+
+* -Xloggc:filePath:指定GC日志的位置,以文件形式输出
+
+* -Xms:设置java堆的最小值,包括新生和老年代 
+
+* -Xmx:设置java堆的最大值.如-Xmx2048M
+
+* -Xmn:设置新生代大小,一般会设置为整个堆空间的1/3或1/4
+
+* -XX:NewRatio=n:设置新生代和老年代的比值,如为3,表示年轻代:老年代为1:3
+
+* -XX:SurvivorRatio=n:设置新生代中eden和from/to空间比例,如2,表示eden/form=eden/to=2
+
+* -Xss:指定线程的最大栈空间大小,通常只有几百k
+
+* -XX:NewSize=n:设置新生代大小
+
+* -XX:PermSize:设置老年代的初始大小,默认是64M
+
+* -XX:MaxPermSize:设置老年代最大值
+
+* -XX:PretenureSizeThreshold:指定占用内存多少的对象直接进入老年代.由系统计算得出,无默认值
+
+* -XX:MaxTenuringThreshold:默认15,只能设置0-15.指经多少次垃圾回收,对象实例从新生代进入老年代.在JDK8中并不会严格的按照该次数进行回收,又是即使没有达到指定次数仍然会进入老年代
+
+* -XX:+HandlePromotionFailure:空间分配担保.+表示开启,-表示禁用
+
+* -XX:+UseSerialGC:配置年轻代为串行回收器
+
+* -XX:+UseParallelGC:设置年轻代为并行收集器
+
+* -XX:+UseParalledlOldGC:设置老年代并行收集器
+
+* -XX:+UseConcMarkSweepGC:设置并发收集器
+
 * -XX:+HeapDumpOnOutOfMemoryError:使用该参数可以在OOM时导出整个堆信息
-* -XX:HeapDumpPath:设置OOM时导出的信息存放地址
+
+* -XX:HeapDumpPath=filePath:设置OOM时导出的信息存放地址
+
+* -XX:OnOutOfMemoryError=filePath:在OOM时,执行一个脚本,如发送邮件
+
 * -XX:MaxGCPauseMillis:设置最大垃圾手气停顿时间,可用把虚拟机在GC停顿的时间控制在MaxGCPauseMillis范围内,如果希望减少GC停顿时间可以将MaxGCPauseMillis设置的很小,但是会导致GC频繁,从而增加了GC的总时间降低了吞吐量,所以需要根据实际情况设置
+
 * -XX:GCTimeRatio:设置吞吐量大小,它是一个0到100之间的整数,默认情况下是99,那么系统将花费不超过1/(1+n)的时间用于垃圾回收,也就是1/(1+99)=1%的时间
+
 * -XX:UseAdaptiveSizePolicy:自适应模式,在这种情况下,新生代的大小,eden,from/to的比例,以及晋升老年代的对象年龄参数会被自动调整,已达到在堆大小,吞吐量和停顿时间之间的平衡
+
+```java
+public static void main(String[] args) {
+    byte[] b = null;
+    for (int i = 0; i < 20; i++) {
+        b = new byte[1 * 1024 * 1024];
+    }
+}
+```
+
+```java
+// 设置JVM启动参数:-verbose:gc -XX:+PrintGCDetails -XX:+UseSerialGC -Xmx20m -Xms20m -Xmn1m
+[GC (Allocation Failure) [DefNew: 896K->63K(960K), 0.0009520 secs] 896K->628K(20416K), 0.0009838 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+[GC (Allocation Failure) [DefNew: 262K->63K(960K), 0.0012891 secs][Tenured: 19079K->1734K(19456K), 0.0012453 secs] 19259K->1734K(20416K), [Metaspace: 2661K->2661K(1056768K)], 0.0025666 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+Heap
+ def new generation   total 960K, used 18K [0x00000000fec00000, 0x00000000fed00000, 0x00000000fed00000)
+  eden space 896K,   2% used [0x00000000fec00000, 0x00000000fec04920, 0x00000000fece0000)
+  from space 64K,   0% used [0x00000000fece0000, 0x00000000fece0000, 0x00000000fecf0000)
+  to   space 64K,   0% used [0x00000000fecf0000, 0x00000000fecf0000, 0x00000000fed00000)
+ tenured generation   total 19456K, used 3782K [0x00000000fed00000, 0x0000000100000000, 0x0000000100000000)
+   the space 19456K,  19% used [0x00000000fed00000, 0x00000000ff0b1b90, 0x00000000ff0b1c00, 0x0000000100000000)
+ Metaspace       used 2668K, capacity 4486K, committed 4864K, reserved 1056768K
+  class space    used 286K, capacity 386K, committed 512K, reserved 1048576K
+```
+
+* JDK8和之前的策略不一样,GC信息也不同
+* `STW`:`Stop The World`,表示垃圾收集时是否需要停顿
+* `GC (Allocation Failure)`:表明进行了一次垃圾回收,且不需要STW
+  * 前面没有Full修饰,表明这是一次Minor GC
+  * 它不表示只GC新生代,并且JDK8垃圾回收不管是新生代还是老年代都会STW
+  * `Allocation Failure`表明本次引起GC的原因是年轻代中没有足够的空间能够存储新的数据
+* `[DefNew:896K->63K(960K),0.0009520 secs] 896K->628K(20416K),0.0009838 secs]`:
+  * `DefNew`:表示是新生代发生垃圾回收,这个名称和所使用的收集器密切相关.可以有Tenured,Perm,ParNew,PSYoungGen等等.其中hotspot虚拟机使用的是PSYoungGen代表新生代
+  * `896K->63K(960K)`:GC前该区域已使用容量->GC后该区域已使用容量(该内存区域总容量)
+  * `0.0009520 secs`:该内存区域GC所占用的时间
+  * `896K->628K(20416K)`:GC前Java堆已使用容量->GC后Java堆已使用容量(Java堆总容量)
+* `[Tenured: 19079K->1734K(19456K), 0.0012453 secs] 19259K->1734K(20416K)`:
+  * `Tenured`:老年代发生垃圾回收
+* `[Metaspace: 2661K->2661K(1056768K)], 0.0025666 secs]`:
+  * `Metaspace`:元空间发生垃圾回收.JDK1.8之前为compacting perm gen
+* `[Times: user=0.00 sys=0.00, real=0.00 secs]`:分别表示用户态耗时,内核态耗时和总耗时
 
 
 
@@ -435,20 +600,6 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 ## Javap
 
 * 查看class文件的字节码信息
-
-
-
-# JVM调优
-
-
-
-* Full GC过长,20-30S
-  * 减小堆内存大小,但是可以部署多个程序,避免内存浪费
-* 不定期内存溢出,把堆内存加大,会加剧溢出.导出堆转储快照信息,没有任何信息.内存监控也正常
-  * 该情况可能是NIO使用直接内存时,直接内存过小,而GC又不能控制直接内存,导致内存被撑爆
-  * 可以修改JVM的DirectMemory相关参数解决或换更大内存的服务器
-* 大量消息从A服务发送到B服务的时候,B服务无法及时处理导致B服务崩溃
-  * 在A和B服务之间添加消息队列
 
 
 
