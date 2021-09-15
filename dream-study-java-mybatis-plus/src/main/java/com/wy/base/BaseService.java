@@ -1,11 +1,16 @@
 package com.wy.base;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wy.collection.CollectionTool;
+import com.wy.result.Result;
 
 /**
  * 通用业务接口
@@ -70,7 +75,7 @@ public interface BaseService<T, ID extends Serializable> extends IService<T> {
 	 * @param t 实体类参数
 	 * @return 数据集合
 	 */
-	Object getEntitys(T t);
+	Result<List<T>> getEntitys(T t);
 
 	/**
 	 * 分页/不分页查询.实际效果等同于{{@link #getEntitys(Object)},当有非实体类参数时,重写该方法自行处理
@@ -78,8 +83,15 @@ public interface BaseService<T, ID extends Serializable> extends IService<T> {
 	 * @param params 参数
 	 * @return 数据集合
 	 */
-	default Object getLists(Map<String, Object> params) {
-		return getEntitys(JSON.parseObject(JSON.toJSONString(params), getEntityClass()));
+	default Result<List<Map<String, Object>>> getLists(Map<String, Object> params) {
+		Result<List<T>> entitys = getEntitys(JSON.parseObject(JSON.toJSONString(params), getEntityClass()));
+		if (Objects.nonNull(entitys) && CollectionTool.isNotEmpty(entitys.getData())) {
+			List<Map<String, Object>> parseObject = JSON.parseObject(JSON.toJSONString(entitys.getData()),
+					new TypeReference<List<Map<String, Object>>>() {
+					});
+			return Result.page(parseObject, entitys.getPageIndex(), entitys.getPageSize(), entitys.getTotal());
+		}
+		return Result.ok(Collections.emptyList());
 	}
 
 	/**

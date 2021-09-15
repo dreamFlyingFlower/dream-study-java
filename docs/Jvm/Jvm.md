@@ -235,275 +235,6 @@ public class Sample{
 
 
 
-# 对象
-
-
-
-## 对象结构
-
-![对象头](JVM03.png)
-
-* Header:对象头,存储对象的源数据
-  * 自身运行时数据:哈希值,GC分代年龄,锁动态标志,线程持有的锁,偏向线程ID,偏向时间戳
-  * 类型指针:对象指向类的源数据指针,虚拟机通过该值确实对象是那个类的实例
-* InstanceData:实例数据
-* Padding:无实际意义,主要用来填充以达到字节数为8的倍数
-
-
-
-## 对象创建
-
-* new 类名
-* 根据new的参数在常量池中定义一个类的符号引用
-* 如果没有找到这个符号引用,说明类还没有被加载,则进行类加载,解析和初始化
-* 虚拟机在堆中为对象分配内存
-* 将分配的内存吃实话为零值,不包含对象头
-* 调用对象的初始化方法
-
-
-
-# 内存模型
-
-![](JVM10.png)
-
-* 每一个线程有一个工作内存和主存独立
-* 工作内存存放主存中变量的值的拷贝
-* 当数据从主内存复制到工作存储时,必须出现两个动作:
-  * 由主内存执行的读(read)操作
-  * 由工作内存执行的相应的load操作
-* 当数据从工作内存拷贝到主内存时,也出现两个操作:
-  * 由工作内存执行的存储(store)操作
-  * 由主内存执行的相应的写(write)操作
-* 每一个操作都是原子的,即执行期间不会被中断
-* 对于普通变量,一个线程中更新的值,不能马上反应在其他变量中.如果需要在其他线程中立即可见,需要使用 volatile 关键字
-
-
-
-## Volatile
-
-![第19图片](JVM11.png)
-
-```java
-public class VolatileStopThread extends Thread{
-    private volatile boolean stop = false;
-    public void stopMe(){
-        stop=true;
-    }
-
-    public void run(){
-        int i=0;
-        while(!stop){
-            i++;
-        }
-        System.out.println("Stop thread");
-    }
-
-    public static void main(String args[]) throws InterruptedException{
-        VolatileStopThread t=new VolatileStopThread();
-        t.start();
-        Thread.sleep(1000);
-        t.stopMe();
-        Thread.sleep(1000);
-    }
-}
-```
-
-* 没有volatile,服务运行后无法停止
-* 使用volatile之后,一个线程修改了变量,其他线程可以立即知道
-* volatile 不能代替锁.一般认为volatile 比锁性能好,但不绝对
-* 选择使用volatile的条件是:语义是否满足应用
-* 保证可见性的方法
-  * volatile
-  * synchronized:unlock之前,写变量值回主存
-  * final:一旦初始化完成,其他线程就可见
-
-
-
-## 有序性
-
-* –在本线程内,操作都是有序的
-* 在线程外观察,操作都是无序的。（指令重排 或 主内存同步延时）
-
-
-
-## 指令重排
-
-
-
-* 指令重排的基本原则:
-  * 程序顺序原则：一个线程内保证语义的串行性
-  * volatile规则：volatile变量的写,先发生于读
-  * 锁规则：解锁(unlock)必然发生在随后的加锁(lock)前
-  * 传递性：A先于B,B先于C 那么A必然先于C
-  * 线程的start方法先于它的每一个动作
-  * 线程的所有操作先于线程的终结（Thread.join()）
-  * 线程的中断（interrupt()）先于被中断线程的代码
-  * 对象的构造函数执行结束先于finalize()方法
-
-```java
-class OrderExample {
-    int a = 0;
-    boolean flag = false;
-
-    public void writer() {
-        a = 1;
-        flag = true;
-    }
-
-    public void reader() {
-        if (flag) {
-            int i =  a +1;
-        }
-    }
-}
-```
-
-* 线程内串行语义
-  * 写后读 a = 1;b = a; 写一个变量之后,再读这个位置
-  * 写后写 a = 1;a = 2; 写一个变量之后,再写这个变量
-  * 读后写 a = b;b = 1; 读一个变量之后,再写这个变量
-  * 以上语句不可重排
-  * 编译器不考虑多线程间的语义
-  * 可重排:a=1;b=2;
-* 会破坏线程间的有序性
-  * 线程A首先执行writer(),线程B线程接着执行reader()
-  * 线程B在int i=a+1 是不一定能看到a已经被赋值为1.因为在writer中,两句话顺序可能打乱
-  * 线程A:flag=true;a=1
-  * 线程B:flag=true(此时a=0)
-* 保证有序性的方法
-
-```java
-class OrderExample {
-    int a = 0;
-    boolean flag = false;
-    public synchronized void writer() {
-        a = 1;
-        flag = true;
-    }
-    public synchronized void reader() {
-        if (flag) {
-            int i =  a +1;
-        }
-    }
-}
-```
-
-* 同步后,即使做了writer重排,因为互斥的缘故,reader 线程看writer线程也是顺序执行的
-* 线程A:flag=true;a=1
-* 线程B:flag=true(此时a=1)
-
-
-
-## 解释运行
-
-* 解释执行以解释方式运行字节码
-* 解释执行的意思是:读一句执行一句
-
-
-
-## 编译运行(JIT)
-
-* 将字节码编译成机器码
-* 直接执行机器码
-* 运行时编译
-* 编译后性能有数量级的提升
-
-
-
-# Tools
-
-
-
-在JDK安装目录bin下面有很多工具类,他们依赖lib下面的tools.jar
-
-
-
-## Jps
-
-* 显示当前服务器上的Java进程PID和运行的程序名称
-* -l:显示程序主函数的完成路径
-* -m:显示Java程序启动时的入参,类似main方法运行时输入的args
-* -v:显示程序启动时设置的JVM参数
-* -q:指定jps只输出进程ID,不输出类的短名称
-
-
-
-## Jstat
-
-* 运行状态信息,如类装载,内存,垃圾收集,jit编译的信息,详见Oracle官网[jstat]([jstat (oracle.com)](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html))
-
-```
-S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
-0.00  98.21   8.39  54.85  93.10  82.54  13    0.261     1    0.145    0.406
-```
-
-* jstat -gcutil pid:显示指定程序的gc信息,pid从jps获取
-  * S0:新生代的S0使用率
-  * S1:新生代S1使用率
-  * E:新生代eden使用率
-  * O:老年代使用率
-  * M:元空间使用率,类似于JDK8以前的永久代
-  * CCS:压缩类的空间
-  * YGC:新生代垃圾收集的次数
-  * YGCT:新生代垃圾收集总共耗费的时间
-  * FGC:Full GC次数
-  * FGCT:Full GC总共消耗的时间
-  * GCT:垃圾回收使用的总时间
-* jstat -gcutil pid interval count:监控间隔时间指定次数的gc.count为监控次数,interval为间隔时间,单位毫秒
-
-
-
-## Jinfo
-
-* 实时查看和调整虚拟机的各项参数,详见官网[jinfo]([jinfo (oracle.com)](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jinfo.html))
-* jinfo -flag  虚拟机参数 pid:查看某个进程的虚拟机设置参数
-* jinfo -flag [+|-] 虚拟机参数 pid:给指定进程加上(+)或禁用(-)某个虚拟机参数
-* jinfo -flag 虚拟机参数key=虚拟机参数value pid:给指定进程的虚拟机参数设置值
-
-
-
-## Jmap
-
-* 生成Java应用程序的堆快照和对象的统计信息
-* jmap -histo pid >c:\s.txt:将统计信息输出到指定目录指定文件
-* jmap -dump:format=b,file=c:\heap.hprof pid:输出Dump堆信息
-
-
-
-## Jstack
-
-* 打印线程dump
-* -l:打印锁信息
-* -m:打印java和native的帧信息
-* -F:强制dump,当jstack没有响应时使用
-
-
-
-## Jconsole
-
-* 可视化查看当前虚拟机中基本的信息,例如CPI,堆,栈,类,线程信息
-* 在windows上直接输入该命令会打开一个可视化界面,选择需要监控的程序即可
-* 在可视化界面中列出了内存,线程(可以检测死锁),类,JVM的相关信息
-
-![](JVM04.png)
-
-
-
-## Visualvm
-
- *          Java虚拟机性能分析工具,jconsole的更强版本,可视化工具,能看到JVM当前几乎所有运行程序的详细信息
- *          需要VisualVM[官网]([VisualVM: Plugins Centers](https://visualvm.github.io/index.html))上下载合适版本
- *          下载完成解压,进入bin,点击visualvm.exe打开,可实时检测Java程序的运行
- *          可以选择安装其他插件,从官网的[插件]([VisualVM: Plugins Centers](https://visualvm.github.io/pluginscenters.html))地址.从VisualVM的工具->插件中安装
-
-
-
-## Javap
-
-* 查看class文件的字节码信息
-* javap -c test.class:编译test.class文件
-* javap -verbose test.class:编译test.class,输出更详细的指令集文件
-
 
 
 # 类加载机制
@@ -856,64 +587,161 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 
 
 
-# Class文件格式
+# Class文件结构
 
-| 类型           | 名称                | 数量                  | 描述                        |
-| -------------- | ------------------- | --------------------- | --------------------------- |
-| u4             | magic               | 1                     |                             |
-| u2             | minor_version       | 1                     |                             |
-| u2             | major_version       | 1                     |                             |
-| u2             | constant_pool_count | 1                     |                             |
-| cp_info        | constant_pool       | constant_pool_count-1 |                             |
-| u2             | access_flags        | 1                     |                             |
-| u2             | this_class          | 1                     |                             |
-| u2             | super_class         | 1                     |                             |
-| u2             | interfaces_count    | 1                     |                             |
-| u2             | interfaces          | interfaces_count      |                             |
-| u2             | fields_count        | 1                     | 2字节表示字段数量           |
-| field_info     | fields              | fields_count          | 字节长度不定,由字段数量决定 |
-| u2             | methods_count       | 1                     | 2字节表示方法数量           |
-| method_info    | methods             | methods_count         | 字节长度不定,由方法数量决定 |
-| u2             | attributes_count    | 1                     | 2字节表示属性数量           |
-| attribute_info | attributes          | attributes_count      | 字节长度不定,由属性数量决定 |
-|                |                     |                       |                             |
+| 类型           | 名称                | 数量                  | 描述                                             |
+| -------------- | ------------------- | --------------------- | ------------------------------------------------ |
+| u4             | magic               | 1                     | 魔数                                             |
+| u2             | minor_version       | 1                     | minor版本                                        |
+| u2             | major_version       | 1                     | major版本                                        |
+| u2             | constant_pool_count | 1                     | 2字节,常量池中常量数量                           |
+| cp_info        | constant_pool       | constant_pool_count-1 | 常量数,字节长度不定,由常量池决定                 |
+| u2             | access_flags        | 1                     | 2字节,访问控制符                                 |
+| u2             | this_class          | 1                     | 2字节,类,指向常量池的Class                       |
+| u2             | super_class         | 1                     | 2字节,超类,指向常量池的Class                     |
+| u2             | interfaces_count    | 1                     | 2字节,接口数量                                   |
+| u2             | interfaces          | interfaces_count      | 接口数量,每个interface是指向CONSTANT_Class的索引 |
+| u2             | fields_count        | 1                     | 2字节,字段数量                                   |
+| field_info     | fields              | fields_count          | 字段数,字节长度不定,由字段数量决定               |
+| u2             | methods_count       | 1                     | 2字节,方法数量                                   |
+| method_info    | methods             | methods_count         | 字节长度不定,由方法数量决定                      |
+| u2             | attributes_count    | 1                     | 2字节,属性数量                                   |
+| attribute_info | attributes          | attributes_count      | 字节长度不定,由属性数量决定                      |
+|                |                     |                       |                                                  |
+
+## magic
+
+* 0xCAFEBABE
 
 
 
-## Class文件结构
+| JDK版本       | target参数                 | 十六进制minor.major | 十进制minor.major |
+| ------------- | -------------------------- | ------------------- | ----------------- |
+| jdk1.1.8      | 不能带  target  参数       | 00  03 \|00 2D      | 3\|45             |
+| jdk1.2.2      | 不带(默认为  -target  1.1) | 00  03 \|00 2D      | 3\|45             |
+| jdk1.2.2      | -target  1.2               | 00  00 \|00 2E      | 0\|46             |
+| jdk1.3.1_19   | 不带(默认为  -target  1.1) | 00  03 \|00 2D      | 3\|45             |
+| jdk1.3.1_19   | -target  1.3               | 00  00 \|00 2F      | 0\|47             |
+| j2sdk1.4.2_10 | 不带(默认为  -target  1.2) | 00  00 \|00 2E      | 0\|46             |
+| j2sdk1.4.2_10 | -target  1.4               | 00  00 \|00 30      | 0\|48             |
+| jdk1.5.0_11   | 不带(默认为  -target  1.5) | 00  00 \|00 31      | 0\|49             |
+| jdk1.5.0_11   | -target  1.4 -source 1.4   | 00  00 \|00 30      | 0\|48             |
+| jdk1.6.0_01   | 不带(默认为  -target  1.6) | 00  00 \|00 32      | 0\|50             |
+| jdk1.6.0_01   | -target  1.5               | 00  00 \|00 31      | 0\|49             |
+| jdk1.6.0_01   | -target  1.4 -source 1.4   | 00  00 \|00 30      | 0\|48             |
+| jdk1.7.0      | 不带(默认为  -target  1.6) | 00  00 \|00 32      | 0\|50             |
+| jdk1.7.0      | -target  1.7               | 00  00 \|00 33      | 0\|51             |
+| jdk1.7.0      | -target  1.4 -source 1.4   | 00  00 \|00 30      | 0\|48             |
 
 
 
-### 字段表集合
+## constant_pool
+
+* CONSTANT_Utf8:1,UTF-8编码的Unicode字符串
+  * tag 1
+  * length u2
+  * bytes[length]
+* CONSTANT_Integer:3,int类型的字面值
+  * tag 3
+  * byte u4
+* CONSTANT_Float:4,float类型的字面值
+* CONSTANT_Long:5,long类型的字面值
+* CONSTANT_Double:6,double类型的字面值
+* CONSTANT_Class:7,对一个类或接口的符号引用
+  * tag 7
+  * name_index:u2,名字,指向utf8
+* CONSTANT_String:8,String类型字面值的引用
+  * tag 8
+  * string_index:u2,指向utf8的索引
+* CONSTANT_Fieldref:9,对一个字段的符号引用
+  * tag 9
+  * class_index :u2,指向CONSTANT_Class
+  * name_and_type_index:u2,指向CONSTANT_NameAndType
+* CONSTANT_Methodref:10,对一个类中方法的符号引用
+  * tag 10
+  * class_index :u2,指向CONSTANT_Class
+  * name_and_type_index:u2,指向CONSTANT_NameAndType
+* CONSTANT_InterfaceMethodref:11,对一个接口中方法的符号引用
+  * tag 11
+  * class_index :u2,指向CONSTANT_Class
+  * name_and_type_index:u2,指向CONSTANT_NameAndType
+* CONSTANT_NameAndType:12,对一个字段或方法的部分符号引用
+  * tag 12
+  * name_index:u2,名字,指向utf8
+  * descriptor_index:u2,描述符类型,指向utf8
+
+
+
+## access_flag
+
+| Flag  Name     | Value  | Interpretation                                    |
+| -------------- | ------ | ------------------------------------------------- |
+| ACC_PUBLIC     | 0x0001 | public                                            |
+| ACC_PRIVATE    | 0x0002 | private                                           |
+| ACC_PROTECTED  | 0x0004 | protected                                         |
+| ACC_STATIC     | 0x0008 | static                                            |
+| ACC_FINAL      | 0x0010 | final,不能被继承                                  |
+| ACC_SUPER      | 0x0020 | 是否允许使用invokespecial指令,JDK1.2后,该值为true |
+| ACC_VOLATILE   | 0x0040 | volatile                                          |
+| ACC_TRANSIENT  | 0x0080 | transient                                         |
+| ACC_INTERFACE  | 0x0200 | 是否是接口                                        |
+| ACC_ABSTRACT   | 0x0400 | 抽象类                                            |
+| ACC_SYNTHETIC  | 0x1000 | 该类不是由用户代码生成,运行时生成的,没有源码      |
+| ACC_ANNOTATION | 0x2000 | 是否为注解                                        |
+| ACC_ENUM       | 0x4000 | 是否是枚举                                        |
+
+
+
+## field_info
 
 ![](JVM05.png)
 
 * 字段表用于描述接口或类中声明的变量
 * 获取某个字段有那些标志符,需要用访问标示(access_flag)值分别与标志符的特征值取与(&),如果结果为1,则表示该字段拥有相应的标志符
 * access_flags:字段访问标志,将class文件以16进制方式打开,占2个字节
+* name_index:常量池引用,表示字段的名字
+* descriptor_index:表示字段的类型
+  * B byte
+  * C char
+  * D double
+  * F float
+  * I int
+  * J long
+  * S short
+  * Z boolean
+  * V void
+  * L 引用对象,如Ljava/lang/Object
+  * [ 数组,如 [[Ljava/lang/String; = String\[][]
 
-| 标志符        | 特征值 | 描述                            |
-| ------------- | ------ | ------------------------------- |
-| ACC_PUBLIC    | 0x0001 | public                          |
-| ACC_PRIVATE   | 0x0002 | private                         |
-| ACC_PROTECTED | 0x0004 | protected                       |
-| ACC_STATIC    | 0x0008 | static.                         |
-| ACC_FINAL     | 0x0010 | final                           |
-| ACC_VOLATILE  | 0x0040 | volatile                        |
-| ACC_TRANSIENT | 0x0080 | transient                       |
-| ACC_SYNTHETIC | 0x1000 | synthetic;  没有源码,编译器生成 |
-| ACC_ENUM      | 0x4000 | 枚举类型                        |
 
 
-
-### 方法表集合
+## method_info
 
 * 方法表用于描述接口或类中声明的方法
 * 方法表的表示和描述和字段表中类似,method_info也和field_info相同
+* 方法描述符
+  * void inc()  **()V**
+  * void setId(int) **(I)V**
+  * int indexOf(char[],int ) **([CI)I**
+
+| Flag  Name       | Value  | Interpretation          |
+| ---------------- | ------ | ----------------------- |
+| ACC_PUBLIC       | 0x0001 | public                  |
+| ACC_PRIVATE      | 0x0002 | private                 |
+| ACC_PROTECTED    | 0x0004 | protected               |
+| ACC_STATIC       | 0x0008 | static                  |
+| ACC_FINAL        | 0x0010 | final                   |
+| ACC_SYNCHRONIZED | 0x0020 | synchronized            |
+| ACC_BRIDGE       | 0x0040 | 编译器产生,桥接方法     |
+| ACC_VARARGS      | 0x0080 | 可变参数                |
+| ACC_NATIVE       | 0x0100 | native                  |
+| ACC_ABSTRACT     | 0x0400 | abstract                |
+| ACC_STRICT       | 0x0800 | strictfp                |
+| ACC_SYNTHETIC    | 0x1000 | 不在源码中,由编译器产生 |
 
 
 
-### 属性表集合
+## attribute_info
 
 ```properties
 attribute_info {
@@ -926,9 +754,154 @@ attribute_info {
 * attribute_name_index:对于任意属性,必须是对当前Class文件的常量池的有效16位无符号索引.常量池在该索引处的项必须是CONSTANT_Utf8_info(结构),表示当前属性的名字
 * attribute_length:该值给出了跟随其后的字节的长度,这个长度不包括attribute_name_index和attribute_name_index项的6的字节
 
+| **名称**          | **使用者**     | **描述**               |
+| ----------------- | -------------- | ---------------------- |
+| Deprecated        | field method   | 字段,方法,类被废弃     |
+| ConstantValue     | field          | final常量              |
+| Code              | method         | 方法的字节码和其他数据 |
+| Exceptions        | method         | 方法的异常             |
+| LineNumberTable   | Code_Attribute | 方法行号和字节码映射   |
+| LocalVaribleTable | Code_Attribute | 方法局部变量表描述     |
+| SourceFile        | Class  file    | 源文件名               |
+| Synthetic         | field method   | 编译器产生的方法或字段 |
+|                   |                |                        |
+
+* Deprecated:attribute_name_index u2;attribute_length u4
+* attribute_name_index:指向包含Deprecated的UTF-8常量
+* attribute_length:为0
+* ConstantValue:attribute_name_index u2;attribute_length u4;constantvalue_index u2
+* attribute_name_index:包含ConstantantValue字面量的UTF-8索引
+* attribute_length:为2
+* constantvalue_index:常量值,指向常量池,可以是UTF-8,Float,Double等
 
 
-## Class文件校验
+
+### code_attribute
+
+```java
+Code_attribute {
+    u2 attribute_name_index;
+    u4 attribute_length;
+    u2 max_stack;
+    u2 max_locals;
+    u4 code_length;  // 字节码长度
+    u1 code[code_length]; // 字节码
+    u2 exception_table_length; // 异常表长度
+    {   u2 start_pc; // 异常处理的开始位置
+        u2 end_pc;
+        u2 handler_pc; // 处理这个异常的字节码位置
+        u2 catch_type; // 处理的异常类型,指向Constant_Class的指针
+    } exception_table[exception_table_length];// exception_table在start_pc和end_pc之间,如果遇到catch_type异常或者它的子异常,则转到handler_pc处理
+    u2 attributes_count; // 属性数量
+    attribute_info attributes[attributes_count];
+}
+```
+
+
+
+#### LineNumberTable
+
+* Code属性的属性
+
+```java
+LineNumberTable_attribute {
+    u2 attribute_name_index; // UTF-8常量池，字面量LineNumberTable
+    u4 attribute_length;
+    u2 line_number_table_length; // 表项
+    {   u2 start_pc; // 字节码偏移量和对应的行号
+        u2 line_number;	
+    } line_number_table[line_number_table_length];
+}
+```
+
+
+
+#### LocalVariableTable
+
+* Code属性的属性
+
+```java
+LocalVariableTable_attribute {
+    u2 attribute_name_index; // UTF-8常量池，字面量LocalVariableTable
+    u4 attribute_length;
+    u2 local_variable_table_length;
+    {   u2 start_pc; // 局部变量作用域
+        u2 length;
+        u2 name_index; // 局部变量名称和类型
+        u2 descriptor_index;
+        u2 index; // 局部变量的Slot位置
+    } local_variable_table[local_variable_table_length];
+}
+```
+
+
+
+### Exceptions
+
+* 和Code属性平级,表示方法抛出的异常(不是try catch部分,而是 throws部分)
+
+```java
+attribute_name_index u2 
+attribute_length u4 
+number_of_exceptions u2 
+exception_index_table[number_of_exceptions] u2:指向Constant_Class的索引
+```
+
+
+
+### SourceFile
+
+* 描述生成Class文件的源码文件名称
+
+```java
+attribute_name_index u2
+attribute_length u4:固定为2
+soucefile_index u2:UTF-8常量索引
+```
+
+
+
+## 实例
+
+```java
+public class User {
+    private int id;
+    private String name;
+    private int age;
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+```
+
+16进制文件
+
+![](JVM12.png)
+
+![](JVM13.png)
+
+![](JVM14.png)
+
+![](JVM15.png)
+
+
+
+# Class文件校验
 
 * Java语言编译器需要遵循许多规则和约束来生成代码,以保证所生成的Class文件符合静态和结构化约束,但是Java虚拟机无法保证所有它将要加载的Class文件都来自于正确实现的编译器或者有正确的格式
 * 某些应用程序,譬如网络浏览器可能会下载程序的源码,然后将它们编译为Class文件,也有某些应用程序可能会直接下载已被编译过的Class文件.这些应用程序需要确定Class文件是否是来自于一个错误实现的编译器,甚至是否是来自于想恶意破坏虚拟机的人
@@ -952,19 +925,19 @@ attribute_info {
 
 
 
-### 类型检查验证
+## 类型检查验证
 
 * 查看英文原版实例
 
 
 
-### 类型推导验证
+## 类型推导验证
 
 * 对于不包含StackMapTable属性的Class文件(这样的Class文件其版本号必须小于或等于49.0)需要使用类型推断的方式来验证
 
 
 
-#### 类型推断的验证过程
+### 类型推断的验证过程
 
 * 在链接过程中,验证器通过数据流分析的方式检查每个方法Code属性中的code[].验证器必须确保程序中无论在任何执行时间,无论是选择哪条执行路径,都必须遵循以下规则:
   * 操作数栈的深度及所包含的值的类型总是相同
@@ -978,7 +951,7 @@ attribute_info {
 
 
 
-#### 字节码验证器
+### 字节码验证器
 
 * Class文件中每个方法的代码都要被单独地验证
 * 首先,组成代码的字节序列被会分隔成一系列指令,每条指令在 code[]中的起始位置索引将被记录在另外的数组中
@@ -1016,7 +989,7 @@ attribute_info {
 
 
 
-#### long和double的值
+### long和double的值
 
 * long 和 double 类型的数值在验证过程中要被特殊处理
 * 当一个 long 或 double 型的数值被存放到局部变量表的索引n处时,索引n+1也会被显式声明由索引n持有,且不能再被用作其它局部变量的索引.先前索引 n+1 处的值也会变为不可用
@@ -1026,7 +999,7 @@ attribute_info {
 
 
 
-#### 实例初始化方法与创建对象
+### 实例初始化方法与创建对象
 
 * 创建一个新的类实例需要多个步骤的处理过程
 
@@ -1050,7 +1023,7 @@ invokespecial #5 // Invoke myClass.<init>
 
 
 
-#### 异常和 finally
+### 异常和 finally
 
 * 为了实现 try-finally 结构,在版本号小于或等于50.0的Java语言编译器中,可以使用将两种特殊指令: jsr(跳转到程序子片段)和ret(程序子片段返回)组合的方式来生成try-finally 结构的 Java 虚拟机代码.这样的 finally 语句以程序子片段的方式嵌入到 Java虚拟机方法代码中,有点像异常处理器的代码那样.当使用 jsr 指令来调用程序子片段时, 该指令会把程序子片段结束后应返回的地址值压入操作数栈中, 以便在 jsr 之后的指令能被正确执行.这个地址值会作为 returnAddress 类型数据存放于操作数栈上,程序子片段的代码中会把返回地址存放在局部变量中,在程序子片段执行结束时,ret指令从局部变量中取回返回地址并将执行的控制权交给返回地址处的指令
 * 程序有多种不同的执行路径会执行到 finally 语句(即代表finally语句的程序子片段被调用).如果 try 中全部语句正常地完成的话,那在执行下一条指令之前,会通过 jsr 指令来调用 finally 的程序子片段.如果在 try 语句中遇到 break 或 continue 关键字把程序执行权转移到 try 语句之外的话,也会保证在跳转出 try 之前使用 jsr 指令来调用 finally 的程序子片段.如果 try 语句中遇到了 return,代码的行为如下:
@@ -1153,22 +1126,24 @@ public void spin() {
 
 * 类型转换指令可以将两种不同的数值类型进行相互转换,这些转换操作一般用于实现用户代码中的显示类型转换操作以及用来处理字节码指令集中数据类型相关指令无法与数据类型一一对应的问题
 * 宽化类型处理和窄化类型处理:类似子类转父类和父类转子类,int转long,long转int
-* i2b,i2c,i2s,i2l,l2i
+* i2l,l2i,i2f,l2f,l2d,f2i,f2d,d2i,d2l,d2f,i2b,i2c,i2s
+* i2l:将int转为long
+  * 执行前,栈:..., value
+  * 执行后,栈:...,result.word1,result.word2
+  * 弹出int,扩展为long,并入栈
 
 
 
 ## 对象创建与访问指令
 
-* 创建普通类实例的指令:new
-* 创建数组的指令:
-  * newarray:基本类型数组创建
-  * anewarray:引用类型数组创建
-  * multianewarray:多维引用数组创建
-* 访问类字段:
-  * getfield:获取字段的值
-  * putfield:设置字段的值
-  * getstatic:获取静态字段的值
-  * putstatic:设置静态字段的值
+* new:创建普通类实例的指令
+* newarray:基本类型数组创建
+* anewarray:引用类型数组创建
+* multianewarray:多维引用数组创建
+* getfield:获取字段的值
+* putfield:设置字段的值
+* getstatic:获取静态字段的值
+* putstatic:设置静态字段的值
 * 把数组元素加载到操作数栈的指令:baload,caload,iaload,laload,saload,faload,faload,aaload(引用)
 * 将操作数栈的值存储到数组元素:astore
 * 取数组长度的指令:arraylength
@@ -1185,12 +1160,65 @@ public void spin() {
 
 
 
+### 常量入栈
+
+* aconst_null:null对象入栈
+* iconst_m1:int常量-1入栈
+* iconst_0:int常量0入栈
+* lconst_1:long常量1入栈
+* fconst_1:float 1.0入栈
+* dconst_1:double 1.0 入栈
+* bipush:8位带符号整数入栈
+* sipush:16位带符号整数入栈
+* ldc:常量池中的项入栈
+
+
+
+### 局部变量压栈
+
+* xload(x为i l f d a):分别表示int,long,float,double,object ref
+* xload_n(n为0 1 2 3)
+* xaload(x为i l f d a b c s)
+  * 分别表示int,long,float,double,obj ref ,byte,char,short
+  * 从数组中取得给定索引的值,将该值压栈
+  * iaload
+    * 执行前,栈:..., arrayref, index
+    * 它取得arrayref所在数组的index的值,并将值压栈
+    * 执行后,栈:..., value
+
+
+
+### 出栈装载入局部变量
+
+* xstore(x为i l f d a):出栈,存入局部变量
+* xstore_n(n 0 1 2 3):出栈,将值存入第n个局部变量
+* xastore(x为i l f d a b c s)
+  * 将值存入数组中
+  * iastore
+    * 执行前,栈:...,arrayref, index, value
+    * 执行后,栈:...
+    * 将value存入arrayref[index]
+
+
+
 ## 控制转移指令
 
 * 控制转移指令可以让Java虚拟机有条件或无条件的从指定位置指令执行而不是控制转移指令的下一条指令继续执行程序,即控制转移指令就是在修改PC寄存器的值
-  * 条件分支:ifeq,iflt,ifle,ifne,ifgt,ifge,ifnull,ifnonnull,if_icmpeq,if_icmpne,if_icmplt, if_icmpgt,if_icmple,if_icmpge,if_acmpeq,if_acmpne
-  * 复合条件分支:tableswitch,lookupswitch
-  * 无条件分支:goto,goto_w,jsr,jsr_w,ret
+* 条件分支:
+  * ifeq/ifne:如果为0/不为0,则跳转
+    * 参数:byte1,byte2
+    * value出栈,如果栈顶value为0则跳转到(byte1<<8)|byte2
+    * 执行前,栈:...,value
+    * 执行后,栈:...
+  * iflt/ifle:如果小于0/小于等于0,则跳转
+  * ifgt/ifge:如果大于0/大于de等于0,则跳转
+  * ifnull/ifnonnull:如果为null/不为null,则跳转
+  * if_icmpeq/if_icmpne:如果两个int相同/不同,则跳转
+  * if_icmplt/if_icmple:如果int小于/小于等于,则跳转
+  * if_icmpgt/if_icmpge:如果int大于/大于等于,则跳转
+  * if_acmpeq/if_acmpne:如果2个引用类型相同/不同,则跳转
+* 复合条件分支:tableswitch,lookupswitch
+* 无条件分支:goto,goto_w,jsr,jsr_w,ret
 * 在Java虚拟机中有专门的指令集用来处理int和引用类型的条件分支比较操作,为了可以无需明显标识一个实体值是否null,也有专门的指令用来检测 null 值
 * boolean,byte,char,short的条件分支比较操作都使用int比较指令来完成,而对于long,float,double类型的条件分支比较操作,则会先执行相应类型的比较运算指令,运算指令会返回一个整形值到操作数栈中,随后再执行int类型的条件分支比较操作来完成整个分支跳转
 * 由于各种类型的比较最终都会转化为int类型的比较操作,基于int类型比较的这种重要性,Java虚拟机提供了非常丰富的int类型的条件分支指令
@@ -1202,7 +1230,7 @@ public void spin() {
 
 * invokevirtual:用于调用对象的实例方法,根据对象的实际类型进行分派(虚方法分派),这也是Java语言中最常见的方法分派方式
 * invokeinterface:用于调用接口方法,它会在运行时搜索一个实现了这个接口方法的对象,找出适合的方法进行调用
-* invokespecial:用于调用一些需要特殊处理的实例方法,包括实例初始化方法,私有方法和父类方法
+* invokespecial:用于调用一些需要特殊处理的实例方法,包括实例初始化方法,私有方法和父类方法.通常根据引用的类型选择方法,而不是对象的类来选择,即它使用静态绑定而不是动态绑定
 * invokestatic:用于调用类方法(static方法)
 * 方法返回指令是根据返回值的类型区分的,包括有ireturn(当返回值是boolean,byte,char,short和int 类型时使用),lreturn,freturn,dreturn和areturn.return指令供声明为void的方法,实例初始化方法,类和接口的类初始化方法使用
 
@@ -1279,6 +1307,102 @@ public void spin() {
 ### 附加信息
 
 * 虚拟机规范中允许具体的虚拟机实现增加一些规范里没有描述的信息到栈帧中,这部分信息完全取决于虚拟机的实现
+
+
+
+# ASM
+
+* Java字节码操作框架,可以用于修改现有类或者动态产生新类.如AspectJ,Clojure,spring,cglib
+
+```java
+ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS|ClassWriter.COMPUTE_FRAMES);  
+cw.visit(V1_7, ACC_PUBLIC, "Example", null, "java/lang/Object", null);  
+MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null,  null);  
+mw.visitVarInsn(ALOAD, 0);  //this 入栈
+mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");  
+mw.visitInsn(RETURN);  
+mw.visitMaxs(0, 0);  
+mw.visitEnd();  
+mw = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",  "([Ljava/lang/String;)V", null, null);  
+mw.visitFieldInsn(GETSTATIC, "java/lang/System", "out",  "Ljava/io/PrintStream;");  
+mw.visitLdcInsn("Hello world!");  
+mw.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",  "(Ljava/lang/String;)V");  
+mw.visitInsn(RETURN);  
+mw.visitMaxs(0,0);  
+mw.visitEnd();  
+byte[] code = cw.toByteArray();  
+AsmHelloWorld loader = new AsmHelloWorld();  
+Class exampleClass = loader  
+    .defineClass("Example", code, 0, code.length);  
+exampleClass.getMethods()[0].invoke(null, new Object[] { null }); 
+```
+
+
+
+## 模型AOP
+
+在函数开始部分或者结束部分嵌入字节码,可用于进行鉴权、日志等
+
+```java
+// 在操作前加上鉴权或日志
+public class Account { 
+    public void operation() { 
+        System.out.println("operation...."); 
+    } 
+}
+// 需要加入的内容
+public class SecurityChecker { 
+    public static boolean checkSecurity() { 
+        System.out.println("SecurityChecker.checkSecurity ...");
+        return true;
+    } 
+}
+```
+
+```java
+class AddSecurityCheckClassAdapter extends ClassVisitor {
+    public AddSecurityCheckClassAdapter( ClassVisitor cv) {
+        super(Opcodes.ASM5, cv);
+    }
+    // 重写 visitMethod,访问到operation方法时,给出自定义MethodVisitor,实际改写方法内容
+    public MethodVisitor visitMethod(final int access, final String name, 
+                                     final String desc, final String signature, final String[] exceptions) { 
+        MethodVisitor mv = cv.visitMethod(access, name, desc, signature,exceptions);
+        MethodVisitor wrappedMv = mv; 
+        if (mv != null) { 
+            // 对于operation方法
+            if (name.equals("operation")) { 
+                // 使用自定义 MethodVisitor,实际改写方法内容
+                wrappedMv = new AddSecurityCheckMethodAdapter(mv); 
+            } 
+        } 
+        return wrappedMv; 
+    } 
+}
+class AddSecurityCheckMethodAdapter extends MethodVisitor { 
+    public AddSecurityCheckMethodAdapter(MethodVisitor mv) { 
+        super(Opcodes.ASM5,mv); 
+    } 
+    public void visitCode() { 
+        visitMethodInsn(Opcodes.INVOKESTATIC, "geym/jvm/ch10/asm/SecurityChecker", 
+                        "checkSecurity", "()Z"); 
+        super.visitCode();
+    } 
+}
+public class Generator{ 
+    public static void main(String args[]) throws Exception { 
+        ClassReader cr = new ClassReader("geym.jvm.ch10.asm.Account"); 
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS|ClassWriter.COMPUTE_FRAMES); 
+        AddSecurityCheckClassAdapter classAdapter = new AddSecurityCheckClassAdapter(cw); 
+        cr.accept(classAdapter, ClassReader.SKIP_DEBUG); 
+        byte[] data = cw.toByteArray(); 
+        File file = new File("bin/geym/jvm/ch10/asm/Account.class"); 
+        FileOutputStream fout = new FileOutputStream(file); 
+        fout.write(data); 
+        fout.close(); 
+    } 
+}
+```
 
 
 
@@ -1725,3 +1849,90 @@ public class Demo01{
 * 该代码变量的赋值语句可以通过编译,而下面的输出却不能
 * <clinit>()方法是由编译器自动收集类中所有类变量的赋值动作和静态语句块中的语句合并产生的,并在类加载的初始化时调用
 * 编译器收集变量的顺序是由语句在源文件中出现的顺序决定的,**静态语句块中只能访问定义在静态语句块之前的变量,定义在它之后的变量,在前面的语句中可以赋值,但是不能访问**
+
+
+
+# 实例4
+
+```java
+public class Calc {
+    public int calc() {
+        int a = 500;
+        int b = 200;
+        int c = 50;
+        return (a + b) / c;
+    }
+}
+```
+
+```java
+public int calc();
+  Code:
+   Stack=2, Locals=4, Args_size=1
+   0:   sipush  500
+   3:   istore_1
+   4:   sipush  200
+   7:   istore_2
+   8:   bipush  50
+   10:  istore_3
+   11:  iload_1
+   12:  iload_2
+   13:  iadd
+   14:  iload_3
+   15:  idiv
+   16:  ireturn
+}
+```
+
+简单的执行过程
+
+![](JVM16.png)
+
+![](JVM17.png)
+
+![](JVM18.png)
+
+![](JVM19.png)
+
+![](JVM20.png)
+
+![](JVM21.png)
+
+* 字节码指令为一个byte整数
+
+```java
+_nop                  =   0, // 0x00
+_aconst_null          =   1, // 0x01
+_iconst_0             =   3, // 0x03
+_iconst_1             =   4, // 0x04
+_dconst_1             =  15, // 0x0f
+_bipush               =  16, // 0x10
+_iload_0              =  26, // 0x1a
+_iload_1              =  27, // 0x1b
+_aload_0              =  42, // 0x2a
+_istore               =  54, // 0x36
+_pop                  =  87, // 0x57
+_imul                 = 104, // 0x68
+_idiv                 = 108, // 0x6c
+```
+
+* `void setAge(int)`的字节码
+  * 2A 1B B5 00 20 B1
+  * 2A _aload_0
+    * 无参
+    * 将局部变量slot0 作为引用 压入操作数栈
+  * 1B _iload_1
+    * 无参
+    * 将局部变量slot1 作为整数 压入操作数栈
+  * B5 _putfield
+    * 设置对象中字段的值
+    * 参数为2bytes (00 20) (指明了字段)
+      * 指向常量池的引用
+      * Constant_Fieldref
+      * 此处为User.age
+    * 弹出栈中2个对象:objectref, value
+    * 将栈中的value赋给objectref的给定字段
+  * B1 _return
+
+
+

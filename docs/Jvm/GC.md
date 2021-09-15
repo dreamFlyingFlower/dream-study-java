@@ -6,8 +6,6 @@
 
 
 
-
-
 # GC算法
 
 
@@ -179,7 +177,287 @@ Jvm中老年代就是使用的标记压缩法
 
 
 
-# Jvm参数
+# 对象
+
+
+
+## 结构
+
+![对象头](E:/repository/dream-study-java/docs/Jvm/JVM03.png)
+
+* Header:对象头,存储对象的源数据
+  * 自身运行时数据:哈希值,GC分代年龄,锁动态标志,线程持有的锁,偏向线程ID,偏向时间戳
+  * 类型指针:对象指向类的源数据指针,虚拟机通过该值确实对象是那个类的实例
+* InstanceData:实例数据
+* Padding:无实际意义,主要用来填充以达到字节数为8的倍数
+
+
+
+## 创建
+
+* new 类名
+* 根据new的参数在常量池中定义一个类的符号引用
+* 如果没有找到这个符号引用,说明类还没有被加载,则进行类加载,解析和初始化
+* 虚拟机在堆中为对象分配内存
+* 将分配的内存初始化为零值,不包含对象头
+* 调用对象的初始化方法
+
+
+
+# 内存模型
+
+![](E:/repository/dream-study-java/docs/Jvm/JVM10.png)
+
+* 每一个线程有一个工作内存和主存独立
+* 工作内存存放主存中变量的值的拷贝
+* 当数据从主内存复制到工作存储时,必须出现两个动作:
+  * 由主内存执行的读(read)操作
+  * 由工作内存执行的相应的load操作
+* 当数据从工作内存拷贝到主内存时,也出现两个操作:
+  * 由工作内存执行的存储(store)操作
+  * 由主内存执行的相应的写(write)操作
+* 每一个操作都是原子的,即执行期间不会被中断
+* 对于普通变量,一个线程中更新的值,不能马上反应在其他变量中.如果需要在其他线程中立即可见,需要使用 volatile 关键字
+
+
+
+## Volatile
+
+![第19图片](E:/repository/dream-study-java/docs/Jvm/JVM11.png)
+
+```java
+public class VolatileStopThread extends Thread{
+    private volatile boolean stop = false;
+    public void stopMe(){
+        stop=true;
+    }
+
+    public void run(){
+        int i=0;
+        while(!stop){
+            i++;
+        }
+        System.out.println("Stop thread");
+    }
+
+    public static void main(String args[]) throws InterruptedException{
+        VolatileStopThread t=new VolatileStopThread();
+        t.start();
+        Thread.sleep(1000);
+        t.stopMe();
+        Thread.sleep(1000);
+    }
+}
+```
+
+* 没有volatile,服务运行后无法停止
+* 使用volatile之后,一个线程修改了变量,其他线程可以立即知道
+* volatile 不能代替锁.一般认为volatile 比锁性能好,但不绝对
+* 选择使用volatile的条件是:语义是否满足应用
+* 保证可见性的方法
+  * volatile
+  * synchronized:unlock之前,写变量值回主存
+  * final:一旦初始化完成,其他线程就可见
+
+
+
+## 有序性
+
+* –在本线程内,操作都是有序的
+* 在线程外观察,操作都是无序的。（指令重排 或 主内存同步延时）
+
+
+
+## 指令重排
+
+
+
+* 指令重排的基本原则:
+  * 程序顺序原则：一个线程内保证语义的串行性
+  * volatile规则：volatile变量的写,先发生于读
+  * 锁规则：解锁(unlock)必然发生在随后的加锁(lock)前
+  * 传递性：A先于B,B先于C 那么A必然先于C
+  * 线程的start方法先于它的每一个动作
+  * 线程的所有操作先于线程的终结（Thread.join()）
+  * 线程的中断（interrupt()）先于被中断线程的代码
+  * 对象的构造函数执行结束先于finalize()方法
+
+```java
+class OrderExample {
+    int a = 0;
+    boolean flag = false;
+
+    public void writer() {
+        a = 1;
+        flag = true;
+    }
+
+    public void reader() {
+        if (flag) {
+            int i =  a +1;
+        }
+    }
+}
+```
+
+* 线程内串行语义
+  * 写后读 a = 1;b = a; 写一个变量之后,再读这个位置
+  * 写后写 a = 1;a = 2; 写一个变量之后,再写这个变量
+  * 读后写 a = b;b = 1; 读一个变量之后,再写这个变量
+  * 以上语句不可重排
+  * 编译器不考虑多线程间的语义
+  * 可重排:a=1;b=2;
+* 会破坏线程间的有序性
+  * 线程A首先执行writer(),线程B线程接着执行reader()
+  * 线程B在int i=a+1 是不一定能看到a已经被赋值为1.因为在writer中,两句话顺序可能打乱
+  * 线程A:flag=true;a=1
+  * 线程B:flag=true(此时a=0)
+* 保证有序性的方法
+
+```java
+class OrderExample {
+    int a = 0;
+    boolean flag = false;
+    public synchronized void writer() {
+        a = 1;
+        flag = true;
+    }
+    public synchronized void reader() {
+        if (flag) {
+            int i =  a +1;
+        }
+    }
+}
+```
+
+* 同步后,即使做了writer重排,因为互斥的缘故,reader 线程看writer线程也是顺序执行的
+* 线程A:flag=true;a=1
+* 线程B:flag=true(此时a=1)
+
+
+
+## 解释运行
+
+* 解释执行以解释方式运行字节码
+* 解释执行的意思是:读一句执行一句
+
+
+
+## 编译运行(JIT)
+
+* 将字节码编译成机器码
+* 直接执行机器码
+* 运行时编译
+* 编译后性能有数量级的提升
+* 字节码执行性能较差,所以可以对于热点代码编译成机器码再执行,在运行时的编译,叫做JIT Just-In-Time
+* JIT的基本思路是将热点代码,就是执行比较频繁的代码,编译成机器码
+
+
+
+# Tools
+
+
+
+在JDK安装目录bin下面有很多工具类,他们依赖lib下面的tools.jar
+
+
+
+## Jps
+
+* 显示当前服务器上的Java进程PID和运行的程序名称
+* -l:显示程序主函数的完成路径
+* -m:显示Java程序启动时的入参,类似main方法运行时输入的args
+* -v:显示程序启动时设置的JVM参数
+* -q:指定jps只输出进程ID,不输出类的短名称
+
+
+
+## Jstat
+
+* 运行状态信息,如类装载,内存,垃圾收集,jit编译的信息,详见Oracle官网[jstat]([jstat (oracle.com)](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html))
+
+```
+S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
+0.00  98.21   8.39  54.85  93.10  82.54  13    0.261     1    0.145    0.406
+```
+
+* jstat -gcutil pid:显示指定程序的gc信息,pid从jps获取
+  * S0:新生代的S0使用率
+  * S1:新生代S1使用率
+  * E:新生代eden使用率
+  * O:老年代使用率
+  * M:元空间使用率,类似于JDK8以前的永久代
+  * CCS:压缩类的空间
+  * YGC:新生代垃圾收集的次数
+  * YGCT:新生代垃圾收集总共耗费的时间
+  * FGC:Full GC次数
+  * FGCT:Full GC总共消耗的时间
+  * GCT:垃圾回收使用的总时间
+* jstat -gcutil pid interval count:监控间隔时间指定次数的gc.count为监控次数,interval为间隔时间,单位毫秒
+
+
+
+## Jinfo
+
+* 实时查看和调整虚拟机的各项参数,详见官网[jinfo]([jinfo (oracle.com)](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jinfo.html))
+* jinfo -flag  虚拟机参数 pid:查看某个进程的虚拟机设置参数
+* jinfo -flag [+|-] 虚拟机参数 pid:给指定进程加上(+)或禁用(-)某个虚拟机参数
+* jinfo -flag 虚拟机参数key=虚拟机参数value pid:给指定进程的虚拟机参数设置值
+
+
+
+## Jmap
+
+* 生成Java应用程序的堆快照和对象的统计信息
+* jmap -histo pid >c:\s.txt:将统计信息输出到指定目录指定文件
+* jmap -dump:format=b,file=c:\heap.hprof pid:输出Dump堆信息
+
+
+
+## Jstack
+
+* 打印线程dump
+* -l:打印锁信息
+* -m:打印java和native的帧信息
+* -F:强制dump,当jstack没有响应时使用
+
+
+
+## Jconsole
+
+* 可视化查看当前虚拟机中基本的信息,例如CPI,堆,栈,类,线程信息
+* 在windows上直接输入该命令会打开一个可视化界面,选择需要监控的程序即可
+* 在可视化界面中列出了内存,线程(可以检测死锁),类,JVM的相关信息
+
+![](E:/repository/dream-study-java/docs/Jvm/JVM04.png)
+
+
+
+## Visualvm
+
+ *          Java虚拟机性能分析工具,jconsole的更强版本,可视化工具,能看到JVM当前几乎所有运行程序的详细信息
+ *          需要VisualVM[官网]([VisualVM: Plugins Centers](https://visualvm.github.io/index.html))上下载合适版本
+ *          下载完成解压,进入bin,点击visualvm.exe打开,可实时检测Java程序的运行
+ *          可以选择安装其他插件,从官网的[插件]([VisualVM: Plugins Centers](https://visualvm.github.io/pluginscenters.html))地址.从VisualVM的工具->插件中安装
+
+
+
+## Javap
+
+* 查看class文件的字节码信息
+* javap -c test.class:编译test.class文件
+* javap -verbose test.class:编译test.class,输出更详细的指令集文件
+
+
+
+## MAT
+
+* Memory Analyzer:基于Eclipse的[软件](http://www.eclipse.org/mat/),可以直接安装在Eclipse,也可以单独使用
+* 需要先导出内存相关的dump文件,之后导入MAT中进行分析
+
+
+
+# JVM参数
 
 * 所有参数示例可参见dream-study-java-common项目的com.wy.jvm包
 
@@ -357,6 +635,16 @@ Heap
 # JVM调优
 
 
+
+## OOM原因
+
+* 创建了大量对象实例,导致堆内存溢出.可适当适当堆内存
+* 加载了大量类,创建了大量类,导致元空间溢出.可适当增大服务器内存,增大Perm区内存
+* 直接内存溢出:ByteBuffer.allocateDirect()无法从操作系统获得足够的空间,直接操作内存相关方法会导致直接内存溢出.减少堆内存,增大服务器内存
+
+
+
+## 案例
 
 * Full GC过长,20-30S
   * 减小堆内存大小,但是可以部署多个程序,避免内存浪费

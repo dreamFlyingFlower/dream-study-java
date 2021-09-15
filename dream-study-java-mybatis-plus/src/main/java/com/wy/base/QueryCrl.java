@@ -50,7 +50,7 @@ public abstract class QueryCrl<T, ID extends Serializable> {
 	@ApiOperation("根据主键查找数据")
 	@GetMapping("getEntitys")
 	public Result<?> getEntitys(@ApiParam T t) {
-		return Result.ok(baseService.getEntitys(t));
+		return baseService.getEntitys(t);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public abstract class QueryCrl<T, ID extends Serializable> {
 	@ApiOperation("根据Map中的所有参数获得数据集合")
 	@GetMapping("getLists")
 	public Result<?> getLists(@ApiParam @RequestParam Map<String, Object> params) {
-		return Result.ok(baseService.getLists(params));
+		return baseService.getLists(params);
 	}
 
 	/**

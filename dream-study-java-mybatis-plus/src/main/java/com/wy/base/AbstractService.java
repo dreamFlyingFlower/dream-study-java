@@ -268,13 +268,13 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 * @return 列表结果.默认返回实体类对象列表
 	 */
 	@Override
-	public Object getEntitys(T t) {
+	public Result<List<T>> getEntitys(T t) {
 		if (t == null || !(t instanceof AbstractPager)) {
-			return super.list(new QueryWrapper<T>(t));
+			return Result.ok(super.list(new QueryWrapper<T>(t)));
 		}
 		AbstractPager pager = (AbstractPager) t;
 		if (!pager.hasPager()) {
-			return super.list(new QueryWrapper<T>(t));
+			return Result.ok(super.list(new QueryWrapper<T>(t)));
 		}
 		Page<T> pageParam = new Page<T>(pager.getPageIndex(), pager.getPageSize());
 		if (StrTool.isNotBlank(pager.getPageOrder())) {
