@@ -1886,17 +1886,29 @@ public int calc();
 
 简单的执行过程
 
+* sipush:500入栈
+
 ![](JVM16.png)
 
 ![](JVM17.png)
 
 ![](JVM18.png)
 
+* iload_1:第一个局部变量压栈
+
 ![](JVM19.png)
+
+* iadd:2个数出栈,相加,和入栈
 
 ![](JVM20.png)
 
+* idiv:2元素出栈,结果入栈;ireturn:将栈顶的整数结果返回
+
 ![](JVM21.png)
+
+* 简单的字节码执行过程
+
+![](JVM22.png)
 
 * 字节码指令为一个byte整数
 
