@@ -4,19 +4,23 @@
 
 * 下载maven压缩文件解压之后的conf/settings.xml
 
+* maven默认仓库的地址配置在MAVEN_HOME/lib/maven-model-builder-xxx.jar的pom.xml中
+
 * 配置本地仓库地址和远程仓库地址
 
   ```xml
   <!-- 本地仓库地址,默认在用户目录下 -->
   <localRepository>${user.home}/.m2/repository</localRepository>
-  <!-- 远程仓库地址,默认是maven的中央仓库,在国外,可以配置成阿里或其他的 -->
+  <!-- 远程仓库镜像地址,默认是maven的中央仓库,服务器在国外,国内可以配置成阿里或其他的 -->
   <mirrors>
   	<mirror>
           <!-- id和name可自定义,mirrorOf写成*即可 -->
       	<id>nexus-aliyun</id>
-          <mirrorOf>*</mirrorOf>
           <name>Nexus aliyun</name>
-          <!-- 远程仓库地址 -->
+          <!-- 仓库镜像:表示指定仓库使用镜像仓库地址下载jar包 -->
+          <!-- 可以写多repository标签中的id值,逗号隔开.*表示所有的仓库都使用镜像仓库地址 -->
+          <mirrorOf>*</mirrorOf>
+          <!-- 远程公有或私有仓库地址 -->
           <url>https://maven.aliyun.com/repository/public</url>
       </mirror>
   </mirrors>
@@ -45,6 +49,7 @@
 * compile:默认,A,B都可以使用,可以向下传递.参与编译打包部署
 * test:A可用,B不可用,不能向下传递,不参与打包编译部署
 * provided:A可用,B不可用,不能向下传递,参与编译,不参与打包部署
+* runtime:编译时不依赖,运行打包时需要依赖
 * 同一个jar包被多次引用时,引用先声明的dependency中的
 
 
@@ -114,5 +119,77 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
 # 本地搭建私服仓库
 
 * 使用nexus sonatype,官网上下载压缩包,解压后有2个文件夹:一个是nexus的运行程序,配置文件等;另外一个文件夹则是nexus从远程仓库下载到本地的jar包存放地址
-* 配置nexus的环境变量,使用前需要先修改bin/jsw/conf/wrapper.confg文件,修改wrapper.java.command的值为当前系统jdk的安装目录,需要到bin这一级,并且是绝对地址,之后在控制台使用命令:nexus install安装nexus
-* 安装完之后控制台:nexus start启动nexus.启动之后可在控制台打开localhost:8081,用户名密码为admin,admin123
+* 配置nexus的环境变量,需要先修改bin/jsw/conf/wrapper.confg文件的wrapper.java.command的值为JDK的绝对路径,需要到bin这一级,之后在控制台使用命令:nexus install安装nexus
+* 安装完之后控制台:nexus start启动nexus.启动之后可在控制台打开localhost:8081,默认用户名密码为admin,admin123
+* Repository:
+  * 3rd party:上传公有仓库中没有的jar包
+  * Apache Snapshots:apache的测试jar包
+  * Central:私有仓库的中央仓库.当jar包在私有仓库没有的时候,从公有仓库下载到该仓库下
+  * Releases:内部上传的项目打包后的jar包,版本后缀必须是Release,使用mvn:deploy上传
+  * Snapshots:内部上传的项目打包后的jar包,版本后缀必须是Snapshot,使用mvn:deploy上传
+* Type:
+  * hosted:内部使用.将内部的项目上传到Maven私服做其他内部项目的依赖
+  * proxy:代理.私有仓库没有的时候,从公有仓库下载,如Maven或阿里的公有仓库
+  * group:组仓库.当jar需要从多个私有仓库中获取时,在pom.xml中配置多个仓库就很繁琐,可以使用group类型,将其他仓库添加到该组中,pom.xml中只需要写该组仓库的地址即可
+
+
+
+## POM
+
+* 在pom.xml中指定jar包下载地址,而不使用maven配置文件中的仓库地址
+
+```xml
+<repositories>
+    <repository>
+        <!-- 仓库编号,唯一,自定义 -->
+        <id>repository-personal</id>
+        <!-- 仓库名称,唯一,自定义 -->
+        <name>Repository Personal</name>
+        <!-- 仓库地址,此处的配置主要写私有仓库地址 -->
+        <url>http://maven.aliyun.com/repository/public</url>
+        <releases>
+            <!-- 是否可以使用release版本的jar包,默认false -->
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <!-- 是否可以使用snapshot版本的jar包,默认false -->
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+* 如果使用私有仓库,则每个项目中都需要配置该仓库,太过繁琐.可以修改maven的配置文件,使每个项目都使用私有仓库,配置好之后,可以注释掉pom中的仓库地址
+
+```xml
+<profiles>
+    <profile>
+        <!-- 配置仓库地址的id,唯一,自定义 -->
+        <id>profile-personal</id>
+        <!-- 私有仓库地址,和mirrors中不同的是,此处的配置需要开启之后才生效 -->
+        <repositories>
+            <repository>
+                <!-- 仓库编号,唯一,自定义 -->
+                <id>repository-personal</id>
+                <!-- 仓库名称,唯一,自定义 -->
+                <name>Repository Personal</name>
+                <!-- 仓库地址,此处的配置主要写私有仓库地址 -->
+                <url>http://maven.aliyun.com/repository/public</url>
+                <releases>
+                    <!-- 是否可以使用release版本的jar包,默认false -->
+                    <enabled>true</enabled>
+                </releases>
+                <snapshots>
+                    <!-- 是否可以使用snapshot版本的jar包,默认false -->
+                    <enabled>true</enabled>
+                </snapshots>
+            </repository>
+        </repositories>
+    </profile>
+</profiles>
+<activeProfiles>
+    <!-- 激活私有仓库地址 -->
+    <activeProfile>profile-personal</activeProfile>
+</activeProfiles>
+```
+

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.3.4.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dream.flying.flower</groupId>
 	<artifactId>dream-study-java-common</artifactId>
@@ -103,6 +102,25 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<!-- 仓库编号,唯一,自定义 -->
+			<id>repository-personal</id>
+			<!-- 仓库名称,唯一,自定义 -->
+			<name>Repository Personal</name>
+			<!-- 仓库地址,此处的配置主要写私有仓库地址 -->
+			<url>http://maven.aliyun.com/repository/public</url>
+			<releases>
+				<!-- 是否可以使用release版本的jar包,默认false -->
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<!-- 是否可以使用snapshot版本的jar包,默认false -->
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
