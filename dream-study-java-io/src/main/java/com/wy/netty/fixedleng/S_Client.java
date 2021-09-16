@@ -57,7 +57,6 @@ public class S_Client {
 				// 字符串解码器Handler,会自动处理channelRead方法的msg参数,将ByteBuf类型的数据转换为字符串对象
 				handlers[1] = new StringDecoder(StandardCharsets.UTF_8);
 				handlers[2] = new S_ClientHandler();
-
 				ch.pipeline().addLast(handlers);
 			}
 		});

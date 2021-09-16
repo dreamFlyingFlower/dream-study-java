@@ -83,6 +83,8 @@ import io.netty.util.concurrent.FastThreadLocal;
  * {@link FastThreadLocal}:作用和ThreadLocal相当,但是更快
  * {@link Recycler}:实现了一个轻量级的对象池机制,即已经用过的对象将放入池子中,再用的时候直接从池子中取,适用单例
  * 
+ * {@link ChannelPipeline}:向其中添加多个ChannelHandler时,前面的ChannelHandler处理完成之后,将结果传给下一个ChannelHandler
+ * 
  * @author ParadiseWY
  * @date 2020-11-28 14:36:35
  * @git {@link https://github.com/mygodness100}
