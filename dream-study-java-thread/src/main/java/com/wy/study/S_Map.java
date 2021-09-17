@@ -6,7 +6,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 /**
  * 线程安全的map方法,HashTable基本已经淘汰
  * 
- * {@link ConcurrentHashMap}:JDK8抛弃了Segment分段锁机制,利用CAS+Synchronized来保证线程安全,底层依然是数组+链表+红黑树
+ * {@link ConcurrentHashMap}:JDK8抛弃了Segment分段锁机制,利用CAS+Synchronized来保证线程安全,
+ * 底层依然是数组+链表+红黑树.当链表长度超过8时,链表转换为红黑树
  * 
  * <pre>
  * table:第一次插入时初始化,默认大小为16的数组,用来存储Node节点数据,扩容时大小总是2的幂次方
@@ -16,10 +17,14 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * ->-N:表示有N-1个线程正在进行扩容操作
  * ->其余情况:如果table未初始化,表示table需要初始化的大小;如果table已初始化,表示table的容量
  * Node:保存key,value及key的hash值的数据结构
- * ForwardingNode:一个特殊的Node,hash值为-1,存储nextTable的引用.只有table扩容时,该值作为一个占位符放在table中表示当前节点为null或则已经被移动
+ * ForwardingNode:一个特殊的Node,hash值为-1,存储nextTable的引用.
+ * 		只有table扩容时,该值作为一个占位符放在table中表示当前节点为null或则已经被移动
+ * 扩容:当容器中的元素个数大于capacity * loadfactor时,容器会进行扩容resize 为 2n
  * </pre>
  * 
  * {@link ConcurrentHashMap#put()}:存储元素,key和value都不能时null
+ * 
+ * <pre>
  * ->{@link ConcurrentHashMap#putVal()}:向table中新加入元素时,先定位索引位置.利用tabAt()获得最新的元素f,
  * 		如果f为null,说明table中这个位置第一次插入元素,利用Unsafe.compareAndSwapObject方法插入Node节点.
  * 		如果插入f成功,则直接条出循环.如果当前f的hash值为-1,说明f是ForwardingNode节点,意味有其他线程正在扩容
@@ -33,6 +38,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * 		如果f.hash >= 0,说明f是链表结构的头结点,遍历链表,如果找到对应的node节点,则修改value,否则在链表尾部加入节点
  * 		如果f是TreeBin类型节点,说明f是红黑树根节点,则在树结构上遍历元素,更新或增加节点
  * 		如果链表中节点数binCount >= TREEIFY_THRESHOLD(默认是8),则把链表转化为红黑树结构
+ * </pre>
  * 
  * table扩容:table的元素数量达到容量阈值sizeCtl时,先构建一个nextTable,大小为table的两倍,再将table的数据复制到nextTable中
  * 

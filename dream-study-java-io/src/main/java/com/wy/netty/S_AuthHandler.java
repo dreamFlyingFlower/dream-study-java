@@ -5,10 +5,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
+ * 数据处理类,只需要重写channelRead0()即可,该方法的参数类型来自于上一个管道的返回类型
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-11-28 15:46:05
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_AuthHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
