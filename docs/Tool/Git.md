@@ -12,6 +12,10 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
 
 暂存区:修改后的文件,经过add之后添加到的区域,只是一个概念
 
+本地仓库:当使用commit之后,会将修提交到本地仓库中,而暂存区就被清空
+
+远程仓库:push之后会将本地仓库中的修改提交到远程仓库,仓库的其他成员就可以拉取最新的代码
+
 
 
 # 常用命令
@@ -23,26 +27,10 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
   * -b branchname:拉取指定分支到本地，branchname为要拉取的分支名称
   * --shallow: 克隆仓库,但是不包括版本历史信息
 
-* git remote []:查看本地库对应的远程仓库名称,默认都是origin,是一个标签
-  * -v:查看拉取和提交的远程仓库名称和地址
-  
-  * add name url:添加一个新的源地址,比如github和gitee2个源.name和origin类似,可自定义,不可重复.url是新的源的远程地址
-  
-    ```shell
-    # 当新添加了一个源地址后,首次拉取代码需要带上参数
-    git pull name master --allow-unrelated-histories
-    ```
-  
-  * rm name:删除一个源,若只有一个源的时候,不可删除.origin不可删除
-  
 * git status []:查看本地仓库和远程仓库的差异
 
   * -s:查看详情,会出现2个M,后面跟着文件名.第一列M表示版本库和处理中间状态有差异;第二M表示工作区和当前文件有差异.有时候只会有1列
 
-* git log [-n] [filename]:查看历史版本信息,会包含版本号,一长串的字符
-  * -n:最近的n个版本
-  * filename:指定文件的信息,文件需要带上路径
-  
 * git pull []:从远程仓库拉取最新的代码到本地仓库中
 
   * version:从远程仓库中拉去指定版本的,该版本号可从git log中获取
@@ -64,27 +52,60 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
 
 * git rebase:将分支进行合并
 
-* git merge aa:将aa分支中的代码合并到当前分支,注意可能需要解决冲突
+* git merge aa:将aa分支中的代码合并到当前分支,注意可能需要解决冲突.git merge的3种情况
+
+  * allow merge commits:直接合并到当前分支中,同时保留当前分支和被合并分支的commits等信息,但是各自的commits信息保留在各自的分支中.从github的inlights查看
+  * allow squash commits:直接合并到当前分支中,但是不保留合并分支的路线,而是直接从2个分支的共同点上开始,直接将被合并分支的结果合并到当前分支中,舍弃被合并分支的commits等信息
+  * allow rebase commits:直接合并到当前分支中,但是不保留合并分支的路线,而是直接从2个分支的共同点上开始,将被合并分支的commit都提交到合并分支中
+
+* git mv oldfilename newfilename:将文件改名之后重新添加到暂存区中
 
 
 
 # git config
 
-* git config --global core.autocrlf []:windows,mac的换行符不一样,win是CRLF,mac是LF,不同开发者使用系统不一样会导致在比对时因为换行符的问题而出现差异
+* --local:只对某个仓库有效
+* --global:当前用户所有仓库有效
+* --system:对系统所有登录用户有效
+* --list/-l --local/--global/--system:显示config的配置
+* --global user.name <username>:设置提交的用户名
+* --global user.email <email>:设置提交的邮箱地址
+* --global core.autocrlf []:windows,mac的换行符不一样,win是CRLF,mac是LF,不同开发者使用系统不一样会导致在比对时因为换行符的问题而出现差异
   * true:提交时转换为LF,检出时转换为CRLF
   * false:提交检出均不转换
   * input:提交时转换为LF,检出时不转换
-* git config --global core.safecrlf []:全局设置git对换行符的行为权限
+* --global core.safecrlf []:全局设置git对换行符的行为权限
   * true:拒绝提交包含混合换行符的文件
   * false:允许提交包含混合换行符的文件
   * warn:提交包含混合换行符的文件时给出警告
+* core.ignorecase false:设置忽略大小写配置,可检测到文件名大小写变更
+* --global core.compression -1:默认zlib压缩方式,0不压缩
+* --global http.postBuffer 524288000:配置git缓存大小500M或更大,需要拉取的文件比较大时使用
+* --global http.lowSpeedLimit 0:配置git最低速度,git拉取速度较低时使用
+* --global http.lowSpeedTime 99999:配置git最低速度可持续时间,单位秒,git拉取速度较低时使用
 * git update-index --assue-unchanged config.conf:设置config.conf文件忽略更新,不提交,但是也不从远程仓库删除
 * git update-index --no-assume-unchanged config.conf:取消config.conf的忽略更新
-* git config core.ignorecase false:设置忽略大小写配置,可检测到文件名大小写变更
-* git config --global core.compression -1:默认zlib压缩方式,0不压缩
-* git config --global http.postBuffer 524288000:配置git缓存大小500M或更大,需要拉取的文件比较大时使用
-* git config --global http.lowSpeedLimit 0:配置git最低速度,git拉取速度较低时使用
-* git config --global http.lowSpeedTime 99999:配置git最低速度可持续时间,单位秒,git拉取速度较低时使用
+
+
+
+# git remote
+
+* 查看本地库对应的远程仓库名称,默认都是origin,是一个标签
+
+* `-v`:查看默认拉取和提交的远程仓库名称和地址,名称和地址是一对一的关系
+
+* `add name [branch] url`:添加一个新的源地址,比如github和gitee2个源
+
+  * name:和origin一样,是一个标签,可自定义,不可重复
+  * branch:远程仓库分支名,默认为master
+  * url:新的远程仓库地址
+
+  ```shell
+  # 当新添加了一个源地址后,首次拉取代码需要带上参数
+  git pull name master --allow-unrelated-histories
+  ```
+
+* `rm name`:删除一个源,若只有一个源的时候,不可删除.origin不可删除
 
 
 
@@ -94,7 +115,8 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
   * -a:查看所有分支
   * -v:查看版本以及注释
 * `git branch aa`:根据当前分支创建一个新的分支aa,aa的所有代码和当前分支一样
-* `git branch -d aa`:删除分支aa
+* `git branch -d aa`:删除分支aa,不能该分支没有被完全的merge,不能删除
+* `git branch -D aa`:强制删除分支,即便该分支没有被完全的merge
 * `git checkout -b aa`:根据当前分支创建一个新的分支aa,并切换到aa分支上
 * `git checkout aa`:切换到aa分支上
 * `git pull origin aa`:从aa分支上拉取最新代码,需要显示的指定用户名和分支名
@@ -107,7 +129,16 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
 # git log
 
 * `git log`: 显示历史日志
-* `git log --all --graph --decorate`: 可视化历史记录(有向无环图)
+* `--all`:查看所有的历史日志,包括分支的创建等
+* `--graph`:以图形化的形式展示历史日志
+* `--all --graph --decorate`: 可视化历史记录(有向无环图)
+* `--oneline`:显示历史日志在同一行
+* `-nx`:只显示最近的x条历史日志
+* `-Sstr`:查找str第一次出现的commit
+* `-Gstr`:查找str有改变的commit,包括第一次提交
+* `-p -- filename`:输出指定文件的详细改变信息
+* `-L begin,+n:filename`:查看指定文件从begin开始的n行历史记录
+* `-n filename`:查看最近n个版本的历史信息
 
 
 
@@ -170,27 +201,165 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
 * git diff <filename>: 显示与上一次提交之间的差异
 * git diff <revision> <filename>: 显示某个文件两个版本之间的差异
 * git diff --cached:暂存区和上一次提交的差异
+* git diff b1 b2:比较2个分支(b1,b2)之间的差异
+* git diff b1 b2 -- filename1 filename2:比较2个分支之间指定文件之间的差异
+* git diff commit1 commit2:比较2个提交之间的差异.commit1和2是提交的hash值,从git log中查看
 
 
 
 # git reset
 
-git reset HEAD <file>:将当前分支暂存区的文件恢复到上一个版本,即将已经add的文件从暂存区退回到工作区,但是修改仍然存在.和checkout不同的是:
+* git reset HEAD <file>:将当前分支暂存区的文件恢复到上一个版本,即将已经add的文件从暂存区退回到工作区,但是修改仍然存在.和checkout不同的是:
+  * reset恢复的是已经add到暂存区的,且恢复之后修改仍然存在,只是重新回到了工作区
+  * checkout恢复的是没有add到暂存区的,且将文件直接回退到上一个版本
+* git reset --hard [HEAD^]:将本地仓库中的数据回滚到上个版本
+* git reset --hard HEAD^2:将本地仓库中的数据回滚到上2个版本
+* git reset --hard version:将本地仓库中的数据回滚到指定版本,version可从git log中查看
+* git reset --hard version filename:将指定文件回滚到指定版本
+* git reset --hard commtid:已经提交到暂存区的文件,恢复到指定commit
+* git reset --soft commtid:将当前分支撤销到指定版本,但是暂存区和工作区不做撤销
 
-* reset恢复的是已经add到暂存区的,且恢复之后修改仍然存在,只是重新回到了工作区
-* checkout恢复的是没有add到暂存区的,且将文件直接回退到上一个版本
 
-git reset --hard [HEAD^]:将本地仓库中的数据回滚到上个版本
 
-git reset --hard HEAD^2:将本地仓库中的数据回滚到上2个版本
+# git bisect
 
-git reset --hard version:将本地仓库中的数据回滚到指定版本,version可从git log中查看
+* 主要是问题定位.当commit很多时,可以通过类似2分法的操作,从一个good版本和一个bad版本中间开始查找有问题的版本
+* git bisect start:开始定位问题,此时会对指定commit版本进行标记,只有good和bad
+* git bisect good/bad commitid:指定某个提交为good或bad,如果同时存在一个good和一个bad时,就会自动跳到中间版本的commitid上.以此类推,直到没有bad版本时,就会定位到问题的最终commitid
+* git bisect skip commitid:若某个版本不确定是否有问题,可以跳过.若已经在当前commitid上,commitid可省略
+* 当查找到最终有问题的版本时,会显示该版本所有的文件变更
+* git bisect reset:结束问题定位
+* git bisect log>file.log:输出定位日志.若定位有问题,将bad判断成good,可以删除其中的日志,使用reset结束bisect,再从file.log开始定位问题
+* git bisect replay file.log:从指定的bisect日志文件开始定位问题
 
-git reset --hard version filename:将指定文件回滚到指定版本
 
-git reset --hard commtid:已经提交到暂存区的文件,恢复到指定commit
 
-git reset --soft commtid:将当前分支撤销到指定版本,但是暂存区和工作区不做撤销
+
+
+# git blame
+
+* 定位代码的修改人,修改时间,由那一个commitid提交
+* git blame filename:显示指定文件的修改人等信息
+* git blame -L begin,end filename:只显示文件中从begin行号到end行号的修改信息
+* git blame -L begin,+n filename:显示文件中从begin以及后面的n行信息,包括begin行
+
+
+
+# git grep
+
+* 功能和linux上的grep类型
+* git grep str:从当前分支的所有文件中查找str字符串
+* git grep -n str:查找字符串的同时显示行号
+* git grep --count str:输出待查找字符串总共出现的次数
+* git grep -p str *.java:查找待查找字符串在指定类型文件中出现的方法名
+* git grep -e str:使用正则表达式查找待查找字符串
+* git grep -e str1 --or/--and -e str2:多条件查找
+* git grep -e --not str:查找不包含待查找字符串的行
+* git grep str commitid/HEAD/HEAD~:从指定版本中查找待查找字符串
+
+```shell
+git grep -e 'abc' --and \( -e 'bfdfd' --or --not -e 'fdsfd' \)
+```
+
+
+
+# .git目录
+
+
+
+## hooks目录
+
+
+
+## info目录
+
+
+
+## logs目录
+
+
+
+## objects目录
+
+
+
+### pack
+
+* 将objects目录中的历史修改文件信息打包的目录
+
+
+
+### 其他目录
+
+* 保存每次修改的信息,会有多个文件
+* 查看文件信息.如目录名为xx,文件名为ffffffffff
+  * git cat-file -t xxffffffffff:查看当前文件的提交信息,可能返回tree,commit,blob(文件)
+  * git cat-file -p xxffffffffff:
+    * tree类型:展示本次提交的所有信息列表,同样都是tree类型,每个tree都会有一个hash值,再次使用git cat-file -p 该hash值,可以查看具体的文件内容
+    * blob类型:直接查看文件的内容
+    * commit:提交信息
+
+
+
+## refs目录
+
+
+
+### heads
+
+* 本地仓库信息,包含所有本地的分支文件,每个文件内容是一个类似uuid的字符串
+
+
+
+### remotes
+
+* 远程仓库地址信息
+* 通常情况下,只会有一个origin目录,包含的是默认的远程仓库地址以及分支信息
+* 如果同时提交多个远程仓库,该目录下会有多个目录,和默认的分支一样
+
+
+
+### tags
+
+* 标签信息,保存是已经稳定版本的分支信息,不可更改分支里的文件,只能新增,覆盖(整体覆盖),删除
+
+
+
+## COMMIT_EDITMSG
+
+
+
+## config
+
+* 当前项目的配置文件,包括远程仓库地址,用户信息以及其他通用信息
+
+
+
+## description
+
+
+
+## FETCH_HEAD
+
+
+
+## Head
+
+* 文本文件,保存当前分支地址
+
+
+
+## index
+
+
+
+## ORIG_HEAD
+
+
+
+## packed-refs
+
+
 
 
 
@@ -236,6 +405,13 @@ git push --force
 ```
 
 * 在回退版本的时候即使回退到该大文件A存在的历史版本,依然无法获取A文件,这个文件被永久被仓库以及仓库历史中删除
+
+
+
+# 本地备份
+
+* git clone --bare src/.git dest:在dest目录中执行,将src项目备份到当前目录中
+* git clone --bare file///src/.git dest:同上,但是会有压缩,进度条等.更智能,通常使用该方式
 
 
 

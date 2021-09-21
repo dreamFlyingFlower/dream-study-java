@@ -4,7 +4,7 @@
 
 * 下载maven压缩文件解压之后的conf/settings.xml
 
-* maven默认仓库的地址配置在MAVEN_HOME/lib/maven-model-builder-xxx.jar的pom.xml中
+* maven默认远程仓库地址在MAVEN_HOME/lib/maven-model-builder-xxx.jar的pom.xml中
 
 * 配置本地仓库地址和远程仓库地址
 
@@ -13,9 +13,9 @@
   <localRepository>${user.home}/.m2/repository</localRepository>
   <!-- 远程仓库镜像地址,默认是maven的中央仓库,服务器在国外,国内可以配置成阿里或其他的 -->
   <mirrors>
-  	<mirror>
+      <mirror>
           <!-- id和name可自定义,mirrorOf写成*即可 -->
-      	<id>nexus-aliyun</id>
+          <id>nexus-aliyun</id>
           <name>Nexus aliyun</name>
           <!-- 仓库镜像:表示指定仓库使用镜像仓库地址下载jar包 -->
           <!-- 可以写多repository标签中的id值,逗号隔开.*表示所有的仓库都使用镜像仓库地址 -->
@@ -24,21 +24,37 @@
           <url>https://maven.aliyun.com/repository/public</url>
       </mirror>
   </mirrors>
+  <!-- 修改JDK版本 -->
+  <profile>
+      <!-- id可自定义 -->
+      <id>jdk1.8</id>
+      <activation>
+          <!-- 是否启用:true启用,false不启用 -->
+          <activeByDefault>true</activeByDefault>
+          <!-- JDK版本 -->
+          <jdk>1.8</jdk>
+      </activation>
+      <properties>
+          <maven.compiler.source>1.8</maven.compiler.source>
+          <maven.compiler.target>1.8</maven.compiler.target>
+          <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+      </properties>
+  </profile>
   ```
 
 
 
 # 常用命令
 
-* mvn clean:清理缓存,下载依赖等
+* mvn clean:清理缓存,下载依赖,移除上一次构建生成的文件
 * mvn compile:将当前项目重新进行编译
 * mvn test-compile:编译测试程序
 * mvn test:执行测试程序
-* mvn package:程序打包成war或jar
+* mvn package:接受编译好的代码,将代码打包成war或jar
 * mvn clean package -Dmaven.test.skip=ture:清理打包时跳过测试
-* mvn install:安装到本地的maven仓库中
-* mvn site:生成站点
-* mvn deploy:部署
+* mvn install:将项目安装到本地的maven仓库中,可以让其他项目进行依赖
+* mvn deploy:将最终的包复制到远程仓库,让其他开发人员与项目共享
+* mvn site:生成项目的站点文档
 
 
 
@@ -116,11 +132,12 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
 
 
 
-# 本地搭建私服仓库
+# Nexus私服
 
-* 使用nexus sonatype,官网上下载压缩包,解压后有2个文件夹:一个是nexus的运行程序,配置文件等;另外一个文件夹则是nexus从远程仓库下载到本地的jar包存放地址
+* 使用nexus sonatype搭建私服,官网上下载压缩包,解压后有2个文件夹:一个是nexus的运行程序,配置文件等;另外一个是nexus从远程仓库下载到本地的jar包存放地址
 * 配置nexus的环境变量,需要先修改bin/jsw/conf/wrapper.confg文件的wrapper.java.command的值为JDK的绝对路径,需要到bin这一级,之后在控制台使用命令:nexus install安装nexus
-* 安装完之后控制台:nexus start启动nexus.启动之后可在控制台打开localhost:8081,默认用户名密码为admin,admin123
+* 安装完之后控制台:nexus start/nexus stop启动/停止nexus
+* 网页打开nexus控制台:localhost:8081,默认用户名密码为admin,admin123,默认密码都是用户名加123
 * Repository:
   * 3rd party:上传公有仓库中没有的jar包
   * Apache Snapshots:apache的测试jar包
@@ -139,6 +156,7 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
 * 在pom.xml中指定jar包下载地址,而不使用maven配置文件中的仓库地址
 
 ```xml
+<!-- 从指定仓库地址中下载JAR -->
 <repositories>
     <repository>
         <!-- 仓库编号,唯一,自定义 -->
@@ -157,11 +175,37 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
         </snapshots>
     </repository>
 </repositories>
+<!-- 项目发布到私服 -->
+<distributionManagement>
+    <repository>
+        <id>releases</id>
+        <url>http://localhost:8081/nexus/content/repositories/releases</url>
+    </repository>
+    <snapshotRepository>
+        <id>snapshots</id>
+        <url>http://localhost:8081/nexus/content/repositories/snapshots</url>
+    </snapshotRepository>
+</distributionManagement>
 ```
 
 * 如果使用私有仓库,则每个项目中都需要配置该仓库,太过繁琐.可以修改maven的配置文件,使每个项目都使用私有仓库,配置好之后,可以注释掉pom中的仓库地址
 
 ```xml
+<servers>
+    <!-- 当需要向私服本地项目版本时,若匿名用户就可以发布jar包,则无需设置用户名和密码 -->
+    <!-- 若需要验证用户,则需要本文件中配置登录私服的用户名和密码 -->
+    <!-- id需要和pom文件中各种distributionManagement的id标签对应 -->
+	<server>
+    	<id>releases</id>
+        <username>username</username>
+        <password>username123</password>
+    </server>
+    <server>
+    	<id>snapshots</id>
+        <username>username</username>
+        <password>username123</password>
+    </server>
+</servers>
 <profiles>
     <profile>
         <!-- 配置仓库地址的id,唯一,自定义 -->
@@ -193,3 +237,4 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
 </activeProfiles>
 ```
 
+* mvn deploy:将项目发布到私服
