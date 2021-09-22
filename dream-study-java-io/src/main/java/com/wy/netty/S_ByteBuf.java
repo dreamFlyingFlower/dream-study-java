@@ -26,8 +26,8 @@ import io.netty.buffer.UnpooledByteBufAllocator;
  * 
  * {@link ByteBufAllocator}:顶层的ByteBuf内存分配管理器,safe和unsafe有系统自动判断
  * ->{@link AbstractByteBufAllocator}:通过构造参数实现上述ByteBuf的6种类型划分
- * ->>{@link UnpooledByteBufAllocator}:实现堆外内存分配使用API,newHeapBuffer()和newDirectBuffer()
- * ->>{@link PooledByteBufAllocator}:实现堆内JVM内存分配使用,newHeapBuffer()和newDirectBuffer()
+ * ->>{@link UnpooledByteBufAllocator}:实现堆外内存分配使用API,newHeapBuffer()和newDirectBuffer(),用完需要释放
+ * ->>{@link PooledByteBufAllocator}:实现堆内JVM内存分配使用,newHeapBuffer()和newDirectBuffer(),用完需要释放
  * 
  * 内存分配的几个重要概念:arena,chunk,page,subpage,由PoolThreadCache开始
  * 

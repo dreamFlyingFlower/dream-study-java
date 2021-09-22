@@ -71,6 +71,17 @@ import com.wy.collection.MapTool;
 /**
  * Activiti流程引擎,可画流程图的网站{@link https://bpmn.io/}
  * 
+ * 一些概念:
+ * 
+ * <pre>
+ * 流程定义:一种,流程定义就是流程图,定义某些流程的顺序结构
+ * 流程实例:可以有无数个,每启动一次流程就会产生一个流程实例
+ * 流程变量:流程运行期间的一些数据
+ * 任务:流程执行到的需要具体的执行一个任务
+ * 起始,结束:Start,End,流程的开始和结束
+ * 网关:Gateway,控制流程的流转方向
+ * </pre>
+ * 
  * Activiti中的常用组件,核心API{@link ProcessEnigne},可通过该API操作以下service:
  * 
  * <pre>
@@ -304,6 +315,20 @@ public class S_Activiti {
 		}
 	}
 
+	/**
+	 * 流程部署相关
+	 * 
+	 * <pre>
+	 * 每次流程图有修改以后,我们都需要重新部署,流程引擎才能用到新的流程
+	 * 以前旧的流程都是存储在数据库中,新的流程也要存在数据库中
+	 * 每次部署都会保存一个新的流程定义act_re_procdef
+	 * 同一个流程多次部署相当于只是版本叠加
+	 * 流程定义的key是用来识别版本是否叠加的
+	 * </pre>
+	 * 
+	 * @param processEngine 流程引擎
+	 * @return
+	 */
 	public static ProcessDefinition createProcessDefinition(ProcessEngine processEngine) {
 		RepositoryService repositoryService = processEngine.getRepositoryService();
 		DeploymentBuilder deploymentBuilder = repositoryService.createDeployment();
@@ -329,6 +354,16 @@ public class S_Activiti {
 		// 流程定义对象
 		ProcessDefinition definition =
 				repositoryService.createProcessDefinitionQuery().deploymentId(deployId).singleResult();
+		List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
+		for (ProcessDefinition processDefinition : list) {
+			System.out.println("流程id,流程框架生成的:" + processDefinition.getId());
+			System.out.println("流程name,画流程时的流程名:" + processDefinition.getName());
+			System.out.println("流程的key,画流程时的id" + processDefinition.getKey());
+			System.out.println("流程的资源信息:" + processDefinition.getResourceName() + "==>"
+					+ processDefinition.getDiagramResourceName());
+			System.out.println("流程的版本号:" + processDefinition.getVersion());
+			System.out.println("=====================");
+		}
 		return definition;
 	}
 
@@ -384,9 +419,9 @@ public class S_Activiti {
 		Task task = taskService.createTaskQuery().singleResult();
 		// 指定这个任务的拥有者,发起人
 		taskService.setOwner(task.getId(), "userid");
-		// 查看任务是否已经指定了待办人,若是指定了则会抛出异常
+		// 将任务指定待办人,只能单次指定,若多次指定会抛出异常
 		taskService.claim(task.getId(), "userid");
-		// 指定任务的待办人,但要慎用,避免多次重复指定不同待办人,最好指定之前查询是否指定待办人
+		// 指定任务的待办人,可重复指定,但要慎用,避免多次重复指定不同待办人,最好指定之前查询是否指定待办人
 		taskService.setAssignee(task.getId(), "userid");
 		// 指定任务的候选人
 		taskService.addCandidateUser(task.getId(), "userId");
@@ -427,8 +462,9 @@ public class S_Activiti {
 				.processInstanceId("processinstanceid")
 				// 返回作为指定key的流程实例的一部分任务
 				.processInstanceBusinessKey("businesskey").processDefinitionKeyLike("businesskey")
-				// 返回作为指定流程定义key的流程实例的一部分任务
-				.processDefinitionKey("processdefinitionkey").processDefinitionKey("processdefinitionkey")
+				// 返回作为指定流程定义key的流程实例的一部分任务,即查看流程到了那一步
+				.processDefinitionId("processdefinitionId").processDefinitionKey("processdefinitionkey")
+				.processDefinitionKeyLike("processdefinitionkey")
 				// 返回作为指定流程定义名称的流程实例的一部分任务
 				.processDefinitionName("name").processDefinitionNameLike("name")
 				// 返回作为指定id分支的一分部的任务

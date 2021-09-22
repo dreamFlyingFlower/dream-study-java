@@ -3,10 +3,11 @@ package com.wy.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.ReferenceCountUtil;
 
 /**
- * 利用Netty建立一个客户端
+ * 利用Netty建立一个客户端,可以直接继承{@link ChannelInboundHandlerAdapter}或{@link SimpleChannelInboundHandler}
  * 
  * @author ParadiseWy
  * @date 2019年5月14日 下午8:59:50

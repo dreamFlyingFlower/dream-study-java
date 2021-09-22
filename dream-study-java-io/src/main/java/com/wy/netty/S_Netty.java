@@ -5,6 +5,9 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.AbstractChannel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -13,6 +16,7 @@ import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.AbstractNioByteChannel;
 import io.netty.channel.nio.AbstractNioChannel;
 import io.netty.channel.nio.AbstractNioMessageChannel;
@@ -85,7 +89,18 @@ import io.netty.util.concurrent.FastThreadLocal;
  * 
  * {@link ChannelPipeline}:向其中添加多个ChannelHandler时,前面的ChannelHandler处理完成之后,将结果传给下一个ChannelHandler
  * 
- * @author ParadiseWY
+ * Netty3->Netty4的变化:
+ * 
+ * <pre>
+ * ChannelBuffer->{@link ByteBuf}
+ * ChannelBuffers->{@link PooledByteBufAllocator},{@link UnpooledByteBufAllocator}或{@link Unpooled},使用完后需要释放
+ * FrameDecoder->{@link ByteToMessageDecoder}
+ * FrameEncoder->{@link MessageToByteEncoder}
+ * OneToOneEncoder->{@link MessageToByteEncoder}
+ * messageReceive->channelRead0(netty5里面是messageReceive)
+ * </pre>
+ * 
+ * @author 飞花梦影
  * @date 2020-11-28 14:36:35
  * @git {@link https://github.com/mygodness100}
  */

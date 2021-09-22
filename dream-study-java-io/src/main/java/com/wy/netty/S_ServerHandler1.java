@@ -15,21 +15,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public class S_ServerHandler1 extends ChannelInboundHandlerAdapter {
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) {
-		System.out.println("channelActive");
-	}
-
-	@Override
-	public void channelRegistered(ChannelHandlerContext ctx) {
-		System.out.println("channelRegistered");
-	}
-
-	@Override
-	public void handlerAdded(ChannelHandlerContext ctx) {
-		System.out.println("handlerAdded");
-	}
-
-	@Override
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 		super.channelRead(ctx, msg);
 		new Thread(new Runnable() {

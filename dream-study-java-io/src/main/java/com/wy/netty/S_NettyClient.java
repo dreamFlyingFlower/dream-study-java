@@ -75,7 +75,7 @@ public class S_NettyClient {
 		ChannelFuture future = null;
 		try {
 			client = new S_NettyClient();
-			future = client.doRequest("localhost", 9999, new S_ClientHandler());
+			future = client.doRequest("localhost", 8888, new S_ClientHandler());
 			Scanner s = null;
 			while (true) {
 				s = new Scanner(System.in);
