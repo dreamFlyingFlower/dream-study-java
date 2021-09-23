@@ -1132,16 +1132,20 @@ END REPEAT[label]
 ```mysql
 # 直接输入用户名和密码进行备份,username是登录的用户名,password是登录的密码,dbname是数据库名
 # 最后的sql文件可以是路径,若不是路径直接保存到当前目录
-mysqldump -uusername -ppassword [] dbname> sql_bak_dbname.sql
+mysqldump -uusername -ppassword []> sql_bak_dbname.sql
 ```
 
+* --databases dbname1 dbname2...:指定备份多个数据库数据和表结构
+* -A:备份所有数据库数据和结构
+* -A -d:备份所有数据库表结构
+* -A -t:备份所有数据库数据
+* -A  -B  --events:将所有数据库都一次备份完成
+* -A  -B  -F  --events:将所有数据库都一次备份完成,并且对bin-log进行分割,产生新的bin-log日志,而以前的数据就直接从即将备份的文件中取,以后增量数据从产生的新的bin-log日志中读.需要将bin-log先打开
 * -B dbname1 dbname2...:备份的sql中添加创建数据库和使用数据库的语句,可同时备份多个库
 * -B dbname|gzip:在备份的sql中添加创建数据库和使用使用数据库的语句,并压缩文件
 * dbname tablename1 tablename2...:备份数据库中的指定表
 * -d dbname:只备份数据库中所有表的结构
 * -t dbname:只备份数据库中所有表的数据
-* -A  -B  --events:将所有数据库都一次备份完成
-* -A  -B  -F  --events:将所有数据库都一次备份完成,并且对bin-log进行分割,产生新的bin-log日志,而以前的数据就直接从即将备份的文件中取,以后增量数据从产生的新的bin-log日志中读.需要将bin-log先打开
 * --master-data=1:在备份时直接定位到当前bin-log的终点位置,恢复的时候可以直接从提示的位置恢复.需要结合bin_log相关命令完成全量备份,见7.1
 
 ```mysql
@@ -1229,28 +1233,27 @@ load data [local] infile 文件地址 into table tablename;
 
 ## 定时备份
 
-1. 创建备份脚本目录:mkdir  -p  /bak/tasks,新建mysql备份目录mkdir  -p  /bak/mysql
+* 创建备份脚本目录:mkdir  -p  /bak/tasks,新建mysql备份目录mkdir  -p  /bak/mysql
+* 将执行备份的mysql语句写到脚本中,利用定时任务执行脚本
 
-2. 将执行备份的mysql语句写到脚本中,利用定时任务执行脚本
+```shell
+cd /bak/tasks
+vi mysql_bak.sh
+#!/bin/sh
+# DATE=$(date +%Y%m%d) # 加上时间后缀,每天只会有一个备份
+mysqldump -u username -p password [--lock-all-tables] [--default-character-set=utf8mb4] dbname | gzip > /bak/mysql/sql_bak_dbname_`date +%Y%m%d`.sql.gz
+# 编写完之后给脚本加上执行权限
+chmod +x mysql_bak.sh
+```
 
-   ```shell
-   cd /bak/tasks
-   vi mysql_bak.sh
-   #!/bin/sh
-   # DATE=$(date +%Y%m%d) # 加上时间后缀,每天只会有一个备份
-   mysqldump -u username -p password [--lock-all-tables] [--default-character-set=utf8mb4] dbname | gzip > /bak/mysql/sql_bak_dbname_`date +%Y%m%d`.sql.gz
-   # 编写完之后给脚本加上执行权限
-   chmod +x mysql_bak.sh
-   ```
+* 编写定时任务进行定时备份
 
-3. 编写定时任务进行定时备份
-
-   ```shell
-   crontab -l # 查看正在执行的定时任务
-   crontab -e # 新增定时任务,进入vi模式
-   * */3 * * * root sh /bak/tasks/mysql_bak.sh # 每3小时执行一次任务,同名文件会自动覆盖
-   systemctl restart crontab # 重启定时任务
-   ```
+```shell
+crontab -l # 查看正在执行的定时任务
+crontab -e # 新增定时任务,进入vi模式
+* */3 * * * root sh /bak/tasks/mysql_bak.sh # 每3小时执行一次任务,同名文件会自动覆盖
+systemctl restart crontab # 重启定时任务
+```
 
 
 

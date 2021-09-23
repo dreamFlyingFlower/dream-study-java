@@ -55,6 +55,8 @@
 * mvn install:将项目安装到本地的maven仓库中,可以让其他项目进行依赖
 * mvn deploy:将最终的包复制到远程仓库,让其他开发人员与项目共享
 * mvn site:生成项目的站点文档
+* mvn versions:set -DnewVersion=0.0.2:设置父子模块的新版本号,修改后父子模块都会改版本号
+* mvn versions:update-child-modules:根据父模块版本号更新子模块版本号
 
 
 
