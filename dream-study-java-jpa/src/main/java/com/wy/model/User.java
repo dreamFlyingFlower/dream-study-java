@@ -33,11 +33,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Table(name = "ti_user")
 @Entity
 @Getter
 @Setter
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -101,8 +103,8 @@ public class User implements Serializable {
 	 * 用户和用户扩展信息是一对一的关系,应该使用OneToOne注解,2张表都要有对方的实体属性,且都要添加OneToOne注解
 	 * 
 	 * {@link OneToOne}:一对一关系<br>
-	 * -> {@link OneToOne#CascadeType()):级联属性,默认无操作,若是使用PERSIST,则新增user的同时新增userinfo ->
-	 * {@link OneToOne#fetch()):加载方式,默认懒加载,单表可用,但是关联表需要用EAGER,否则在级联修改时报错
+	 * -> {@link OneToOne#CascadeType()):级联属性,默认无操作,若是使用PERSIST,则新增user的同时新增userinfo
+	 * -> {@link OneToOne#fetch()):加载方式,默认懒加载,单表可用,但是关联表需要用EAGER,否则在级联修改时报错
 	 * 
 	 * {@link OneToMany},{@link ManyToOne}:一对多,多对一使用方式同OneToOne
 	 * 
@@ -120,6 +122,7 @@ public class User implements Serializable {
 	 * inverseJoinColumns表示中间表关联另外一张表的字段名
 	 */
 	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-	@JoinTable(name = "tr_user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	@JoinTable(name = "tr_user_role", joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles;
 }

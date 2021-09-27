@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.Repository;
 
 /**
- * Jpa
+ * Jpa,自动配置{@link JpaRepositoriesAutoConfiguration}
  * 
  * 底层其实是{@link SimpleJpaRepository}对接口的代理,而被代理的接口必须继承{@link Repository}
  * 

@@ -92,12 +92,12 @@ public class UpdownCrl {
 	// });
 
 	/**
-	 * 文件上传
+	 * 文件上传.consumes指定请求头类型;produces指定返回的请求头类型
 	 * 
-	 * @param file
-	 * @param fileType
-	 * @param request
-	 * @param response
+	 * @param file 上传的文件数据
+	 * @param fileType 文件类型
+	 * @param request 请求
+	 * @param response 响应
 	 * @return
 	 */
 	@ApiOperation(value = "文件上传", hidden = true)
