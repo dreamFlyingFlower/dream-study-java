@@ -1,5 +1,7 @@
 package com.wy;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
@@ -8,8 +10,17 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.http.converter.json.JsonbHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
+import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
 /**
  * 自动加载视图解析{@link WebMvcAutoConfiguration},{@link DispatcherServletAutoConfiguration}
@@ -42,6 +53,22 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * 
  * Thymeleaf:在html标签中加入命名空间http://www.thymeleaf.org,自动提示<br>
  * Thymeleaf语法都只能在标签内使用,且都是以th:开头,具体语法见thy/index.html
+ * 
+ * {@link MappingJackson2HttpMessageConverter}:JSON转换器
+ * {@link GsonHttpMessageConverter}:JSON转换器
+ * {@link JsonbHttpMessageConverter}:JSON转换器
+ * {@link MappingJackson2XmlHttpMessageConverter}:XML转换器
+ * {@link Jaxb2RootElementHttpMessageConverter}:XML转换器
+ * {@link ProtobufHttpMessageConverter}:给机器读的,字节码协议转换
+ * 
+ * SpringSession管理原理:通过定制的{@link HttpServletRequest}返回定制的HttpSession
+ * 
+ * <pre>
+ * {@link SessionRepositoryFilter}
+ * {@link DelegatingFilterProxy}
+ * {@link SessionRepositoryFilter#SessionRepositoryRequestWrapper }
+ * {@link AbstractHttpSessionApplicationInitializer}:可以自定义Session操作,但比较繁琐,可使用Spring自带的配置
+ * </pre>
  * 
  * @author ParadiseWY
  * @date 2020-11-18 13:31:27
