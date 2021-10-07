@@ -1,4 +1,4 @@
-package com.wy.example;
+package com.wy.study;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

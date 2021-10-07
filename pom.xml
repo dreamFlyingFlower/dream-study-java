@@ -12,6 +12,7 @@
 		<module>dream-study-java-db</module>
 		<module>dream-study-java-design</module>
 		<module>dream-study-java-io</module>
+		<module>dream-study-java-jdk</module>
 		<module>dream-study-java-jpa</module>
 		<module>dream-study-java-mybatis-plus</module>
 		<module>dream-study-java-pay</module>

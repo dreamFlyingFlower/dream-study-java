@@ -1,4 +1,4 @@
-package com.wy.example;
+package com.wy.study;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

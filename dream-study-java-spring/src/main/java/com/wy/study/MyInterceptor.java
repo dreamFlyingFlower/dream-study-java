@@ -1,4 +1,4 @@
-package com.wy.example;
+package com.wy.study;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

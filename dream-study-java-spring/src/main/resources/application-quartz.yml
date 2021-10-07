@@ -1,0 +1,41 @@
+spring:
+  quartz:
+    # 设置自动启动,默认为true
+    auto-startup: true
+    # 持久化或内存中使用,数据库中使用需要导入对应版本的数据库sql文件
+    job-store-type: jdbc
+    # quartz启动时覆盖己存在的Job,这样就不用每次修改targetObject后删除qrtz_job_details表对应记录了
+    overwrite-existing-jobs: true
+    # 延时启动
+    startup-delay: 5S
+    scheduler-name: paradise-scheduler
+    wait-for-jobs-to-complete-on-shutdown: true
+    properties: 
+      org: 
+        quartz: 
+          scheduler: 
+            # 调度器的实体名称
+            instanceName: paradiseScheduler
+            # 设置为auto时,默认的实现org.quartz.scheduler.SimpleInstanceGenerator,基于主机名和时间戳自动生成实例编号
+            instanceId: AUTO
+          # 线程池配置
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 20
+            threadPriority: 5
+          # Scheduler在运行时用来存储相关的信息,JDBCJobStore和JobStoreTX都使用数据库来存储schedule相关信息
+          jobStore:
+            # JobStoreTX在每次执行任务后都使用commit或rollback来提交更改
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            # 使用数据库
+            driverDeledateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            # 集群配置,如果有多个调度器则必须配置为true
+            isClustered: true
+            # 集群配置,检查其他调度器是否存活的时间间隔
+            clusterCheckinInterval: 15000
+            # 集群配置,设置一个频度(毫秒),用于实例报告给集群中的其他实例状态
+            maxMisfiresToHandleAtATime: 1
+            # 触发器触发失败后再次触发的时间间隔
+            misfireThreshold: 12000
+            # 数据库表前缀
+            tablePrefix: QRTZ_

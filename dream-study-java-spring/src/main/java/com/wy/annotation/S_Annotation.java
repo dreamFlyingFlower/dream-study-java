@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClas
 import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson.JsonComponentModule;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,9 +30,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * 一些常用注解
@@ -78,6 +86,12 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
  * 但在反序列化(json转对象)时,如果没有JsonManagedReference,则不会自动注入JsonBackReference标注的属性(被忽略的父或子).
  * 如果有JsonManagedReference,则会自动注入JsonBackReference标注的属性.
  * 此时JsonManagedReference和JsonBackReference并不是在同一个属性上
+ * 
+ * {@link JsonComponent}:该注解可以将实现了{@link JsonSerializer}或{@link JsonDeserializer}的类指定序列化方式和反序列化方式.
+ * 通常可以直接继承重写{@link StdSerializer#serialize}或{@link StdDeserializer#deserialize}
+ * {@link JsonComponentModule}:解析{@link JsonComponent}
+ * 
+ * {@link ResponseBody}:可以实现{@link ResponseBodyAdvice}接口来改变返回参数
  * 
  * @author 飞花梦影
  * @date 2018-07-20 23:00:58

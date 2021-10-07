@@ -10,20 +10,41 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.ResourceRegionHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
+import org.springframework.http.converter.feed.AtomFeedHttpMessageConverter;
+import org.springframework.http.converter.feed.RssChannelHttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.http.converter.json.JsonbHttpMessageConverter;
+import org.springframework.http.converter.json.KotlinSerializationJsonHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
+import org.springframework.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.http.converter.xml.SourceHttpMessageConverter;
 import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite;
+import org.springframework.web.method.support.InvocableHandlerMethod;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
+import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
 
 /**
  * 自动加载视图解析{@link WebMvcAutoConfiguration},{@link DispatcherServletAutoConfiguration}
+ * 对Web配置做一些个性化处理,可以重写{@link WebMvcConfigurer}中的方法,如format,converter,viewer等
  * 
  * 国际化:自动配置类{@link MessageSourceAutoConfiguration},配置前缀为spring.messages<br>
  * 需要新建多个同名但后缀不同的文件,默认文件名为messages,若不配置spring.messages.basename,
@@ -54,12 +75,29 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * Thymeleaf:在html标签中加入命名空间http://www.thymeleaf.org,自动提示<br>
  * Thymeleaf语法都只能在标签内使用,且都是以th:开头,具体语法见thy/index.html
  * 
- * {@link MappingJackson2HttpMessageConverter}:JSON转换器
- * {@link GsonHttpMessageConverter}:JSON转换器
- * {@link JsonbHttpMessageConverter}:JSON转换器
- * {@link MappingJackson2XmlHttpMessageConverter}:XML转换器
- * {@link Jaxb2RootElementHttpMessageConverter}:XML转换器
- * {@link ProtobufHttpMessageConverter}:给机器读的,字节码协议转换
+ * {@link WebMvcAutoConfiguration#getMessageConverters}会默认加载几种数据转换器,根据条件不同而不同.
+ * 如果要修改加载的{@link HttpMessageConverter}顺序,可以参照该方法.默认顺序如下
+ * 
+ * <pre>
+ * {@link ByteArrayHttpMessageConverter}:字节数组消息
+ * {@link StringHttpMessageConverter}:字符串消息
+ * {@link ResourceHttpMessageConverter},{@link ResourceRegionHttpMessageConverter}:资源相关
+ * {@link SourceHttpMessageConverter}:当属性 spring.xml.ignore=false 时才添加,默认添加
+ * {@link AllEncompassingFormHttpMessageConverter}:我也不知道是什么
+ * {@link AtomFeedHttpMessageConverter},{@link RssChannelHttpMessageConverter}:
+ * 		存在{@link com.rometools.rome.feed.WireFeed}时才添加
+ * {@link MappingJackson2XmlHttpMessageConverter}:XML转换器,
+ * 		当属性 spring.xml.ignore=false,且{@link com.fasterxml.jackson.dataformat.xml.XmlMapper}存在时添加
+ * {@link Jaxb2RootElementHttpMessageConverter}:XML转换器,
+ * 		当属性 spring.xml.ignore=false,且{@link javax.xml.bind.Binder}存在时添加
+ * {@link MappingJackson2HttpMessageConverter}:JSON转换器,
+ * 		当{@link com.fasterxml.jackson.databind.ObjectMapper}和{@link com.fasterxml.jackson.core.JsonGenerator}都存在时添加
+ * {@link GsonHttpMessageConverter}:JSON转换器,当{com.google.gson.Gson}存在时添加
+ * {@link JsonbHttpMessageConverter}:JSON转换器,当{ avax.json.bind.Jsonb}存在时添加
+ * {@link KotlinSerializationJsonHttpMessageConverter}:当{ otlinx.serialization.json.Json}存在时添加
+ * {@link MappingJackson2SmileHttpMessageConverter}:当{@link com.fasterxml.jackson.dataformat.smile.SmileFactory}存在时添加
+ * {@link MappingJackson2CborHttpMessageConverter}:当{@link com.fasterxml.jackson.dataformat.cbor.CBORFactory}存在时添加
+ * </pre>
  * 
  * SpringSession管理原理:通过定制的{@link HttpServletRequest}返回定制的HttpSession
  * 
@@ -70,9 +108,28 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * {@link AbstractHttpSessionApplicationInitializer}:可以自定义Session操作,但比较繁琐,可使用Spring自带的配置
  * </pre>
  * 
- * @author ParadiseWY
+ * {@link DispatcherServlet},解析前端URL接口以及视图主要逻辑类,由{@link DispatcherServletAutoConfiguration}自动引入
+ * 
+ * <pre>
+ * {@link DispatcherServlet#initStrategies}:在刷新Spring上下文时初始化一系列解析器,包括URL接口,ViewResolver等等
+ * {@link DispatcherServlet#doDispatch}:处理从前端传过来的URL请求,判断是否为媒体文件请求,前置方法,后置方法等
+ * {@link AbstractHandlerMethodAdapter#handle}:真正处理请求的方法
+ * ->{@link RequestMappingHandlerAdapter#handleInternal}:处理请求
+ * ->{@link RequestMappingHandlerAdapter#invokeHandlerMethod}:处理请求
+ * -->{@link ServletInvocableHandlerMethod#invokeAndHandle}:继续处理请求
+ * -->{@link InvocableHandlerMethod#invokeForRequest}:从请求,视图等中获得请求参数,执行请求
+ * -->{@link InvocableHandlerMethod#doInvoke}:利用代理执行真正的请求方法
+ * --->{@link HandlerMethodReturnValueHandlerComposite#handleReturnValue}:处理上一步返回的结果,类似JSON序列化等
+ * ---->{@link RequestResponseBodyMethodProcessor#handleReturnValue()}:默认跳到该类处理返回结果
+ * {@link DispatcherServlet#processDispatchResult}:将doDispath的结果渲染到视图
+ * 		如果有视图的话,使用resolveViewName()解析View对象;没有返回视图的话,尝试RequestToViewNameTranslator
+ * </pre>
+ * 
+ * {@link AsyncHandlerInterceptor}:针对异步请求的接口,异步方法不会调用后置拦截器方法,详见{@link DispatcherServlet}1063行
+ * 
+ * @author 飞花梦影
  * @date 2020-11-18 13:31:27
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @SpringBootApplication
 public class Application {

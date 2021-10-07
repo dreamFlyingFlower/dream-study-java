@@ -47,16 +47,29 @@ public class T_J8_LocalDate {
 		Instant t2 = atOffset.toInstant();// 得到UTC时区的时间,还原了
 		System.out.println(t2);
 
-		// 计算2个时间之间的间隔,带十几秒的时间
+		// 计算2个时间之间的间隔,带年月日时分秒
 		Duration between = Duration.between(LocalDateTime.now(), LocalDateTime.now());
+		Duration.between(Instant.now(), Instant.now());
+		// 将结果转为毫秒等
 		System.out.println(between.toMillis());
 		// 计算2个日期之间的间隔,只有日期,不可带时间
 		Period period = Period.between(LocalDate.now(), LocalDate.MAX);
 		System.out.println(period.getDays());
+		LocalDate localDate1 = LocalDate.of(2011, 1, 5);
+		LocalDate localDate2 = LocalDate.of(2020, 12, 30);
+		Period period2 = Period.between(localDate1, localDate2);
+		System.out.println(period2.getYears());
+		// 获得间隔月数.注意,此处获得的间隔月数和年无关,最多只会是11
+		System.out.println(period2.getMonths());
+		// 获得间隔天数.注意,此处获得的间隔天数和年月无关,最多只会是30
+		System.out.println(period2.getDays());
+		System.out.println("------------------");
 
 		// TemporalAdjuster:时间矫正器,进行相对复杂操作,使用TemporalAdjusters工具类,也可自定义TemporalAdjuster
+		// 获得当前时间所在月的最后一天时间
 		LocalDateTime with = localDateTime.with(TemporalAdjusters.lastDayOfMonth());
 		System.out.println(with);
+		// 从当前时间开始计算的下一个星期五
 		localDateTime.with(TemporalAdjusters.next(DayOfWeek.FRIDAY));
 
 		// DateTimeFormatter:格式化,可直接使用已经定义好的格式
@@ -65,9 +78,10 @@ public class T_J8_LocalDate {
 		// 自定义格式化
 		DateTimeFormatter ofPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd 24HH:mm:ss");
 		System.out.println(ofPattern.format(localDateTime));
-		// 还原日期,可用DateTimeFormatter,也可以直接使用LocalDateTime
-		LocalDateTime.parse("2011-11-11 22:22:22");
-		formatter.parse("2011-11-11 22:22:22");
+		// 还原日期,可用DateTimeFormatter,也可以直接使用LocalDateTime,但是默认要带上T
+		LocalDateTime parse = LocalDateTime.parse("2011-11-11T22:22:22");
+		System.out.println(parse);
+		formatter.parse("2011-11-11");
 
 		// ZonedDate,ZonedTime,ZonedDateTime:时区类
 		// 获得所有可用的时区

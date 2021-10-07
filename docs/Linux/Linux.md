@@ -1825,3 +1825,50 @@ source /etc/profile
 * 构建一个maven项目
 * 点击源码管理,将git仓库的地址填入其中,根据实际情况添加密钥验证
 * build的Root Pom需要根据实际情况选择pom.xml文件.Goals只需要写maven后的命令
+
+
+
+## Prometheus
+
+![](Prometheus01.png)
+
+
+
+### 概述
+
+* 开源监控工具,主要是度量工具
+* 时间序列数据库,由golang实现
+* 多维度标签,pull模式(相对应的还有push模式)
+* 白盒,黑盒监控都支持,DevOps友好
+* Metrics & Alert,不是logging/tracing
+* 单机性能每秒消费百万级时间序列,上千个targets
+* 可整合Springboot
+
+
+
+### Metrics种类
+
+* Counter:计数.始终增加,http请求数,下单数
+* Gauge:测量仪.当前值的一次快照测量,可增可减.磁盘使用率,当前同时在线用户数
+* Histogram:直方图.通过分桶(bucket)方式统计样本分布
+* Summary:汇总.根据样本统计出百分位,客户端计算
+
+
+
+### AlertManager
+
+* 告警,可以将信息推送到邮件,微信,短信
+* 支持去重,分组和路由
+
+
+
+## ZMon
+
+
+
+### 概述
+
+* 分布式监控告警系统
+* 拉模式
+* Python定义Check/Alert
+* DevOps团队自治

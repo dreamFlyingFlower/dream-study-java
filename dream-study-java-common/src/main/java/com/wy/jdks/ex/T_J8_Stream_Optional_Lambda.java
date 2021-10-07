@@ -74,37 +74,46 @@ public class T_J8_Stream_Optional_Lambda {
 	}
 
 	/**
-	 * @apiNote 获得Stream的方式:<br>
-	 *          1.集合实例,直接调用stream()方法.<br>
-	 *          2.数组,通过Arrays.stream(数组实例).<br>
-	 *          3.通过Stream.of的静态方法创建流.<br>
-	 *          4创建无限流
+	 * 获得Stream的方式:
 	 * 
-	 * @apiNote 开始方法:即获得流的操作,数组的Arrays.of,集合直接就有
+	 * <pre>
+	 * 1.集合实例,直接调用stream()方法
+	 * 2.数组,通过Arrays.stream(数组实例)
+	 * 3.通过Stream.of的静态方法创建流
+	 * 4.创建无限流
+	 * </pre>
 	 * 
-	 * @apiNote 中间方法:对流的元素进行排除过滤,截断,筛选等操作,无返回结果,必须通过结束方法得出结果
-	 *          filter->接收一个boolean的结果,排除结果为false的元素;<br>
-	 *          limit->截断流,使得符合的元素数量不超过给定数值<br>
-	 *          skip->跳过元素,返回一个扔掉了前N个元素的流,若不足N,返回一个null的流<br>
-	 *          distinct->筛选,通过流所生成元素的hashcode和equal去除重复元素<br>
-	 *          map->将元素转换成其他形式或提取信息,接收一个方法,该方法将运行到每一个元素上,映射成一个新元素<br>
-	 *          flatMap->将元素中的每一个元素都转换成一个流,再讲所有的流连接成一个流<br>
-	 *          sorted->不带参数是自然排序,带参数的是定制排序
+	 * 开始方法:即获得流的操作,数组的Arrays.of,集合直接就有
 	 * 
-	 * @apiNote 结束方法:只能用在stream的末尾,用了这些方法之后就不可再进行链式调用
-	 *          allMatch->是否所有元素都匹配,是则返回true;<br>
-	 *          anyMatch->至少有一个匹配,有则返回true<br>
-	 *          noneMatch->没有任何元素匹配,是则返回true;<br>
-	 *          findFirst->返回当前处理过的流中的第一个元素<br>
-	 *          findAny->返回处理过的流中任意匹配的值元素;<br>
-	 *          count->返回匹配的元素个数<br>
-	 *          max->返回匹配的流中元素的最大值;<br>
-	 *          min->返回匹配的元素的最小值<br>
-	 *          foreach->内部迭代
+	 * 中间方法:对流的元素进行排除过滤,截断,筛选等操作,无返回结果,必须通过结束方法得出结果
 	 * 
-	 * @apiNote reduce:归约方法,可以将流中的元素反复进行操作,得到一个值.类似递归
+	 * <pre>
+	 * filter:接收一个boolean的结果,排除结果为false的元素
+	 * limit:截断流,使得符合的元素数量不超过给定数值
+	 * skip:跳过元素,返回一个扔掉了前N个元素的流,若不足N,返回一个null的流
+	 * distinct:筛选,通过流所生成元素的hashcode和equal去除重复元素
+	 * map:将元素转换成其他形式或提取信息,接收一个方法,该方法将运行到每一个元素上,映射成一个新元素
+	 * flatMap:将元素中的每一个元素都转换成一个流,再将所有的流连接成一个流
+	 * sorted:不带参数是自然排序,带参数的是定制排序
+	 * </pre>
 	 * 
-	 * @apiNote collect:将流转换为其他形式,接收一个Collector接口的实现,可使用Collectors工具类来返回值
+	 * 结束方法:只能用在stream的末尾,用了这些方法之后就不可再进行链式调用
+	 * 
+	 * <pre>
+	 * allMatch:是否所有元素都匹配,是则返回true
+	 * anyMatch:至少有一个匹配,有则返回true
+	 * noneMatch:没有任何元素匹配,是则返回true
+	 * findFirst:返回当前处理过的流中的第一个元素
+	 * findAny:返回处理过的流中任意匹配的值元素
+	 * count:返回匹配的元素个数
+	 * max:返回匹配的流中元素的最大值
+	 * min:返回匹配的元素的最小值
+	 * foreach->内部迭代
+	 * </pre>
+	 * 
+	 * reduce:归约方法,可以将流中的元素反复进行操作,得到一个值.类似递归
+	 * 
+	 * collect:将流转换为其他形式,接收一个Collector接口的实现,可使用Collectors工具类来返回值
 	 */
 	public static void testStream() {
 		List<Integer> test = new ArrayList<>(Arrays.asList(1234, 6546, 765723));

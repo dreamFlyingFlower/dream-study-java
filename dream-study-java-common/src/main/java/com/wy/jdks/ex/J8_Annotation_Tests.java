@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 /**
  * 重复注解的容器类,必须有
  * 
- * @author ParadiseWY
- * @date 2019年8月26日 22:12:47
- * @git {@link https://github.com/mygodness100}
+ * @author 飞花梦影
+ * @date 2019-08-26 22:12:47
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

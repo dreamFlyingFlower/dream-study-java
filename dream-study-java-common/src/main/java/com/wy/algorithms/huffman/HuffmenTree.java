@@ -64,7 +64,7 @@ public class HuffmenTree {
 	private Map<Character, String> codeInfo() {
 		Map<Character, String> map = new HashMap<Character, String>();
 		for (HuffmenNode node : leafs) {
-			Character c = new Character(node.getChars().charAt(0));
+			Character c = Character.valueOf(node.getChars().charAt(0));
 			String code = "";
 			HuffmenNode start = node;
 			do {

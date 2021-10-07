@@ -13,6 +13,7 @@ num1: ${random.int[100,10000]}
 config:
   user-id: 13
   placeholder: ${config.user-id}
+  key-store: classpath:testssl.p12
 
 spring:
   config:

@@ -1,0 +1,13 @@
+server:
+  tomcat:
+    accesslog:
+      # 打印tomcat的http请求日志,默认不打印
+      enabled: true
+      # 日志打印目录
+      directory: d:/logs
+# jsp支持,详情见文档
+#spring:
+#  mvc:
+#    view:
+#      prefix: /WEB-INF/jsp
+#      suffix: .jsp 
