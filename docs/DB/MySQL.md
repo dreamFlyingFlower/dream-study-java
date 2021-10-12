@@ -1780,7 +1780,7 @@ explan select * from (select t3.id from t3 where t3.name='') s1,t2 where s1.id=t
 
 * order by子句,尽量使用index方式排序,避免使用filesort方式排序
 
-* 尽可能在索引列上完成排序操作,详见索引优化的2.5的复合索引优化
+* 尽可能在索引列上完成排序操作,详见索引优化的复合索引优化
 
 * 如果不在索引列上,filesort有2种算法
 
@@ -1800,6 +1800,30 @@ explan select * from (select t3.id from t3 where t3.name='') s1,t2 where s1.id=t
   explain select * from ts_user where a='' order by b,a;
   explain select * from ts_user where a='' order by a desc,b asc;
   ```
+
+
+
+## 联表优化
+
+
+
+* 小结果集驱动大结果集.联表查询相当于多重循环,应该以小表驱动大表,减少循环次数
+* 当进行多表连接查询时,驱动表的定义:
+  *  指定了联接条件时,满足查询条件的记录行数少的表为驱动表
+  * 未指定联接条件时,行数少的表为驱动表
+* 如果搞不清楚该让谁做驱动表,谁join谁,请让MySQL运行时自行判断
+* MySQL表关联查询的算法是Nest Loop Join,是通过驱动表的结果集作为循环基础数据,然后一条一条地通过该结果集中的数据作为过滤条件到下一个表中查询数据,然后合并结果
+
+```mysql
+-- user表10000条数据,class表20条数据
+select * from user u left join class c u.userid=c.userid;
+-- 这样则需要用user表循环10000次才能查询出来,而如果用class表驱动user表则只需要循环20次
+select * from class c left join user u c.userid=u.userid
+```
+
+* 根据驱动表的字段排序.对驱动表可以直接排序,对非驱动表(的字段排序)需要对循环查询的合并结果(临时表)进行排序,产生临时表会浪费性能
+* 尽可能避免复杂的join和子查询
+* 最终驱动表是哪张表,可以通过EXPLAIN的id查看
 
 
 
