@@ -1321,257 +1321,6 @@ EXPLAIN select ... # explain后接sql语句
 
 
 
-## SQL优化
-
-
-
-### SQL执行顺序
-
-```mysql
-select distinct(t1.c) c,sum(t1.c) num from t1 inner join t2 on t1.a=t2.a where t1.a = t2.a group by t1.c having num > 0 order by t1.a limit 10 # 一个sql例子
-```
-
-* from:先从from语句开始读,多表会形成笛卡尔积
-* on:主表数据保留
-  * inner join:2张表都有的数据才会保留到下一步
-  * left join:2张表中left左边表的数据都会保留,右边表没的数据以null代替
-  * right join:2张表中right右边表的数据都会保留,左边表没有的数据以null代替
-* where:非聚合,非select别名的条件筛选
-* group by:分组
-* having:对分组后的数据进行再次筛选
-* select:查询出所需要的字段.如果进行了聚合,那么只能查询进行聚合的字段
-* order by:排序
-* limit:分页
-
-
-
-### 优化
-
-* 查询不要使用select *,查询字段也是开销,使用具体的字段代替
-* 如exist和in,in和not in,like,索引的使用,关联太多join.可使用explain sql来分析
-* 不要在where子句中使用!=,<>,is null,is not null这种条件将跳过索引,直接使用全表扫描
-* 不要在where中使用or,会导致索引失效
-* 尽量去除表连接操作
-* 尽可能在索引中完成排序
-* 小结果集驱动大结果集
-* 试用mysqldumpshow查看慢日志,优化慢SQL
-* 利用第三方工具pt-query-digest查找慢SQL
-
-
-
-## 索引优化
-
-### 概述
-
-* 索引也是一张表,该表保存了主键与索引字段,并指向实体表的记录,所以索引是要占空间的
-
-* 索引大大提高了查询速度,但是会降低增删改的速度,因为要同时对表和索引都做操作
-
-* 查询数据在总数据的7%-15%之间加索引效果最好.若查询数据超过20%,相当于全表扫描
-
-* 字段多适用数值,字段长度多使用定长
-
-* 冷热隔离,即使用频率高的字段放一张表,使用频率低的放另外表,如实时和历史数据
-
-* 索引在新增数据时也会消耗大量资源,一个表中的索引最多不要超过6个
-
-* 索引一般也很大,不可能全部都存在内存中,因为索引往往都以索引文件的形式存储在磁盘上
-
-* where子句中多个索引同时只能用一个
-
-* 索引字段的值必须和数据库定义类型相同,若是数据库自动进行类型转换,那么索引将不生效
-
-  ```mysql
-  # col1=varchar,col2=varchar,col1和col2为复合索引
-  explain select * from test where col1='1' order by col2; # 索引生效
-  explain select * from test where col1=1 order by col2; # 索引不生效
-  ```
-
-  
-
-
-
-### 索引类型
-
-* 单值索引:即一个索引只包含单个列,一个表可以有多单列索引
-
-* 唯一索引:索引列的值必须唯一,但允许有空值
-
-* 复合索引:一个索引包含多个列
-
-* 覆盖索引:该索引类型并不是一个实际存在的,只是一个特殊情况.当select查询的字段是单索引字段或与复合索引的字段的个数,顺序相同时,即使是全表扫描的情况下,仍然会使用索引
-
-* 基本语法:
-
-  ```mysql
-  # 创建主键/唯一/全文/普通索引
-  CREATE [PRIMARY KEY]/[UNIQUE]/[FULLTEXT]/[INDEX] indexname ON tablename(columnname(length));
-  # 新增索引
-  ALTER TABLE tablename ADD [PRIMARY KEY]/[UNIQUE]/[FULLTEXT]/[INDEX] indexname[ON](columnname(length));
-  # 删除表中所有/单个索引
-  DROP INDEX [indexname] ON tablename
-  # 查看索引,\G表示竖排显示
-  SHOW INDEX FROM tablename\G
-  ```
-
-  
-
-
-
-### 索引结构
-
-* hash:key-value
-* b+tree:二叉树的变种,每一个结点有多个数据,可以进行指定.子节点可以是多个,当该节点存放的数据个数超过指定的数据个数,就分裂出另外的同层子节点.当子节点超过一定数量时,向下分裂子节点
-* full-text
-
-
-
-### 适合创建索引
-
-* 主键自动创建索引,外键应当有索引
-* 频繁用来查询的字段创建索引
-* 和其他表关联的字段创建索引
-* 查询中用来排序的字段可用来创建索引
-* 用来分组和统计的字段可创建索引
-* 数据量超过 300 的表应该有索引
-* 索引应该建在选择性高的字段上
-* 索引应该建在小字段上,对于大的文本字段甚至超长字段,不要建索引
-* 复合索引的建立需要进行仔细分析,尽量考虑用单字段索引代替
-* 复合索引的几个字段经常同时以AND方式出现在WHERE子句中,单字段查询极少甚至没有,则可以建立复合索引,否则考虑单字段索引
-* 如果复合索引中包含的字段经常单独出现在WHERE子句中,则分解为多个单字段索引
-* 如果复合索引所包含的字段超过 3 个,那么仔细考虑其必要性,考虑减少复合的字段
-* 如果既有单字段索引,又有这几个字段上的复合索引,一般可以删除复合索引
-* 频繁进行数据操作的表,不要建立太多的索引
-* 删除无用的索引,避免对执行计划造成负面影响
-* 过多的复合索引,在有单字段索引的情况下,一般都是没有存在价值的.相反,还会降低数据增加删除时的性能,特别是对频繁更新的表来说,负面影响更大
-* 尽量不要对数据库中某个含有大量重复的值的字段建立索引
-
-
-
-### 不适合创建索引
-
-* 频繁更新的字段不适合创建索引
-* where条件用不到的字段不创建索引
-* 数据库列有多个重复值的,不适合创建索引
-* 数据量比较小的表不适合建立索引
-* 数据太少的字段不创建索引
-
-
-
-### 优化
-
-* 复合索引:只要where和order by条件中的字段和索引定义的一样,且复合索引的第一个字段在where子句中,不管是第几个条件,索引就会生效
-
-  * 不用所有的索引字段都作为条件
-  * 顺序可以不相同
-  * 中间可以添加其他非索引字段
-  * **最优的方案应该是复合索引中间不跳过任何字段,按照索引顺序来.虽然上述3种情况仍然会使用索引,但是会减少精度(key_len)**
-  * 存储引擎不能使用索引中范围条件右边的列
-  * order by和group by使用索引排序的条件差不多,有一个不一样,group by可以接having
-  * 索引中只要有一个列含有null,那么这一列也不会使用索引
-
-  ```mysql
-  # e为普通字段,索引顺序为a,b,c,d
-  explain select * from ts_user where a='' and b='' and c='' and d='';
-  explain select * from ts_user where b='' and a='' and c='' and d=''; # 同上
-  # 会用到索引,但是key_len会下降,其实是索引查找中只用到了a和b,但排序用到了索引的c,d
-  explain select * from ts_user where a='' and b='' order by c, d;
-  explain select * from ts_user where a='' and b='' and e='' order by c, d;
-  # 会用到索引,但是key_len同样会下降,只用到了abc的key_len
-  explain select * from ts_user where a='' and b='' and c='';
-  # 会用到索引,但是key_len只是用到a的key_len
-  explain select * from ts_user where a='' and c='' and d='';
-  # ab会用到查找索引,但是d用不到,c作为排序也可以用到索引
-  explain select * from ts_user where a='' and b='' and d='' order by c;
-  # ab会用到查找索引,但是d既用不到索引查找,也用不到索引排序,此时排序用的是using filesort
-  explain select * from ts_user where a='' and b='' order by d;
-  # ab会用到查找索引,cd用的索引排序
-  explain select * from ts_user where a='' and b='' order by c,d;
-  # ab会用到查找索引,cd既用不到索引查找,也用不到索引排序,此时排序用的是using filesort
-  explain select * from ts_user where a='' and b='' order by d,c;
-  # ab会用到查找索引,此时排序用的不是using filesort,因为c已经是一个常量了,cd是索引排序
-  explain select * from ts_user where a='' and b='' and c='' order by d,c;
-  # 索引不生效
-  explain select * from ts_user where b='' and c='' and d='';
-  explain select * from ts_user where b='' and c='' order by a;
-  # 查找索引生效,但只用了ab,精度也只有ab精度,b是范围查找,c没有用上,故而排序索引也不生效
-  explain select * from ts_user where a='' and b>1 order by c;
-  # abc索引全部都用到了,虽然是范围查找
-  explain select * from ts_user where a='' and b like '1%' and c='';
-  ```
-
-* 应该尽量避免更新复合索引,因为复合索引的顺序就是表记录的物理顺序,变更将会消耗大量资源
-
-* like:当%name%和%name时,索引不生效.只有当name%时索引才会生效
-
-  ```mysql
-  # 通常状态下都是必须使用%name%,此时有一种解决方式,使用覆盖索引
-  # 将name当作select的字段查询出来,不管是什么类型索引,都不能有索引外字段,否则索引将不生效
-  # name为单字段索引
-  explain select name from t1 where name like '%aaa%'; # 索引生效
-  explain select * from t1 where name like '%aaa%'; # 索引不生效
-  explain select name,age from t1 where name like '%aaa%'; # 索引不生效
-  # name,age为复合索引
-  explain select name,age from t1 where name like '%aaa%'; # 索引生效
-  # 若仍然需要额外的字段,可以将只有like查询的字段作为另外的表进行连接查询
-  explain explain select b.name,b.age,b.pwd from (select col1 from t1 where name like '%1%') a LEFT JOIN t1 b on b.name = a.name; 
-  ```
-
-* !=,<>,is null,is not null:在where子句中使用时将不使用索引
-
-* <,<=,>,>=,between:在where子句中将会使用索引
-
-* or:在where子句中or不会使用索引,可以使用union或union all代替or
-
-* 小表驱动大表,适当的时候用exists代替in是可以提高效率,特别是子查询
-
-  * in:当in后面接的是一个子查询时,先查询子查询中的数据,然后再查询外部数据
-  * exists:正好和in相反,先查询外部数据,放到子查询中做条件验证,true则保留
-
-  ```mysql
-  # 当B表的数据小于A表的数据时,in优于exists
-  select * from t1 where t1.a in (select a from B);
-  # 当A表的数据小于B表的数据时,exists优于in
-  select * from t1 where exists(select 1 from B.a=t1.a);
-  ```
-
-* 索引列上不要使用函数,计算,类型转换,表达式操作,这将会使用全表扫描.可以对常量进行表达式操作
-
-  ```mysql
-  select num from ts_user where num/2=100; # 不使用所用
-  select num from ts_user where num = 100*2; # 使用索引
-  select num from ts_user where lower(num)='str'; # 不使用索引
-  select num from ts_user where num='100'; # 类型会自动转换,将不使用索引
-  ```
-
-* 尽量避免频繁创建和删除临时表,可以适当作为存储过程来使用临时表数据或建立视图
-
-* 在新建临时表时,若一次性插入数据量很大,可以使用select into 代替create table,避免造成大量log.
-
-* 如果存储过程中使用到临时表,应在最后将临时表显示删除
-
-* 尽量避免使用游标,因为游标的效率较差
-
-* 在所有的存储过程和触发器开始处设置set nocount on,在结束时设置set nocount off,无需在执行存储过程和触发器的每个语句后向客户端发送done_in_proc消息
-
-* 应尽量少的连表查询,因为连表查询的数据量更大,且很容易造成锁表和阻塞
-
-* 多条联合查询时,需要根据情况加索引
-
-  * 保证sql语句中被驱动表上的join条件字段已经被索引
-  * 左右连接:非主表的连接字段上加索引能提高查询效率,不管是2表还是多表都是如此.**注意,该种情况只能对单字段索引有效,若是多字段索引**
-
-  ```mysql
-  # left join,此时应该在t2表col1加索引
-  select * from t1 left join t2 on t1.col1=t2.col1;
-  # right join,此时应该在t1表col1加索引
-  select * from t1 right join t2 on t1.col1=t2.col1;
-  ```
-
-  
-
-  
-
 
 
 ## EXPLAIN
@@ -1788,19 +1537,293 @@ explan select * from (select t3.id from t3 where t3.name='') s1,t2 where s1.id=t
 
 
 
+## SQL优化
+
+
+
+### SQL执行顺序
+
+```mysql
+select distinct(t1.c) c,sum(t1.c) num from t1 inner join t2 on t1.a=t2.a where t1.a = t2.a group by t1.c having num > 0 order by t1.a limit 10 # 一个sql例子
+```
+
+* from:先从from语句开始读,多表会形成笛卡尔积
+* on:主表数据保留
+  * inner join:2张表都有的数据才会保留到下一步
+  * left join:2张表中left左边表的数据都会保留,右边表没的数据以null代替
+  * right join:2张表中right右边表的数据都会保留,左边表没有的数据以null代替
+* where:非聚合,非select别名的条件筛选
+* group by:分组
+* having:对分组后的数据进行再次筛选
+* select:查询出所需要的字段.如果进行了聚合,那么只能查询进行聚合的字段
+* order by:排序
+* limit:分页
+
+
+
+### 优化
+
+* 查询不要使用select *,查询字段也是开销,使用具体的字段代替
+* 如exist和in,in和not in,like,索引的使用,关联太多join.可使用explain sql来分析
+* 不要在where子句中使用!=,<>,is null,is not null这种条件将跳过索引,直接使用全表扫描
+* 不要在where中使用or,会导致索引失效
+* 尽量去除表连接操作
+* 尽可能在索引中完成排序
+* 小结果集驱动大结果集
+* 试用mysqldumpshow查看慢日志,优化慢SQL
+* 利用第三方工具pt-query-digest查找慢SQL
+
+
+
+## 索引优化
+
+### 概述
+
+* 索引也是一张表,该表保存了主键与索引字段,并指向实体表的记录,所以索引是要占空间的
+
+* 索引大大提高了查询速度,但是会降低增删改的速度,因为要同时对表和索引都做操作
+
+* 查询数据在总数据的7%-15%之间加索引效果最好.若查询数据超过20%,相当于全表扫描
+
+* 字段多适用数值,字段长度多使用定长
+
+* 冷热隔离,即使用频率高的字段放一张表,使用频率低的放另外表,如实时和历史数据
+
+* 索引在新增数据时也会消耗大量资源,一个表中的索引最多不要超过6个
+
+* 索引一般也很大,不可能全部都存在内存中,因为索引往往都以索引文件的形式存储在磁盘上
+
+* where子句中多个索引同时只能用一个
+
+* 索引字段的值必须和数据库定义类型相同,若是数据库自动进行类型转换,那么索引将不生效
+
+  ```mysql
+  # col1=varchar,col2=varchar,col1和col2为复合索引
+  explain select * from test where col1='1' order by col2; # 索引生效
+  explain select * from test where col1=1 order by col2; # 索引不生效
+  ```
+
+  
+
+
+
+### 索引类型
+
+* 单值索引:即一个索引只包含单个列,一个表可以有多单列索引
+
+* 唯一索引:索引列的值必须唯一,但允许有空值
+
+* 复合索引:一个索引包含多个列
+
+* 覆盖索引:该索引类型并不是一个实际存在的,只是一个特殊情况.当select查询的字段是单索引字段或与复合索引的字段的个数,顺序相同时,即使是全表扫描的情况下,仍然会使用索引
+
+* 基本语法:
+
+  ```mysql
+  # 创建主键/唯一/全文/普通索引
+  CREATE [PRIMARY KEY]/[UNIQUE]/[FULLTEXT]/[INDEX] indexname ON tablename(columnname(length));
+  # 新增索引
+  ALTER TABLE tablename ADD [PRIMARY KEY]/[UNIQUE]/[FULLTEXT]/[INDEX] indexname[ON](columnname(length));
+  # 删除表中所有/单个索引
+  DROP INDEX [indexname] ON tablename
+  # 查看索引,\G表示竖排显示
+  SHOW INDEX FROM tablename\G
+  ```
+
+  
+
+
+
+### 索引结构
+
+* hash:key-value
+* b+tree:二叉树的变种,每一个结点有多个数据,可以进行指定.子节点可以是多个,当该节点存放的数据个数超过指定的数据个数,就分裂出另外的同层子节点.当子节点超过一定数量时,向下分裂子节点
+* full-text
+
+
+
+### 适合创建索引
+
+* 主键自动创建索引,外键应当有索引
+* 频繁用来查询的字段创建索引
+* 和其他表关联的字段创建索引
+* 查询中用来排序的字段可用来创建索引
+* 用来分组和统计的字段可创建索引
+* 数据量超过 300 的表应该有索引
+* 索引应该建在选择性高的字段上
+* 索引应该建在小字段上,对于大的文本字段甚至超长字段,不要建索引
+* 复合索引的建立需要进行仔细分析,尽量考虑用单字段索引代替
+* 复合索引的几个字段经常同时以AND方式出现在WHERE子句中,单字段查询极少甚至没有,则可以建立复合索引,否则考虑单字段索引
+* 如果复合索引中包含的字段经常单独出现在WHERE子句中,则分解为多个单字段索引
+* 如果复合索引所包含的字段超过 3 个,那么仔细考虑其必要性,考虑减少复合的字段
+* 如果既有单字段索引,又有这几个字段上的复合索引,一般可以删除复合索引
+* 频繁进行数据操作的表,不要建立太多的索引
+* 删除无用的索引,避免对执行计划造成负面影响
+* 过多的复合索引,在有单字段索引的情况下,一般都是没有存在价值的.相反,还会降低数据增加删除时的性能,特别是对频繁更新的表来说,负面影响更大
+* 尽量不要对数据库中某个含有大量重复的值的字段建立索引
+
+
+
+### 不适合创建索引
+
+* 频繁更新的字段不适合创建索引
+* where条件用不到的字段不创建索引
+* 数据库列有多个重复值的,不适合创建索引
+* 数据量比较小的表不适合建立索引
+* 数据太少的字段不创建索引
+
+
+
+### 优化
+
+* 复合索引:只要where和order by条件中的字段和索引定义的一样,且复合索引的第一个字段在where子句中,不管是第几个条件,索引就会生效
+
+  * 不用所有的索引字段都作为条件
+  * 顺序可以不相同
+  * 中间可以添加其他非索引字段
+  * **最优的方案应该是复合索引中间不跳过任何字段,按照索引顺序来.虽然上述3种情况仍然会使用索引,但是会减少精度(key_len)**
+  * 存储引擎不能使用索引中范围条件右边的列
+  * order by和group by使用索引排序的条件差不多,有一个不一样,group by可以接having
+  * 索引中只要有一个列含有null,那么这一列也不会使用索引
+
+  ```mysql
+  # e为普通字段,索引顺序为a,b,c,d
+  explain select * from ts_user where a='' and b='' and c='' and d='';
+  explain select * from ts_user where b='' and a='' and c='' and d=''; # 同上
+  # 会用到索引,但是key_len会下降,其实是索引查找中只用到了a和b,但排序用到了索引的c,d
+  explain select * from ts_user where a='' and b='' order by c, d;
+  explain select * from ts_user where a='' and b='' and e='' order by c, d;
+  # 会用到索引,但是key_len同样会下降,只用到了abc的key_len
+  explain select * from ts_user where a='' and b='' and c='';
+  # 会用到索引,但是key_len只是用到a的key_len
+  explain select * from ts_user where a='' and c='' and d='';
+  # ab会用到查找索引,但是d用不到,c作为排序也可以用到索引
+  explain select * from ts_user where a='' and b='' and d='' order by c;
+  # ab会用到查找索引,但是d既用不到索引查找,也用不到索引排序,此时排序用的是using filesort
+  explain select * from ts_user where a='' and b='' order by d;
+  # ab会用到查找索引,cd用的索引排序
+  explain select * from ts_user where a='' and b='' order by c,d;
+  # ab会用到查找索引,cd既用不到索引查找,也用不到索引排序,此时排序用的是using filesort
+  explain select * from ts_user where a='' and b='' order by d,c;
+  # ab会用到查找索引,此时排序用的不是using filesort,因为c已经是一个常量了,cd是索引排序
+  explain select * from ts_user where a='' and b='' and c='' order by d,c;
+  # 索引不生效
+  explain select * from ts_user where b='' and c='' and d='';
+  explain select * from ts_user where b='' and c='' order by a;
+  # 查找索引生效,但只用了ab,精度也只有ab精度,b是范围查找,c没有用上,故而排序索引也不生效
+  explain select * from ts_user where a='' and b>1 order by c;
+  # abc索引全部都用到了,虽然是范围查找
+  explain select * from ts_user where a='' and b like '1%' and c='';
+  ```
+
+* 应该尽量避免更新复合索引,因为复合索引的顺序就是表记录的物理顺序,变更将会消耗大量资源
+
+* like:当%name%和%name时,索引不生效.只有当name%时索引才会生效
+
+  ```mysql
+  # 通常状态下都是必须使用%name%,此时有一种解决方式,使用覆盖索引
+  # 将name当作select的字段查询出来,不管是什么类型索引,都不能有索引外字段,否则索引将不生效
+  # name为单字段索引
+  explain select name from t1 where name like '%aaa%'; # 索引生效
+  explain select * from t1 where name like '%aaa%'; # 索引不生效
+  explain select name,age from t1 where name like '%aaa%'; # 索引不生效
+  # name,age为复合索引
+  explain select name,age from t1 where name like '%aaa%'; # 索引生效
+  # 若仍然需要额外的字段,可以将只有like查询的字段作为另外的表进行连接查询
+  explain explain select b.name,b.age,b.pwd from (select col1 from t1 where name like '%1%') a LEFT JOIN t1 b on b.name = a.name; 
+  ```
+
+* !=,<>,is null,is not null:在where子句中使用时将不使用索引
+
+* <,<=,>,>=,between:在where子句中将会使用索引
+
+* or:在where子句中or不会使用索引,可以使用union或union all代替or
+
+* 小表驱动大表,适当的时候用exists代替in是可以提高效率,特别是子查询
+
+  * in:当in后面接的是一个子查询时,先查询子查询中的数据,然后再查询外部数据
+  * exists:正好和in相反,先查询外部数据,放到子查询中做条件验证,true则保留
+
+  ```mysql
+  # 当B表的数据小于A表的数据时,in优于exists
+  select * from t1 where t1.a in (select a from B);
+  # 当A表的数据小于B表的数据时,exists优于in
+  select * from t1 where exists(select 1 from B.a=t1.a);
+  ```
+
+* 索引列上不要使用函数,计算,类型转换,表达式,这将会使用全表扫描.可以对常量进行表达式操作
+
+  ```mysql
+  select num from ts_user where num/2=100; # 不使用所用
+  select num from ts_user where num = 100*2; # 使用索引
+  select num from ts_user where lower(num)='str'; # 不使用索引
+  select num from ts_user where num='100'; # 类型会自动转换,将不使用索引
+  ```
+
+* 尽量避免频繁创建和删除临时表,可以适当作为存储过程来使用临时表数据或建立视图
+
+* 在新建临时表时,若一次性插入数据量很大,可以使用select into 代替create table,避免造成大量log.
+
+* 如果存储过程中使用到临时表,应在最后将临时表显示删除
+
+* 尽量避免使用游标,因为游标的效率较差
+
+* 在所有的存储过程和触发器开始处设置set nocount on,在结束时设置set nocount off,无需在执行存储过程和触发器的每个语句后向客户端发送done_in_proc消息
+
+* 应尽量少的连表查询,因为连表查询的数据量更大,且很容易造成锁表和阻塞
+
+* Where中有多索引时,选择key_len最短的使用
+
+* 多条联合查询时,需要根据情况加索引
+
+  * 保证sql语句中被驱动表上的join条件字段已经被索引
+  * 左右连接:非主表的连接字段上加索引能提高查询效率,不管是2表还是多表都是如此.**注意,该种情况只能对单字段索引有效,若是多字段索引**
+
+  ```mysql
+  # left join,此时应该在t2表col1加索引
+  select * from t1 left join t2 on t1.col1=t2.col1;
+  # right join,此时应该在t1表col1加索引
+  select * from t1 right join t2 on t1.col1=t2.col1;
+  ```
+
+
+
+
 ## 排序优化
 
 * order by子句,尽量使用index方式排序,避免使用filesort方式排序
 
 * 尽可能在索引列上完成排序操作,详见索引优化的复合索引优化
 
-* 如果不在索引列上,filesort有2种算法
+* order by子句中只要是索引的前导列都可以使索引生效,可以直接在索引中排序
+
+* 复合索引在where子句中的某些情况,可能会导致索引排序失效
+
+  ```mysql
+  -- id,name是复合索引
+  -- 排序走索引
+  select * from user where id=1 order by name;
+  -- 排序不走索引
+  select * from user where id > 1 order by name;
+  -- 发生上述情况是因为=相当于已经进行分组了,而>则没有分组,无法使用前导列排序
+  ```
+
+* 如果不在索引列上,filesort有多种算法
 
   * 单路排序:4.1之后版本,从磁盘读取查询需要的所有列,按照order by列在buffer对它们进行排序,然后扫描排序后的列表进行输出,效率更快一些.并且将随机IO变成了顺序IO,但是会消耗更多的空间,因为它把每一行都保存在内存中了.**注意,该排序模式下,需要对mysql配置文件中的sort_buffer_size配置进行酌情修改,因为排序放在了sort_buffer_size中,若是超出了sort_buffer_size就需要多次读取,反而不如双路排序**
     * 增大sort_buffer_size参数的设置
     * 增大max_length_for_sort_data参数的设置
   * 双路排序:4.1版本之前使用,分别读2次,一次是数据行,一次读排序列.在磁盘取排序字段,在buffer进行排序,再从磁盘取其他字段
-
+  * 常规排序:
+    * 从表中获取满足where条件的记录
+    * 将每条记录的主键+排序键取出放入sort buffer
+    * 如果sort buffer可以存放所有满足条件的对(主键+排序键),则进行排序;否则sort buffer满后,进行排序并固化到临时文件中
+    * 若排序中产生了临时文件,需要利用归并排序算法,保证临时文件中记录是有序的
+    * 循环执行上述过程,直到所有满足条件的记录全部参与排序
+    * 扫描排好序的对,并利用id去获取select需要返回的其他列
+    * 将获得的结果返回给用户
+  * 优先队列排序算法:主要是针对order by limit M,N语句,在空间层面做了优化.这种排序采用堆排序实现,堆排序算法特征正好可以解决limit M,N排序的问题,虽然仍然需要所有元素参与排序,但是只需要M+N个元组的sort buffer空间即可
+  
   ```mysql
   # 索引顺序为a,b
   # 使用索引排序
@@ -1823,8 +1846,11 @@ explan select * from (select t3.id from t3 where t3.name='') s1,t2 where s1.id=t
 * 当进行多表连接查询时,驱动表的定义:
   *  指定了联接条件时,满足查询条件的记录行数少的表为驱动表
   * 未指定联接条件时,行数少的表为驱动表
-* 如果搞不清楚该让谁做驱动表,谁join谁,请让MySQL运行时自行判断
+* 如果搞不清楚该让谁做驱动表,谁Join谁,则让MySQL自行判断,即不显示的使用left,right,inner
 * MySQL表关联查询的算法是Nest Loop Join,是通过驱动表的结果集作为循环基础数据,然后一条一条地通过该结果集中的数据作为过滤条件到下一个表中查询数据,然后合并结果
+  * Simple Nested-Loop:简单循环.就是简单的嵌套循环,不使用索引,Join Buffer等
+  * Index Nested-Loop:索引循环.即先从索引中获取值,之后再和内层表进行循环
+  * Block Nested-Loop:块循环.利用Join Buffer缓冲区进行多条数据同时循环的策略,在内存足够的情况下,可尽量增大Join Buffer的值
 
 ```mysql
 -- user表10000条数据,class表20条数据
@@ -1836,6 +1862,15 @@ select * from class c left join user u c.userid=u.userid
 * 根据驱动表的字段排序.对驱动表可以直接排序,对非驱动表(的字段排序)需要对循环查询的合并结果(临时表)进行排序,产生临时表会浪费性能
 * 尽可能避免复杂的join和子查询
 * 最终驱动表是哪张表,可以通过EXPLAIN的id查看
+* 当联表查询有条件,且不指定驱动表时,默认会使用无索引的表为驱动表
+
+```mysql
+-- user表10000条数据,class表20条数据,user表的id无索引,class表userid有索引
+-- 此时用class表驱动
+select * from user t1 join class t2;
+-- 此时t1表驱动,因为条件中t1表无索引,会被MySQL优化成驱动表
+select * from user t1 join class t2 on t1.userid = t2.userid;
+```
 
 
 
