@@ -1636,9 +1636,18 @@ select distinct(t1.c) c,sum(t1.c) num from t1 inner join t2 on t1.a=t2.a where t
 
 ### 索引结构
 
-* hash:key-value
-* b+tree:二叉树的变种,每一个结点有多个数据,可以进行指定.子节点可以是多个,当该节点存放的数据个数超过指定的数据个数,就分裂出另外的同层子节点.当子节点超过一定数量时,向下分裂子节点
-* full-text
+* hash:key-value,检索效率远高于B+tree,可以一次定位
+* fulltext:目前仅char,varchar,text3种类型可以
+* B+tree:二叉树的变种,每一个结点有多个数据,可以进行指定.子节点可以是多个,当该节点存放的数据个数超过指定的数据个数,就分裂出另外的同层子节点.当子节点超过一定数量时,向下分裂子节点
+* B-Tree
+
+![](B-tree.png)
+
+* B+Tree
+
+![](B+tree.png)
+
+
 
 
 
@@ -1762,7 +1771,7 @@ select distinct(t1.c) c,sum(t1.c) num from t1 inner join t2 on t1.a=t2.a where t
 
 * 尽量避免频繁创建和删除临时表,可以适当作为存储过程来使用临时表数据或建立视图
 
-* 在新建临时表时,若一次性插入数据量很大,可以使用select into 代替create table,避免造成大量log.
+* 在新建临时表时,若一次性插入数据量很大,可以使用select into 代替create table,避免造成大量log
 
 * 如果存储过程中使用到临时表,应在最后将临时表显示删除
 
@@ -1772,7 +1781,9 @@ select distinct(t1.c) c,sum(t1.c) num from t1 inner join t2 on t1.a=t2.a where t
 
 * 应尽量少的连表查询,因为连表查询的数据量更大,且很容易造成锁表和阻塞
 
-* Where中有多索引时,选择key_len最短的使用
+* where中有多索引时,选择key_len最短的使用
+
+* MySQL存储引擎不能继续使用索引中范围条件(between,<,>,in等)右边的列
 
 * 多条联合查询时,需要根据情况加索引
 
@@ -1874,14 +1885,39 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
 
 
 
+## 表优化
+
+* 尽量遵循三范式原则,但在必要的情况下,可以适当做数据的冗余,反三范式
+* 不常用的字段单独存在在一个表中
+* 大字段独立存在到一个表中
+* 经常一起使用的字段放到一起
+* 如果表数据量超过百万级别就要考虑分表
+
+
+
 ## 其他优化
 
 * 当单表数据超过700W(根据数据库不同而不同)时,sql优化已达到极致,此时应该增加缓存,读写分离,分库分表
+
 * 尽量避免全表扫描,避免多表连接,首先应考虑在where以及order by设计的列上建立索引
+
 * 尽量避免在where子句中对null进行判断,否则将导致引擎放弃使用索引而进行全表扫描
+
 * 尽量设置默认值以避免null值出现
+
 * 尽量使用数字型字段,尽量使用定长的字符串类型
+
 * 尽量进行批量操作,而不是频繁的读写
+
+* 分页limit优化,偏移量越大,执行越慢.即limit M,N中M越大,执行越慢.可以使用索引先将一部分数据过来,之后再分页
+
+  ```mysql
+  -- 效率低
+  select * from t1 limit 100000,10;
+  -- 效率高,id上有索引
+  select * from t1 where id in (select id from t1 where id > 100000) limit 100000,10;
+  ```
+
 * show profiles:是mysql提供可用来分析当前会话中语句执行的资源消耗情况.默认情况下,参数处于关闭状态,并保存最近15次运行的结果
   * show profiles:查看最近记录运行的sql语句,其中包括查询id,查询消耗时间以及查询语句
   * show profiles [] for query 查询id:查看该id的sql语句在执行中的全过程
@@ -1899,6 +1935,7 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
   * copying to tmp table on disk:把内存中临时表复制到磁盘,危险
   * locked:锁表了
   * 出现上述4种结果,说明查询有很大问题,需要优化
+  
 * 为每个表建立独立表空间,使用系统表空间会出现大量浪费空间的问题
   * show variables like '%innodb_file_per_table%':查看是否使用了独立表空间,ON表示使用.每个表都会有一个单独的表空间名称->tablename.idb,该文件会生成在数据目录的数据库目录下,每个表一个
   * optimize table:收缩系统文件.可以收缩独立表空间和系统表空间,但是收缩系统表空间需要很复杂的操作,也很浪费时间.但是收缩独立表空间就很简单,而且可以不停服
