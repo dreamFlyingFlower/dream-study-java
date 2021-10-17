@@ -8,10 +8,29 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
- * nio客户端
+ * NIO客户端
  * 
- * @author ParadiseWY
+ * NIO客户端与服务器建立连接的流程:
+ * 
+ * <pre>
+ * 1.打开SocketChannel
+ * 2.设置SocketChannel为非阻塞模式,同时设置TCP参数
+ * 3.异步连接服务器
+ * 4.判断连接结果.如果成功,直接跳到10,否则执行5
+ * 5.向Reactor线程的多路复用器注册OP_CONNECT事件
+ * 6.创建Selector,启动线程
+ * 7.Selector轮询就绪的Key
+ * 8.handlerConnect()
+ * 9.判断连接是否完成,若完成直接执行10
+ * 10.向多路复用器注册读事件OP_READ
+ * 11.handlerRead()异步读取请求消息到ByteBuffer中
+ * 12.decode请求消息
+ * 13.异步将ByteBuffer写到SocketChannel中
+ * </pre>
+ * 
+ * @author 飞花梦影
  * @date 2020-09-29 10:37:17
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_SocketClient {
 

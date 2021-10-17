@@ -93,7 +93,9 @@ import io.netty.util.concurrent.FastThreadLocal;
  * 
  * <pre>
  * ChannelBuffer->{@link ByteBuf}
- * ChannelBuffers->{@link PooledByteBufAllocator},{@link UnpooledByteBufAllocator}或{@link Unpooled},使用完后需要释放
+ * ChannelBuffers->池化类:{@link PooledByteBufAllocator},池化类
+ * 		非池化类:{@link UnpooledByteBufAllocator},{@link Unpooled}等Unpool开头的类
+ * 		池化类效率高于非池化内存空间分配类,不管是池化还是非池化类,使用完后需要释放
  * FrameDecoder->{@link ByteToMessageDecoder}
  * FrameEncoder->{@link MessageToByteEncoder}
  * OneToOneEncoder->{@link MessageToByteEncoder}

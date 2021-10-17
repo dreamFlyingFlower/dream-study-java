@@ -10,23 +10,30 @@
 
 
 
-## 复制算法
-
-核心思想就是将内存空间分为两块,每次只使用其中一块,在垃圾回收时,将正在使用的内存中的存留对象复制到未被使用的内存块中,之后去清除之前正在使用内存块中所有的对象,反复去交换两个内存的角色,完成垃圾收集
-
-适用于新生代垃圾回收
-
-
-
 ## 引用计数法
 
-这是个比较古老而经典的垃圾收集算法,核心就是在对象被其他对象引用时计数器加1,而当引用失效时则减1,但是这种方法有非常严重的问题:无法处理循环引用的情况,而且每次进行加减操作比较浪费系统性能
+比较古老而经典的垃圾收集算法,核心就是在对象被其他对象引用时计数器加1,而当引用失效时则减1
+
+
+
+优点
+
+* 实时性高,无需等到内存不足时才回收.只要计数为0就可以回收
+* 在垃圾回收过程中无需STW.申请内存时不足,直接OOM
+* 更新对象的计数器时,只影响该对象区域,不扫描全部对象
+
+
+
+缺点
+
+* 浪费CPU资源,即使内存够用,仍然在运行计数器的统计
+* 最大的缺点是无法处理循环引用的情况,而且每次进行加减操作比较浪费系统性能
 
 
 
 ## 标记清除法
 
-标记阶段和清除阶段:在标记阶段,首先通过根节点,标记所有从根节点开始的可达对象.因此,未被标记的对象就是未被引用的垃圾对象.然后,在清除阶段,清除所有未被标记的对象
+标记阶段和清除阶段:在标记阶段,首先通过根节点,标记所有从根节点开始的可达对象.因此,未被标记的对象就是未被引用的垃圾对象.在清除阶段,清除所有未被标记的对象
 
 这种方式也有非常大的弊端,就是空间碎片问题,垃圾回收后的空间不是连续的,不连续的内存空间的工作效率要低于连续的内存空间
 
@@ -37,6 +44,14 @@
 标记压缩法在标记清除法基础上做了优化,把存活的对象压缩到内存一端,而后进行垃圾清理
 
 Jvm中老年代就是使用的标记压缩法
+
+
+
+## 复制算法
+
+核心思想是将内存空间分为两块,每次只使用其中一块,在垃圾回收时,将正在使用的内存中的存留对象复制到未被使用的内存块中,之后去清除之前正在使用内存块中所有的对象,反复去交换两个内存的角色,完成垃圾收集
+
+适用于新生代垃圾回收
 
 
 
@@ -59,7 +74,7 @@ Jvm中老年代就是使用的标记压缩法
 
 
 
-## GC停顿
+## GC停顿(STW)
 
 * Java中一种全局暂停的现象,又称STW(Stop The World)
 * 垃圾回收器的任务是识别和回收垃圾对象进行内存清理,为了让垃圾回收器可以高效的执行,大部分情况下,会要求系统进入一个停顿的状态.停顿的目的是终止所有应用线程,只有这样系统才不会有新的垃圾产生,同时停顿保证了系统状态在某一个瞬间的一致性,也有益于更好的标记垃圾对象,因此在垃圾回收时,都会产生应用停顿的现象
@@ -69,7 +84,7 @@ Jvm中老年代就是使用的标记压缩法
 
 
 
-# GC种类
+# 回收器种类
 
 
 
@@ -91,19 +106,21 @@ Jvm中老年代就是使用的标记压缩法
 
 
 
-### Parallel
+### ParallelGC
 
 * 类似ParNew,新生代复制算法,老年代标记-压缩算法
-* -XX:+UseParallelGC:使用Parallel收集器,老年代串行
-* -XX:+UseParallelOldGC:使用Parallel收集器,并行老年代
+* -XX:+UseParallelGC:使用Parallel收集器,新生代并行.默认会激活老年代的ParallelOldGC
+* -XX:+UseParallelOldGC:使用Parallel收集器,并行老年代.默认会激活年轻代的ParallelGC
 * -XX:ParallelGCThreads:指定ParNew的回收器线程数,一般最好和CPU核心数相当
 
 
 
 ## CMS回收器
 
-* ConcurrentMarkSweep,并发标记清除,使用的是标记清除法,主要关注系统停顿时间
-* -XX:+UseConcMarkSweepGC:设置是否使用该回收器
+![](JVM02-01.png)
+
+* ConcurrentMarkSweep,并发标记清除,使用的是标记清除法,主要关注系统停顿时间,针对老年代
+* -XX:+UseConcMarkSweepGC:设置是否使用该回收器,开启后将使用ParNew+CMS+Serial Old收集器组合,Serial Old是为了防止CMS在内存使用完之后无法正常垃圾回收的保底策略
 * -XX:ConcGCThreads:设置并发线程数
 * CMS并不是独占的回收器,即CMS回收过程中,应用程序仍然在不停的工作,又会有新的垃圾不断产生,所以在使用CMS的过程中应该确保应用程序的内存足够
 * CMS不会等到应用程序饱和的时候采取回收垃圾,而是在某一个阀值的时候开始回收.如果内存使用率增长的很快,在CMS执行过程中已经出现了内存不足的情况,此时回收就会失败,虚拟机将启动老年代串行回收器进行垃圾回收,这会导致应用程序中断,直到垃圾回收完成后才会正常工作.这个过程GC停顿时间可能较长
@@ -116,6 +133,9 @@ Jvm中老年代就是使用的标记压缩法
 
 ## G1回收器
 
+![](JVM02-02.png)
+
+* Humongous:超大对象.当对象超过该区域的一半,回收时将直接把该对象分配到老年代中,而不经过S区
 * Garbage First,在jdk1.7中提出的垃圾回收器,从长期来看是为了取代CMS回收器,G1回收器拥有独特的垃圾回收策略,G1属于分代垃圾回收器,区分新生代和老年代,依然有eden和from/to区,它不要求整个eden或新生代,老年代的空间都连续,它使用了分区算法
 * 并行性:G1回收期间可多线程同时工作
 * 并发性:G1拥有与应用程序交替执行能力,部分工作可与应用程序同时执行,在整个GC期间不会完全阻塞应用
@@ -126,7 +146,8 @@ Jvm中老年代就是使用的标记压缩法
 * -XX:+UseG1GC:是否使用G1回收器
 * -XX:MaxGCPauseMillis:指定最大停顿时间,默认是200ms
 * -XX:ParallelGCThreads:设置并行回收的线程数量
-* -XX:G1HeapRegionSize:1,2,4,8,16,32,只有这几个值,单位是M.region有多大,该代码是在headpregion.cpp中
+* -XX:InitiatingHeapOccupancyPercent:老年代大小占堆百分比达到45%时触发mixed gc
+* -XX:G1HeapRegionSize:1,2,4,8,16,32,只有这几个值,单位是M,分成2048个区域.region有多大,该代码是在headpregion.cpp中
 
 
 
@@ -414,8 +435,16 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 ## Jmap
 
 * 生成Java应用程序的堆快照和对象的统计信息
-* jmap -histo pid >c:\s.txt:将统计信息输出到指定目录指定文件
-* jmap -dump:format=b,file=c:\heap.hprof pid:输出Dump堆信息
+* jmap -heap pid:查看堆信息
+* jmap -histo pid >c:\s.txt:查看内存中对象数量及大小,并将统计信息输出到指定目录指定文件
+* jmap -dump:format=b,file=c:\heap.hprof pid:将内存使用情况输出,使用jhat查看
+
+
+
+## Jhat
+
+* 查看jmap输出的dump文件,需要单独占用一个端口,可以在页面访问
+* jhat -port 12345 dump文件:分析dump文件,网页可通过ip:12345访问
 
 
 
@@ -457,7 +486,7 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 
 ## MAT
 
-* Memory Analyzer:基于Eclipse的[软件](http://www.eclipse.org/mat/),可以直接安装在Eclipse,也可以单独使用
+* Memory Analyzer Tool:基于Eclipse的[软件](http://www.eclipse.org/mat/),可以直接安装在Eclipse,也可以单独使用
 * 需要先导出内存相关的dump文件,之后导入MAT中进行分析
 
 
@@ -465,6 +494,8 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 # JVM参数
 
 * 所有参数示例可参见dream-study-java-common项目的com.wy.jvm包
+
+* -Dname=value:设置启动参数,main方法中可读取
 
 * -verbose:gc:可以打印GC的简要信息
 
@@ -480,6 +511,11 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 * -XX:+PrintGCDetails:可以查看详细信息,包括各个区的情况
 
   ```java
+  // DefNew:新生代默认使用的垃圾收集器
+  // Tenured:老年代
+  // ParNew:新生代使用的并行垃圾回收器,Parallel New Generation
+  // PSYoungGen:新生代使用的并行垃圾回收器,Parallel Scavenge
+  // ParOldGen:老年代使用的并行垃圾回收器,Parallel Old Generation
   // eden为新生代伊甸区,from是s0,to是s1,tenured是老年代,compacting是JDK1.8之前的永久代,JDK1.8称为元空间Metaspace
   Heap
    def new generation  total 13824K, used 11223K [0x27e80000,0x28d80000,0x28d80000)
@@ -526,9 +562,22 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 
 * -Xloggc:filePath:指定GC日志的位置,以文件形式输出
 
-* -Xms:设置java堆的最小值,包括新生和老年代 
+* -XX:+PrintFlagsFinal:运行java命令时打印参数.=表示默认值,:=表示被修改的值
 
-* -Xmx:设置java堆的最大值.如-Xmx2048M
+* -XX:+PrintCommandLineFlags:显示当前JVM使用的垃圾回收器以及初始堆配置
+
+  ```shell
+  java -XX:+PrintCommandLineFlags -version
+  
+  -XX:InitialHeapSize=397443008 -XX:MaxHeapSize=6359088128 -XX:+PrintCommandLineFlags -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:-UseLargePagesIndividualAllocation -XX:+UseParallelGC
+  java version "1.8.0_144"
+  Java(TM) SE Runtime Environment (build 1.8.0_144-b01)
+  Java HotSpot(TM) 64-Bit Server VM (build 25.144-b01, mixed mode)
+  ```
+
+* -Xms:设置JVM堆的最小值,包括新生和老年代,等价于-XX:InitialHeapSize
+
+* -Xmx:设置JVM堆的最大值,等价于-XX:MaxHeapSize.如-Xmx2048M
 
 * -Xmn:设置新生代大小,一般会设置为整个堆空间的1/3或1/4
 
@@ -576,7 +625,7 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 
 * -XX:UseCMSInitiatingOccupancyOnly:表示只在到达阀值的时候,才进行CMS回收
 
-* -XX:+HeapDumpOnOutOfMemoryError:使用该参数可以在OOM时导出整个堆信息
+* -XX:+HeapDumpOnOutOfMemoryError:使用该参数可以在OOM时导出整个堆信息,文件将导出在程序目录下
 
 * -XX:HeapDumpPath=filePath:设置OOM时导出的信息存放地址
 
@@ -587,6 +636,12 @@ S0     S1     E      O      M     CCS    YGC   YGCT    FGC    FGCT     GCT
 * -XX:GCTimeRatio:设置吞吐量大小,它是一个0到100之间的整数,默认情况下是99,系统将花费不超过1/(1+n)的时间用于垃圾回收,也就是1/(1+99)=1%的时间.该参数和-XX:MaxGCPauseMillis是矛盾的,因为停顿时间和吞吐量不可能同时调优
 
 * -XX:UseAdaptiveSizePolicy:自适应模式,在这种情况下,新生代的大小,eden,from/to的比例,以及晋升老年代的对象年龄参数会被自动调整,已达到在堆大小,吞吐量和停顿时间之间的平衡
+
+* -Xint:在解释模式下会强制JVM执行所有字节码,会降低运行速度10倍以上
+
+* -Xcomp:和Xint相反,JVM在第一次使用时会把所有字节码编译成本地代码,带来最大程度的优化
+
+* -Xmixed:混合模式,由JVM决定使用解释模式或编译模式,JVM的默认模式
 
 
 

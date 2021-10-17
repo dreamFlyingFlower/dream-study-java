@@ -14,14 +14,13 @@ import java.util.Scanner;
 /**
  * NIO服务端
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-09-29 10:37:32
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_SocketServer {
 
-	/**
-	 * 多路复用选择器,用于注册通道,对通道进行切换
-	 */
+	/** 多路复用选择器,用于注册通道,对通道进行切换 */
 	private Selector selector;
 
 	public static void main(String[] args) throws IOException {

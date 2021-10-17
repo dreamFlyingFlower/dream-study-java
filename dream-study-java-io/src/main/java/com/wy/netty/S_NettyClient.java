@@ -1,6 +1,7 @@
 package com.wy.netty;
 
 import java.util.Scanner;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import com.wy.util.NettyUtils;
@@ -12,18 +13,42 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.MultithreadEventExecutorGroup;
 
 /**
- * netty客户端,单线程组,利用Bootstrap配置启动,需要注册业务Handler
+ * Netty客户端,请求的发起者,不需要监听.只需要定义一个线程组即可,利用Bootstrap配置启动,需要注册业务Handler
  * 
- * @apiNote 因为客户端是请求的发起者,不需要监听,只需要定义唯一的一个线程组即可
+ * {@link EventLoopGroup}:底层也是一个线程池,不需要循环创建.若循环创建,可能会导致OOM
+ * 
+ * Netty客户端创建原理:
+ * 
+ * <pre>
+ * 1.调用方创建客户端BootStrap
+ * 2.构建NIO线程组EventLoopGroup
+ * 3.通过反射创建NioSocketChannel
+ * 4.NioSocketChannel创建默认的ChannelPipeLine
+ * 5.NioSocketChannel异步发起TCP客户端连接
+ * 6.注册OP_CONNECT事件到NIO线程多路复用器EventLoopGroup
+ * 7.异步处理连接结果
+ * 8.发送连接操作结果事件到ChannelPipeLine
+ * 9.调用应用添加的业务ChannelHandler
+ * </pre>
+ * 
+ * Netty客户端源码解析:
+ * 
+ * <pre>
+ * {@link NioEventLoopGroup}:继承{@link MultithreadEventLoopGroup},构造线程组
+ * {@link MultithreadEventExecutorGroup}:由 NioEventLoopGroup 构造函数最终调用而来,创建线程组
+ * {@link ThreadPerTaskExecutor}:上一步创建的执行器{@link Executor}
+ * </pre>
  *
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2019-05-13 18:58:27
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @SuppressWarnings("resource")
 public class S_NettyClient {
@@ -67,6 +92,7 @@ public class S_NettyClient {
 	}
 
 	public void release() {
+		// 关闭整个线程组
 		this.group.shutdownGracefully();
 	}
 
@@ -94,6 +120,7 @@ public class S_NettyClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+			// 关闭当前线程
 			NettyUtils.closeFuture(future);
 			if (null != client) {
 				client.release();
