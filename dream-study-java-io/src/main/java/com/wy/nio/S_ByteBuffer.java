@@ -1,17 +1,24 @@
 package com.wy.nio;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
+import java.nio.channels.Channels;
 
 /**
- * NIO主要是缓冲区,主要类有{@link java.nio.Buffer},{@link java.nio.ByteBuffer},{@link java.nio.channels.Channels}
- * {@link java.nio.CharBuffer},{@link java.nio.ShortBuffer},{@link java.nio.IntBuffer}
- * {@link java.nio.LongBuffer},{@link java.nio.FloatBuffer},{@link java.nio.DoubleBuffer}
+ * NIO缓冲区,主要类有{@link Buffer},{@link ByteBuffer},{@link Channels},{@link CharBuffer},
+ * {@link ShortBuffer},{@link IntBuffer},{@link LongBuffer},{@link FloatBuffer},{@link DoubleBuffer}
  * 
- * @apiNote 缓冲区的核心方法有2个:put()->写入数据,get()->读数据
+ * 缓冲区的核心方法有2个:put()->写入数据,get()->读数据
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-11-26 00:04:52
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_ByteBuffer {
 

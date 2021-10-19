@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.wy.util.NettyUtils;
 
+import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -18,6 +19,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.MultithreadEventExecutorGroup;
+import io.netty.util.concurrent.ThreadPerTaskExecutor;
 
 /**
  * Netty客户端,请求的发起者,不需要监听.只需要定义一个线程组即可,利用Bootstrap配置启动,需要注册业务Handler
@@ -43,7 +45,13 @@ import io.netty.util.concurrent.MultithreadEventExecutorGroup;
  * <pre>
  * {@link NioEventLoopGroup}:继承{@link MultithreadEventLoopGroup},构造线程组
  * {@link MultithreadEventExecutorGroup}:由 NioEventLoopGroup 构造函数最终调用而来,创建线程组
- * {@link ThreadPerTaskExecutor}:上一步创建的执行器{@link Executor}
+ * {@link ThreadPerTaskExecutor}: MultithreadEventExecutorGroup (75)创建的执行器{@link Executor}
+ * {@link Bootstrap}:绑定线程组,设置非阻塞,设置相关参数,设置handler
+ * {@link Bootstrap#connect()}:开始建立连接(155)
+ * {@link AbstractBootstrap#initAndRegister}:建立连接时调用,进行通道的初始化和注册(307)
+ * 
+ * writeAndFlush申请的内存(堆内存和直接内存)都被Netty主动释放掉了,而会发生内存泄露的是接收数据的时候,
+ * 即读数据进行分配时,若使用了Unpool等方式分配了内存空间,但是不释放内存空间,就可能引起内存泄露
  * </pre>
  *
  * @author 飞花梦影
@@ -53,10 +61,10 @@ import io.netty.util.concurrent.MultithreadEventExecutorGroup;
 @SuppressWarnings("resource")
 public class S_NettyClient {
 
-	// 处理请求和处理服务端响应的线程组
+	/** 处理请求和处理服务端响应的线程组 */
 	private EventLoopGroup group = null;
 
-	// 客户端启动相关配置信息
+	/** 客户端启动相关配置信息 */
 	private Bootstrap bootstrap = null;
 
 	public S_NettyClient() {
@@ -87,8 +95,7 @@ public class S_NettyClient {
 			}
 		});
 		// 建立连接
-		ChannelFuture future = this.bootstrap.connect(host, port).sync();
-		return future;
+		return this.bootstrap.connect(host, port).sync();
 	}
 
 	public void release() {
