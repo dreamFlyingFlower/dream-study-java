@@ -89,9 +89,9 @@ import io.netty.util.concurrent.ThreadPerTaskExecutor;
  * {@link ChannelOutboundHandler}:write事件传播,writeAndFlush()
  * ->{@link ChannelOutboundHandlerAdapter}
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2019-05-13 18:58:15
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_NettyServer {
 
