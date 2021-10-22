@@ -176,8 +176,8 @@ Jvm中老年代就是使用的标记压缩法
 ## Full GC
 
 * 用于清理整个堆空间,它的触发条件主要有以下几种:
-* 显式调用System.gc方法(建议JVM触发)
-* 方法区空间不足(JDK8及之后不会有这种情况了,详见下文)
+  * 显式调用System.gc方法(建议JVM触发)
+  * 方法区空间不足(JDK8及之后不会有这种情况了,详见下文)
 * 老年代空间不足,引起Full GC.这种情况比较复杂,有以下几种:
   * 大对象直接进入老年代引起,由-XX:PretenureSizeThreshold参数定义
   * 经历多次Minor GC仍存在的对象进入老年代,由-XX:MaxTenuringThreashold定义
@@ -189,7 +189,7 @@ Jvm中老年代就是使用的标记压缩法
   * 空间担保分配是指在发生Minor GC之前,虚拟机会检查老年代最大可用的连续空间是否大于新生代所有对象的总空间
     * 如果大于,则此次Minor GC是安全的
     * 如果小于,则虚拟机会查看HandlePromotionFailure设置值是否允许担保失败
-    * 如果HandlePromotionFailure=true,那么会继续检查老年代最大可用连续空间是否大于历次晋升到老年代的对象的平均大小,如果大于,则尝试进行一次Minor GC,但这次Minor GC依然是有风险的,失败后会重新发起一次Full gc:如果小于或者HandlePromotionFailure=false,则改为直接进行一次Full GC
+    * 如果HandlePromotionFailure=true,那么会继续检查老年代最大可用连续空间是否大于历次晋升到老年代的对象的平均大小,如果大于,则尝试进行一次Minor GC,但这次Minor GC依然是有风险的,失败后会重新发起一次Full GC;如果小于或者HandlePromotionFailure=false,则改为直接进行一次Full GC
 
 
 
