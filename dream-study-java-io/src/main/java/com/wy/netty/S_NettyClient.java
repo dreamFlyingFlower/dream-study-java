@@ -8,21 +8,26 @@ import com.wy.util.NettyUtils;
 
 import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.AbstractByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.AbstractChannel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundInvoker;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultithreadEventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.SingleThreadEventLoop;
+import io.netty.channel.nio.AbstractNioByteChannel;
 import io.netty.channel.nio.NioEventLoop;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.AbstractEventExecutor;
 import io.netty.util.concurrent.MultithreadEventExecutorGroup;
 import io.netty.util.concurrent.SingleThreadEventExecutor;
@@ -73,8 +78,14 @@ import io.netty.util.concurrent.ThreadPerTaskExecutor;
  * </pre>
  * 
  * {@link ChannelOutboundInvoker#writeAndFlush}{@link #AbstractChannelHandlerContext#writeAndFlush}:
- * 写数据到channel中,此时申请的内存(堆内存和直接内存)都被Netty主动释放掉了,而会发生内存泄露的是接收数据的时候,
+ * 写数据到channel中,此时申请的内存(堆内存和直接内存)都被Netty主动释放掉了
+ * {@link ReferenceCountUtil#release}:内存释放
+ * {@link ChannelInboundHandlerAdapter}:当Netty中的handler继承该类时需要手动释放读的内存,否则可能会发生内存泄露,
+ * ->{@link AbstractNioByteChannel.NioByteUnsafe#read}:主要的读方法,分配直接内存(150)
+ * -->{@link AbstractByteBufAllocator#ioBuffer}:根据是否使用pool分配内存之内内存或堆内存
  * 即读数据进行分配时,若使用了Unpooled等方式分配了内存空间,但是不释放内存空间,就可能引起内存泄露
+ * {@link SimpleChannelInboundHandler#channelRead}:当handler继承该类时不需要手动释放读写的内存.
+ * 正常情况是调用channelRead,调用自定义的handler,最后在finally中进行了内存释放(106)
  *
  * @author 飞花梦影
  * @date 2019-05-13 18:58:27
