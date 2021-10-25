@@ -1,10 +1,14 @@
 package com.wy.tracsaction;
 
 import org.aopalliance.aop.Advice;
+import org.springframework.aop.framework.AopContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
@@ -15,12 +19,15 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
  * 
  * 事务的特性:原子性,隔离性,一致性,持久性
  * 
- * 为保证事务的一致性而产生的各种问题:<br>
- * 脏读:一个事务读到另一个事务未提交的数据<br>
- * 不可重复读:一个事务读到另一个事务已经提交的update数据,导致一个事务中多次查询结果不一致
- * 虚读,幻读:一个事务读到另一个事务已经提交的insert数据,导致一个事务中多次查询结果不一致
+ * 为保证事务的一致性而产生的各种问题:
  * 
- * 为解决事务的一致性问题而产生的隔离机制
+ * <pre>
+ * 脏读:一个事务读到另一个事务未提交的数据
+ * 不可重复读:一个事务读到另一个事务已经提交的update数据,导致一个事务中多次查询结果不一致
+ * 虚读,幻读:一个事务读到另一个事务已经提交的insert或delete数据,导致一个事务中多次查询结果数量不一致
+ * </pre>
+ * 
+ * 为解决事务的一致性问题而产生的隔离机制:
  * 
  * <pre>
  * Read uncommited:未提交读,任何问题都解决不了,但是效率最高
@@ -34,19 +41,19 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
  * {@link TransactionDefinition#ISOLATION_SERIALIZABLE}:严格的一个一个读
  * </pre>
  * 
- * 事务的传播机制,解决事务的嵌套问题.例如A方法中调用了B方法,是否有多个事务可以使用,或者只使用一个事务,或不使用事务
+ * 事务的传播机制,解决事务的嵌套问题.例如A()中调用了B(),是否有多个事务可以使用,或者只使用一个事务,或不使用事务
  * 
  * <pre>
- * {@link TransactionDefinition#PROPAGATION_REQUIRED}:默认传播行为,若A有事务,则使用A的事务,若没有则新建事务
- * {@link TransactionDefinition#PROPAGATION_SUPPORTS}:如果A有事务,则使用A的事务,如果A没有事务,就不使用事务
- * {@link TransactionDefinition#PROPAGATION_MANDATORY}:如果A有事务,则使用A的事务,如果A没有事务,就抛出异常
+ * {@link TransactionDefinition#PROPAGATION_REQUIRED}:默认,若A有事务,则使用A的事务;若没有则新建事务
+ * {@link TransactionDefinition#PROPAGATION_SUPPORTS}:若A有事务,则使用A的事务;若A没有事务,就不使用事务
+ * {@link TransactionDefinition#PROPAGATION_MANDATORY}:若A有事务,则使用A的事务;若A没有事务,就抛出异常
  * {@link TransactionDefinition#PROPAGATION_REQUIRES_NEW}:若A有事务,将A事务挂起,新建一个事务,且只作用于B
  * {@link TransactionDefinition#PROPAGATION_NOT_SUPPORTED}:非事务方式执行操作,不管A,B有事务,都将事务挂起执行
  * {@link TransactionDefinition#PROPAGATION_NEVER}:非事务方式执行,若A,B中任何一个有事务,直接抛异常
  * {@link TransactionDefinition#PROPAGATION_NESTED}:若存在事务,则在嵌套事务内执行;若没有事务,则与REQUIRED类似
  * </pre>
  * 
- * SpringBoot事务流程原理
+ * SpringBoot事务流程原理:
  * 
  * <pre>
  * {@link TransactionInterceptor}:事务拦截器,实现了{@link MethodInterceptor},{@link Advice},在SpringBoot启动时注入
@@ -57,10 +64,39 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
  * {@link AbstractFallbackTransactionAttributeSource#getTransactionAttribute()}:事务回滚主要方法,非public不回滚
  * </pre>
  * 
+ * Spring事务失效:当A()和B()在同一个类中,且A()调用B()时.由于Spring事务采用动态代理,当A()使用了事务时,
+ * 若B()开启了新事务,此时A()中调用B()使用的是this.B(),而不是由Spring的动态代理调用的B(),
+ * 
  * @author 飞花梦影
  * @date 2021-10-21 13:48:02
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class MyTransaction {
 
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	@Transactional
+	public void test01() {
+		// 若此时发生了异常,且异常被抛出,事务仍然生效
+		test02();
+		try {
+			// 若此时发生了异常,但是异常被捕获,事务不生效
+			test02();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 若此时发生异常,由于是由this直接调用,不走AOP的动态代理,无法捕获异常,事务不生效
+		test02();
+		// 使用AopContext调用test02,此时若发生异常,可被AOP捕获,事务生效
+		MyTransaction myTransaction = (MyTransaction) AopContext.currentProxy();
+		myTransaction.test02();
+		// 使用ApplicationContext获得代理对象,事务生效
+		MyTransaction myTransaction2 = applicationContext.getBean(MyTransaction.class);
+		myTransaction2.test02();
+	}
+
+	public void test02() {
+
+	}
 }

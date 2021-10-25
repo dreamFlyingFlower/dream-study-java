@@ -11,12 +11,22 @@ import java.util.stream.Stream;
 /**
  * Stream的使用
  * 
- * @apiNote Stream的中间和结束方法都只能对流中的每一个元素进行操作,但是不能汇总.
- *          汇总需要用到collect方法或toArray或其他能将结果集重新收集的方法
- * @apiNote collect:将流转换为其他形式,接口一个Collector接口的实现,用于给stream中元素汇总.
- *          Collectors工具类可以求avg,sum,max,min,groupby,parting(分区),joining,summary(方法汇总)等
- * @apiNote parallel:并行流,当数据量比较大的时候用效果比较明显.
- *          并行流类似多选线程的fork,join,根据条件将任务分解到最小任务,并行运算.但是太麻烦
+ * Stream的中间和结束方法都只能对流中的每一个元素进行操作,但不能汇总.汇总常用的是collect()或toArray()
+ * collect():将流转换为其他形式,参数是Collector接口的实现
+ * Collectors:该工具类可以求avg,sum,max,min,groupby,parting(分区),joining,summary(方法汇总)等
+ * parallel:并行流,当数据量超过百万时效果比较明显.并行流类似多选线程的fork,join,根据条件将任务分解到最小,并行运算
+ * 
+ * Stream的运行机制:
+ * 
+ * <pre>
+ * 所有操作都是链式调用,一个元素只迭代一次
+ * 每个中间操作返回一个新的流,流里面有一个属性sourceStage,指向同一个Head
+ * Head->nextStage->nextStage->...->null
+ * 有状态操作(有返回值的操作)会把无状态操作(无返回值操作)阶段截断,进行单独处理
+ * 并行环境下,有状态的中间操作不一定能并行执行
+ * parallel/sequetial中2个操作也是中间操作(也是返回stream),但是他们不创建流,只修改Head的并行标志(sourceState)
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2019-08-22 20:23:35
  * @git {@link https://github.com/dreamFlyingFlower}
