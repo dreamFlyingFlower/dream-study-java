@@ -36,37 +36,41 @@ import io.netty.util.concurrent.FastThreadLocal;
  * Netty的基本组件:{@link NioEventLoop#run},相当于传统BIO中的Thread,该类也实现了{@link Executor}
  * {@link Channel},相当于NIO中的{@link java.nio.channels.Channel},用来操作{@link Socket}
  * {@link ByteBuf},相当于NIO中的{@link ByteBuffer};{@link ChannelHandler},业务逻辑操作
+ * {@link NioSocketChannel}:客户端使用,{@link NioServerSocketChannel}:服务端使用
  * 
- * Channel的主要实现和继承关系:<br>
- * {@link Channel}<br>
- * ->{@link AbstractChannel}<br>
- * ->>{@link AbstractNioChannel}<br>
- * ->>>{@link AbstractNioByteChannel}<br>
- * ->>>>{@link NioSocketChannel}<br>
- * ->>>>>{@link NioSocketChannel.NioSocketChannelConfig}<br>
+ * Channel的主要实现和继承关系:
  * 
- * ->>>{@link AbstractNioMessageChannel}<br>
- * ->>>>{@link NioServerSocketChannel}<br>
- * ->>>>>{@link NioServerSocketChannel.NioServerSocketChannelConfig}<br>
+ * <pre>
+ * {@link Channel}
+ * ->{@link AbstractChannel}
+ * ->>{@link AbstractNioChannel}
+ * ->>>{@link AbstractNioByteChannel}
+ * ->>>>{@link NioSocketChannel}
+ * ->>>>>{@link NioSocketChannel.NioSocketChannelConfig}
  * 
- * {@link Channel.Unsafe}<br>
- * ->{@link AbstractChannel.AbstractUnsafe}<br>
- * ->>{@link AbstractNioChannel.AbstractNioUnsafe}<br>
- * ->>>{@link AbstractNioByteChannel.NioByteUnsafe}<br>
- * ->>>>{@link NioSocketChannel.NioSocketChannelUnsafe}<br>
+ * ->>>{@link AbstractNioMessageChannel}
+ * ->>>>{@link NioServerSocketChannel}
+ * ->>>>>{@link NioServerSocketChannel.NioServerSocketChannelConfig}
  * 
- * ->>>{@link AbstractNioMessageChannel.NioMessageUnsafe}<br>
+ * {@link Channel.Unsafe}
+ * ->{@link AbstractChannel.AbstractUnsafe}
+ * ->>{@link AbstractNioChannel.AbstractNioUnsafe}
+ * ->>>{@link AbstractNioByteChannel.NioByteUnsafe}
+ * ->>>>{@link NioSocketChannel.NioSocketChannelUnsafe}
  * 
- * {@link ChannelHandler}<br>
- * ->{@link ChannelOutboundHandler}<br>
- * ->>{@link ChannelOutboundHandlerAdapter}<br>
+ * ->>>{@link AbstractNioMessageChannel.NioMessageUnsafe}
  * 
- * ->{@link ChannelHandlerAdapter}<br>
- * ->>{@link ChannelOutboundHandlerAdapter}<br>
- * ->>{@link ChannelInboundHandlerAdapter}<br>
+ * {@link ChannelHandler}
+ * ->{@link ChannelOutboundHandler}
+ * ->>{@link ChannelOutboundHandlerAdapter}
  * 
- * ->{@link ChannelInboundHandler}<br>
- * ->>{@link ChannelInboundHandlerAdapter}<br>
+ * ->{@link ChannelHandlerAdapter}
+ * ->>{@link ChannelOutboundHandlerAdapter}
+ * ->>{@link ChannelInboundHandlerAdapter}
+ * 
+ * ->{@link ChannelInboundHandler}
+ * ->>{@link ChannelInboundHandlerAdapter}
+ * </pre>
  * 
  * {@link ByteToMessageDecoder}:解码器,核心方法decode
  * ->{@link FixedLengthFrameDecoder}:固定长度解码器分析
@@ -100,6 +104,17 @@ import io.netty.util.concurrent.FastThreadLocal;
  * FrameEncoder->{@link MessageToByteEncoder}
  * OneToOneEncoder->{@link MessageToByteEncoder}
  * messageReceive->channelRead0(netty5里面是messageReceive)
+ * </pre>
+ * 
+ * Netty4内存泄露常见原因:
+ * 
+ * <pre>
+ * 1.继承了{@link ChannelInboundHandlerAdapter},重写了channelRead(),读数据时没有主动释放消息内存,导致OOM
+ * 2.服务端消息积压:一种是任务太多,队列无法处理过来;网络瓶颈,当发送速度超过网络链接能力时,导致发送队列积压.
+ * 		为防止队列积压,在客户端做并发保护(高低水位机制)或者服务端进行流控.
+ * 		高水位机制:当消息队列中积压的待发送消息总字节数到达高水位时,修改Channel状态为不可写
+ * 		当积压的待发送字节数达到或者低于低水位时,修改Channel状态为可写
+ * 3.当对端读取速度小于已发发送速度,导致自身TCP发送缓冲区满,频繁发生write 0字节时,待发送消息会在Netty队列中排队
  * </pre>
  * 
  * @author 飞花梦影
