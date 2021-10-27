@@ -1,13 +1,18 @@
 package com.wy.tracsaction;
 
 import org.aopalliance.aop.Advice;
+import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.aop.framework.AopContext;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.SpringTransactionAnnotationParser;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -65,7 +70,34 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
  * </pre>
  * 
  * Spring事务失效:当A()和B()在同一个类中,且A()调用B()时.由于Spring事务采用动态代理,当A()使用了事务时,
- * 若B()开启了新事务,此时A()中调用B()使用的是this.B(),而不是由Spring的动态代理调用的B(),
+ * 若B()开启了新事务,此时A()中调用B()使用的是this.B(),而不是由Spring的动态代理调用的B(),此时B()的事务不生效
+ * 
+ * Spring事务动态代理原理:
+ * 
+ * <pre>
+ * {@link Transactional}:定义代理植入点,标识方法需要被代理,同时携带事务管理需要的一些属性信息
+ * {@link AnnotationAwareAspectJAutoProxyCreator#postProcessAfterInstantiation}:{@link BeanPostProcessor}的实现类,
+ * 		主要是创建代理对象,这个方法会返回一个代理对象给容器,同时判断植入点也是在这个方法中
+ * 在配置好注解驱动方式的事务管理之后,Spring会在IOC容器创建一个BeanFactoryTransactionAttributeSourceAdvisor实例,
+ * 这个实例可以看作是一个切点,在判断一个bean在初始化过程中是否需要创建代理对象,
+ * 都需要验证一次BeanFactoryTransactionAttributeSourceAdvisor是否是适用这个bean的切点.
+ * 如果适用于这个切点,就需要创建代理对象,并且把BeanFactoryTransactionAttributeSourceAdvisor实例注入到代理对象中
+ * {@link AopUtils#findAdvisorsThatCanApply}:判断切面是否适用当前bean,可以在这个地方断点分析调用堆栈,
+ * AopUtils#findAdvisorsThatCanApply一致调用,最终通过以下代码判断是否适用切点
+ * {@link AbstractFallbackTransactionAttributeSource#computeTransactionAttribute}:targetClass就是目标class
+ * 	{@link SpringTransactionAnnotationParser#parseTransactionAnnotation}:分析方法是否被Transactional标注,
+ * 		如果有,BeanFactoryTransactionAttributeSourceAdvisor适配当前bean,进行代理,并注入切入点
+ * {@link #CglibAopProxy.DynamicAdvisedInterceptor#intercept}:AOP最终的代理对象的代理方法
+ * 		this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回 TransactionInterceptor
+ * 		new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed():
+ * 			最终调用{@link TransactionInterceptor#invoke},并且把CglibMethodInvocation注入到invoke()
+ * {@link TransactionInterceptor#invoke}:AOP切面最终调用的执行方法.
+ * 		从调用链可以看到CglibMethodInvocation是包装了目标对象的方法调用的所有信息,因此,在该方法里面也可以调用目标方法,
+ * 		并且还可以实现类似@Around的逻辑,在目标方法调用前后继续注入一些其他逻辑,比如事务管理逻辑
+ * {@link TransactionAspectSupport#invokeWithinTransaction}:事务最终的调用方法.
+ * 		检查事务的传播机制,隔离级别,根据事务相关属性获得{@link TransactionManager},执行代理方法.
+ * 		根据结果是否抛出异常,隔离机制等决定是否提交事务,回滚等
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2021-10-21 13:48:02
