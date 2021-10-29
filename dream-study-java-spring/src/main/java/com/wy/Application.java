@@ -2,6 +2,9 @@ package com.wy;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.beans.factory.support.BeanDefinitionReader;
+import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.DefaultApplicationArguments;
@@ -13,6 +16,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -104,6 +108,13 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * {@link ApplicationEvent}:自定义事件,需要发布的事件继承该接口
  * {@link ApplicationListener}:事件监听.可以直接在listener上添加注解或者使用上下文添加到容器中
  * {@link publishEvent}:发布事件,必须在refreshed之后调用.使用任何继承了上下文的context调用,传入ApplicationEvent
+ * 
+ * Bean的加载解析实例化:
+ * 
+ * <pre>
+ * {@link BeanDefinitionReader}:Bean读取,主要从XML或注解中读取必须的信息,由实现类读取
+ * ->{@link XmlBeanDefinitionReader},{@link AnnotatedBeanDefinitionReader},{@link PropertiesBeanDefinitionReader}
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40

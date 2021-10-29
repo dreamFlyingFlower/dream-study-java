@@ -2,12 +2,19 @@ package com.wy.design.strategy;
 
 /**
  * 该类实现接口和实现类的使用,需要传入一个实现类做参数
- * @author paradiseWy
+ * 
+ * @author 飞花梦影
+ * @date 2021-10-29 11:52:58
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class Context {
+
 	private Strategy strategy = null;
+
 	private int lineWidth;
+
 	private int lineCount;
+
 	private String text;
 
 	public Context() {
