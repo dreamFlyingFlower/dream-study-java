@@ -6,8 +6,9 @@ import java.util.Observer;
 /**
  * 观察者,当被观察者改变的时候触发update方法
  *
- * @author ParadiseWY
- * @date 2020年9月26日 下午10:50:07
+ * @author 飞花梦影
+ * @date 2021-11-04 23:00:18
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_Observer implements Observer {
 
