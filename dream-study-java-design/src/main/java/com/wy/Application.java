@@ -3,17 +3,30 @@ package com.wy;
 import com.wy.abstracfactory.AbstractChinaCartoonFactory;
 import com.wy.abstracfactory.AbstractFactoryCartoon;
 import com.wy.abstracfactory.AbstractJapanCartoonFactory;
+import com.wy.build.HeavenHandler;
+import com.wy.build.HubeiHeaven;
+import com.wy.decorator.Animal;
+import com.wy.decorator.AnimalLand;
+import com.wy.decorator.FlyAnimalDecorator;
+import com.wy.decorator.WaterAnimalDecorator;
 import com.wy.entity.Cartoon;
+import com.wy.entity.HeavenNineSong;
 import com.wy.factory.FactoryAir;
 import com.wy.factory.FactoryCartoon;
 
 /**
- * 24种设计模式:命令模式,类似门面模式;迭代模式:jdk中出现了迭代器,现在已经基本不用了
+ * 24种设计模式:命令模式,类似门面模式;迭代模式:JDK中出现了迭代器,现在已经基本不用了
+ * 
+ * <pre>
+ * 简单工厂模式:适用于简单的创建同一个接口的不同实现类的场景,主要是对象创建
+ * 工厂模式:比简单工厂多了个创建接口的接口
+ * </pre>
  * 
  * <pre>
  * 简单工厂->工厂:简单工厂只有一个接口,直接返回实例;工厂有2个接口,一个返回实例,一个返回实例工厂,通过实例工厂返回实例
+ * 简单工厂->建造模式:简单工厂注重创建对象,而建造模式则是接口中多个属性或方法的设置调用
  * 组合模式:当整个项目呈现明显的树形结构时可使用,体现局部和整体的关系,例如人员关系表
- * 装饰器模式:类似于jdk中的流,子类都实现一个接口或抽象类,同时类中会存在一个构造函数以接口类型为参数
+ * 装饰模式:类似于JDK中的流,子类都实现一个接口或抽象类,同时类中会存在一个构造函数以接口类型为参数
  *          桥接模式是抽象类中声明一个自己的实现类变量,其他所有的子类继承抽象类或实现类
  * 工厂->策略:工厂注重对象的创建,而策略是注重行为的实现
  * 工厂->抽象工厂:抽象工厂多了中间的抽象类,对接口中的一些方法进行默认的实现
@@ -34,6 +47,10 @@ public class Application {
 		factory();
 		// 抽象工厂模式
 		abstractFactory();
+		// 建造者模式
+		builder();
+		// 装饰器模式
+		decorator();
 	}
 
 	public static void factory() {
@@ -49,5 +66,23 @@ public class Application {
 		AbstractFactoryCartoon chainCartoon = new AbstractChinaCartoonFactory();
 		System.out.println(chainCartoon.getAir().country());
 		System.out.println(chainCartoon.getClannad().name());
+	}
+
+	public static void builder() {
+		HubeiHeaven hubeiHeaven = new HubeiHeaven();
+		HeavenHandler headler = new HeavenHandler();
+		HeavenNineSong build = headler.build(hubeiHeaven);
+		System.out.println(build.getName());
+	}
+
+	public static void decorator() {
+		Animal animal = new AnimalLand();
+		animal.show();
+		System.out.println("---------");
+		Animal waterAnimal = new WaterAnimalDecorator(animal);
+		waterAnimal.show();
+		System.out.println("---------");
+		Animal flyWaterAnimal = new FlyAnimalDecorator(waterAnimal);
+		flyWaterAnimal.show();
 	}
 }

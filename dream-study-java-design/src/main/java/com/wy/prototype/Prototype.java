@@ -1,26 +1,29 @@
 package com.wy.prototype;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import com.wy.entity.HeavenNineSong;
+
 /**
  * 原型模式,即对原型类的clone,实现Cloneable接口,重写clone方法,可以深浅克隆,只有一个原型,其他都是原型的克隆类
  *
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-09-28 20:45:39
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class Prototype implements Cloneable {
-
-	@Override
-	protected Object clone() {
-		try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+public class Prototype {
 
 	public static void main(String[] args) {
-		Prototype p = new Prototype();
-		Prototype p1 = (Prototype) p.clone();// 浅克隆,深克隆需要重写hashcode和equals方法
-		System.out.println(p1);
+		HeavenNineSong p = new HeavenNineSong();
+		p.setName("盖聂");
+		p.setPeople(new ArrayList<String>(Arrays.asList("大叔", "二叔", "天明")));
+		HeavenNineSong p1 = p.clone();
+		System.out.println(p.getName());
+		System.out.println(p1.getName());
+		p.setName("二叔");
+		System.out.println(p1.getName());
+		p.getPeople().add("少羽");
+		System.out.println(p1.getPeople());
 	}
 }
