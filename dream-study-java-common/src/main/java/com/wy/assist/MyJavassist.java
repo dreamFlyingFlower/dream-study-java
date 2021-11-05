@@ -3,6 +3,7 @@ package com.wy.assist;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
@@ -71,9 +72,10 @@ public class MyJavassist implements ClassFileTransformer {
 		if (className.indexOf("$Proxy") != -1) {
 			return null;
 		}
-		if (className.equals("com.wy.test.Test")) {
+		if (className.equals("com.wy.model.User")) {
 			// 需要的操作,最后返回相应字节码
-			ClassPool classPool = new ClassPool(false);
+			ClassPool classPool = ClassPool.getDefault();
+			// ClassPool classPool = new ClassPool(false);
 			classPool.insertClassPath(new LoaderClassPath(loader));
 			try {
 				CtClass ctClass = classPool.get(className.replaceAll("/", "."));
@@ -97,6 +99,45 @@ public class MyJavassist implements ClassFileTransformer {
 				e.printStackTrace();
 			}
 			return new byte[0];
+		}
+		return null;
+	}
+
+	public static Class<?> example() {
+		try {
+			// 获取ClassPool
+			ClassPool pool = ClassPool.getDefault();
+			// 创建User类
+			CtClass ctClass = pool.makeClass("com.wy.model.User");
+			// 创建User类成员变量name
+			CtField name = new CtField(pool.get("java.lang.String"), "username", ctClass);
+			// 设置username为私有
+			name.setModifiers(Modifier.PRIVATE);
+			// 将username写入class
+			ctClass.addField(name, CtField.Initializer.constant(""));
+			// 增加set方法,名字为setUsername
+			ctClass.addMethod(CtNewMethod.setter("setUsername", name));
+			// 增加get方法,名字为getUsername
+			ctClass.addMethod(CtNewMethod.getter("getUsername", name));
+			// 添加无参的构造体
+			CtConstructor cons = new CtConstructor(new CtClass[] {}, ctClass);
+			// 相当于public Sclass(){this.username = "test";}
+			cons.setBody("{username = \"test\";}");
+			ctClass.addConstructor(cons);
+			// 添加有参的构造体
+			cons = new CtConstructor(new CtClass[] { pool.get("java.lang.String") }, ctClass);
+			// 第一个传入的形参$1,第二个传入的形参$2,相当于public Sclass(String s){this.username = s;}
+			cons.setBody("{$0.username = $1;}");
+			ctClass.addConstructor(cons);
+
+			// 反射调用新创建的类
+			Class<?> aClass = ctClass.toClass();
+			Object user = aClass.newInstance();
+			Method getter = null;
+			getter = user.getClass().getMethod("getUsername");
+			System.out.println(getter.invoke(user));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

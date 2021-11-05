@@ -1,7 +1,10 @@
 package com.wy;
 
+import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -10,8 +13,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
+import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -21,6 +29,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 /**
@@ -86,18 +97,50 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * 28.返回{@link ConfigurableApplicationContext}
  * </pre>
  * 
- * {@link SpringApplication#refreshContext()}
- * ->{@link AbstractApplicationContext#refresh()}
- * ->{@link AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory}
- * ->{@link ClassPathBeanDefinitionScanner.scan()}
- * ->{@link AnnotationConfigUtils.registerAnnotationConfigProcessors()}
- * -->{@link RootBeanDefinition(ConfigurationClassPostProcessor.class)}:判断加载Configuraion,Import,Component,ComponentScan等
- * --->{@link ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry()}
- * --->{@link ConfigurationClassPostProcessor.processConfigBeanDefinitions()}
- * --->{@link ConfigurationClassUtils.checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
- * --->{@link ConfigurationClassUtils.isConfigurationCandidate()}:判断是否为Import,Component,ComponentScan,ImportResource
- * ->{@link AnnotationConfigUtils.registerPostProcessor()}
- * ->{@link BeanDefinitionRegistry.registerBeanDefinition()}
+ * SpringBoot启动具体流程:
+ * 
+ * <pre>
+ * {@link AutoConfigurationPackage}:让包中的类以及子包中的类能够被自动扫描到Spring容器中
+ * ->{@link AutoConfigurationPackages.Registrar}:获取扫描的包路径.
+ * 		即将 SpringBootApplication 标注的类所在包及子包里面所有组件扫描加载到Spring容器
+ * {@link AutoConfigurationImportSelector#selectImports}:自动配置.获得所有需要导入的组件的全类名,并添加到容器中.
+ * 		会给容器中导入非常多的自动配置类,给容器中导入这个场景需要的所有组件,并配置好这些组件
+ * ->{@link AutoConfigurationImportSelector#getAutoConfigurationEntry}
+ * ->{@link AutoConfigurationImportSelector#getCandidateConfigurations}
+ * ->{@link AutoConfigurationImportSelector#getSpringFactoriesLoaderFactoryClass}:指定获得 EnableAutoConfiguration 类型
+ * -->{@link SpringFactoriesLoader#loadSpringFactories}:从META-INF/spring.factories下获得所有自动配置类
+ * 
+ * {@link SpringApplication#SpringApplication(ResourceLoader, Class...)}:自动加载非自动配置类.
+ * 		加载如{@link ApplicationContextInitializer},{@link ApplicationListener}等
+ * ->{@link SpringApplication#refreshContext()}
+ * -->{@link AbstractApplicationContext#refresh()}:同步刷新上下文,初始化bean,处理各种 BeanPostProcessor
+ * --->{@link AbstractApplicationContext#prepareRefresh()}:预刷新,初始化配置文件,读取{@link Environment}相关参数
+ * --->{@link AbstractApplicationContext#obtainFreshBeanFactory()}:
+ * --->{@link AbstractApplicationContext#prepareBeanFactory()}:
+ * --->{@link AbstractApplicationContext#postProcessBeanFactory()}:
+ * --->{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}:
+ * --->{@link AbstractApplicationContext#registerBeanPostProcessors()}:
+ * --->{@link AbstractApplicationContext#initMessageSource()}:
+ * --->{@link AbstractApplicationContext#initApplicationEventMulticaster()}:
+ * --->{@link AbstractApplicationContext#onRefresh()}:
+ * ---->{@link ServletWebServerApplicationContext#onRefresh}:Web项目中是调用该实现类
+ * ---->{@link ServletWebServerApplicationContext#createWebServer}:创建Web容器
+ * ----->{@link TomcatServletWebServerFactory#getWebServer}:默认由Tomcat创建Web容器
+ * --->{@link AbstractApplicationContext#registerListeners()}:
+ * --->{@link AbstractApplicationContext#finishBeanFactoryInitialization()}:
+ * --->{@link AbstractApplicationContext#finishRefresh()}:
+ * --->{@link AbstractApplicationContext#resetCommonCaches()}:
+ * -->{@link AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory}
+ * -->{@link ClassPathBeanDefinitionScanner.scan()}
+ * -->{@link AnnotationConfigUtils.registerAnnotationConfigProcessors()}
+ * --->{@link RootBeanDefinition(ConfigurationClassPostProcessor.class)}:判断加载Configuraion,Import,Component,ComponentScan等
+ * ---->{@link ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry()}
+ * ---->{@link ConfigurationClassPostProcessor.processConfigBeanDefinitions()}
+ * ---->{@link ConfigurationClassUtils.checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
+ * ---->{@link ConfigurationClassUtils.isConfigurationCandidate()}:判断是否为Import,Component,ComponentScan,ImportResource
+ * -->{@link AnnotationConfigUtils.registerPostProcessor()}
+ * -->{@link BeanDefinitionRegistry.registerBeanDefinition()}
+ * </pre>
  *
  * {@link AutowiredAnnotationBeanPostProcessor}:加载由Autowired和Value注解修饰的成员变量,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化
  * {@link AnnotationConfigApplicationContext},{@link AnnotationConfigWebApplicationContext}:根据环境不同启动加载{@link Configuration}
@@ -114,6 +157,14 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * <pre>
  * {@link BeanDefinitionReader}:Bean读取,主要从XML或注解中读取必须的信息,由实现类读取
  * ->{@link XmlBeanDefinitionReader},{@link AnnotatedBeanDefinitionReader},{@link PropertiesBeanDefinitionReader}
+ * </pre>
+ * 
+ * Bean实例化的一些特殊接口
+ * 
+ * <pre>
+ * {@link BeanPostProcessor}:在接口或类初始化之前,之后进行的操作.AOP主要接口实现该接口
+ * {@link InstantiationAwareBeanPostProcessor}:BeanPostProcessor 子接口,该接口在实例化之前添加回调,并在实例化之后但在set或 Autowired 注入之前添加回调
+ * {@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,在调用bean本身之前委托给指定的拦截器
  * </pre>
  * 
  * @author 飞花梦影

@@ -15,6 +15,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.SpringTransactionAnnotationParser;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
+import org.springframework.transaction.interceptor.BeanFactoryTransactionAttributeSourceAdvisor;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
@@ -58,45 +59,47 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
  * {@link TransactionDefinition#PROPAGATION_NESTED}:若存在事务,则在嵌套事务内执行;若没有事务,则与REQUIRED类似
  * </pre>
  * 
- * SpringBoot事务流程原理:
- * 
- * <pre>
- * {@link TransactionInterceptor}:事务拦截器,实现了{@link MethodInterceptor},{@link Advice},在SpringBoot启动时注入
- * {@link TransactionAspectSupport}:事务切面拦截器,对开启了事务的方法和类进行主要操作的类
- * {@link PlatformTransactionManager},{@link AbstractPlatformTransactionManager}:是spring用于管理事务的真正对象
- * {@link TransactionDefinition}:定义事务的隔离级别,超时信息,传播行为,是否只读等信息
- * {@link TransactionStatus}:事务状态,根据事务定义信息进行事务管理,记录事务管理中的事务状态的对象
- * {@link AbstractFallbackTransactionAttributeSource#getTransactionAttribute()}:事务回滚主要方法,非public不回滚
- * </pre>
- * 
- * Spring事务失效:当A()和B()在同一个类中,且A()调用B()时.由于Spring事务采用动态代理,当A()使用了事务时,
- * 若B()开启了新事务,此时A()中调用B()使用的是this.B(),而不是由Spring的动态代理调用的B(),此时B()的事务不生效
- * 
  * Spring事务动态代理原理:
  * 
  * <pre>
  * {@link Transactional}:定义代理植入点,标识方法需要被代理,同时携带事务管理需要的一些属性信息
- * {@link AnnotationAwareAspectJAutoProxyCreator#postProcessAfterInstantiation}:{@link BeanPostProcessor}的实现类,
- * 		主要是创建代理对象,这个方法会返回一个代理对象给容器,同时判断植入点也是在这个方法中
- * 在配置好注解驱动方式的事务管理之后,Spring会在IOC容器创建一个BeanFactoryTransactionAttributeSourceAdvisor实例,
- * 这个实例可以看作是一个切点,在判断一个bean在初始化过程中是否需要创建代理对象,
- * 都需要验证一次BeanFactoryTransactionAttributeSourceAdvisor是否是适用这个bean的切点.
- * 如果适用于这个切点,就需要创建代理对象,并且把BeanFactoryTransactionAttributeSourceAdvisor实例注入到代理对象中
+ * {@link TransactionDefinition}:定义事务的隔离级别,超时信息,传播行为,是否只读等信息
+ * {@link TransactionStatus}:事务状态,根据事务定义信息进行事务管理,记录事务管理中的事务状态的对象
+ * {@link AnnotationAwareAspectJAutoProxyCreator#postProcessAfterInitialization}:{@link BeanPostProcessor}的实现类,
+ * 		主要是判断事务代理的植入点,返回一个代理对象给Spring容器.
+ * {@link BeanFactoryTransactionAttributeSourceAdvisor}:在配置好注解驱动方式的事务管理之后,
+ * 		Spring会在IOC容器创建一个该实例.这个实例可以看作是一个切点,在判断一个bean在初始化过程中是否需要创建代理对象时,
+ * 		都需要验证一次 BeanFactoryTransactionAttributeSourceAdvisor 是否适用这个bean的切点.
+ * 		如果适用于这个切点,就需要创建代理对象,并且把 BeanFactoryTransactionAttributeSourceAdvisor 实例注入到代理对象中
  * {@link AopUtils#findAdvisorsThatCanApply}:判断切面是否适用当前bean,可以在这个地方断点分析调用堆栈,
  * AopUtils#findAdvisorsThatCanApply一致调用,最终通过以下代码判断是否适用切点
  * {@link AbstractFallbackTransactionAttributeSource#computeTransactionAttribute}:targetClass就是目标class
- * 	{@link SpringTransactionAnnotationParser#parseTransactionAnnotation}:分析方法是否被Transactional标注,
+ * 	{@link SpringTransactionAnnotationParser#parseTransactionAnnotation}:分析方法是否被 Transactional 标注,
  * 		如果有,BeanFactoryTransactionAttributeSourceAdvisor适配当前bean,进行代理,并注入切入点
  * {@link #CglibAopProxy.DynamicAdvisedInterceptor#intercept}:AOP最终的代理对象的代理方法
- * 		this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回 TransactionInterceptor
+ * 		this.advised.getInterceptorsAndDynamicInterceptionAdvice():该方法返回 TransactionInterceptor
  * 		new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed():
  * 			最终调用{@link TransactionInterceptor#invoke},并且把CglibMethodInvocation注入到invoke()
+ * {@link TransactionInterceptor}:事务拦截器,实现了{@link MethodInterceptor},{@link Advice},在SpringBoot启动时注入
  * {@link TransactionInterceptor#invoke}:AOP切面最终调用的执行方法.
  * 		从调用链可以看到CglibMethodInvocation是包装了目标对象的方法调用的所有信息,因此,在该方法里面也可以调用目标方法,
  * 		并且还可以实现类似@Around的逻辑,在目标方法调用前后继续注入一些其他逻辑,比如事务管理逻辑
- * {@link TransactionAspectSupport#invokeWithinTransaction}:事务最终的调用方法.
+ * {@link TransactionAspectSupport#invokeWithinTransaction}:事务最终的调用方法,对开启了事务的方法和类进行主要操作
  * 		检查事务的传播机制,隔离级别,根据事务相关属性获得{@link TransactionManager},执行代理方法.
  * 		根据结果是否抛出异常,隔离机制等决定是否提交事务,回滚等
+ * ->{@link TransactionAspectSupport#createTransactionIfNecessary}:开启事务
+ * ->{@link TransactionAspectSupport#completeTransactionAfterThrowing}:回滚事务
+ * ->{@link TransactionAspectSupport#commitTransactionAfterReturning}:提交事务
+ * {@link PlatformTransactionManager},{@link AbstractPlatformTransactionManager}:Spring用于管理事务的真正对象
+ * {@link AbstractFallbackTransactionAttributeSource#getTransactionAttribute()}:事务回滚主要方法,非public不回滚
+ * </pre>
+ * 
+ * Spring事务失效:
+ * 
+ * <pre>
+ * 1.当A()和B()在同一个类中,且A()调用B()时.由于Spring事务采用动态代理,当A()使用了事务时,
+ * 		若B()开启了新事务,此时A()中调用B()使用的是this.B(),而不是由Spring的动态代理调用的B(),此时B()的事务不生效
+ * 2.开启了多个数据库的事务
  * </pre>
  * 
  * @author 飞花梦影
@@ -108,7 +111,7 @@ public class MyTransaction {
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@Transactional
+	@Transactional(rollbackFor = Exception.class)
 	public void test01() {
 		// 若此时发生了异常,且异常被抛出,事务仍然生效
 		test02();
