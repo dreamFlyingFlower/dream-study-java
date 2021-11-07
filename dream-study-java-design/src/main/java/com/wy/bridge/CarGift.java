@@ -8,7 +8,7 @@ package com.wy.bridge;
  */
 public class CarGift extends Gift {
 
-	public CarGift(GiftImpl gift) {
-		this.impl = gift;
+	public CarGift(GiftSend gift) {
+		this.giftSend = gift;
 	}
 }

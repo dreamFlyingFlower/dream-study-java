@@ -8,7 +8,7 @@ package com.wy.bridge;
  */
 public class FlowerGift extends Gift {
 
-	public FlowerGift(GiftImpl gift) {
-		this.impl = gift;
+	public FlowerGift(GiftSend gift) {
+		this.giftSend = gift;
 	}
 }

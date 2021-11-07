@@ -1,23 +1,21 @@
 package com.wy.adapter;
 
 /**
- * 第二种适配
- * @author paradiseWy
+ * 第二种适配:直接继承
+ * 
+ * @author 飞花梦影
+ * @date 2021-11-06 17:17:34
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class AdapterA extends Text implements Shape {
-	public void Draw() {
+
+	@Override
+	public void draw() {
 		System.out.println("Draw a shap ! Impelement Shape interface !");
 	}
 
-	public void Border() {
+	@Override
+	public void border() {
 		System.out.println("Set the border of the shap ! Impelement Shape interface !");
-	}
-
-	public static void main(String[] args) {
-		AdapterA adapterA = new AdapterA();
-		adapterA.Draw();
-		adapterA.Border();
-		adapterA.SetContent("A test text !");
-		System.out.println("The content in Text Shape is :" + adapterA.GetContent());
 	}
 }

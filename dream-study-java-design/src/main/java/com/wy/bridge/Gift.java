@@ -8,5 +8,13 @@ package com.wy.bridge;
  */
 public abstract class Gift {
 
-	GiftImpl impl;
+	GiftSend giftSend;
+
+	public GiftSend getGiftSend() {
+		return giftSend;
+	}
+
+	public void setGiftSend(GiftSend giftSend) {
+		this.giftSend = giftSend;
+	}
 }
