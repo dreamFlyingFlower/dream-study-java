@@ -1,5 +1,8 @@
 package com.wy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.wy.abstracfactory.AbstractChinaCartoonFactory;
 import com.wy.abstracfactory.AbstractFactoryCartoon;
 import com.wy.abstracfactory.AbstractJapanCartoonFactory;
@@ -10,6 +13,10 @@ import com.wy.bridge.CarGift;
 import com.wy.bridge.FlowerSend;
 import com.wy.build.HeavenHandler;
 import com.wy.build.HubeiHeaven;
+import com.wy.chain.AbstractChain;
+import com.wy.chain.ChainA;
+import com.wy.chain.ChainB;
+import com.wy.chain.NeedHandler;
 import com.wy.composite.BeautyCartoon;
 import com.wy.composite.MyGodness;
 import com.wy.composite.TypeCartoon;
@@ -21,6 +28,10 @@ import com.wy.entity.Cartoon;
 import com.wy.entity.HeavenNineSong;
 import com.wy.factory.FactoryAir;
 import com.wy.factory.FactoryCartoon;
+import com.wy.interpreter.ContextInterpreter;
+import com.wy.interpreter.Interpreter;
+import com.wy.interpreter.MinusInterpreter;
+import com.wy.interpreter.PlusInterpreter;
 import com.wy.strategy.Context;
 import com.wy.strategy.StrategyA;
 import com.wy.strategy.StrategyB;
@@ -76,6 +87,10 @@ public class Application {
 		composite();
 		// 适配器模式
 		adapter();
+		// 解释器模式
+		interpreter();
+		// 责任链模式
+		chain();
 	}
 
 	public static void factory() {
@@ -156,5 +171,46 @@ public class Application {
 		adapterA.border();
 		adapterA.setContent("A test text !");
 		System.out.println("The content in Text Shape is :" + adapterA.getContent());
+	}
+
+	public static void interpreter() {
+		String number = "20";
+		ContextInterpreter context = new ContextInterpreter(number);
+
+		// Interpreter interpreter1 = new MinusInterpreter();
+		// interpreter1.interpret(context);
+		// System.out.println(context.getOutput());
+		//
+		// Interpreter interpreter2 = new PlusExpression();
+		// interpreter2.interpret(context);
+		// System.out.println(context.getOutput());
+		//
+		// Interpreter interpreter3 = new PlusInterpreter();
+		// interpreter3.interpret(context);
+		// System.out.println(context.getOutput());
+		//
+		// Interpreter interpreter4 = new PlusInterpreter();
+		// interpreter4.interpret(context);
+		// System.out.println(context.getOutput());
+
+		List<Interpreter> list = new ArrayList<>();
+		list.add(new PlusInterpreter());
+		list.add(new PlusInterpreter());
+		list.add(new MinusInterpreter());
+		list.add(new MinusInterpreter());
+		list.add(new MinusInterpreter());
+		list.add(new MinusInterpreter());
+
+		for (Interpreter ex : list) {
+			ex.interpret(context);
+			System.out.println(context.getOutput());
+		}
+	}
+
+	public static void chain() {
+		AbstractChain chain1 = new ChainA();
+		ChainB chain2 = new ChainB();
+		chain1.setNextOne(chain2);
+		chain1.handlerMsg(new NeedHandler());
 	}
 }

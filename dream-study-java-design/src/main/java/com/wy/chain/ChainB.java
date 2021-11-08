@@ -1,14 +1,13 @@
 package com.wy.chain;
 
-/**
- * ChainB可以是实现某一个接口的类
- * @author paradiseWy
- */
-public class ChainB {
+public class ChainB extends AbstractChain {
 
-	private int type = 1;
+	public ChainB() {
+		super(2);
+	}
 
-	public int getType() {
-		return type;
+	@Override
+	public void result(NeedHandler t) {
+		System.out.println("我处理类型为2的情况...");
 	}
 }
