@@ -1,5 +1,6 @@
-package com.wy.util;
+package com.wy.redis;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -46,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RedisUtils {
 
-	/** 使用LUA语法笔记redis中的值,并删除当前key,原子性,支持高并发集群 */
+	/** 使用LUA语法比较redis中的值,并删除当前key,原子性,支持高并发集群 */
 	public static final String SCRIPT_COMPARE_AND_DELETE =
 			"if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
@@ -698,12 +699,103 @@ public class RedisUtils {
 	}
 	/*-------------------------------------------clear end -------------------------------------------*/
 
+	/*--------------------------------------------- setnx,setxx ---------------------------------------------*/
 	/**
-	 * 获取redis缓存中所有的key值
+	 * 当redis中没有值时才设置,有值时不设置,默认30S过期
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @return true->redis中没有该key,设置成功;false->redis中已经存在该key,设置失败
 	 */
-	public Set<Object> keys() {
-		return redisTemplate.keys("*");
+	public boolean setNX(Object key, Object value) {
+		return setNX(key, value, 30l);
 	}
+
+	/**
+	 * 当redis中没有值时才设置,有值时不设置
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @param duration 过期时间
+	 * @return true->redis中没有该key,设置成功;false->redis中已经存在该key,设置失败
+	 */
+	public boolean setNX(Object key, Object value, Duration duration) {
+		return redisTemplate.opsForValue().setIfAbsent(key, value, duration);
+	}
+
+	/**
+	 * 当redis中没有值时才设置,有值时不设置.默认过期时间单位为秒
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @param timeout 过期时间
+	 * @return true->redis中没有该key,设置成功;false->redis中已经存在该key,设置失败
+	 */
+	public boolean setNX(Object key, Object value, long timeout) {
+		return redisTemplate.opsForValue().setIfAbsent(key, value, timeout, TimeUnit.SECONDS);
+	}
+
+	/**
+	 * 当redis中没有值时才设置,有值时不设置
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @param timeout 过期时间
+	 * @param timeUnit 过期时间单位
+	 * @return true->redis中没有该key,设置成功;false->redis中已经存在该key,设置失败
+	 */
+	public boolean setNX(Object key, Object value, long timeout, TimeUnit timeUnit) {
+		return redisTemplate.opsForValue().setIfAbsent(key, value, timeout, timeUnit);
+	}
+
+	/**
+	 * 当redis中有值时设置,没有值时不设置,默认30S过期
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @return true->redis中有该key,设置成功;false->redis中不存在该key,设置失败
+	 */
+	public boolean setXX(Object key, Object value) {
+		return setXX(key, value, 30l);
+	}
+
+	/**
+	 * 当redis中有值时设置,没有值时不设置
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @param duration 过期时间
+	 * @return true->redis中有该key,设置成功;false->redis中不存在该key,设置失败
+	 */
+	public boolean setXX(Object key, Object value, Duration duration) {
+		return redisTemplate.opsForValue().setIfPresent(key, value, duration);
+	}
+
+	/**
+	 * 当redis中有值时设置,没有值时不设置.默认过期时间单位为秒
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @param timeout 过期时间
+	 * @return true->redis中有该key,设置成功;false->redis中不存在该key,设置失败
+	 */
+	public boolean setXX(Object key, Object value, long timeout) {
+		return redisTemplate.opsForValue().setIfPresent(key, value, timeout, TimeUnit.SECONDS);
+	}
+
+	/**
+	 * 当redis中有值时设置,没有值时不设置
+	 * 
+	 * @param key key
+	 * @param value value
+	 * @param timeout 过期时间
+	 * @param timeUnit 过期时间单位
+	 * @return true->redis中有该key,设置成功;false->redis中不存在该key,设置失败
+	 */
+	public boolean setXX(Object key, Object value, long timeout, TimeUnit timeUnit) {
+		return redisTemplate.opsForValue().setIfPresent(key, value, timeout, timeUnit);
+	}
+	/*--------------------------------------------- setnx,setxx ---------------------------------------------*/
 
 	/*--------------------------------------------- lua start -----------------------------------------*/
 	/**
@@ -730,4 +822,21 @@ public class RedisUtils {
 		}
 	}
 	/*--------------------------------------------- lua end -------------------------------------------*/
+
+	/**
+	 * 获取redis缓存中所有的key值
+	 */
+	public Set<Object> keys() {
+		return redisTemplate.keys("*");
+	}
+
+	/**
+	 * 判断redis中是否存在指定key
+	 * 
+	 * @param key key
+	 * @return true->存在;false->不存在
+	 */
+	public boolean exist(Object key) {
+		return redisTemplate.hasKey(key);
+	}
 }

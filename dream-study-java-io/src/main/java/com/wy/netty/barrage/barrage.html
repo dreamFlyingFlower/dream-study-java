@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Netty视频弹幕实现</title>
+	<style type="text/css" media="screen">
+		* {
+			margin: 0px;
+			padding: 0px
+		}
+
+		html,
+		body {
+			height: 100%
+		}
+
+		body {
+			overflow: hidden;
+			background-color: #FFF;
+			text-align: center;
+		}
+
+		.flex-column {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.wrap {
+			overflow: hidden;
+			width: 70%;
+			height: 600px;
+			margin: 100px auto;
+			padding: 20px;
+			background-color: transparent;
+			box-shadow: 0 0 9px #222;
+			border-radius: 20px;
+		}
+
+		.wrap .box {
+			position: relative;
+			width: 100%;
+			height: 90%;
+			background-color: #000000;
+			border-radius: 10px
+		}
+
+		.wrap .box span {
+			position: absolute;
+			top: 10px;
+			left: 20px;
+			display: block;
+			padding: 10px;
+			color: #336688
+		}
+
+		.wrap .send {
+			display: flex;
+			width: 100%;
+			height: 10%;
+			background-color: #000000;
+			border-radius: 8px
+		}
+
+		.wrap .send input {
+			width: 40%;
+			height: 60%;
+			border: 0;
+			outline: 0;
+			border-radius: 5px 0px 0px 5px;
+			box-shadow: 0px 0px 5px #d9d9d9;
+			text-indent: 1em
+		}
+
+		.wrap .send .send-btn {
+			width: 100px;
+			height: 60%;
+			background-color: #fe943b;
+			color: #FFF;
+			text-align: center;
+			border-radius: 0px 5px 5px 0px;
+			line-height: 30px;
+			cursor: pointer;
+		}
+
+		.wrap .send .send-btn:hover {
+			background-color: #4cacdc
+		}
+	</style>
+</head>
+<script>
+	var ws = new WebSocket("ws://localhost:9123/barrage");
+
+	ws.onopen = function () {
+		// Web Socket 已连接上,使用 send() 方法发送数据
+		alert("数据发送中...");
+	};
+	ws.onmessage = function (e) {
+		console.log("接受到消息:" + e.data);
+		createEle(e.data);
+	};
+	ws.onclose = function () {
+		alert("连接已关闭...");
+	};
+	function sendMsg(msg) {
+		ws.send(msg)
+	}
+</script>
+
+<body>
+	<div class="wrap flex-column">
+		<div class="box">
+			<video src="shape.mp4" width="100%" height="100%" controls autoplay></video>
+		</div>
+		<div class="send flex-row">
+			<input type="text" class="con" placeholder="弹幕发送[]~(^v^)~*" />
+			<div class="send-btn" onclick="javascript:sendMsg(document.querySelector('.con').value)">发送</div>
+		</div>
+	</div>
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+	<script>
+		var oBox = document.querySelector('.box');
+		var cW = oBox.offsetWidth;
+		var cH = oBox.offsetHeight;
+		function createEle(txt) {
+			var oMessage = document.createElement('span');
+			oMessage.innerHTML = txt;
+			oMessage.style.left = cW + 'px';
+			oBox.appendChild(oMessage);
+			roll.call(oMessage, {
+				// call改变函数内部this的指向
+				timing: ['linear', 'ease-out'][~~(Math.random() * 2)],
+				color: '#' + (~~(Math.random() * (1 << 24))).toString(16),
+				top: random(0, cH),
+				fontSize: random(16, 32)
+			});
+		}
+
+		function roll(opt) {
+			// 弹幕滚动,如果对象中不存在timing 初始化
+			opt.timing = opt.timing || 'linear';
+			opt.color = opt.color || '#fff';
+			opt.top = opt.top || 0;
+			opt.fontSize = opt.fontSize || 16;
+			this._left = parseInt(this.offsetLeft);
+			this.style.color = opt.color;
+			this.style.top = opt.top + 'px';
+			this.style.fontSize = opt.fontSize + 'px';
+			this.timer = setInterval(function () {
+				if (this._left <= 100) {
+					clearInterval(this.timer);
+					this.parentNode.removeChild(this);
+					return;
+				}
+				switch (opt.timing) {
+					// 如果匀速
+					case 'linear':
+						this._left += -2;
+						break;
+					case 'ease-out':
+						this._left += (0 - this._left) * .01;
+						break;
+				}
+				this.style.left = this._left + 'px';
+			}.bind(this), 1000 / 60);
+		}
+
+		function random(start, end) {
+			return start + ~~(Math.random() * (end - start));
+		}
+
+		var aLi = document.querySelectorAll('li');   //10
+
+		function forEach(ele, cb) {
+			for (var i = 0, len = aLi.length; i < len; i++) {
+				cb && cb(ele[i], i);
+			}
+		}
+
+		forEach(aLi, function (ele, i) {
+			ele.style.left = i * 100 + 'px';
+		});
+		var obj = {
+			num: 1,
+			add: function () {
+				this.num++;   //obj.num = 2;
+				(function () {
+					console.log(this.num);
+				})
+			}
+		};
+		obj.add();
+	</script>
+</body>
+
+</html>

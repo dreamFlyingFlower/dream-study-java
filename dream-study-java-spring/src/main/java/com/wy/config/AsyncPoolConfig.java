@@ -2,13 +2,16 @@ package com.wy.config;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.AsyncResult;
 
 import com.alibaba.fastjson.JSON;
 
@@ -69,7 +72,22 @@ public class AsyncPoolConfig implements AsyncConfigurer {
 			log.info("AsyncError: {}, Method: {}, Param: {}", throwable.getMessage(), method.getName(),
 					JSON.toJSONString(objects));
 			throwable.printStackTrace();
-			// TODO 发送邮件或者短信
+			// dosomething
 		}
+	}
+
+	/**
+	 * 若需要接收异步调用的返回值,可返回一个Future对象,调用该接口的isDone()判断是否完成方法
+	 * 
+	 * @return 异步调用结果
+	 */
+	@Async
+	public Future<String> doAsync() {
+		try {
+			TimeUnit.SECONDS.sleep(3);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return new AsyncResult<>("任务完成");
 	}
 }
