@@ -50,11 +50,23 @@ import com.wy.strategy.StrategyA;
 import com.wy.strategy.StrategyB;
 import com.wy.template.AbstractTemplate;
 import com.wy.template.TemplateA;
+import com.wy.visitor.Park;
+import com.wy.visitor.VisitorA;
+import com.wy.visitor.VisitorB;
+import com.wy.visitor.VisitorManager;
 
 /**
  * 24种设计模式
  * 
- * 设计原则:单一职责;开放扩展,封闭修改;里氏代换,即将子类替换成父类,程序不会发生改变
+ * 设计原则:
+ * 
+ * <pre>
+ * 单一职责:单个模块只负责单一类型的操作
+ * 开放封闭:开放扩展,封闭修改
+ * 里氏代换:即将子类替换成父类,程序不会发生改变
+ * 依赖倒转:高层模块和最底层的实现类都应该依赖于抽象,不能直接让高层模块使用最底层的实现类
+ * 迪米特法则:最少知识原则,即一个对象应当对其他对象尽可能少的了解,类之间的交互可以通过第三者完成
+ * </pre>
  * 
  * https://www.cnblogs.com/shoshana-kong/p/10787629.html
  * https://www.cnblogs.com/yangsy0915/p/5117522.html
@@ -122,6 +134,8 @@ public class Application {
 		command();
 		// 中介者模式
 		mediator();
+		// 访问者模式
+		visitor();
 	}
 
 	public static void factory() {
@@ -297,5 +311,16 @@ public class Application {
 		MediatorPerson xiaofang = new MediatorWoman("小芳", 7, mediator);
 		zhangsan.getPartner(lisi);
 		xiaofang.getPartner(lisi);
+	}
+
+	public static void visitor() {
+		Park park = new Park();
+		park.setName("越秀公园");
+		VisitorA visitorA = new VisitorA();
+		park.accept(visitorA);
+		VisitorB visitorB = new VisitorB();
+		park.accept(visitorB);
+		VisitorManager visitorManager = new VisitorManager();
+		park.accept(visitorManager);
 	}
 }

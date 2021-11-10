@@ -9,5 +9,9 @@ package com.wy.visitor;
  */
 public interface Visitor {
 
-	// 忘记复制代码了
+	void visit(Park park);
+
+	void visit(ParkA parkA);
+
+	void visit(ParkB parkB);
 }
