@@ -1,6 +1,6 @@
 package com.wy.build;
 
-import com.wy.entity.HeavenNineSong;
+import com.wy.entity.StrollSkyJiuGe;
 
 /**
  * 建造模式:实际上就是属性设置
@@ -17,5 +17,5 @@ public interface HeavenBuilder {
 
 	void people();
 
-	HeavenNineSong build();
+	StrollSkyJiuGe build();
 }

@@ -2,7 +2,7 @@ package com.wy.build;
 
 import java.util.Arrays;
 
-import com.wy.entity.HeavenNineSong;
+import com.wy.entity.StrollSkyJiuGe;
 
 /**
  * 
@@ -13,7 +13,7 @@ import com.wy.entity.HeavenNineSong;
  */
 public class WuhanHeaven implements HeavenBuilder {
 
-	private HeavenNineSong build = new HeavenNineSong();
+	private StrollSkyJiuGe build = new StrollSkyJiuGe();
 
 	@Override
 	public void name() {
@@ -31,7 +31,7 @@ public class WuhanHeaven implements HeavenBuilder {
 	}
 
 	@Override
-	public HeavenNineSong build() {
+	public StrollSkyJiuGe build() {
 		return build;
 	}
 }

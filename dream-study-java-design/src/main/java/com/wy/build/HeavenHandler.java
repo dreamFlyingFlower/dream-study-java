@@ -1,6 +1,6 @@
 package com.wy.build;
 
-import com.wy.entity.HeavenNineSong;
+import com.wy.entity.StrollSkyJiuGe;
 
 /**
  * 建造的使用
@@ -11,7 +11,7 @@ import com.wy.entity.HeavenNineSong;
  */
 public class HeavenHandler {
 
-	public HeavenNineSong build(HeavenBuilder builder) {
+	public StrollSkyJiuGe build(HeavenBuilder builder) {
 		builder.name();
 		builder.author();
 		builder.people();

@@ -11,11 +11,13 @@ import java.util.Objects;
  * @date 2021-11-04 09:54:11
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class HeavenNineSong implements Cloneable {
+public class StrollSkyJiuGe implements Cloneable {
 
 	private String name;
 
 	private String author;
+
+	private Integer age;
 
 	private List<String> people;
 
@@ -35,6 +37,14 @@ public class HeavenNineSong implements Cloneable {
 		this.author = author;
 	}
 
+	public Integer getAge() {
+		return age;
+	}
+
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+
 	public List<String> getPeople() {
 		return people;
 	}
@@ -44,10 +54,10 @@ public class HeavenNineSong implements Cloneable {
 	}
 
 	@Override
-	public HeavenNineSong clone() {
+	public StrollSkyJiuGe clone() {
 		try {
 			// 深克隆需要重写引用类型,不包括String
-			HeavenNineSong result = (HeavenNineSong) super.clone();
+			StrollSkyJiuGe result = (StrollSkyJiuGe) super.clone();
 			result.setPeople(new ArrayList<>());
 			return result;
 			// 直接返回就是浅克隆,浅克隆无法复制引用类型,引用类型仍然是同一个地址
@@ -71,7 +81,7 @@ public class HeavenNineSong implements Cloneable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		HeavenNineSong other = (HeavenNineSong) obj;
+		StrollSkyJiuGe other = (StrollSkyJiuGe) obj;
 		return Objects.equals(author, other.author) && Objects.equals(name, other.name)
 				&& Objects.equals(people, other.people);
 	}

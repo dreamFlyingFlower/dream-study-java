@@ -2,10 +2,12 @@ package com.wy.template;
 
 /**
  * 实现类可根据需要对某些方法进行扩展后改写
- * @author paradiseWy
- *
+ * 
+ * @author 飞花梦影
+ * @date 2021-11-10 10:00:13
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class TemplateA extends TemplateDefault {
+public class TemplateA extends AbstractTemplate {
 
 	@Override
 	public void start() {

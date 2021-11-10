@@ -1,6 +1,7 @@
 package com.wy;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.wy.abstracfactory.AbstractChinaCartoonFactory;
@@ -17,6 +18,11 @@ import com.wy.chain.AbstractChain;
 import com.wy.chain.ChainA;
 import com.wy.chain.ChainB;
 import com.wy.chain.NeedHandler;
+import com.wy.command.CartoonCommand;
+import com.wy.command.Command;
+import com.wy.command.ContextCommand;
+import com.wy.command.TravelCommand;
+import com.wy.command.YoungMan;
 import com.wy.composite.BeautyCartoon;
 import com.wy.composite.MyGodness;
 import com.wy.composite.TypeCartoon;
@@ -25,28 +31,43 @@ import com.wy.decorator.AnimalLand;
 import com.wy.decorator.FlyAnimalDecorator;
 import com.wy.decorator.WaterAnimalDecorator;
 import com.wy.entity.Cartoon;
-import com.wy.entity.HeavenNineSong;
+import com.wy.entity.StrollSkyJiuGe;
 import com.wy.factory.FactoryAir;
 import com.wy.factory.FactoryCartoon;
 import com.wy.interpreter.ContextInterpreter;
 import com.wy.interpreter.Interpreter;
 import com.wy.interpreter.MinusInterpreter;
 import com.wy.interpreter.PlusInterpreter;
+import com.wy.mediator.Mediator;
+import com.wy.mediator.MediatorMan;
+import com.wy.mediator.MediatorPerson;
+import com.wy.mediator.MediatorWoman;
+import com.wy.memento.Caretaker;
+import com.wy.memento.Godness;
+import com.wy.state.JadeDynasty;
 import com.wy.strategy.Context;
 import com.wy.strategy.StrategyA;
 import com.wy.strategy.StrategyB;
+import com.wy.template.AbstractTemplate;
+import com.wy.template.TemplateA;
 
 /**
- * 24种设计模式:命令模式,类似门面模式;迭代模式:JDK中出现了迭代器,现在已经基本不用了
+ * 24种设计模式
+ * 
+ * 设计原则:单一职责;开放扩展,封闭修改;里氏代换,即将子类替换成父类,程序不会发生改变
  * 
  * https://www.cnblogs.com/shoshana-kong/p/10787629.html
  * https://www.cnblogs.com/yangsy0915/p/5117522.html
  * https://blog.csdn.net/zhao135897/article/details/83344650
  * 
  * <pre>
+ * 迭代模式:直接可以使用JDK自带的{@link Iterator},{@link Iterable}.主要是为了查找和其他操作的分离
  * 简单工厂模式:适用于简单的创建同一个接口的不同实现类的场景,主要是对象创建
  * 工厂模式:比简单工厂多了个创建接口的接口
  * 享元模式:实际上就是利用Map进行对象缓存
+ * 单例模式:所有使用该类的地方都是同一个对象,相当于一个静态类,需要注意属性的共享
+ * 原型模式:从一个对象中复制多个其他对象,基础属性相同,多个对象之间的改变互不影响
+ * 备忘录模式:用来对对象进行还原.和原型模式差不多,只是用途不一样
  * </pre>
  * 
  * <pre>
@@ -91,6 +112,16 @@ public class Application {
 		interpreter();
 		// 责任链模式
 		chain();
+		// 模板模式
+		template();
+		// 备忘录模式
+		memento();
+		// 状态模式
+		state();
+		// 命令模式
+		command();
+		// 中介者模式
+		mediator();
 	}
 
 	public static void factory() {
@@ -111,7 +142,7 @@ public class Application {
 	public static void builder() {
 		HubeiHeaven hubeiHeaven = new HubeiHeaven();
 		HeavenHandler headler = new HeavenHandler();
-		HeavenNineSong build = headler.build(hubeiHeaven);
+		StrollSkyJiuGe build = headler.build(hubeiHeaven);
 		System.out.println(build.getName());
 	}
 
@@ -212,5 +243,59 @@ public class Application {
 		ChainB chain2 = new ChainB();
 		chain1.setNextOne(chain2);
 		chain1.handlerMsg(new NeedHandler());
+	}
+
+	public static void template() {
+		AbstractTemplate template = new TemplateA();
+		template.run();
+	}
+
+	public static void memento() {
+		Godness per = new Godness("飞仙剑影", "女", 24);
+		Caretaker<Godness> caretaker = new Caretaker<>();
+		caretaker.setMemento(per.clone());
+		per.display();
+		per.setName("beifeng");
+		per.setSex("f");
+		per.setAge(1);
+		per.display();
+		per.setMemento(caretaker.getMemento());
+		per.display();
+	}
+
+	public static void state() {
+		JadeDynasty jadeDynasty = new JadeDynasty();
+		jadeDynasty.setAge(7);
+		jadeDynasty.doSomething();
+		jadeDynasty.setAge(12);
+		jadeDynasty.doSomething();
+		jadeDynasty.setAge(18);
+		jadeDynasty.doSomething();
+		jadeDynasty.setAge(8);
+		jadeDynasty.doSomething();
+		jadeDynasty.setAge(7);
+		jadeDynasty.doSomething();
+		jadeDynasty.setAge(18);
+		jadeDynasty.doSomething();
+	}
+
+	public static void command() {
+		YoungMan peddler = new YoungMan();
+		Command cartoonCommand = new CartoonCommand(peddler);
+		Command travelCommand = new TravelCommand(peddler);
+		ContextCommand contextCommand = new ContextCommand();
+		contextCommand.setCommand(cartoonCommand);
+		contextCommand.setCommand(travelCommand);
+		contextCommand.removeCommand(travelCommand);
+		contextCommand.enjoy();
+	}
+
+	public static void mediator() {
+		Mediator mediator = new Mediator();
+		MediatorPerson zhangsan = new MediatorMan("张三", 7, mediator);
+		MediatorPerson lisi = new MediatorMan("李四", 7, mediator);
+		MediatorPerson xiaofang = new MediatorWoman("小芳", 7, mediator);
+		zhangsan.getPartner(lisi);
+		xiaofang.getPartner(lisi);
 	}
 }
