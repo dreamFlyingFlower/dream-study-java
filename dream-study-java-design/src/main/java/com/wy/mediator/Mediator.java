@@ -30,7 +30,7 @@ public class Mediator {
 		}
 		// 判断条件
 		if (man == null || woman == null) {
-			System.out.println("汗，我不是同性恋!");
+			System.out.println("汗,我不是同性恋!");
 		} else {
 
 			if (man.getCondition() == woman.getCondition()) {

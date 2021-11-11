@@ -12,6 +12,7 @@ public class ParkA implements ParkElement {
 		this.name = name;
 	}
 
+	@Override
 	public void accept(Visitor visitor) {
 		visitor.visit(this);
 	}

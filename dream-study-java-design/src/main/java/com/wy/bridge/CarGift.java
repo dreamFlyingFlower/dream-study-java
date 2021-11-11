@@ -11,4 +11,9 @@ public class CarGift extends Gift {
 	public CarGift(GiftSend gift) {
 		this.giftSend = gift;
 	}
+
+	@Override
+	public void price() {
+		this.giftSend.price();
+	}
 }

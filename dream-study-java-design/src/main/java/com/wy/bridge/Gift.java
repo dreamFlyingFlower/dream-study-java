@@ -3,10 +3,11 @@ package com.wy.bridge;
 /**
  * 礼物抽象类,需要传递一个礼物的实现类
  * 
- * @author ParadiseWY
- * @date 2020-09-27 23:28:33
+ * @author 飞花梦影
+ * @date 2021-11-11 15:06:33
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-public abstract class Gift {
+public abstract class Gift implements GiftSend {
 
 	GiftSend giftSend;
 

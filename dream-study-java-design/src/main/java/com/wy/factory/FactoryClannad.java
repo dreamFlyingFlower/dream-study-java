@@ -4,7 +4,7 @@ import com.wy.entity.Cartoon;
 import com.wy.entity.Clannad;
 
 /**
- * 
+ * Clannad工厂类
  *
  * @author 飞花梦影
  * @date 2021-11-03 09:36:57

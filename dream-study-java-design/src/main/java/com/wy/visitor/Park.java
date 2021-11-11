@@ -15,11 +15,11 @@ public class Park implements ParkElement {
 		parkB.setName("B");
 	}
 
+	@Override
 	public void accept(Visitor visitor) {
 		visitor.visit(this);
 		parkA.accept(visitor);
 		parkB.accept(visitor);
-
 	}
 
 	public String getName() {

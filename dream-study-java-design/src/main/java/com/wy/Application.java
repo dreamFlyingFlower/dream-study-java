@@ -53,7 +53,7 @@ import com.wy.template.TemplateA;
 import com.wy.visitor.Park;
 import com.wy.visitor.VisitorA;
 import com.wy.visitor.VisitorB;
-import com.wy.visitor.VisitorManager;
+import com.wy.visitor.VisitorPark;
 
 /**
  * 24种设计模式
@@ -68,9 +68,7 @@ import com.wy.visitor.VisitorManager;
  * 迪米特法则:最少知识原则,即一个对象应当对其他对象尽可能少的了解,类之间的交互可以通过第三者完成
  * </pre>
  * 
- * https://www.cnblogs.com/shoshana-kong/p/10787629.html
- * https://www.cnblogs.com/yangsy0915/p/5117522.html
- * https://blog.csdn.net/zhao135897/article/details/83344650
+ * 设计模式简介:
  * 
  * <pre>
  * 迭代模式:直接可以使用JDK自带的{@link Iterator},{@link Iterable}.主要是为了查找和其他操作的分离
@@ -80,7 +78,12 @@ import com.wy.visitor.VisitorManager;
  * 单例模式:所有使用该类的地方都是同一个对象,相当于一个静态类,需要注意属性的共享
  * 原型模式:从一个对象中复制多个其他对象,基础属性相同,多个对象之间的改变互不影响
  * 备忘录模式:用来对对象进行还原.和原型模式差不多,只是用途不一样
+ * 
+ * 简单工厂,工厂,抽象工厂:直接使用工厂或抽象工厂,工厂模式中需要多个抽象的实现时,自动升级为抽象工厂模式
+ * 装饰和策略:直接使用装饰模式,策略模式不实现接口.他们都需要传入一个接口实现,装饰模式更灵活
  * </pre>
+ * 
+ * 设计模式的区别:
  * 
  * <pre>
  * 简单工厂->工厂:简单工厂只有一个接口,直接返回实例;工厂有2个接口,一个返回实例,一个返回实例工厂,通过实例工厂返回实例
@@ -95,6 +98,7 @@ import com.wy.visitor.VisitorManager;
  * 策略->门面:策略注重于单个方法的实现,而不是一系列方法的顺序实现,门面则是一系列特定操作的实现
  * 门面->模版:门面中所有的方法是按照特定的顺序执行,而模版中多了一个抽象类,
  *          抽象类负责通用方法的调用,而特殊方法则需要子类实现之后,通用方法中会穿插调用特殊方法
+ * 装饰->策略:策略模式不实现抽象,其他一样
  * </pre>
  * 
  * @author 飞花梦影
@@ -320,7 +324,7 @@ public class Application {
 		park.accept(visitorA);
 		VisitorB visitorB = new VisitorB();
 		park.accept(visitorB);
-		VisitorManager visitorManager = new VisitorManager();
+		VisitorPark visitorManager = new VisitorPark();
 		park.accept(visitorManager);
 	}
 }

@@ -9,7 +9,7 @@ package com.wy.strategy;
  */
 public class Context {
 
-	private Strategy strategy = null;
+	private Strategy strategy;
 
 	private int lineWidth;
 
