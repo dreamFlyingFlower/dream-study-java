@@ -1,4 +1,4 @@
-﻿# Eclipse
+# Eclipse
 
 
 
@@ -298,6 +298,12 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 ## MyBatipse
 
 * 配合MyBatis,鼠标左键+CTRL可直接选择跳到相应的XML文件的相应方法中
+
+
+
+## DBeaver
+
+* 数据库管理工具,可以代替Navicat
 
 
 
