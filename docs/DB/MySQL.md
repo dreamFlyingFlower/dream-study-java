@@ -2578,6 +2578,14 @@ select sleep(12);
     SHOW SLAVE STATUS\G
     # 若输出的结果中不报错,且Slave_IO_Running和Slave_SLQ_Running都为yes时,表示主从正常
     ```
+    
+22. 主从强制从主库查询数据
+
+    ```mysql
+    /*MASTER*/select * from user;
+    ```
+
+    
 
 
 
