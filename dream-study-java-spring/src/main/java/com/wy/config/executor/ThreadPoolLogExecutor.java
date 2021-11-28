@@ -1,4 +1,4 @@
-package com.wy.config;
+package com.wy.config.executor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

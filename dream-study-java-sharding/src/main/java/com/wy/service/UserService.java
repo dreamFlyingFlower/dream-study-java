@@ -1,28 +1,18 @@
 package com.wy.service;
 
-import org.springframework.stereotype.Service;
-
-import com.wy.base.AbstractService;
+import com.wy.base.BaseService;
 import com.wy.model.User;
-import com.wy.service.inter.IUserService;
 
 /**
- * 用户业务实现类
+ * 用户业务接口
  * 
  * @author ParadiseWY
- * @date 2020-11-23 10:12:09
+ * @date 2020-11-23 10:13:06
  * @git {@link https://github.com/mygodness100}
  */
-@Service
-public class UserService extends AbstractService<User,Long> implements IUserService {
+public interface UserService extends BaseService<User,Long> {
 
-	@Override
-	public boolean checkUsername(String username) {
-		return false;
-	}
+	boolean checkUsername(String username);
 
-	@Override
-	public User login(String username, String password) {
-		return null;
-	}
+	User login(String username, String password);
 }

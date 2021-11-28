@@ -25,7 +25,7 @@ pagehelper:
 spring:
   datasource:
     # 若数据库没有指定时区,连接还需要加上时区.多数据源情况下会从hikari的配置文件中查找数据库连接
-    url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT&useSSL=false
+    url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&characterEncoding=UTF8&serverTimezone=GMT&useSSL=false
     username: root
     password: 52LDforever
     driverClassName: com.mysql.cj.jdbc.Driver

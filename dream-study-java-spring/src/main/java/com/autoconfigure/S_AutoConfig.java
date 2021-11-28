@@ -1,6 +1,7 @@
 package com.autoconfigure;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -36,7 +37,7 @@ import com.wy.listener.S_ApplicationContextInitializer;
  * 		excludeName():启动时需要排除的自动注入类名,同 EnableAutoConfiguration 的excludeName
  * 		scanBasePackages():启动时进行扫描的包名,不配置则默认扫描当前类以及子类,同 ComponentScan 
  * 		scanBasePackageClasses():启动时进行扫描的特殊类,同 ComponentScan 
- * ->{@link SpringBootConfiguration:作用等同于Configuration,只是起一个标识作用
+ * ->{@link SpringBootConfiguration}:作用等同于Configuration,只是起一个标识作用
  * 
  * ->{@link EnableAutoConfiguration}:扫描加载自动配置类,会自动加载所有META-INF/spring.factories中配置的相关类
  * -->{@link AutoConfigurationPackage}:导入一个注册类,该注册类将获取运行@SpringBootApplication注解的包及相关信息

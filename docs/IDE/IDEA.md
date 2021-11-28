@@ -1,4 +1,4 @@
-﻿# IDEA
+﻿﻿# IDEA
 
 
 
@@ -478,6 +478,12 @@
 ## GsonFormat
 
 * 将Json字符串转为实体类
+
+
+
+## Search In Repository
+
+* 搜索maven/gradle的第三方坐标地址
 
 
 

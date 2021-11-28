@@ -26,13 +26,27 @@ import org.apache.ibatis.type.EnumTypeHandler;
 import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
+import org.mybatis.spring.mapper.ClassPathMapperScanner;
+import org.mybatis.spring.mapper.MapperFactoryBean;
+import org.mybatis.spring.mapper.MapperScannerConfigurer;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
+import org.springframework.core.io.support.SpringFactoriesLoader;
 
 import com.wy.mybatis.CustomPlugin;
 
 /**
- * MyBatis框架
+ * MyBatis
  * 
  * MyBatis运行流程:
  * 
@@ -93,6 +107,47 @@ import com.wy.mybatis.CustomPlugin;
  * {@link EnumOrdinalTypeHandler}:也可以修改使用枚举的ordinal
  * {@link BaseTypeHandler}:自定义类型转换器,继承该类或实现 TypeHandler.自定义类需要在配置文件中进行配置.
  * 		若只对某个枚举进行配置,需要在全局配置的xml中设置,此处为mybatis.xml;若针对所有枚举,在application.yml中配置
+ * </pre>
+ * 
+ * SpringBoot整合MyBatis核心流程:
+ * 
+ * <pre>
+ * {@link AutoConfigurationPackage}:让包中的类以及子包中的类能够被自动扫描到Spring容器中
+ * ->{@link AutoConfigurationPackages.Registrar}:获取扫描的包路径.
+ * 		即将 SpringBootApplication 标注的类所在包及子包里面所有组件扫描加载到Spring容器.
+ * 		最终将被{@link #ConfigurationClassParser#parse}调用
+ * {@link AutoConfigurationImportSelector#selectImports}:自动配置.获得所有需要导入的组件的全类名,并添加到容器中.
+ * 		会给容器中导入非常多的自动配置类,给容器中导入这个场景需要的所有组件,并配置好这些组件
+ * {@link AutoConfigurationImportSelector#getSpringFactoriesLoaderFactoryClass}:指定获得 EnableAutoConfiguration 类型
+ * ->{@link SpringFactoriesLoader#loadSpringFactories}:从META-INF/spring.factories下获得所有自动配置类
+ * 
+ * {@link SpringApplication#refreshContext()}:通过XML,注解构建SpringBean,AOP等实例的主要方法
+ * ->{@link AbstractApplicationContext#refresh()}:同步刷新上下文,初始化SpringBean,处理各种 BeanPostProcessor,AOP
+ * ->{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}:获得包扫描时由注解标注的bean class,然后放入上下文.
+ * 		激活各种{@link BeanFactory} 处理器,此时 BeanFactory 没有注册任何 BeanFactoryPostProcessor,此处相当于不做任何处理.
+ * 		MyBatis就是在此处注入了{@link MapperScannerConfigurer},从而进一步解析MyBatis XML
+ * -->{@link #PostProcessorRegistrationDelegate#invokeBeanFactoryPostProcessors()}:对所有的
+ * 		{@link BeanDefinitionRegistryPostProcessor},手动以及通过配置文件方式注册的{@link BeanFactoryPostProcessor}
+ * 		按照{@link PriorityOrdered},{@link Ordered},no Ordered三种方式分开处理,调用
+ * -->{@link #PostProcessorRegistrationDelegate#invokeBeanDefinitionRegistryPostProcessors()}:MyBatis注册bean定义
+ * --->{@link MapperScannerConfigurer#postProcessBeanDefinitionRegistry}:设置MyBatis相关参数,扫描包,注册扫描到的bean.
+ * 		该方式是最关键的方法,将MyBatis中需要解析的接口注入到Spring上下文中
+ * ---->{@link ClassPathBeanDefinitionScanner#scan}:扫描包
+ * ----->{@link ClassPathMapperScanner#doScan}:子类实现
+ * ------>{@link ClassPathBeanDefinitionScanner#doScan}:解析包路径以及bean class,获得 BeanDefinition
+ * ------>{@link ClassPathBeanDefinitionScanner#registerBeanDefinition}:注册 BeanDefinition
+ * ----->{@link ClassPathMapperScanner#processBeanDefinitions}:MyBatis自定义处理 BeanDefinition,
+ * 		将BeanClass设置为{@link MapperFactoryBean},之后的Mapper接口由该类来创建对象
+ * ------>{@link MapperFactoryBean#getObject()}:在Spring上下文中注入的Mapper接口对象由该方法创建动态代理
+ * </pre>
+ * 
+ * 不停机分库分表数据迁移
+ * 
+ * <pre>
+ * 1.利用MySQL+Canal做增量数据同步,利用分库分表中间件,将数据路由到对应的新表中
+ * 2.利用分库分表中间件,全量数据导入到对应的新表中
+ * 3.通过单表数据和分库分表数据两两比较,更新不匹配的数据到新表中
+ * 4.数据稳定后,将单表的配置切换到分库分表配置上
  * </pre>
  * 
  * @author 飞花梦影

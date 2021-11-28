@@ -1,14 +1,15 @@
-package com.wy.config;
+package com.wy.config.executor;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.aop.interceptor.AsyncExecutionAspectSupport;
+import org.springframework.aop.interceptor.AsyncExecutionInterceptor;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -18,15 +19,31 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 自定义异步线程池配置,同时需要在使用{@link Async}的类或方法上添加getAsyncExecutor
+ * 自定义异步线程池配置
+ * 
+ * {@link AsyncConfigurer}:实现该接口的线程池在项目中只能有一个,{@link Async}修饰的类或方法默认会使用该接口的实现.
+ * 当项目中同时存在默认的{@link AsyncExecutionAspectSupport#DEFAULT_TASK_EXECUTOR_BEAN_NAME}命名的Executor
+ * 和实现了 AsyncConfigurer 的Executor时,默认使用实现了 AsyncConfigurer 接口的bean
+ * 
+ * 当存在多个Executor的bean时,优先使用实现了 AsyncConfigurer 接口的Executor,其次才会使用默认实现的Executor.
+ * 当即不存在实现接口的Executor,也不存在默认的Executor时,会使用{@link SimpleAsyncTaskExecutor}
+ * 
+ * 使用顺序源代码:
+ * 
+ * <pre>
+ * {@link AsyncExecutionInterceptor#getDefaultExecutor}:获得默认的Executor
+ * ->{@link AsyncExecutionAspectSupport#getDefaultExecutor}:调用父类方法获得默认的Executor.
+ * 		若没有设置DEFAULT_TASK_EXECUTOR_BEAN_NAME的bean,则会返回null
+ * {@link AsyncExecutionInterceptor#getDefaultExecutor}:返回{@link SimpleAsyncTaskExecutor}
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2021-01-08 10:24:53
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-@Configuration
+// @Configuration
 @Slf4j
-public class AsyncPoolConfig implements AsyncConfigurer {
+public class MyAsyncConfig02 implements AsyncConfigurer {
 
 	/**
 	 * 在需要使用{@link Async}的地方,该直接的value()值必须是getAsyncExecutor
@@ -62,18 +79,12 @@ public class AsyncPoolConfig implements AsyncConfigurer {
 	 */
 	@Override
 	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-		return new AsyncExceptionHandler();
-	}
-
-	class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
-
-		@Override
-		public void handleUncaughtException(Throwable throwable, Method method, Object... objects) {
+		return (throwable, method, objects) -> {
 			log.info("AsyncError: {}, Method: {}, Param: {}", throwable.getMessage(), method.getName(),
 					JSON.toJSONString(objects));
 			throwable.printStackTrace();
 			// dosomething
-		}
+		};
 	}
 
 	/**

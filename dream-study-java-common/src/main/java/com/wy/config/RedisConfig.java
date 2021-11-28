@@ -9,16 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.ClusterOperations;
-import org.springframework.data.redis.core.GeoOperations;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.HyperLogLogOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SetOperations;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
@@ -34,7 +26,9 @@ import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
  * 
  * 使用 {TestConfiguration}
  * 
- * @author wanyang 2018年7月16日
+ * @author 飞花梦影
+ * @date 2018-07-16 10:52:13
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
 @ConditionalOnClass(RedisOperations.class)
@@ -50,7 +44,6 @@ public class RedisConfig {
 	@ConditionalOnMissingBean
 	public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<Object, Object> template = new RedisTemplate<>();
-
 		// 使用fastjson序列化
 		FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<Object>(Object.class);
 		// 设置方法参照{RedisTemplate}类中的afterPropertiesSet方法
@@ -62,10 +55,9 @@ public class RedisConfig {
 		template.setHashKeySerializer(new StringRedisSerializer());
 		template.setConnectionFactory(redisConnectionFactory);
 		logger.info("||=========== fastjson 实例化redis成功 ===========||");
-		init(template);
 		return template;
 	}
-	
+
 	// /**
 	// * 同fastjon序列化,使用spring依赖的jackson,若同时和fastjson使用,必须实例化不能类型的RedisTemplate
 	// */
@@ -90,55 +82,4 @@ public class RedisConfig {
 	// logger.info("||=========== jackson 实例化redis成功 ===========||");
 	// return template;
 	// }
-	
-	public void init(RedisTemplate<Object, Object> redisTemplate) {
-		initVal(redisTemplate);
-		initList(redisTemplate);
-		initSet(redisTemplate);
-		initHashMap(redisTemplate);
-		initCluster(redisTemplate);
-		initGeo(redisTemplate);
-		initHyperLogLog(redisTemplate);
-		initZSet(redisTemplate);
-	}
-	
-	@Bean
-	public ValueOperations<Object, Object> initVal(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForValue();
-	}
-	
-	@Bean
-	public ListOperations<Object, Object> initList(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForList();
-	}
-	
-	@Bean
-	public SetOperations<Object, Object> initSet(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForSet();
-	}
-	
-	@Bean
-	public HashOperations<Object, Object, Object> initHashMap(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForHash();
-	}
-	
-	@Bean
-	public ClusterOperations<Object, Object> initCluster(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForCluster();
-	}
-	
-	@Bean
-	public GeoOperations<Object, Object> initGeo(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForGeo();
-	}
-	
-	@Bean
-	public HyperLogLogOperations<Object, Object> initHyperLogLog(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForHyperLogLog();
-	}
-	
-	@Bean
-	public ZSetOperations<Object,Object> initZSet(RedisTemplate<Object, Object> redisTemplate){
-		return redisTemplate.opsForZSet();
-	}
 }

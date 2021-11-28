@@ -4,8 +4,6 @@
 
 
 
-## 概述
-
 * redis主要来做系统缓存,减少程序对数据库的访问,加大程序吞吐量
 * redis默认有16384的slots(槽).每个槽可以存储多个hash值
 * redis的3种主从模式
@@ -27,7 +25,7 @@
 
 
 
-## 事务
+# 事务
 
 > redis的事务比较简单,multi命令打开事务,之后开始进行设置.设置的值都会放在一个队列中进行保存,当设置完之后,使用exec命令,执行队列中的所有操作
 
@@ -41,7 +39,7 @@
 
 
 
-## 命令
+# 命令
 
 * [文档1](http://doc.redisfans.com/),[文档2](http://redisdoc.com/index.html)
 * redis-cli:启动redis的命令行,可在其中操作redis
@@ -51,32 +49,8 @@
 * slowlog get:获得慢日志
 * monitor:监控redis所有的操作,消耗比较大,开发可使用
 * select 0/1...15:选择哪一个数据库,有16个,默认是0
-* keys *:查看当前数据库所有的键值
-* exists key:查看当前数据库是否有指定key
-* move key db:从指定的数据库中删除指定key
-* del key:从当前数据库中删除指定key
-* expire key num:设置指定key多少秒之后过期
-* expireat key timestamp:设置过期时间,值是一个到**秒**的时间戳
-* pexpire key num:设置指定key多少毫秒之后过期
-* pexpireat key timstamp:设置过期时间,值是一个到毫秒的时间戳
-* persist key:设置指定key永不过期,,另外用set或getset命令为key赋值时也会清除过期时间
-* ttl key:查看某个key还有多长时间过期,若返回-1表示永不过期,-2表示已经过期
-* type key:查看指定key所存储的值的类型,是值,不是key
-* set key value:设置字符串类的key-value
 * mset key1 val1 key2 val2...:一次性设置多个字符串键值对
-* get key:获取字符串类的指定key的值
 * mget key1 key2...:一次性获取多个键值.在集群模式下,若key分布式在多个节点下,可能出错
-* hset key field value:设置hash类key-value,field是hash中的key值
-* hmset key field1 value1 field2 value2...:同时设置多个hash的键值对
-* hget key field:获得指定key存储的hash中的指定field的值
-* hmget key field1 field2...:同时获得多个field的值
-* hgetall key:获得指定key中的hash键值对
-* hdel key field...:删除指定key存储的hash中的field代表的键值
-* hlen key:获得指定key里面的键值对的数量
-* hexists key:判断键值对是否存在
-* hkeys key:获得指定key所存储的所有键值对的field值
-* hvals key:获得指定key所存储的所有键值对的val值
-* hsetnx key:若key存在什么也不做,若不存在则赋值
 * lpush key value1 value2...:从左边开始往一个list中放入值,value1先放,在最后
 * lrange key start end:获得指定key存储的list中开始和结尾下标的值,start和end超出下标不报错
 * sdiff set1 set2:获得2个set集合中的差集,从set1中取出set2中不存在的,从set2中取出set1不存在的
@@ -105,7 +79,93 @@
 
 
 
-## 适用场景
+## KEY
+
+* keys *:查看当前数据库所有的键值,\*可以是?或[],类似正则
+* set key value:设置字符串类的key-value
+* get key:获取字符串类的指定key的值
+* exists key:查看当前数据库是否有指定key.存在返回1,不存在返回0
+* move key db:将当前数据库中指定key移动到指定数据库中.若当前数据库没有该key或目的数据库已经存在该key,则移动失败,返回0.移动成功返回1
+* del key1 key2...:从当前数据库中删除指定key
+* randomkey:从当前数据库中随机返回一个key,但不会删除该key
+* type key:查看指定key所存储的值的类型,是值,不是key
+* rename key nkey:将key改名为新key.当key和nkey相同或key不存在时,返回一个错误;当nkey已经存在时,RENAME命令相当于将原key的value覆盖nkey的value
+* renamenx key nkey:当且仅当nkey不存在时,将key改名为nkey.当key不存在时,返回一个错误.如果修改成功,返回1;如果nkey已经存在,返回0
+
+
+
+## 原子加减
+
+* INCR key:将key中存储的数字值加1
+* DECR key:将key中存储的数字值减1
+* INCRBY key num:将key存储的数字值加num
+* DECRBY key num:将key存储的数字值减num
+
+
+
+## HASH
+
+* hset key field value:设置hash类key-value,field是hash中的key值
+* hmset key field1 value1 field2 value2...:同时设置多个hash的键值对
+* hget key field:获得指定key存储的hash中的指定field的值
+* hmget key field1 field2...:同时获得多个field的值
+* hgetall key:获得指定key中的hash键值对
+* hdel key field...:删除指定key存储的hash中的field代表的键值
+* hlen key:获得指定key里面的键值对的数量
+* hexists key:判断键值对是否存在
+* hkeys key:获得指定key所存储的所有键值对的field值
+* hvals key:获得指定key所存储的所有键值对的val值
+* hsetnx key:若key存在什么也不做,若不存在则赋值
+
+
+
+## SET
+
+* 无序不重复集合
+
+* SADD key value:往集合key中添加value元素
+* SREM key value:从集合key中删除value元素
+* SISMEMBER key value:检查集合key中是否有value元素
+* SMEMBERS key:获取集合key中所有元素
+* SCARD key:获取集合key中元素个数
+* SRANDMEMBER key num:从集合key中随机获取num个元素,取出的元素仍然在原集合中
+* SPOP key num:从集合key中随机取出2个元素,取出的元素将中原集合中删除
+* SINTER key1 key2...:取多个集合的交集,即取出所有集合中都有的元素
+* SUNION key1 key2...:取多个集合的并集,即将所有集合中的元素进行合并
+* SDIFF key1 key2...:取多个key1集合的差集,即以第一个集合为基准,只保留其他集合中没有的元素
+
+
+
+## ZSET
+
+* 有序不重复集合
+
+* ZADD key score value [[score value]...]:往有序集合key中加入带分值元素,score可用来排序
+
+ * ZREM key value [value...]:从有序集合key中删除元素
+ * ZSCORE key value:返回有序集合key中元素member的分值
+ * ZINCREBY key num value:为有序集合key中元素value的分值加上num
+ * ZCARD key:返回有序集合key中元素个数
+ * ZRANGE key start end [WITHSCORES]:正序获取有序集合key从start下标到end下标的元素
+ * ZREVRANGE key start end [WITHSCORES]:倒序获取有序集合key从start下标到end下标的元素
+ * ZUNIONSTORE destkey numkeys key [key...]:并集计算
+ * ZINTERSTORE dest key numkeys key [key...]:交集计算
+
+
+
+## 持久化
+
+* expire key num:设置指定key多少秒之后过期
+* expireat key timestamp:设置过期时间,值是一个到秒的时间戳
+* pexpire key num:设置指定key多少毫秒之后过期
+* pexpireat key timstamp:设置过期时间,值是一个到毫秒的时间戳
+* persist key:设置指定key永不过期,,另外用set或getset命令为key赋值时也会清除过期时间
+* ttl key:查看某个key还有多少秒过期.返回-1表示永不过期,-2表示已经过期
+* pttl key:同ttl,但是是以毫秒为单位
+
+
+
+# 适用场景
 
 * 缓存
 * 取最新N个数据的操作:zincrby
@@ -121,8 +181,14 @@
 * 限流:incr
 * 购物车
 * 用户消息时间线timeline,list,双向链表
-* 抽奖:spop myset
-* 点赞,签到,打卡:sadd,srem,sismember,smembers,scard
+* 抽奖:使用SET的spop
+* 点赞,签到,打卡:使用SET的sadd,srem,sismember,smembers,scard
+  * 点赞:`SADD like:<消息ID> <用户ID>`
+  * 取消点赞:`SREM like:<消息ID> <用户ID>`
+  * 检查用户是否点过赞:`SISMEMBER like:<消息ID> <用户ID>`
+  * 获取点赞的用户列表:`SMEMBERS like:<消息ID>`
+  * 获取点赞的用户数:`SCARD like:<消息ID>`
+
 * 商品标签
 * 商品筛选:sdiff set1 set20->获取差集;sinter set1 set2->获取交集;sunion set1 set2->获取并集
 * 用户关注,推荐模型
@@ -172,25 +238,8 @@
 * client-query-buffer-limit:客户端查询缓存大小限制,如果multi/exec 大可以考虑调节
 * lfu-log-factor:小于0则启动失败
 * lfu-decay-time:小于0则启动失败
-* replicaof(slaveof) ip port:主从复制时的主机ip和端口
-* repl-ping-replica(slave)-period:从发给主的心跳周期,如果小于0则启动失败,默认10秒
-* repl-timeout:多少秒没收到心跳的响应认为超时,最好设置的比repl-ping-replica(slave)-period大.如果小于0则启动失败
-* repl-disable-tcp-nodelay:是否禁用tcp-nodelay,如果设置yes,会导致主从同步有40ms滞后(linux默认),如果no,则主从同步更及时
-* repl-diskless-sync:主从复制是生成rdb文件,然后传输给从节点,配置成yes后可以不进行写磁盘直接进行复制,适用于磁盘慢网络带宽大的场景
-* repl-diskless-sync-delay:当启用diskless复制后,让主节点等待更多从节点来同时复制,设置过小,复制时来的从节点必须等待下一次rdb transfer.单位秒,如果小于0则启动失败
-* repl-backlog-size:复制积压大小,解决复制过程中从节点重连后不需要full sync,这个值越大,那么从节点断开到重连的时间就可以更长
-* repl-backlog-ttl:复制积压的生命期,超过多长时间从节点还没重连,则释放内存
 * auth-pass:sentinel auth-pass <master-name> <password>,设置用于主从节点通信的密码.如果在监控redis实例中有密码的话是有用的.这个主节点密码同样用于从节点,所以给主节点和从节点实例设置不同的密码是不可能的.可以拥有不开启认证的redis实例和需要认证的redis实例混合(只要需要密码的redis实例密码设置一样),因为当认证关闭时,auth命令将在redis实例中无效
 * requirepass password:用于在客户端执行命令前,要求进行密码验证,password为自定义密码
-* masterauth:主从复制时主redis的密码验证
-* replica(slave)-serve-stale-data:默认yes,当从节点和主节点的连接断开或者复制正在进行中
-  * yes:继续提供服务
-  * no:那么返回sync with master in progress错误
-* replica(slave)-read-only:配置从节点是否只读,但是配置的修改还是可以的
-* replica(slave)-ignore-maxmemory:从节点是否忽略maxmemory配置,默认yes
-* dbfilename:rdb文件名
-* rdbcompression:对于存储在磁盘中的快照,是否进行压缩存储.会消耗cpu
-* rdbchecksum:是否检查rdbchecksum,默认yes,可以设置no
 * activerehashing:默认每1秒10次消耗1ms来做rehashing来释放内存,会增加请求的延时,如果你对延时敏感,则设置no,默认yes
 * lazyfree-lazy-eviction:同步或异步释放内存
   * no:默认,同步释放内存,停止完成其他请求来做释放内存操作,如果遇到key复杂度很大时(0(n))会增加请求延时
@@ -208,66 +257,6 @@
 * hash-max-ziplist-entries:hash中的项数量小于或等于这个值使用ziplist,超过这个值使用hash
 * dynamic-hz:设置yes,则根据客户端连接数可以自动调节hz
 * hz:调节可以让redis再空闲时间更多的做一些任务(如关闭超时客户端等)
-* appendonly:是否开启aof模式,生产环境必然开启
-* appendfilename:aof文件名
-* no-appendfsync-on-rewrite:设置yes后,如果有保存的进程在执行,则不执行aof的appendfsync策略的fsync
-* appendfsync:执行fynsc的策略,取值范围:
-
-  * everysec:每秒执行sync
-  * always:等到下次执行beforesleep时执行fsync
-  * no:不执行fsync
-  * 设置always往往比较影响性能,但是数据丢失的风险最低,一般推荐设置everysec
-* auto-aof-rewrite-percentage:相对于上次aof文件大小的增长百分比如果超过这个值,则重写aof
-* auto-aof-rewrite-min-size:自动重写aof文件的最小大小,比 auto-aof-rewrite-percentage优先级高
-* aof-rewrite-incremental-fsync:数据是否增量写入aof文件
-  * yes:则每32mb执行fsync一次,增量式,避免一次性大写入导致的延时
-  * no:则一次性fsync写入aof文件
-* rdb-save-incremental-fsync:数据是否增量写入rdb文件
-  * yes:则每32mb执行fsync一次,增量式,避免一次性大写入导致的延时
-  * no:一次性fsync写入到rdb文件
-* aof-load-truncated:假如aof文件被截断了时的操作
-  * yes:redis可以启动并且显示日志告知这个信息
-  * no:redis启动失败,显示错误
-* aof-use-rdb-preamble:aof前部分用rdb,后面保存时缓存的命令还是用aof格式,能够保存和恢复更快,设置yes开启
-* active_defrag_threshold_upper:开启内存碎片整理的最小内存碎片百分比,小于0或者大于1000则启动失败
-* active_defrag_threshold_upper:内存碎片百分比超过这个值,则使用active-defrag-cycle-max,小于0或者大于1000则启动失败
-* active-defrag-ignore-bytes:开启内存碎片整理的最小内存碎片字节数,如果小于等于0则启动失败
-* active-defrag-cycle-max:最小努力cpu百分比,用来做内存碎片整理
-* active-defrag-cycle-min:最大努力cpu百分比,用来做内存碎片整理
-* active-defrag-max-scan-fields:用于主动的内存碎片整理的set/hash/zset/list中的最大数量的项,如果小于1,启动失败
-* hash-max-ziplist-value:hash 中的项大小小于或等于这个值使用ziplist,超过这个值使用hash
-* stream-node-max-bytes:stream 的最大内存开销字节数
-* stream-node-max-entries:stream 的最大项数量
-* list-max-ziplist-size:负值表示节点大小
-
-  * -5:每个list节点大小不能超过64 Kb
-  * -4:每个list节点大小不能超过32 Kb
-  * -3:每个list节点大小不能超过16 Kb
-  * -2:每个list节点大小不能超过8 Kb
-  * -1:每个list节点大小不能超过4 Kb
-  * 推荐-1,-2,正值表示节点数量
-  * 满足设置的值,则使用ziplist表示,节约内存;超过设置的值,则使用普通list
-* list-compress-depth:不压缩quicklist,距离首尾节点小于等于这个值的ziplist节点,默认首尾节点不压缩
-  * 1:head->next->...->prev->tail,不压缩next,prev,以此类推
-  * 0:都不压缩
-* set-max-intset-entries:当set 的元素数量小于这个值且元素可以用int64范围的整型表示时,使用inset,节约内存大于或者元素无法用int64范围的整型表示时用set表示
-* zset-max-ziplist-entries:当sorted set 的元素数量小于这个值时,使用ziplist,节约内存,大于这个值zset表示
-* zset-max-ziplist-value:当sorted set 的元素大小小于这个值时,使用ziplist,节约内存,大于这个值zser表示
-* hll-sparse-max-bytes:大于这个值,hyperloglog使用稠密结构,小于等于这个值,使用稀疏结构,大于16000无意义,建议设置3000
-* rename-command:重命名命令,建议重命名一些敏感的命令(如flushall,flushdb)
-* cluster-enabled:开启集群模式
-* cluster-config-file:集群配置文件名
-* cluster-announce-ip:集群的节点的汇报ip,防止nat
-* cluster-announce-port:集群的节点的汇报port,防止nat
-* cluster-announce-bus-port:集群的节点的汇报bus-port,防止nat
-* cluster-require-full-coverage:默认如果不是所有slot已经分配到节点,那么集群无法提供服务,设置为no,则可以提供服务
-* cluster-node-timeout:认为集群节点失效状态的时间,如果小于0则启动失败
-* cluster-migration-barrier:当存在孤立主节点后(没有从节点),其他主节点的从节点会迁移作为这个孤立的主节点的从节点,前提是这个从节点之前的主节点至少还有这个数个从节点.
-  * 不建议设置为0
-  * 想禁用可以设置一个非常大的值
-  * 如果小于0则启动失败
-* cluster-slave-validity-factor:如果从节点和master距离上一次通信超过 (node-timeout * replica-validity-factor) + repl-ping-replica-period时间,则没有资格失效转移为master
-* cluster-replica(slave)-no-failover:在主节点失效期间,从节点是否允许对master失效转移
 * lua-time-limit:lua脚本的最大执行时间,超过这个时间后,恢复客户端的查询错误,0或者负数则无限制
 * latency-monitor-threshold:为了收集可能导致延时的数据根源,redis延时监控系统在运行时会采样一些操作.
   * 通过 LATENCY命令 可以打印一些图样和获取一些报告
@@ -285,11 +274,8 @@
     * replica 从节点
     * pubsub 至少pubsub一个channel或者pattern的客户端
 * stop-writes-on-bgsave-error:当save错误后是否停止接受写请求
-* slave-priority/replica-priority:当master不在工作后,从节点提升为master的优先级,0则不会提升为master.越小优先级越高
-* slave(replica)-announce-ip:从节点上报给master的自己ip,防止nat问题
-* slave(replica)-announce-port:从节点上报给master的自己port,防止nat问题
-* min-slaves(replicas)-to-write:最少从节点数,不满足该参数和低于min-slaves(replicas)-max-lag时间的从节点,master不再接受写请求.如果小于0则启动失败,默认0,也就是禁用状态
-* min-slaves(replicas)-max-lag:最大从节点的落后时间,不满足min-slaves-to-write和低于这个时间的从节点,master不再接受写请求
+* hll-sparse-max-bytes:大于这个值,hyperloglog使用稠密结构,小于等于这个值,使用稀疏结构,大于16000无意义,建议设置3000
+* rename-command:重命名命令,建议重命名一些敏感的命令(如flushall,flushdb)
 * notify-keyspace-events:取值范围,可以多个一起
   * K:Keyspace events, published with keyspace@<db> prefix
   * E:Keyevent events, published with keyevent@<db> prefix
@@ -307,6 +293,131 @@
   * upstart:通过将Redis置于SIGSTOP模式来启动信号
   * systemd:signal systemd将READY = 1写入$ NOTIFY_SOCKET
   * auto:检测upstart或systemd方法基于 UPSTART_JOB或NOTIFY_SOCKET环境变量
+
+
+
+## RDB
+
+* dbfilename:rdb文件名
+* rdbcompression:对于存储在磁盘中的快照,是否进行压缩存储.会消耗cpu
+* rdbchecksum:是否检查rdbchecksum,默认yes,可以设置no
+* rdb-save-incremental-fsync:数据是否增量写入rdb文件
+  * yes:则每32mb执行fsync一次,增量式,避免一次性大写入导致的延时
+  * no:一次性fsync写入到rdb文件
+
+
+
+## AOF
+
+* appendonly:是否开启AOF模式,生产环境必然开启
+* appendfilename:AOF文件名,默认为appendonly.aof
+* no-appendfsync-on-rewrite:设置yes后,如果有保存的进程在执行,则不执行aof的appendfsync策略的fsync
+* appendfsync:执行fynsc的策略,取值范围:
+
+  * everysec:默认每秒执行sync
+  * always:等到下次执行beforesleep时执行fsync
+  * no:不执行fsync
+  * 设置always往往比较影响性能,但是数据丢失的风险最低,一般推荐设置everysec
+* auto-aof-rewrite-min-size:自动重写AOF文件的最小大小,比auto-aof-rewrite-percentage优先级高
+* auto-aof-rewrite-percentage:相对于上次AOF文件重写时文件大小增长百分比.如果超过这个值,则重写AOF
+* aof-rewrite-incremental-fsync:数据是否增量写入aof文件
+  * yes:则每32mb执行fsync一次,增量式,避免一次性大写入导致的延时
+  * no:则一次性fsync写入AOF文件
+* aof-load-truncated:假如aof文件被截断了时的操作
+  * yes:redis可以启动并且显示日志告知这个信息
+  * no:redis启动失败,显示错误
+* active_defrag_threshold_upper:开启内存碎片整理的最小内存碎片百分比,小于0或者大于1000则启动失败
+* active_defrag_threshold_upper:内存碎片百分比超过这个值,则使用active-defrag-cycle-max,小于0或者大于1000则启动失败
+* active-defrag-ignore-bytes:开启内存碎片整理的最小内存碎片字节数,如果小于等于0则启动失败
+* active-defrag-cycle-max:最小努力cpu百分比,用来做内存碎片整理
+* active-defrag-cycle-min:最大努力cpu百分比,用来做内存碎片整理
+* active-defrag-max-scan-fields:用于主动的内存碎片整理的set/hash/zset/list中的最大数量的项,如果小于1,启动失败
+* hash-max-ziplist-value:hash 中的项大小小于或等于这个值使用ziplist,超过这个值使用hash
+* stream-node-max-bytes:stream 的最大内存开销字节数
+* stream-node-max-entries:stream 的最大项数量
+
+
+
+## Mixed
+
+* aof-use-rdb-preamble:AOF前部分用RDB,后面保存缓存时的命令还是用AOF,能够在Redis重启时能更快的恢复之前的数据.yes开启,必须先开启AOF
+
+
+
+## List
+
+* list-max-ziplist-size:负值表示节点大小
+
+  * -5:每个list节点大小不能超过64 Kb
+  * -4:每个list节点大小不能超过32 Kb
+  * -3:每个list节点大小不能超过16 Kb
+  * -2:每个list节点大小不能超过8 Kb
+  * -1:每个list节点大小不能超过4 Kb
+  * 推荐-1,-2,正值表示节点数量
+  * 满足设置的值,则使用ziplist表示,节约内存;超过设置的值,则使用普通list
+* list-compress-depth:不压缩quicklist,距离首尾节点小于等于这个值的ziplist节点,默认首尾节点不压缩
+  * 1:head->next->...->prev->tail,不压缩next,prev,以此类推
+  * 0:都不压缩
+
+
+
+## Set
+
+* set-max-intset-entries:当set 的元素数量小于这个值且元素可以用int64范围的整型表示时,使用inset,节约内存大于或者元素无法用int64范围的整型表示时用set表示
+
+
+
+## ZSet
+
+* zset-max-ziplist-entries:当sorted set 的元素数量小于这个值时,使用ziplist,节约内存,大于这个值zset表示
+* zset-max-ziplist-value:当sorted set 的元素大小小于这个值时,使用ziplist,节约内存,大于这个值zser表示
+
+
+
+## MasterSlave
+
+* replicaof(slaveof) ip port:主从复制时的主机ip和端口
+* repl-ping-replica(slave)-period:从发给主的心跳周期,如果小于0则启动失败,默认10秒
+* repl-timeout:多少秒没收到心跳的响应认为超时,最好设置的比repl-ping-replica(slave)-period大.如果小于0则启动失败
+* repl-disable-tcp-nodelay:是否禁用tcp-nodelay,如果设置yes,会导致主从同步有40ms滞后(linux默认),如果no,则主从同步更及时
+* repl-diskless-sync:主从复制是生成rdb文件,然后传输给从节点,配置成yes后可以不进行写磁盘直接进行复制,适用于磁盘慢网络带宽大的场景
+* repl-diskless-sync-delay:当启用diskless复制后,让主节点等待更多从节点来同时复制,设置过小,复制时来的从节点必须等待下一次rdb transfer.单位秒,如果小于0则启动失败
+* repl-backlog-size:复制积压大小,解决复制过程中从节点重连后不需要full sync,这个值越大,那么从节点断开到重连的时间就可以更长
+* repl-backlog-ttl:复制积压的生命期,超过多长时间从节点还没重连,则释放内存
+* slave-priority/replica-priority:当master不在工作后,从节点提升为master的优先级,0则不会提升为master.越小优先级越高
+* slave(replica)-announce-ip:从节点上报给master的自己ip,防止nat问题
+* slave(replica)-announce-port:从节点上报给master的自己port,防止nat问题
+* min-slaves(replicas)-to-write:最少从节点数,不满足该参数和低于min-slaves(replicas)-max-lag时间的从节点,master不再接受写请求.如果小于0则启动失败,默认0,也就是禁用状态
+* min-slaves(replicas)-max-lag:最大从节点的落后时间,不满足min-slaves-to-write和低于这个时间的从节点,master不再接受写请求
+* masterauth:主从复制时主redis的密码验证
+* replica(slave)-serve-stale-data:默认yes,当从节点和主节点的连接断开或者复制正在进行中
+  * yes:继续提供服务
+  * no:那么返回sync with master in progress错误
+* replica(slave)-read-only:配置从节点是否只读,但是配置的修改还是可以的
+* replica(slave)-ignore-maxmemory:从节点是否忽略maxmemory配置,默认yes
+
+
+
+## Cluster
+
+* cluster-enabled:开启集群模式
+* cluster-config-file:集群配置文件名
+* cluster-announce-ip:集群的节点的汇报ip,防止nat
+* cluster-announce-port:集群的节点的汇报port,防止nat
+* cluster-announce-bus-port:集群的节点的汇报bus-port,防止nat
+* cluster-require-full-coverage:默认如果不是所有slot已经分配到节点,那么集群无法提供服务,设置为no,则可以提供服务
+* cluster-node-timeout:认为集群节点失效状态的时间,如果小于0则启动失败
+* cluster-migration-barrier:当存在孤立主节点后(没有从节点),其他主节点的从节点会迁移作为这个孤立的主节点的从节点,前提是这个从节点之前的主节点至少还有这个数个从节点.
+  * 不建议设置为0
+  * 想禁用可以设置一个非常大的值
+  * 如果小于0则启动失败
+* cluster-slave-validity-factor:如果从节点和master距离上一次通信超过 (node-timeout * replica-validity-factor) + repl-ping-replica-period时间,则没有资格失效转移为master
+* cluster-replica(slave)-no-failover:在主节点失效期间,从节点是否允许对master失效转移
+
+
+
+## Sentinel
+
 * sentinel monitor <master-name> <ip> <redis-port> <quorum>:sentinel monitor mymaster 127.0.0.1 6379 2,告知sentinel监控这个ip和redis-port端口的redis,当至少达到quorum数量的sentinel同意才认为他客观离线(O_DOWN)
 * sentinel down-after-milliseconds <master-name> <milliseconds>:附属的从节点或者sentinel和他超过milliseconds时间没有达到,则主观离线(S_DOWN)
 * sentinel failover-timeout  <master-name> <milliseconds>:
@@ -346,28 +457,19 @@
 
 ## 缓存清理设置
 
-redis.conf中设置相关参数
-
-1. maxmemory:设置redis用来存放数据的最大的内存大小,一旦超出该值,就会立即使用LRU算法
-
-   > 若maxmemory设置为0,那么就默认不限制内存的使用,直到耗尽机器中所有的内存为止
-
-2. maxmemory-policy:可以设置内存达到最大闲置后,采取什么策略来处理
-
-   1. noeviction:如果内存使用达到了maxmemory,client还要继续写入数据,那么就直接报错给客户端
-   2. allkeys-lru:就是我们常说的LRU算法,移除掉最近最少使用的那些keys对应的数据,默认策略
-   3. volatile-lru:也是采取LRU算法,但是仅仅针对那些设置了指定存活时间(TTL)的key才会清理掉
-   4. allkeys-random:随机选择一些key来删除掉
-   5. volatile-random:随机选择一些设置了TTL的key来删除掉
-   6. volatile-ttl:移除掉部分keys,选择那些TTL时间比较短的keys
-
-3. redis在写入数据的时候,可以设置TTL,过期时间
-
-4. 缓存清理的流程
-
-   1. 客户端执行数据写入操作
-   2. redis接收到写入操作后,检查maxmemory限制,如果超过了,那么就根据对应的policy清理掉部分数据
-   3. 写入操作完成执行
+* maxmemory:设置redis用来存放数据的最大的内存大小,一旦超出该值,就会立即使用LRU算法.若maxmemory设置为0,那么就默认不限制内存的使用,直到耗尽机器中所有的内存为止
+* maxmemory-policy:可以设置内存达到最大闲置后,采取什么策略来处理
+  * noeviction:如果内存使用达到了maxmemory,client还要继续写入,直接报错给客户端
+  * allkeys-lru:就是我们常说的LRU算法,移除掉最近最少使用的那些keys对应的数据,默认策略
+  * allkeys-random:随机选择一些key来删除掉
+  * volatile-lru:也是采取LRU算法,但是仅仅针对那些设置了指定存活时间(TTL)的key才会清理掉
+  * volatile-random:随机选择一些设置了TTL的key来删除掉
+  * volatile-ttl:移除掉部分keys,选择那些TTL时间比较短的keys
+* redis在写入数据的时候,可以设置TTL,过期时间
+* 缓存清理的流程
+  * 客户端执行数据写入操作
+  * redis接收到写入操作后,检查maxmemory,如果超过就根据对应的policy清理掉部分数据
+  * 写入操作完成执行
 
 
 
@@ -375,36 +477,39 @@ redis.conf中设置相关参数
 
 ## RDB
 
-> 默认开启,每隔指定时间将内存中的所有数据生成到一份RDB文件中,性能比较高
+* 默认开启,每隔指定时间将内存中的所有数据生成到一份RDB文件中,性能比较高
+* 配置save检查点
 
-1. 配置save检查点
+```shell
+# 在配置文件redis.conf中配置,如下
+# 每隔60秒时间,若有超过1000个key发生了变更,那么就生成一个新的dump.rdb
+save  60  1000
+```
 
-   > 在配置文件redis.conf中配置,例如:
-   >
-   > save  60  1000:每隔60秒时间,若有超过1000个key发生了变更,那么就生成一个新的dump.rdb
+* save检查点可以有多个,只要满足其中之一就会检查,发现变更就会生成新的dump.rdb文件
+* 可以手动调用save或bgsave进行快照备份
+  * save:冷备时只管备份,不管其他,全部阻塞
+  * bgsave:异步备份,不阻塞redis的读写操作,可用lastsave获得最近一次备份的时间
+* 若在生成快照期间发生故障,可能会丢失比较多的数据,适合做冷备份
+* redis在优雅退出的时候,会立即将内存中的数据生成完整的RDB快照,强制退出则不会
+* RDB对redis对外提供的读写服务,影响非常小,可以让redis保持高性能,因为redis主进程只需要fork一个子进程,让子进程执行磁盘IO操作来进行RDB持久化即可
+* 相对于AOF持久化机制来说,直接基于RDB数据文件来重启和恢复redis进程,更加快速
+* redis会单独创建(fork)一个子进程来进行持久化,会先将数据写入到一个临时文件中,当持久化过程都结束时,再用这个临时文件替换上次持久化好的文件.整个过程中,主进程是不进行任何IO操作的,这就确保了极高的性能.如果需要进行大规模数据的恢复,且对数据恢复的完整性不是非常敏感,则RDB比较高效,但是可能丢失最后一次持久化后的数据
 
-2. save检查点可以有多个,只要满足其中之一就会检查,发现变更就会生成新的dump.rdb文件
 
-3. 可以手动调用save或bgsave进行快照备份
 
-   1. save:冷备时只管备份,不管其他,全部阻塞
-   2. bgsave:异步备份,不阻塞redis的读写操作,可用lastsave获得最近一次备份的时间
+### BGSAVE机制
 
-4. 若在生成快照期间发生故障,可能会丢失比较多的数据,适合做冷备份
-
-5. redis在优雅退出的时候,会立即将内存中的数据生成完整的RDB快照,强制退出则不会
-
-6. RDB对redis对外提供的读写服务,影响非常小,可以让redis保持高性能,因为redis主进程只需要fork一个子进程,让子进程执行磁盘IO操作来进行RDB持久化即可
-
-7. 相对于AOF持久化机制来说,直接基于RDB数据文件来重启和恢复redis进程,更加快速
-
-8. redis会单独创建(fork)一个子进程来进行持久化,会先将数据写入到一个临时文件中,当持久化过程都结束时,再用这个临时文件替换上次持久化好的文件.整个过程中,主进程是不进行任何IO操作的,这就确保了极高的性能.如果需要进行大规模数据的恢复,且对数据恢复的完整性不是非常敏感,则RDB比较高效,但是可能丢失最后一次持久化后的数据
+* Redis借助操作系统提供的写时复制技术(Copy-On-Write, COW),在生成快照的同时,依然可以正常处理写命令.即bgsave子进程是由主线程fork生成的,可以共享主线程的所有内存数据
+* bgsave子进程运行后,开始读取主线程的内存数据,并把它们写入RDB文件
+* 如果主线程对这些数据也都是读操作,那么主线程和bgsave子进程相互不影响
+* 如果主线程要修改一块数据,那么这块数据就会被复制一份,生成该数据的副本.然后,bgsave子进程会把这个副本数据写入RDB文件,而在这个过程中,主线程仍然可以直接修改原来的数据  
 
 
 
 ## AOF
 
-> 生成一份执行日志文件,每次执行操作都会将命令先写入os cache,然后每隔一定时间再fsync写到AOF文件中
+* 生成一份修改记录日志文件(appendonly.aof),每次执行操作都会将命令先写入os cache,然后每隔一定时间再fsync写到AOF文件中
 
 * 配置AOF持久化,生产环境中,AOF一般都是开启的:将redis.conf中的appendonly no改为appendonly yes即可开启
 * 同时开启了RDB和AOF时,redis重启之后,**仍然优先读取AOF中的数据**,但是AOF数据恢复比较慢
@@ -413,7 +518,7 @@ redis.conf中设置相关参数
   * always:每写入一条数据,立即将数据对应的写日志fsync到磁盘上去,性能非常非常差,吞吐量很低
   * no:redis仅仅负责将数据写入os cache,后面os自己会时不时有自己的策略将数据刷入磁盘,不可控
 * AOF文件只有一份,当文件增加到一定大小时,AOF会进行rewrite操作,会基于当前redis内存中的数据,重新构造一个更小的AOF文件,然后将大的文件删除
-* 可以使用bgrewriteaof强制进行aof文件重写
+* 可以使用bgrewriteaof强制进行AOF文件重写
 * rewrite是另外一线程来写,对redis本身的性能影响不大
   * auto-aof-rewrite-percentage:redis每次rewrite都会记住上次rewrite时文件大小,下次达到上次rewrite多少时会再次进行rewrite,默认是100,可以不改
   * auto-aof-rewrite-min-size:redis进行rewrite的最小内存,默认是64M,几乎不用改
@@ -424,7 +529,35 @@ redis.conf中设置相关参数
 
 
 
+## Mixed
+
+* 混合持久化模式,需要同时开启RDB和AOF
+* 重启Redis时,RDB恢复更快,但是会丢失大量数据.使用AOF重启,性能相对RDB要慢,在Redis实例很大的情况下,启动需要花费很长的时间.Redis 4.0带来了一个新的持久化选项—混合持久化
+* 通过如下配置可以开启混合持久化:`aof-use-rdb-preamble yes`
+* 如果开启了混合持久化,AOF在重写时,不再是单纯将内存数据转换为RESP命令写入AOF文件,而是将
+  重写这一刻之前的内存做RDB快照处理,并将RDB快照内容和增量的AOF修改内存数据的命令存在一
+  起写入新的AOF文件,新文件一开始不叫appendonly.aof,重写完新的AOF文件才会进行改名,覆盖原有的AOF文件
+* 在Redis重启的时候,可以先加载RDB的内容,然后再重放增量AOF日志就可以完全替代之前的AOF全量文件重放,重启效率大幅得到提升 
+
+
+
+# 安装
+
+
+
+* 安装相关依赖:yum install -y gcc-c++
+* 下载或上传redis压缩包到linux服务上,解压:tar zxvf redis-5.0.14.tar.gz
+* 编译,设置安装路径为/app/software/redis下:make install PREFIX=/app/software/redis
+* 修改配置文件:vi redis.conf
+* 将daemonize修改成yes,守护进程启动
+* 启动:../redis-server redis.conf
+* ./redis-cli:进入Redis自带客户端中
+
+
+
 # 备份还原
+
+
 
 ## 备份
 
@@ -496,172 +629,153 @@ redis.conf中设置相关参数
 
 ## 复制流程
 
-1. 开启主从复制,只需要在当作slave的redis配置文件中添加配置即可
-
-   1. replicaof:打开注释,只需要将master的ip和port填进去即可
-   2. masterauth:若master开启了密码验证,此处需要填写master的登录密码
-   3. requirepass:连接当前redis需要的密码
-   4. auth pwd:当用redis-cli连接redis时,若开启了密码验证,则需要使用该命令,接上密码才能登录
-   5. replica-read-only:yes,默认开启了只读,该配置只有在打开了主从模式时才有效
-   
-2. 当启动一个slave的时候,它会发送一个PSYNC命令给master
-
-3. 如果是slave第一次连接master,那么会触发一次全量复制(full resynchronization)
-
-4. 如果是slave重新连接master,那么master仅仅会复制给slave部分缺少的数据
-
-5. 开始全量复制时,master会启动一个后台进程生成一份RDB快照,同时还会将从客户端收到的所有写命令缓存在内存中,RDB文件生成完之后,master会将这个RDB发送给slave,slave会先写入本地磁盘,然后再从本地磁盘加载到内存中,然后master会将内存中缓存的写命令发送给slave,slave也会同步这些数据
-
-6. slave如果跟master有网络故障,断开了连接,会自动重连
-
-7. master如果发现有多个slave都来重新连接,仅仅会启动一个rdb save操作,用一份数据服务所有slave
-
-8. 如果主从复制过程中,网络断开,那么可以接着上次复制的地方继续复制,而不是从头开始复制一
-
-   > redis会在内存中创建一个backlog,master和slave都会保存一个replica offset和master id,offset在backlog中.
-   >
-   > 如果master和slave网络连接断开,slave会让master从上次的replica offset开始继续复制,如果没有找到对应的offset,就会执行一次full resynchronization
-
-9. 采用异步方式复制数据到slave节点,同时slave会周期性地确认自己每次复制的数据量
-
-10. 无磁盘化复制
-
-    > master在内存中直接创建rdb,通过内部的socket方式发送给slave,不会在本地磁盘落地
-    >
-    > repl-diskless-sync:是否开启无磁盘化,默认是no,不开启
-    >
-    > repl-diskless-sync-delay:等待一定时长再开始复制,因为要等更多slave重新连接过来
-
-11. 一个master可以配置多个slave,slave也可以连接其他slave
-
-12. slave做复制的时候,是不会打断master的正常工作的
-
-13. slave在做复制的时候,也不会打断对自己的查询操作,它会用旧的数据集来提供服务.但是复制完成之后,需要删除旧数据集,加载新数据集,这个时候就会暂停对外服务
-
-14. slave主要用来进行横向扩容,做读写分离,扩容的slave可以提高读的吞吐量
-
-15. slave不会过期key,只会等待master过期key.如果master过期了一个key,或通过LRU淘汰了一个key,就会模拟一条del命令发送给slave
-
-16. master必须开启持久化,否则一旦发生故障,可能造成所有数据丢失
+* 开启主从复制,只需要在当作slave的redis配置文件中添加配置即可
+  * replicaof:打开注释,只需要将master的ip和port填进去即可.5.0以前是slaveof
+  * masterauth:若master开启了密码验证,此处需要填写master的登录密码
+  * requirepass:连接当前redis需要的密码
+  * auth pwd:当用redis-cli连接redis时,若开启了密码验证,则需要使用该命令,接上密码才能登录
+  * replica-read-only:yes,默认开启了只读,该配置只有在打开了主从模式时才有效
+  * 在同一台机器上开多个redis实例时,还需要修改以下配置
+    * port
+    * pidfile
+    * logfile
+    * dir
+* 当启动一个slave的时候,它会发送一个PSYNC命令给master
+* 如果是slave第一次连接master,那么会触发一次全量复制(full resynchronization)
+* 如果是slave重新连接master,那么master仅仅会复制给slave部分缺少的数据
+* 开始全量复制时,master会启动一个后台进程生成一份RDB快照,同时还会将从客户端收到的所有写命令缓存在内存中
+* RDB文件生成完之后,master会将这个RDB发送给slave,slave会先写入本地磁盘,然后再从本地磁盘加载到内存中,然后master会将内存中缓存的写命令发送给slave,slave也会同步这些数据
+* slave如果跟master有网络故障,断开了连接,会自动重连
+* master如果发现有多个slave都来重新连接,仅仅会启动一个rdb save操作,用一份数据服务所有slave
+* 如果主从复制过程中,网络断开,那么可以接着上次复制的地方继续复制,而不是从头开始复制
+  * redis会在内存中创建一个backlog,master和slave都会保存一个replica offset和master id,offset在backlog中
+  * 如果master和slave网络连接断开,slave会让master从上次的replica offset开始继续复制,如果没有找到对应的offset,就会执行一次full resynchronization
+* 采用异步方式复制数据到slave节点,同时slave会周期性地确认自己每次复制的数据量
+* 无磁盘化复制
+  * master在内存中直接创建rdb,通过内部的socket方式发送给slave,不会在本地磁盘落地
+  * repl-diskless-sync:是否开启无磁盘化,默认是no,不开启
+  * repl-diskless-sync-delay:等待一定时长再开始复制,因为要等更多slave重新连接过来
+* 一个master可以配置多个slave,slave也可以连接其他slave
+* slave做复制的时候,是不会打断master的正常工作的
+* slave在做复制的时候,也不会打断对自己的查询操作,它会用旧的数据集来提供服务.但是复制完成之后,需要删除旧数据集,加载新数据集,这个时候就会暂停对外服务
+* slave主要用来进行横向扩容,做读写分离,扩容的slave可以提高读的吞吐量
+* slave不会过期key,只会等待master过期key.如果master过期了一个key,或通过LRU淘汰了一个key,就会模拟一条del命令发送给slave
+* master必须开启持久化,否则一旦发生故障,可能造成所有数据丢失
 
 
 
 ## 核心流程
 
-1. slave启动,只保存master的信息,包括host和ip,在slave的redis.conf里的slaveof配置,但是复制流程没开始
-2. slave内部有个定时任务,每秒检查是否有新的master要连接和复制,如果发现,就跟master建立socket连接
-3. slave发送ping命令给master
-4. 口令认证,如果master设置了requirepass,那么salve必须发送masterauth的口令过去进行认证
-5. master第一次执行全量复制,将所有数据发给slave
-6. master后续持续将写命令,异步复制给slave
+* slave启动,只保存master的信息,包括host和ip,在slave的redis.conf里的slaveof配置,但是复制流程没开始
+* slave内部有个定时任务,每秒检查是否有新的master要连接和复制,如果发现,就跟master建立socket连接
+* slave发送ping命令给master
+* 口令认证,如果master设置了requirepass,那么salve必须发送masterauth的口令过去进行认证
+* master第一次执行全量复制,将所有数据发给slave
+* master后续持续将写命令,异步复制给slave
 
 
 
 ## 数据同步
 
-> 指的就是第一次slave连接msater的时候,执行的全量复制
-
-1. offset
-   1. master和slave都会在自身不断累加offset
-   2. slave每秒都会上报自己的offset给master,同时master也会保存每个slave的offset
-   3. offset不仅用于全量复制,主要是master和slave都要知道各自的offset,才能知道主从的数据不一致的情况
-2. backlog
-   1. master有一个backlog,默认是1MB大小
-   2. master给slave复制数据时,也会将数据在backlog中同步写一份
-   3. backlog主要是用来做全量复制中断时的增量复制
-3. master run id
-   1. info server,可以看到master run id
-   2. 根据host+ip定位master是不靠谱的,如果master重启或者数据出现了变化,那么slave应该根据不同的run id区分,run id不同就做全量复制
-   3. 如果需要不更改run id重启redis,可以使用redis-cli debug reload命令
-4. psync
-   1. 从节点使用psync从master进行复制,psync runid offset
-   2. master会根据自身的情况返回响应信息,可能是FULLRESYNC runid offset触发全量复制,可能是CONTINUE触发增量复制
+* 指的就是第一次slave连接msater的时候,执行的全量复制
+* offset
+  * master和slave都会在自身不断累加offset
+  * slave每秒都会上报自己的offset给master,同时master也会保存每个slave的offset
+  * offset不仅用于全量复制,主要是master和slave都要知道各自的offset,才能知道主从的数据不一致的情况
+* backlog
+  * master有一个backlog,默认是1MB大小
+  * master给slave复制数据时,也会将数据在backlog中同步写一份
+  * backlog主要是用来做全量复制中断时的增量复制
+* master run id
+  * info server,可以看到master run id
+  * 根据host+ip定位master是不靠谱的,如果master重启或者数据出现了变化,那么slave应该根据不同的run id区分,run id不同就做全量复制
+  * 如果需要不更改run id重启redis,可以使用redis-cli debug reload命令
+* psync
+  * 从节点使用psync从master进行复制,psync runid offset
+  * master会根据自身的情况返回响应信息,可能是FULLRESYNC runid offset触发全量复制,可能是CONTINUE触发增量复制
 
 
 
 ## 全量复制
 
-1. master执行bgsave,在本地生成一份rdb快照文件
-2. master node将rdb快照文件发送给salve node,如果rdb复制时间超过60秒(repl-timeout),那么slave就会认为复制失败,可以适当调节大这个参数
-3. 对于千兆网卡的机器,一般每秒传输100MB,6G文件,很可能超过60s
-4. master在生成rdb时,会将所有新的写命令缓存在内存中,在salve保存了rdb之后,再将新的写命令复制给salve node
-5. client-output-buffer-limit slave 256MB 64MB 60,如果在复制期间,内存缓冲区持续消耗超过64MB,或者一次性超过256MB,那么停止复制,复制失败
-6. slave接收到rdb之后,清空自己的旧数据,然后重新加载rdb到自己的内存中,同时基于旧的数据版本对外提供服务
-7. 如果slave开启了AOF,那么会立即执行BGREWRITEAOF,重写AOF
-8. rdb生成,rdb通过网络拷贝,slave旧数据的清理,slave aof rewrite,很耗费时间
-9. 如果复制的数据量在4G~6G之间,那么很可能全量复制时间消耗到1分半到2分钟
+* master执行bgsave,在本地生成一份rdb快照文件
+* master node将rdb快照文件发送给salve node,如果rdb复制时间超过60秒(repl-timeout),那么slave就会认为复制失败,可以适当调节大这个参数
+* 对于千兆网卡的机器,一般每秒传输100MB,6G文件,很可能超过60s
+* master在生成rdb时,会将所有新的写命令缓存在内存中,在salve保存了rdb之后,再将新的写命令复制给salve node
+* client-output-buffer-limit slave 256MB 64MB 60,如果在复制期间,内存缓冲区持续消耗超过64MB,或者一次性超过256MB,那么停止复制,复制失败
+* slave接收到rdb之后,清空自己的旧数据,然后重新加载rdb到自己的内存中,同时基于旧的数据版本对外提供服务
+* 如果slave开启了AOF,那么会立即执行BGREWRITEAOF,重写AOF
+* rdb生成,rdb通过网络拷贝,slave旧数据的清理,slave aof rewrite,很耗费时间
+* 如果复制的数据量在4G~6G之间,那么很可能全量复制时间消耗到1分半到2分钟
 
 
 
 ## 增量复制
 
-1. 如果全量复制过程中,master-slave网络连接断掉,那么salve重新连接master时,会触发增量复制
-2. master直接从自己的backlog中获取部分丢失的数据,发送给slave,默认backlog就是1MB
-3. msater就是根据slave发送的psync中的offset来从backlog中获取数据的
+* 如果全量复制过程中,master-slave网络连接断掉,那么salve重新连接master时,会触发增量复制
+* master直接从自己的backlog中获取部分丢失的数据,发送给slave,默认backlog就是1MB
+* msater就是根据slave发送的psync中的offset来从backlog中获取数据的
 
 
 
 ## heartbeat
 
-1. 主从节点互相都会发送heartbeat信息
-2. master默认每隔10秒发送一次heartbeat,salve每隔1秒发送一个heartbeat
+* 主从节点互相都会发送heartbeat信息
+* master默认每隔10秒发送一次heartbeat,salve每隔1秒发送一个heartbeat
 
 
 
 ## 异步复制
 
-> master每次接收到写命令之后,现在内部写入数据,然后异步发送给slave
+* master每次接收到写命令之后,现在内部写入数据,然后异步发送给slave
 
 
 
 # 集群(Cluster)
 
-> 多个master节点,每个master节点又带多个slave节点.master节点根据算法来分担所有的数据
->
-> 集群模式下不要做物理的读写分离
+* 多个master节点,每个master节点又带多个slave节点.master节点根据算法来分担所有的数据
+* 集群模式下不要做物理的读写分离
 
 
 
 ## 安装部署
 
-1. 安装ruby,wget https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz或者yum install -y ruby
-2. 安装rubygems,wget http://rubygems.org/downloads/redis-3.3.0.gem或yum install -y rubygems
-3. 安装其他依赖:yum install -y gcc-c++ redis-3.3.5.gem
-4. 下载安装到app/redis:wget http://download.redis.io/releases/redis-5.0.7.tar.gz
-5. 解压:tar xzf redis-5.0.7.tar.gz
-6. 进入redis-5.0.7目录编译:make distclean && make (make需要先安装gcc)
-7. 安装redis集群:gem install redis
-8. 启动redis:src/redis-server,该方法只能在当前启动,关闭控制台就消失
-9. 每个master节点应该部署至少2个slave节点,且2个slave节点不能部署在同一台机器上
-10. 启动集群:redis-trib.rb create --replicas 1 ip1:port1 ip2:port2.....
-       1. --replicas num:每个master有个num个slave
-11. 配置文件redis.conf,去掉密码
-   12. cluster-enabled:yes,开启集群模式,打开该配置的注释
-   13. cluster-config-file:设置当前redis集群的配置文件地址,默认是redis.conf同层的nodes-6379.conf,该文件由redis节点自动生成,非手动修改,只修改地址即可
-   14. cluster-node-timeout:集群通讯超时时间,默认是15000毫秒,单位是毫秒
-   15. daemonize:yes,守护进程运行
-   16. pidfile:pid文件地址,默认为/var/run/redis_6379.pid,该文件是redis集群节点的标志,不可手动添加
-   17. dir:数据目录,必须是一个目录,默认redis.conf同级目录
-   18. logfile:日志文件,非目录
-   19. bind:默认绑定127.0.0.1,根据需求可写多个访问地址,中间用空格隔开
-   20. appendonly:改为yes,开启AOF持久化功能
-21. 安装redis-trib.rb,该脚本为启动redis集群的脚本
-
-    1. redis-trib.rb add-node redisip1:port1  redisip2:port2:添加集群的master节点
-    2. redis-trib.rb check redisip1:port1:检查集群状态,可以查看master,slave等节点的id
-    3. redis-trib.rb reshard redisip1:port:将redis集群的slot部分迁移到redisip1上,redis总共有16384个slot,可以平均分布到每个master上
-    4. redis-trib.rb add-node --slave --master-id master的id  slaveip1:port1 slaveip2:port2:添加slave节点
-    5. 节点删除
-       1. redis-trib.rb reshard 需要删除的节点ip:port --> 其他master节点:清空节点上的slot
-       2. redis-trib.rb del-node 需要删除的节点ip:port 需要删除的节点id:删除节点
-       3. 当清空了某个master上的slot时,cluster会自动将该master的slave挂载到其他master上
-22. 集群启动之后在,若是在某个master上做写入操作时,根据CRC16算法,若是得到的slot值在当前master,就会直接写入,若是在其他master上,则会报错moved error,使用JAVA API操作不会有这个问题
-23. 在cluster上读取数据时,需要先readonly,否则报错,每读取一次都要readonly一次,最好是redis-cli -c启动
-24. cluster模式下,不要手动做读写分离,cluster默认的读写都是在master上
-25. cluster集群扩容:先用redis-trib.rb的add-node命令添加新的redis节点,之后用reshard命令将部分slot迁移到新的节点上,添加slave节点同样,但是不需要reshard slot
-26. 查看redis:./redis01/redis-cli -h 127.0.0.1 -p 6381 -c,c必须要加.若是在其中增加了key,会随机存到redis中,而不是一定会存到当前测试的redis中
-27. 关闭redis,./redis-cli shutdown
-28. 若是修改了配置文件中的端口,则需要先删除各个集群中的.rdb,nodes.conf,.aof文件,否则启动集群报错
+* 安装ruby,wget https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz或者yum install -y ruby
+* 安装rubygems,wget http://rubygems.org/downloads/redis-3.3.0.gem或yum install -y rubygems
+* 安装其他依赖:yum install -y gcc-c++ redis-3.3.5.gem
+* 下载解压到/app/redis:wget http://download.redis.io/releases/redis-5.0.7.tar.gz
+* 解压:tar xzf redis-5.0.7.tar.gz,进入接口后目录中进行编译:make distclean && make
+* 安装redis集群:gem install redis
+* 每个master节点应该部署至少2个slave节点,且2个slave节点不能部署在同一台机器上
+* 修改配置文件redis.conf
+  * 去掉密码
+  * cluster-enabled:yes,开启集群模式,打开该配置的注释
+  * cluster-config-file:设置当前redis集群的配置文件地址,默认是redis.conf同层的nodes-6379.conf,该文件由redis节点自动生成,非手动修改,只修改地址即可
+  * cluster-node-timeout:集群通讯超时时间,默认是15000毫秒,单位是毫秒
+  * daemonize:yes,守护进程运行
+  * pidfile:pid文件地址,默认为/var/run/redis_6379.pid,该文件是redis集群节点标志,自动生成
+  * dir:数据目录,必须是一个目录,默认redis.conf同级目录
+  * logfile:日志文件,非目录
+  * bind:默认绑定127.0.0.1,根据需求可写多个访问地址,中间用空格隔开
+  * appendonly:改为yes,开启AOF持久化功能
+* 安装redis-trib.rb,该脚本为启动redis集群的脚本
+  * redis-trib.rb add-node redisip1:port1  redisip2:port2:添加集群的master节点
+  * redis-trib.rb check redisip1:port1:检查集群状态,可以查看master,slave等节点的id
+  * redis-trib.rb reshard redisip1:port:将redis集群的slot部分迁移到redisip1上,redis总共有16384个slot,可以平均分布到每个master上
+  * redis-trib.rb add-node --slave --master-id master的id  slaveip1:port1 slaveip2:port2:添加slave节点
+  * 节点删除
+    * redis-trib.rb reshard 需要删除的节点ip:port --> 其他master节点:清空节点上的slot
+    * redis-trib.rb del-node 需要删除的节点ip:port 需要删除的节点id:删除节点
+    * 当清空了某个master上的slot时,cluster会自动将该master的slave挂载到其他master上
+* 启动集群:redis-trib.rb create --replicas 1 ip1:port1 ip2:port2.....
+  * --replicas num:每个master有个num个slave
+* 集群启动之后在,若是在某个master上做写入操作时,根据CRC16算法,若是得到的slot值在当前master,就会直接写入,若是在其他master上,则会报错moved error,使用JAVA API操作不会有这个问题
+* 在cluster上读取数据时,需要先readonly,否则报错,每读取一次都要readonly一次,最好是redis-cli -c启动
+* cluster模式下,不要手动做读写分离,cluster默认的读写都是在master上
+* cluster集群扩容:先用redis-trib.rb的add-node命令添加新的redis节点,之后用reshard命令将部分slot迁移到新的节点上,添加slave节点同样,但是不需要reshard slot
+* 查看redis:./redis01/redis-cli -h 127.0.0.1 -p 6381 -c,c必须要加.若是在其中增加了key,会随机存到redis中,而不是一定会存到当前测试的redis中
+* 关闭redis,./redis-cli shutdown
+* 若是修改了配置文件中的端口,则需要先删除各个集群中的.rdb,nodes.conf,.aof文件,否则启动集群报错
 
 
 

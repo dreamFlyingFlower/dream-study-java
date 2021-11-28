@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: paradise-study-java-service
+    name: dream-study-java-sharding
   profiles:
     active:
     - dev

@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 /**
  * 实现{@link SchedulingConfigurer}可以动态修改定时任务表达式,同样需要开启{@link EnableScheduling}
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-12-28 22:20:19
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Async
 @Component

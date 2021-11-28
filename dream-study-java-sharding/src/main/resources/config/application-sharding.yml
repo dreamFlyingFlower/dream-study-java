@@ -12,44 +12,78 @@ spring:
       ds1: 
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/sharding-jdbc-db?useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://localhost:3306/ts_user?useUnicode=true&useSSL=false&characterEncoding=UTF8&serverTimezone=Asia/Shanghai
         username: root
-        password: 123456
+        password: 52LDforever
         maxPoolSize: 100
         minPoolSize: 5
       ds2: 
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3307/sharding-jdbc-db?useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://localhost:3307/ts_user?useUnicode=true&useSSL=false&characterEncoding=UTF8&serverTimezone=Asia/Shanghai
         username: root
-        password: 123456
+        password: 52LDforever
         maxPoolSize: 100
         minPoolSize: 5
       ds3: 
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3307/sharding-jdbc-db?useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://localhost:3307/ts_user?useUnicode=true&useSSL=false&characterEncoding=UTF8&serverTimezone=Asia/Shanghai
         username: root
-        password: 123456
+        password: 52LDforever
         maxPoolSize: 100
         minPoolSize: 5
-    # 配置默认数据源ds1 默认数据源,主要用于写
+    # 配置默认数据源ds1,主要用于写
     sharding: 
       default-data-source-name: ds1
-      # 分库分表
+      # 默认分库分表策略,可不指定
+      default-database-strategy:
+        standard:
+          sharding-column: user_id
+          # 精准分库算法,需要自定义实现PreciseShardingAlgorithm
+          precise-algorithm-class-name: com.wy.sharding.PreciseDbShardingAlgorithm
+          # 范围分库算法,需要自定义实现RangeShardingAlgorithm
+          range-algorithm-class-name: com.wy.sharding.RangeDbShardingAlgorithm
+      default-table-strategy:
+        standard:
+          sharding-column: user_id
+          # 精准分表算法,需要自定义实现PreciseShardingAlgorithm
+          precise-algorithm-class-name: com.wy.sharding.PreciseDbShardingAlgorithm
+          # 范围分表算法,需要自定义实现RangeShardingAlgorithm
+          range-algorithm-class-name:  com.wy.sharding.RangeDbShardingAlgorithm
+      # 逻辑表分库分表
       tables:
-        # 分布式主键生成策略列名
-        t_order.key-generator.column: id
-        # 分布式主键生成策略
-        key-generator.type: SNOWFLAKE
-        # 多数据源$->{0..N}.逻辑表名$->{0..N} 相同表
-        t_order.actual-data-nodes: ds$->{0..1}.t_order$->{0..1}
-        # 多数据源$->{0..N}.逻辑表名$->{0..N} 不同表
-        # t_order.actual-data-nodes: ds0.t_order$->{0..1},ds1.t_order$->{2..4}
-        # 单数据源的配置方式,单库分表
-        # t_order.actual-data-nodes: ds0.t_order$->{0..4}
-        # 全部手动指定
-        # t_order.actual-data-nodes=ds0.t_order0,ds1.t_order0,ds0.t_order1,ds1.t_order1
+        # 需要分库分表的表名
+        ts_user: 
+          # 主键策略
+          key-generator: 
+            # 主键列名
+            column: user_id
+            # 主键生成策略,暂时只有UUID和SNOWFLAKE.自定义可实现ShardingKeyGenerator
+            type: SNOWFLAKE
+          # 真实节点相同表分库分表:多数据源$->{0..N}.逻辑表名$->{0..N}
+          actual-data-nodes: ds$->{0..1}.ts_user$->{0..1}
+          # 真实节点不同表分库分表:多数据源$->{0..N}.逻辑表名$->{0..N}
+          # actual-data-nodes: ds0.ts_user$->{0..1},ds1.ts_user$->{2..4}
+          # 真实节点单库分表,单数据源
+          # actual-data-nodes: ds0.ts_user$->{0..4}
+          # 真实节点全部手动指定
+          # actual-data-nodes=ds0.ts_user0,ds1.ts_user0,ds0.ts_user1,ds1.ts_user1
+          # 数据源分片策略
+          database-strategy:
+            # 行表达式
+            inline:
+              # 数据源分片字段
+              sharding-column: user_id
+              # 数据源分片算法
+              algorithm-expression: ds$->{user_id%2}
+          # 表分片策略
+          table-strategy: 
+            inline:
+              # 表分片字段
+              sharding-column: user_id
+              # 表分片算法
+              algorithm-expression: ts_user$->{user_id%2}
     masterslave: 
       # 配置主从名称
       name: ms
@@ -57,5 +91,5 @@ spring:
       master-data-source-name: ds1
       # 配置从库slave节点
       slave-data-source-names: ds2,ds3
-      # 配置slave节点的负载均衡均衡策略,采用轮询机制
-      load-balance-algorithm-type: round_robin
+      # 配置slave节点的负载均衡策略,有轮询和随机.自定义可实现MasterSlaveLoadBalanceAlgorithm接口
+      load-balance-algorithm-type: ROUND_ROBIN

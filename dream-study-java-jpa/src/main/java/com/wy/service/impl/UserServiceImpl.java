@@ -26,7 +26,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.wy.base.AbstractService;
 import com.wy.model.User;
@@ -46,12 +45,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@Autowired
 	private UserRepository userRepository;
 
-	/**
-	 * 在配置了rediscache之后,在方法上可以使用注解将返回值直接缓存到redis中,value的值就是key CacheEvict:清除缓存,特别是新增和更新的时候需要清除缓存
-	 */
-	@Autowired
-	private TransactionTemplate transactionTemplate;
-
 	@Autowired
 	private EntityManager entityManager;
 
@@ -63,21 +56,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		// 可以帮助接口生成实现类,而这个实现类是SimpleJpaRepository的动态代理,而该接口必须继承Repository
 		UserRepository userRepository2 = factory.getRepository(UserRepository.class);
 		System.out.println(userRepository2);
-	}
-
-	/**
-	 * 当需要进行事务的操作中有比较长时间的API调用时,开启事务将会一直占用数据库的连接数,
-	 * 在高并发时将会造成数据库宕机.此时可使用TransactionTemplate对部分需要进行数据库操作的代码块进行事务操作
-	 * 该方法可能会在其他含有事务操作的方法中调用,若外层方法中仍使用事务,则本方法仍有可能会使用事务<br>
-	 * 此处方法的Transactional注解应使用不可使用事务类型
-	 */
-	@Transactional(propagation = Propagation.NEVER)
-	public void handlerOverTime() {
-		// 假设此处的RPC调用可能需要20多秒完成,高并发可能会造成数据库宕机
-		transactionTemplate.execute((param) -> {
-			// 需要进行事务的操作
-			return null;
-		});
 	}
 
 	/**
