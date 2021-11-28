@@ -1920,6 +1920,13 @@ select sleep(12);
 * 读锁只能读加锁了的表,不能读未加锁的表.其他链接可以读所有的表
 * 加了读锁不可以对数据进行写操作,若需要写,则需要等解除锁之后才可以
 
+    ```mysql
+    # 查看slave装填,\G表示竖行显示,不要加分号,会报错
+    SHOW SLAVE STATUS\G
+    # 若输出的结果中不报错,且Slave_IO_Running和Slave_SLQ_Running都为yes时,表示主从正常
+    ```
+  
+
 
 
 ### 写锁
