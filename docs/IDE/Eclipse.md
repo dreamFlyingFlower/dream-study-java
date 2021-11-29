@@ -114,34 +114,34 @@ ${type_declaration}
 
 #### Templates
 
-* privateFinalString,Java,new a final String
+* priFinalString,Java,new a final String
 
 ```java
 private final static ${String} ${NAME} = ${null};${cursor}
 ```
 
-* privateFinalHashmap,Java,new a final HashMap
+* priFinalHashmap,Java,new a final HashMap
 
 ```java
 private final static Map<${String},${Object}> ${HASH_MAP} = new HashMap<>();${cursor}
 ${imp:import(java.util.HashMap,java.util.Map)}
 ```
 
-* privateFinalConmap,Java,new a final ConcurrentHashMap
+* priFinalConmap,Java,new a final ConcurrentHashMap
 
 ```java
 private final static Map<${String},${Object}> ${CONCURRENT_HASH_MAP} = new ConcurrentHashMap<>();${cursor}
 ${imp:import(java.util.concurrent.ConcurrentHashMap,java.util.Map)}
 ```
 
-* privateFinalList,Java,new a final ArrayList
+* priFinalList,Java,new a final ArrayList
 
 ```java
 private final static List<${String}> ${ARRAY_LIST} = new ArrayList<>();${cursor}
 ${imp:import(java.util.ArrayList,java.util.List)}
 ```
 
-* privateFinalListMap,Java,new a final List<Map<String,Object>>
+* priFinalListMap,Java,new a final List<Map<String,Object>>
 
 ```java
 private final static List<Map<${String},${Object}>> ${LIST_MAP} = new ArrayList<>();${cursor}
@@ -230,7 +230,7 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 @ApiModelProperty("${comment}")${cursor}${imp:import(io.swagger.annotations.ApiModelProperty)}
 ```
 
-* lombokAll,Java,add lombok all annotation
+* lomAll,Java,add lombok all annotation
 
 ```java
 @Getter
@@ -241,7 +241,7 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 @Builder${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString)}
 ```
 
-* lombokData,Java,import lombok data builder
+* lomData,Java,import lombok data builder
 
 ```java
 @Data
@@ -250,14 +250,14 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 @Builder${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.NoArgsConstructor)}
 ```
 
-* lombokGetSet,Java,import lombok getter and setter
+* lomGetSet,Java,import lombok getter and setter
 
 ```java
 @Getter
 @Setter${imp:import(lombok.Getter,lombok.Setter)}
 ```
 
-* lombokSuperAll,Java,add lombok all annotation with superbuilder
+* lomSuperAll,Java,add lombok all annotation with superbuilder
 
 ```java
 @Getter
@@ -292,6 +292,25 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 ## SpringTool4
 
 * 生成SpringBoot和SpringCloud项目
+
+
+
+## Lombok
+
+* `java -jar lombok.jar`:找到Eclipse安装地址,安装即可
+
+* 若出现错处,可在eclipse.ini中添加如下代码
+
+  ```
+  --illegal-access=warn
+  --add-opens java.base/java.lang=ALL-UNNAMED
+  --add-exports=java.base/sun.nio.ch=ALL-UNNAMED 
+  --add-opens=java.base/java.lang.reflect=ALL-UNNAMED 
+  --add-opens=java.base/java.io=ALL-UNNAMED 
+  --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
+  ```
+
+  
 
 
 
