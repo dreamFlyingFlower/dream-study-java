@@ -118,6 +118,7 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
 * `git branch -d aa`:删除分支aa,不能该分支没有被完全的merge,不能删除
 * `git branch -D aa`:强制删除分支,即便该分支没有被完全的merge
 * `git checkout -b aa`:根据当前分支创建一个新的分支aa,并切换到aa分支上
+* `git checkout -b 本地分支名 origin/远程分支名`:将远程分支拉取到本地,本地分支不存在
 * `git checkout aa`:切换到aa分支上
 * `git pull origin aa`:从aa分支上拉取最新代码,需要显示的指定用户名和分支名
 * `git push origin aa[:master]`:将新建的本地分支提交到远程仓库.若远程仓库不存在aa分支,则会自动创建,也可以提交到指定的分支上.需要显示的指定用户名和分支名
