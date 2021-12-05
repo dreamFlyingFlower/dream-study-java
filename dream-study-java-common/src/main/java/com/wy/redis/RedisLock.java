@@ -84,6 +84,13 @@ public class RedisLock {
 	/**
 	 * 直接使用redis做分布式锁
 	 * 
+	 * 该方式的2个问题
+	 * 
+	 * <pre>
+	 * 1.当线程A拿到锁,但是执行超时时,B也可以拿到锁,此时还需要考虑锁续期问题.此方法未解决
+	 * 2.在集群模式下,若线程A从Master中拿到锁,但是还未同步到slave或sentinel,若Master挂了,线程B也能拿到锁.此方法未解决
+	 * </pre>
+	 * 
 	 * @throws InterruptedException
 	 */
 	public void redisLock() throws InterruptedException {
