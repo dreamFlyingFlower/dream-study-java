@@ -113,4 +113,5 @@ zip压缩包中是sigar编写的操作系统文件,如:windows 中的动态链�
 * 使用定长数据处理,如:每个完整请求数据长度为 8 字节等.(FixedLengthFrameDecoder)
 * 使用特殊分隔符的方式处理,如:每个完整请求数据末尾使用\0作为数据结束标记.(DelimiterBasedFrameDecoder)
 * 使用自定义协议方式处理,如:http 协议格式等.
-* 使用 POJO 来替代传递的流数据,如:每个完整的请求数据都是一个 RequestMessage对象,在 Java 语言中,使用 POJO 更符合语种特性,推荐使用.
+* 使用 POJO 来替代传递的流数据,如:每个完整的请求数据都是一个 RequestMessage对象,在 Java 语言中,使用 POJO 更符合语种特性,推荐使用
+

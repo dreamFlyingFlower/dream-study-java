@@ -285,6 +285,25 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 
 
 
+# 快捷键
+
+* ctrl+shift+r:打开资源,只能打开自己写的文件,不能打开JAR包内的文件
+* ctrl+shift+t:打开任何文件,包括资源文件,但不包括class
+* ctrl+o:快速outline,查看当前文件的方法以及变量等
+* ctrl+2,L:为变量赋值.先按ctrl+2,右下角会出现选项,选择L给变量赋值
+* alt+shift+r:重命名文件或方法,需要先选中,会自动修改使用该文件的其他文件,连续按2次会弹出对话框
+* alt+shift+m:方法重构
+* shift+enter/ctrl+shift+enter:在当前行下/上新增一行空白行
+* ctrl+.:将光标移动至当前文件中的下一个报错处或警告处
+* ctrl+1:修改建议的快捷键
+* ctrl+t:列出接口的实现类列表,再按一次则显示自底层向上的结构
+* alt+left:在导航历史记录中后退
+* alt+right:在导航历史记录中前进
+* ctrl+q:回到最后一次编辑的地方
+* ctrl+shift+0:自动导包
+
+
+
 # 插件
 
 

@@ -8,4 +8,15 @@ spring:
   mvc:
     servlet:
       # 指定API后缀,加上后访问api为ip:port/study/api.html,这个是利于搜索的
-      path: "*.html" 
+      path: "*.html"
+      
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - "*"
+        - "shutdown"
+  endpoint:
+    shutdown:
+      enabled: true

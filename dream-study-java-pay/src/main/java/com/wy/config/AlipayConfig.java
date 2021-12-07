@@ -3,15 +3,16 @@ package com.wy.config;
 import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.util.FileCopyUtils;
 
 import com.alipay.api.AlipayClient;
 import com.alipay.api.CertAlipayRequest;
 import com.alipay.api.DefaultAlipayClient;
 import com.wy.properties.ConfigPropertes;
+import com.wy.util.ArrayTool;
 
 /**
  * 支付宝配置
@@ -23,14 +24,8 @@ import com.wy.properties.ConfigPropertes;
 @Configuration
 public class AlipayConfig {
 
-	@Value("${custom.http.proxyHost}")
-	private String proxyHost;
-
-	@Value("${custom.http.proxyPort}")
-	private int proxyPort;
-
-	@Value("${spring.profiles.active}")
-	private String activeEnv;
+	@Autowired
+	private Environment environment;
 
 	@Autowired
 	private ConfigPropertes config;
@@ -50,17 +45,17 @@ public class AlipayConfig {
 		certAlipayRequest.setCharset(config.getAlipay().getCharset());
 		// 设置签名类型
 		certAlipayRequest.setSignType(config.getAlipay().getSignType());
-		// 如果是生产环境或者预演环境，则使用代理模式
-		if ("prod".equals(activeEnv) || "stage".equals(activeEnv) || "test".equals(activeEnv)) {
+		// 如果是生产环境或者预演环境,则使用代理模式
+		String[] profiles = environment.getActiveProfiles();
+		if (ArrayTool.contains(profiles, "prod") || ArrayTool.contains(profiles, "test")) {
 			// 设置应用公钥证书路径
 			certAlipayRequest.setCertContent(getCertContentByPath(config.getAlipay().getAppCertPath()));
 			// 设置支付宝公钥证书路径
 			certAlipayRequest.setAlipayPublicCertContent(getCertContentByPath(config.getAlipay().getAlipayCertPath()));
 			// 设置支付宝根证书路径
 			certAlipayRequest.setRootCertContent(getCertContentByPath(config.getAlipay().getAlipayRootCertPath()));
-			certAlipayRequest.setProxyHost(proxyHost);
-			certAlipayRequest.setProxyPort(proxyPort);
-
+			certAlipayRequest.setProxyHost(config.getHttp().getProxyHost());
+			certAlipayRequest.setProxyPort(config.getHttp().getProxyPort());
 		} else {
 			// local
 			String serverPath = this.getClass().getResource("/").getPath();

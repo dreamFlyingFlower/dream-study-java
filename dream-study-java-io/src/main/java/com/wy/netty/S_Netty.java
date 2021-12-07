@@ -88,10 +88,11 @@ import io.netty.util.concurrent.FastThreadLocal;
  * {@link MessageToByteEncoder}:编码器,核心方法encode,匹配对象->分配内存->编码实现->释放对象->数据传播->释放内存
  * 
  * Netty两大性能优化工具类:<br>
- * {@link FastThreadLocal}:作用和ThreadLocal相当,但是更快
- * {@link Recycler}:实现了一个轻量级的对象池机制,即已经用过的对象将放入池子中,再用的时候直接从池子中取,适用单例
+ * {@link FastThreadLocal}:作用和 ThreadLocal 相当,但是更快.主要区别是用来存放数据的方式不一样:
+ * ThreadLocal用 ThreadLocalMap 存数据,FastThreadLocal使用数组存数据
+ * {@link Recycler}:实现了一个轻量级的对象池机制,即已经用过的对象将放入池子中,再用的时候直接从池子中取,使用单例
  * 
- * {@link ChannelPipeline}:向其中添加多个ChannelHandler时,前面的ChannelHandler处理完成之后,将结果传给下一个ChannelHandler
+ * {@link ChannelPipeline}:向其中添加多个ChannelHandler时,前面的ChannelHandler处理完之后,将结果传给下一个ChannelHandler
  * 
  * Netty3->Netty4的变化:
  * 

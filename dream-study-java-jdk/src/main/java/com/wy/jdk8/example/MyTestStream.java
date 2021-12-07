@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -119,5 +120,13 @@ public class MyTestStream {
 		// 生成无限流,不同于迭代的是没有初始参数
 		Stream<Double> generate = Stream.generate(() -> Math.random());
 		generate.limit(5).forEach(System.out::println);
+		// 获得数据分析,只能对数字类型有效
+		IntSummaryStatistics summaryStatistics = test.stream().mapToInt(t -> t.intValue()).summaryStatistics();
+		System.out.println(summaryStatistics.getMax());
+		System.out.println(summaryStatistics.getMin());
+		// flatmap:将流中的元素先单个分割转换为流之后,将所有的流合成为一个流
+		Stream<List<Integer>> inputStream = Stream.of(Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4, 5, 6));
+		List<Integer> collect = inputStream.flatMap((childList) -> childList.stream()).collect(Collectors.toList());
+		System.out.println(collect);
 	}
 }

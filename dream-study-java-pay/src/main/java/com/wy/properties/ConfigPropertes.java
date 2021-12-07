@@ -20,4 +20,6 @@ import lombok.Setter;
 public class ConfigPropertes {
 
 	private AlipayProperties alipay = new AlipayProperties();
+
+	private HttpProperties http = new HttpProperties();
 }

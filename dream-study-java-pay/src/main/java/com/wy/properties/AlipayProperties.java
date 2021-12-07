@@ -1,5 +1,7 @@
 package com.wy.properties;
 
+import java.nio.charset.StandardCharsets;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +24,7 @@ public class AlipayProperties {
 
 	private String format = "json";
 
-	private String charset = "UTF-8";
+	private String charset = StandardCharsets.UTF_8.name();
 
 	private String signType = "RSA2";
 
@@ -31,4 +33,6 @@ public class AlipayProperties {
 	private String alipayCertPath = "/cert/alipayCertPublicKey_RSA2.crt";
 
 	private String alipayRootCertPath = "/cert/alipayRootCert.crt";
+
+	private String notifyUrl = "";
 }
