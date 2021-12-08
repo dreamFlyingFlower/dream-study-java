@@ -409,6 +409,48 @@ git push --force
 
 
 
+# 多GIT仓库
+
+* 若有多个远程仓库需要提交,可以使用git remote命令添加多个地址
+
+  ```shell
+  # other_origin是另外一个远程仓库的名称,可自定义,默认是origin,已经被默认的仓库地址占据
+  # 拉下来默认是master分支,也可以指定分支,使用-b参数,后面的地址是另外一个仓库的地址
+  git remote add other_origin https://gitreposiory/gitname/repositoryname.git
+  # 从默认远程仓库拉代码
+  git fetch origin master
+  # 从另外一个仓库拉代码
+  git fetch other_origin master
+  # 默认仓库提交代码
+  git push origin master
+  # 另外一个仓库提交代码
+  git push other_origin master
+  ```
+
+
+
+# Fork
+
+* 从其他仓库fork的代码,原仓库更新后如何和本地仓库保持同步
+
+  ```shell
+  # 检出自己在github上fork别人的分支到目录下
+  git clone https://github.com/_your/_project.git
+  # 进到_project目录下,然后增加原远程分支(fork的分支),名为fork_origin(名字任意)到本地
+  git remote add fork_origin https://github.com/_original/_project.git
+  # 运行命令:`git remote -v`,会发现多出来了一个fork_origin的远程分支
+  git remote -v
+  # 然后把远程原始分支fork_origin的代码拉到本地
+  git fetch fork_origin
+  # 合并对方远程原始分支fork_origin的代码
+  git merge fork_origin/master
+  # 最后把最新的代码推送到自己的github上
+  git push origin master
+  # 如果需要给update_stream发送Pull Request,打开https://github.com/_your/_project.git,点击Pull Request->点击New Pull Request->输入Title和功能说明->点击Send pull request
+  ```
+
+
+
 # 本地备份
 
 * git clone --bare src/.git dest:在dest目录中执行,将src项目备份到当前目录中

@@ -1,0 +1,23 @@
+# 日志配置
+logging:
+  # 指定日志地址,默认是加载classpath下的spring-logback.xml,logback.xml,logback-test.xml
+  config: classpath:spring-logback.xml
+  # 日志输出格式
+  pattern: 
+    console: "%(%d{yyyy-MM-dd HH:mm:ss})  [%p]  %(%C:%L)  : %m %n"
+    file: "%(%d{yyyy-MM-dd HH:mm:ss})  [%p]  %(%C:%L)  : %m %n"
+  level:
+    # 全局日志输出级别
+    root: INFO
+    # 配置包的日志输出级别
+    org.springframework.web.servlet: WARN
+    # 打印mybatis的sql日志,前面为mapper接口所在的包
+    com.wy.mapper: debug
+  # 日志文件输出路径
+  file: 
+    name: logger.log
+    path: D:\\Java
+    # 单个日志文件最大大小
+    max-size: 15MB
+    # 日志保存最大天数
+    max-history: 30

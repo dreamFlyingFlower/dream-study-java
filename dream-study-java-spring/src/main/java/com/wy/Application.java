@@ -52,6 +52,8 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 /**
  * SpringBoot学习:初始化initialize,listener,自动配置,配置文件.
  * 
+ * SPEL语法:{@link https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#expressions}
+ * 
  * 若要创建一个starter,通常情况下应该是2个项目:一个只有spring.factories,引入真正的项目;另一个是真正的项目
  * 
  * Spring读取配置文件的顺序,先从外部读取,再读取内部,高优先级会覆盖低优先级属性,详见官方文档:<br>
