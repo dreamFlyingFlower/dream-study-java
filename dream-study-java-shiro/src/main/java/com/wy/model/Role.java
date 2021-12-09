@@ -1,24 +1,21 @@
 package com.wy.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.util.Set;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
- * 角色测试表,mybatis
+ * 角色表
  * 
- * @author ParadiseWY
- * @date 2019年8月26日
+ * @author 飞花梦影
+ * @date 2019-08-26 09:33:41
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-@Getter
-@Setter
+@Data
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {

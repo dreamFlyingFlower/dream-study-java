@@ -12,8 +12,7 @@ spring:
       time: HH:mm:ss
       date-time: yyyy-MM-dd HH:mm:ss
     async:
-      request-timeout:
-        seconds: 180
+      request-timeout: PT180S
     throw-exception-if-no-handler-found: true
     servlet:
       load-on-startup: 1

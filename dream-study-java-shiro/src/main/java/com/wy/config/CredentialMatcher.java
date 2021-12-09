@@ -14,19 +14,20 @@ import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
  */
 public class CredentialMatcher extends SimpleCredentialsMatcher {
 
-    /**
-     * 检查用户授权信息中的密码和认证信息中的密码是否相同
-     * @param token 用户
-     * @param info 授权信息
-     * @return true->匹配,false->不匹配
-     */
-    @Override
-    public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        if (token instanceof UsernamePasswordToken) {
-            char[] password = ((UsernamePasswordToken) token).getPassword();
-            String dbPwd = String.valueOf(info.getCredentials());
-            return this.equals(new String(password), dbPwd);
-        }
-        return false;
-    }
+	/**
+	 * 检查用户授权信息中的密码和认证信息中的密码是否相同
+	 * 
+	 * @param token 用户
+	 * @param info 授权信息
+	 * @return true->匹配,false->不匹配
+	 */
+	@Override
+	public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
+		if (token instanceof UsernamePasswordToken) {
+			char[] password = ((UsernamePasswordToken) token).getPassword();
+			String dbPwd = String.valueOf(info.getCredentials());
+			return this.equals(new String(password), dbPwd);
+		}
+		return false;
+	}
 }

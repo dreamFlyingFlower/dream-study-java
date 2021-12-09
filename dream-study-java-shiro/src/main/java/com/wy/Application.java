@@ -13,8 +13,11 @@ import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.servlet.ProxiedFilterChain;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
+
 /**
  * Shiro权限拦截
+ * 
+ * <pre>
  * {@link AbstractFilter}:拦截接口抽象类,所有Shiro拦截都继承该类
  * ->{@link NameableFilter}:对Shiro所有的拦截接口进行管理
  * -->{@link OncePerRequestFilter}:确保每个filter只调用一次
@@ -33,6 +36,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
  * {@link ProxiedFilterChain}:对Shiro的代理,先于容器执行拦截
  * {@link AuthenticationInfo}:主要存储用户的登录验证信息
  * {@link AuthorizationInfo}:主要存储用户的角色,权限等相关信息
+ * </pre>
  *
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40
@@ -41,8 +45,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) {
-
-        SpringApplication.run(Application.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
 }
