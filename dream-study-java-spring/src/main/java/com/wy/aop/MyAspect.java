@@ -1,5 +1,6 @@
 package com.wy.aop;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -64,6 +65,8 @@ public class MyAspect {
 	 * 最后的括号里表示的是参数个数,..表示参数可有可无,可以有多个
 	 * 
 	 * 若需要排除某给方法,不进行拦截,可以使用&&和!
+	 * 
+	 * 拦截注解:@Pointcut("@annotation(com.wy.annotation.Logger)")
 	 * </pre>
 	 */
 	@Pointcut("execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..))")
@@ -94,9 +97,9 @@ public class MyAspect {
 	}
 
 	/**
-	 * {@link AfterReturning}:定义一个后置通知.returning:接收返回结果的参数,即afterAspect的形参,类型可自定义
-	 * 
-	 * 当方法执行抛出异常时,后置通知将不会被执行
+	 * {@link AfterReturning}:定义一个后置通知,即方法正常执行完之后调用.当方法抛出异常时,后置通知将不会被执行
+	 * 在这里不能使用ProceedingJoinPoint,只能使用JoinPoint,否则报异常
+	 * returning:接收返回结果的参数,即afterAspect的形参,类型可自定义
 	 */
 	@AfterReturning(pointcut = "aspect()", returning = "result")
 	public void afterAspect(Object result) {
@@ -115,9 +118,11 @@ public class MyAspect {
 
 	/**
 	 * {@link AfterThrowing}:定义一个异常通知.throwable表示接收异常的参数名,即exception的形参
+	 * 
+	 * 在这里不能使用ProceedingJoinPoint,只能使用JoinPoint,否则报异常
 	 */
 	@AfterThrowing(pointcut = "aspect()", throwing = "throwable")
-	public void exception(Throwable throwable) {
+	public void exception(JoinPoint joinPoint, Throwable throwable) {
 
 	}
 }

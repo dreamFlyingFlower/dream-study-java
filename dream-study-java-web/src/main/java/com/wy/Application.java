@@ -29,6 +29,7 @@ import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConve
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
 import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -36,11 +37,16 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandlerCom
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
 import org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
+import org.springframework.web.servlet.view.BeanNameViewResolver;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 
 /**
  * 自动加载视图解析{@link WebMvcAutoConfiguration},{@link DispatcherServletAutoConfiguration}
@@ -112,6 +118,17 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHan
  * 
  * <pre>
  * {@link DispatcherServlet#initStrategies}:在刷新Spring上下文时初始化一系列解析器,包括URL接口,ViewResolver等等
+ * {@link DispatcherServlet#initMultipartResolver}:初始化多媒体文件视图解析器
+ * {@link DispatcherServlet#initLocaleResolver}:初始化本地自定义视图解析器
+ * {@link DispatcherServlet#initThemeResolver}:初始化主题视图解析器
+ * {@link DispatcherServlet#initHandlerMappings}:初始化请求URL Map,从上下文获得所有{@link HandlerMapping}子类并排序.
+ * ->{@link BeanNameUrlHandlerMapping}:通过定义的 beanName 进行查找要请求的Controller
+ * ->{@link RequestMappingHandlerMapping}:通过注解{@link RequestMapping}来查找对应的Controller
+ * {@link DispatcherServlet#initHandlerAdapters}:初始化适配器
+ * {@link DispatcherServlet#initHandlerExceptionResolvers}:初始化异常视图
+ * {@link DispatcherServlet#initRequestToViewNameTranslator}:
+ * {@link DispatcherServlet#initViewResolvers}:初始化视图解析器,如{@link BeanNameViewResolver},{@link FreeMarkerViewResolver}
+ * {@link DispatcherServlet#initFlashMapManager}:
  * {@link DispatcherServlet#doDispatch}:处理从前端传过来的URL请求,判断是否为媒体文件请求,前置方法,后置方法等
  * {@link AbstractHandlerMethodAdapter#handle}:真正处理请求的方法
  * ->{@link RequestMappingHandlerAdapter#handleInternal}:处理请求
