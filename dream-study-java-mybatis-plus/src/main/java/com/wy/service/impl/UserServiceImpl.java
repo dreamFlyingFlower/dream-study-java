@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -80,6 +81,7 @@ public class UserServiceImpl extends AbstractService<UserMapper, User, Long> imp
 		User detail = baseMapper.selectById(user.getUserId());
 		System.out.println(user.getPassword());
 		System.out.println(detail.getPassword());
+		userMapper.selectList(new LambdaQueryWrapper<User>().eq(User::getAddress, "哪里是哪里"));
 		return null;
 	}
 }

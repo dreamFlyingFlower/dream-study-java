@@ -1,4 +1,4 @@
-﻿﻿# IDEA
+﻿﻿﻿# IDEA
 
 
 
@@ -27,6 +27,8 @@
 
 * Refactor->Rename:添加快捷键F2
 * Code->Code Completion:移除Ctrl+空格,添加ALT+/
+* File->New:添加快捷键为CTRL+N
+* Navigate->Implementation(s):修改为CTRL+鼠标左键
 
 
 
@@ -443,6 +445,17 @@
 
 
 
+## Spring项目自动编译
+
+* 需要先启用devtools依赖
+* 运行一次项目后,修改configerations,勾选spring boot->running application update policies
+  * on update action:选择update classes and resources
+  * on frame deactivetion:选择update classes and resources
+* File->Settings->Build...->Compiler:勾选Build project automatically
+* 双击SHITF,搜索Registry,选择Registry...,勾选:compiler.automake.allow.when.app.running
+
+
+
 # Plugins
 
 
@@ -453,6 +466,8 @@
 * 打开File->Settings->Other Settings->Eclipse Code Formatter
 * Use the Eclipse Code Formatter:勾选
 * Eclipse Java Formatter config file:选择从Eclipse导出来的格式化文件,OK
+* Import order的From File也为Eclipse用的code-style.xml文件
+* 格式化时,若是出错会输出提示到Event Log里,若是看到`xxx formatted sucessfully by Eclipse code formatter`则表示格式化成功
 
 
 
