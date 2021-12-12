@@ -350,11 +350,15 @@
 
 ## Mixed
 
+
+
 * aof-use-rdb-preamble:AOF前部分用RDB,后面保存缓存时的命令还是用AOF,能够在Redis重启时能更快的恢复之前的数据.yes开启,必须先开启AOF
 
 
 
 ## List
+
+
 
 * list-max-ziplist-size:负值表示节点大小
 
@@ -373,11 +377,15 @@
 
 ## Set
 
+
+
 * set-max-intset-entries:当set 的元素数量小于这个值且元素可以用int64范围的整型表示时,使用inset,节约内存大于或者元素无法用int64范围的整型表示时用set表示
 
 
 
 ## ZSet
+
+
 
 * zset-max-ziplist-entries:当sorted set 的元素数量小于这个值时,使用ziplist,节约内存,大于这个值zset表示
 * zset-max-ziplist-value:当sorted set 的元素大小小于这个值时,使用ziplist,节约内存,大于这个值zser表示
@@ -385,6 +393,8 @@
 
 
 ## MasterSlave
+
+
 
 * replicaof(slaveof) ip port:主从复制时的主机ip和端口
 * repl-ping-replica(slave)-period:从发给主的心跳周期,如果小于0则启动失败,默认10秒
@@ -409,6 +419,8 @@
 
 
 ## Cluster
+
+
 
 * cluster-enabled:开启集群模式
 * cluster-config-file:集群配置文件名
@@ -456,19 +468,30 @@
 
 
 
-# LRU
+# 缓存过期
 
-## 算法概述
 
-1. LRU：Least Recently Used,最近最少使用算法,将最近一段时间内,最少使用的一些数据,给干掉
-2. 默认情况下,当内存中数据太大时,redis就会使用LRU算法清理掉部分数据,然后让新的数据写入缓存
+
+## 过期策略
+
+* 默认情况下,Redis每100ms随机选取10个key,检查这些key是否过期,如果过期则删除.如果在1S内有25个以上的key过期,立刻再额外随机100个key
+* 当Client主动访问key时,会先对key进行超时判断,过期的key会被删除
+* 当Redis内存最大值时,会执行相应算法,对内存中的key进行不同的过期操作
+* 每次set的时候都会清除key的过期时间
+
+
+
+## LRU
+
+* LRU:Least Recently Used,最近最少使用算法,将最近一段时间内,最少使用的一些数据给干掉
+* 默认情况下,当内存中数据太大时,redis就会使用LRU算法清理掉部分数据,然后让新的数据写入缓存
 
 
 
 ## 缓存清理设置
 
 * maxmemory:设置redis用来存放数据的最大的内存大小,一旦超出该值,就会立即使用LRU算法.若maxmemory设置为0,那么就默认不限制内存的使用,直到耗尽机器中所有的内存为止
-* maxmemory-policy:可以设置内存达到最大闲置后,采取什么策略来处理
+* maxmemory-policy:可以设置内存达到最大值后,采取什么策略来处理
   * noeviction:如果内存使用达到了maxmemory,client还要继续写入,直接报错给客户端
   * allkeys-lru:就是我们常说的LRU算法,移除掉最近最少使用的那些keys对应的数据,默认策略
   * allkeys-random:随机选择一些key来删除掉
@@ -631,7 +654,7 @@ save  60  1000
 
 
 
-# 主从复制
+# 主从
 
 > redis replication -> 主从架构 -> 读写分离 -> 水平扩容支撑读高并发
 
@@ -741,6 +764,14 @@ save  60  1000
 
 
 
+## 相关命令
+
+* info replication:查看复制节点的相关信息
+* slaveof ip:port:将当前从Redis的主Redis地址切换成另外一个Redis地址,重新同步数据
+* slaveof on one:使当前Redis停止和其他Redis的同步,同时将当前Redis转为主Redis
+
+
+
 # 集群(Cluster)
 
 * 多个master节点,每个master节点又带多个slave节点.master节点根据算法来分担所有的数据
@@ -750,11 +781,11 @@ save  60  1000
 
 ## 安装部署
 
-* 安装ruby,wget https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz或者yum install -y ruby
-* 安装rubygems,wget http://rubygems.org/downloads/redis-3.3.0.gem或yum install -y rubygems
-* 安装其他依赖:yum install -y gcc-c++ redis-3.3.5.gem
-* 下载解压到/app/redis:wget http://download.redis.io/releases/redis-5.0.7.tar.gz
-* 解压:tar xzf redis-5.0.7.tar.gz,进入接口后目录中进行编译:make distclean && make
+
+
+* 安装依赖:`yum install -y gcc-c++ redis-3.3.5.gem ruby  rubygems`
+* 下载解压Redis到/app/redis
+* 进入Redis目录中进行编译:`make distclean && make`
 * 安装redis集群:gem install redis
 * 每个master节点应该部署至少2个slave节点,且2个slave节点不能部署在同一台机器上
 * 修改配置文件redis.conf
@@ -780,7 +811,7 @@ save  60  1000
 * 启动集群:redis-trib.rb create --replicas 1 ip1:port1 ip2:port2.....
   * --replicas num:每个master有个num个slave
 * 集群启动之后在,若是在某个master上做写入操作时,根据CRC16算法,若是得到的slot值在当前master,就会直接写入,若是在其他master上,则会报错moved error,使用JAVA API操作不会有这个问题
-* 在cluster上读取数据时,需要先readonly,否则报错,每读取一次都要readonly一次,最好是redis-cli -c启动
+* 在cluster上读取数据时,需要先readonly,否则报错,每次读取都要readonly,最好是redis-cli -c启动
 * cluster模式下,不要手动做读写分离,cluster默认的读写都是在master上
 * cluster集群扩容:先用redis-trib.rb的add-node命令添加新的redis节点,之后用reshard命令将部分slot迁移到新的节点上,添加slave节点同样,但是不需要reshard slot
 * 查看redis:./redis01/redis-cli -h 127.0.0.1 -p 6381 -c,c必须要加.若是在其中增加了key,会随机存到redis中,而不是一定会存到当前测试的redis中
@@ -795,20 +826,19 @@ save  60  1000
 * cluster slots:查看集群信息
 * cluster nodes:获取集群当前已知的所有节点,以及这些节点的相关信息
 * cluster meet ip port:将ip和port所指定的节点添加到集群中
-* cluster forget node_id:将指定node_id的节点从集群中移除
-* cluster replicate node_id:将当前节点设置为node_id节点的从节点
+* cluster forget <node_id>:将指定node_id的节点从集群中移除
+* cluster replicate <node_id>:将当前节点设置为node_id节点的从节点
 * cluster saveconfig:将节点的配置文件保存到硬盘中
-* cluster addslots slot1...:将一个或多个槽分配给当前节点
-* cluster delslots slot1...:从当前节点移除一个或多个槽
+* cluster addslots <slot>...:将一个或多个槽分配给当前节点
+* cluster delslots <slot>...:从当前节点移除一个或多个槽
 * cluster flushslots:移除分配给当前节点的所有槽
-* cluster setslot slot node node_id:将slot槽分配给node_id指定的节点,如果槽已经分配给另外一个节点,那么先让另外一个节点删除该槽,然后再进行安装
-* cluster setslot slot migrating node_id:将本节点的槽迁移到指定节点中
-* cluster setslot slot importing node_id:从指定节点导入槽到本节点
-* cluster setslot slot stable:取消对槽的导入或迁移
+* cluster setslot <slot> node <node_id>:将slot槽分配给node_id指定的节点,如果槽已经分配给另外一个节点,那么先让另外一个节点删除该槽,然后再进行安装
+* cluster setslot <slot> migrating <node_id>:将本节点的槽迁移到指定节点中
+* cluster setslot <slot> importing <node_id>:从指定节点导入槽到本节点
+* cluster setslot <slot> stable:取消对槽的导入或迁移
 * cluster keyslot key:计算键key应该被放置在那个槽
-* cluster countkeysinslot slot:返回槽目前包含的键值对数量
-* cluster getkeysinslot slot count:返回count个槽中的键
-* migrate 目标节点ip 目标节点port key 数据库号码 超时时间 copy replace:迁移某个键值对到集群的指定节点的指定数据库中
+* cluster countkeysinslot <slot>:返回槽目前包含的键值对数量
+* cluster getkeysinslot <slot> count:返回count个槽中的键
 
 
 
@@ -846,11 +876,33 @@ save  60  1000
 
 ## hash slot
 
-1. cluster有固定的16384个hash slot,对每个key计算CRC16值,然后对16384取模,可以获取key对应的hash slot
-2. cluster中每个master都会持有部分slot,比如有3个master,那么可能每个master持有5000多个slot
-3. slot让node的增加和移除很简单,增加一个master,就将其他master的slot移动部分过去,减少一个master,就将它的slot移动到其他master上去
-4. 移动slot的成本是非常低的
-5. 客户端的api,可以对指定的数据,让他们走同一个slot,通过hash tag来实现
+* cluster有固定的16384个hash slot,对每个key计算CRC16值,然后对16384取模,可以获取key对应的hash slot
+* cluster中每个master都会持有部分slot,比如有3个master,那么可能每个master持有5000多个slot
+* slot让node的增加和移除很简单,增加一个master,就将其他master的slot移动部分过去,减少一个master,就将它的slot移动到其他master上去
+* 移动slot的成本是非常低的
+* 客户端的api,可以对指定的数据,让他们走同一个slot,通过hash tag来实现
+* 如果键名中包含{},则用来进行分片计算的有效值是{}中的值.若果没有,则取整个键名
+
+
+
+## 移动已分配的Slot
+
+* 假设要迁移123号Slot,从A到B
+* 在B上执行`cluster setslot 123 importing A`
+* 在A上执行`cluster setslot 123 migrating B`
+* 在A上执行`cluster getkeysinslog 123`,获得要返回的数量
+* 对上一步获取的每个键执行migrate命令,将其从A迁移到B
+* 在集群中每个服务器上执行`cluster setslot 123 node B`
+
+
+
+## 集群缺点
+
+* 不支持批量操作的命令,如mget等.因为数据可能在不同的分片节点上,批量操作只能对单个分片有效
+* 分片的粒度是键,所以键对应的值不要太大
+* 数据备份比较麻烦,节点越大越麻烦.同时恢复起来也很麻烦
+* 扩容的处理比较麻烦
+* 数据不保证强一致性
 
 
 
