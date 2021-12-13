@@ -1073,16 +1073,30 @@ select distinct(t1.c) c,sum(t1.c) num from t1 inner join t2 on t1.a=t2.a where t
 
 ## 索引结构
 
-* hash:key-value,检索效率远高于B+tree,可以一次定位.因为是散列结构,不能排序
-* fulltext:目前仅char,varchar,text3种类型可以
-* B+tree:二叉树的变种,每一个结点有多个数据,可以进行指定.子节点可以是多个,当该节点存放的数据个数超过指定的数据个数,就分裂出另外的同层子节点.当子节点超过一定数量时,向下分裂子节点
-* B-Tree
+
+
+### B+Tree
+
+* 二叉树的变种,每一个结点有多个数据,可以进行指定.子节点可以是多个,当该节点存放的数据个数超过指定的数据个数,就分裂出另外的同层子节点.当子节点超过一定数量时,向下分裂子节点
 
 ![](B-tree.png)
 
-* B+Tree
-
 ![](B+tree.png)
+
+
+
+### Hash
+
+* key-value,检索效率远高于B+tree,可以一次定位.因为是存的hashcode值,是散列结构,不能排序
+* 要先查找hashcode值,然后通过hashcode查找索引键值,相当于要2次查找
+* 不支持范围查找
+* 可能会产生hash冲突
+
+
+
+### FullText
+
+* 目前仅char,varchar,text3种类型可以
 
 
 
@@ -1091,7 +1105,7 @@ select distinct(t1.c) c,sum(t1.c) num from t1 inner join t2 on t1.a=t2.a where t
 * LIKE前后使用%->使用覆盖索引
 * OR->使用UNION或UNION ALL或使用INDEX MERGE技术,对同一个表使用多个索引分别扫描
 * 隐式类型转换->使用精准的数据类型
-* 索引列包含计算
+* 索引列包含计算,使用了函数
 * 数据范围影响:索引区分度过低,条件超出索引范围
 
 
@@ -1925,7 +1939,7 @@ select sleep(12);
     SHOW SLAVE STATUS\G
     # 若输出的结果中不报错,且Slave_IO_Running和Slave_SLQ_Running都为yes时,表示主从正常
     ```
-  
+
 
 
 

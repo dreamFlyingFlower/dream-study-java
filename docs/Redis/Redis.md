@@ -1295,7 +1295,7 @@ redis自己提供的redis-benchmark压测工具,在redis/src下
 
 
 
-## 管理工具
+## 内置管理工具
 
 
 
@@ -1327,6 +1327,18 @@ redis自己提供的redis-benchmark压测工具,在redis/src下
 ### redis-sentinel
 
 * Redis集群的管理工具
+
+
+
+## 第三方管理工具
+
+
+
+### CacheCloud
+
+* 一个管理Redis主从,哨兵,集群的平台
+
+
 
 
 
