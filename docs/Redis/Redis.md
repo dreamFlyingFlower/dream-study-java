@@ -39,6 +39,9 @@
 
 > redis的事务比较简单,multi命令打开事务,之后开始进行设置.设置的值都会放在一个队列中进行保存,当设置完之后,使用exec命令,执行队列中的所有操作
 
+* 仅仅是保证事务里的操作会被连续独占的执行,因为是单线程架构,在执行完事务内所有指令前是不可能再去同时执行其他客户端的请求的
+* 没有隔离级别的概念,因为事务提交前任何指令都不会被实际执行,也就不存在事务内的查询要看到事务里的更新,在事务外查询不能看到这种问题了
+* 不保证原子性,也就是不保证所有指令同时成功或同时失败,只有决定是否开始执行全部指令的能力,没有执行到一半进行回滚的能力
 * watch key1...:监视一组key,当某个key的值发生变动时,事务被打断
 * unwatch:取消监视
 * multi:开始事务
@@ -46,6 +49,18 @@
 * discard:取消事务
 * **若在加入队列过程中发生了异常,整个队列中的操作都将无效.若是在加入队列之后,执行exec时发生异常,那么发生异常的操作会无效,其他未发生异常的操作仍然有效**
 * 使用watch监听key时,若事务还未开始,而其他线程对监听的key进行了修改操作,之后再开始事务,此时,事务内所有的操作都将无效.该功能可以认为是一种乐观锁机制,一旦被监听的key值发生了改变,说明事务失效,需要重新查询之后再做操作
+
+
+
+# 发布订阅
+
+* Redis的发布订阅模式可以实现进程间的消息传递
+
+* publish:发布消息,格式是publish channel 消息
+* subscribe:订阅频道,格式是subscribe channel,可以是多个channel
+* psubscribe:订阅频道,格式是psubscribe channel,支持glob风格的通配符
+* unsubscribe:取消订阅,格式是unsubscribe channel,不指定频道表示取消所有subscribe命令的订阅
+* punsubscribe:取消订阅,格式是punsubscribe channel,不指定频道表示取消所有psubscribe命令的订阅.这里匹配模式的时候,是不会将通配符展开的,是严格进行字符串匹配的.比如:`punsubscribe *`是无法退定c1.\*的,必须严格使用punsubscribe c1.*才可以  
 
 
 
@@ -198,10 +213,114 @@
   * 检查用户是否点过赞:`SISMEMBER like:<消息ID> <用户ID>`
   * 获取点赞的用户列表:`SMEMBERS like:<消息ID>`
   * 获取点赞的用户数:`SCARD like:<消息ID>`
-
 * 商品标签
 * 商品筛选:sdiff set1 set20->获取差集;sinter set1 set2->获取交集;sunion set1 set2->获取并集
 * 用户关注,推荐模型
+
+
+
+# 数据结构
+
+
+
+## 编码数据结构
+
+* 编码数据结构主要在对象包含的值数量比较少、或者值的体积比较小时使用
+
+
+
+### 压缩列表(zip list)
+
+* 类似于数组
+* 压缩列表包含的项都是有序的,列表的两端分 别为表头和表尾
+* 每个项可以储存一个字符串、整数或者浮点数
+* 可以从表头开始或者从表尾开始遍 历整个压缩列表,复杂度为 O(N) 
+* 定位压缩列表中指定索引上的项,复杂度为 O(N) 
+* 使用压缩列表来储存值消耗的内存比使用双向链表来储存值消耗的内存要少
+* List,Set,ZSet在数据量小时都可能会使用该数据类型
+
+
+
+### 整数集合(int set)
+
+* 集合元素只能是整数(最大为64位),并且集合中不会出 现重复的元素
+* 集合的底层使用有序的整数数组来表示
+* 数组的类型会随着新添加元素的类型而改变.如果集合中位长度最大的元素可以使用16位整数来保存,那么数组的类型就是int16_t,而如果集合中位长度最大的元素可以使用 32 位整数来保存,那么数组的类型就是 int32_t,诸如此类
+* 数组的类型只会自动增大,但不会减小
+* Set在数据量比较小时可能会使用该数据类型
+
+
+
+## 普通数据结构
+
+
+
+### 简单动态字符串
+
+* SDS, simple dynamic string
+* 可以储存位数组(实现 BITOP 和 HyperLogLog)、字符串、整数和浮点数,其中超过64位的整数和超过 IEEE 754 标准的浮点数使用字符串来表示
+* 具有int、embstr和raw三种表示形式可选,其中 int 表示用于储存小于等于 64 位的整数,embstr 用来储存比较短的位数组和字符串,而其他格式的 值则由 raw 格式储存
+* 比起 C 语言的字符串格式,SDS 具有以下四个优点:
+  * 常数复杂度获取长度值
+  * 不会引起缓冲区溢出
+  * 通过预分配和惰性释放两种策略来减少内存重分配的 执行次数
+  * 可以储存二进制位
+
+
+
+### 双向链表
+
+* 双向、无环、带有表头和表尾指针
+* 一个链表包含多个项,每个项都是一个字符串对象,即一个链表对象可以包含多个字符串对象
+* 可以从表头或者表尾遍历整个链表,复杂度为 O(N)
+* 定位特定索引上的项,复杂度为 O(N)
+* 链表带有长度记录属性,获取链表的当前长度的复杂度为 O(1)
+
+
+
+### 字典
+
+* 查找、添加、删除键值对的复杂度为 O(1),键和值都是字符串对象
+* 使用散列表(hash table)为底层实现,使用链地址法(separate chaining)来解决键冲突
+* Redis 会在不同的地方使用不同的散列算法，其中最常用的是 MurmurHash2 算法
+* 在键值对数量大增或者大减的时候会对散列表进行重新散列(rehash),并且rehash 是渐进式、分多次进行的,不会在短时间内耗费大量 CPU 时间,造成服务器阻塞
+
+
+
+### 跳表
+
+* 支持平均 O(log N) 最坏 O(N) 复杂度的节点查找操作,并且可以通过执行范围性(range)操作来批量地获取有序的节点
+* 跳表节点除了实现跳表所需的层(level)之外,还具有 score 属性和 obj 属性:
+  * score:是一个浮点数,用于记录成员的分值
+  * obj:是一个字符串对象,用来记录成员本身
+* 和字典一起构成 ZSET 结构,用于实现 Redis的有序集合结构
+  * 字典用于快速 获取元素的分值,以及判断元素是否存在
+  * 跳表用于执行范围操作,比如实现 ZRANGE 命令
+
+
+
+## HyperLogLog
+
+* 接受多个元素作为输入,并给出输入元素的基数估算值,即统计不重复值的个数
+* 算法给出的基数并不是精确的,可能会比实际稍微多一些或者稍微少一些,但会控制在合理的范围之内
+* 不存储元素值,只存储存储元素之后的基数计算结果
+* PFADD key element [element ...]
+  将任意数量的元素添加到指定的 HyperLogLog 里面。
+  这个命令可能会对 HyperLogLog 进行修改，以便反映新的基数估算 值，如果 HyperLogLog 的基数估算
+  值在命令执行之后出现了变化， 那么命令返回 1 ， 否则返回 0 。
+  命令的复杂度为 O(N) ，N 为被添加元素的数量
+* PFCOUNT key [key ...]
+  当只给定一个 HyperLogLog 时，命令返回给定 HyperLogLog 的基数估算值。
+  当给定多个 HyperLogLog 时，命令会先对给定的 HyperLogLog 进行并集计算，得出一个合并后的
+  HyperLogLog ，然后返回这个合并 HyperLogLog 的基数估算值作为命令的结果（合并得出的
+  HyperLogLog 不会被储存，使用之后就会被删掉）。
+  当命令作用于单个 HyperLogLog 时， 复杂度为 O(1) ， 并且具有非常低的平均常数 时间。
+  当命令作用于多个 HyperLogLog 时， 复杂度为 O(N) ，并且常数时间也比处理单个 HyperLogLog 时要
+  大得多
+* PFMERGE destkey sourcekey [sourcekey ...]
+  将多个 HyperLogLog 合并为一个 HyperLogLog ，合并后的 HyperLogLog 的基数估算值是通过对所有
+  给定 HyperLogLog 进行并集计算得出的。
+  命令的复杂度为 O(N) ， 其中 N 为被合并的 HyperLogLog 数量， 不过这个命令的常数复杂度比较高
 
 
 
@@ -220,10 +339,7 @@
 * bind:绑定网络ip,默认接受来自所有网络接口的连接,可以绑定多个,最多同时绑定16个
 * unixsocket:指定用于监听连接的unix socket的路径
 * unixsocketperm:unixsocket path的权限,不能大于777
-* save
-  * save 900 1:在900秒内有1个key改变了则执行save
-  * save "":之前的save 配置无效
-* dir:数据库存储的目录,必须是有效并且存在的目录
+* dir:数据快照存储的目录,必须是有效并且存在的目录,默认是当前目录
 * always-show-logo:总是显示logo
 * loglevel:日志级别,取值范围debug,verbose,notice,warning
 * logfile:日志文件名
@@ -264,16 +380,15 @@
   * no:默认同步清空数据库,也就是停止完成其他请求来做清空数据库,如果遇到数据库很大会增加请求延时
   * yes:新建dict等数据结构,然后把清空数据库提交给后台线程做
 * activedefrag:如果你遇到内存碎片的问题,那么设置为yes,默认no
-* hash-max-ziplist-entries:hash中的项数量小于或等于这个值使用ziplist,超过这个值使用hash
 * dynamic-hz:设置yes,则根据客户端连接数可以自动调节hz
 * hz:调节可以让redis再空闲时间更多的做一些任务(如关闭超时客户端等)
-* lua-time-limit:lua脚本的最大执行时间,超过这个时间后,恢复客户端的查询错误,0或者负数则无限制
-* latency-monitor-threshold:为了收集可能导致延时的数据根源,redis延时监控系统在运行时会采样一些操作.
+* lua-time-limit:lua脚本的最大执行时间,超过这个时间报错,单位毫秒,0或者负数则无限制
+* latency-monitor-threshold:为了收集可能导致延时的数据根源,redis延时监控系统在运行时会采样一些操作
   * 通过 LATENCY命令 可以打印一些图样和获取一些报告
   * 这个系统仅仅记录那个执行时间大于或等于通过latency-monitor-threshold配置来指定的
   * 当设置为0时这个监控系统关闭,单位毫秒
-* slowlog-log-slower-than:执行命令大于这个值计入慢日志.如果设置为0,则所有命令全部记录慢日志.单位毫秒
-* slowlog-max-len:最大的慢日志条数,这个会占用内存的
+* slowlog-log-slower-than:执行命令大于这个值计入慢日志.0表示所有命令全部记录慢日志.单位毫秒
+* slowlog-max-len:最大的慢日志条数,这个会占用内存
   * slowlog reset:释放内存
   * slowlog len:查看当前慢日志条数
 * client-output-buffer-limit:0则无限制
@@ -283,10 +398,9 @@
     * normal:普通客户端包裹monitor客户端
     * replica 从节点
     * pubsub 至少pubsub一个channel或者pattern的客户端
-* stop-writes-on-bgsave-error:当save错误后是否停止接受写请求
 * hll-sparse-max-bytes:大于这个值,hyperloglog使用稠密结构,小于等于这个值,使用稀疏结构,大于16000无意义,建议设置3000
-* rename-command:重命名命令,建议重命名一些敏感的命令(如flushall,flushdb)
-* notify-keyspace-events:取值范围,可以多个一起
+* rename-command:重命名命令,建议重命名一些敏感的命令(如flushall,flushdb),设置为""表示禁用
+* notify-keyspace-events:设置是否开启Pub/Sub 客户端关于键空间发生的事件,设置为""表示禁用
   * K:Keyspace events, published with keyspace@<db> prefix
   * E:Keyevent events, published with keyevent@<db> prefix
   * g:Generic commands (non-type specific) like DEL, EXPIRE, RENAME
@@ -309,8 +423,12 @@
 ## RDB
 
 * dbfilename:rdb文件名
-* rdbcompression:对于存储在磁盘中的快照,是否进行压缩存储.会消耗cpu
-* rdbchecksum:是否检查rdbchecksum,默认yes,可以设置no
+* save:保存RDB快照的频率
+  * save 900 1:在900秒内有1个key改变了则执行save
+  * save "":之前的save 配置无效,不进行RDB持久化
+* stop-writes-on-bgsave-error:当save错误后是否停止接受写请求,默认开启.如果设置成no,会造成数据不一致的问题
+* rdbcompression:对于存储在磁盘中的快照,是否进行压缩存储.开启会消耗cpu
+* rdbchecksum:是否检查rdbchecksum进行数据校验,默认yes,可以设置no
 * rdb-save-incremental-fsync:数据是否增量写入rdb文件
   * yes:则每32mb执行fsync一次,增量式,避免一次性大写入导致的延时
   * no:一次性fsync写入到rdb文件
@@ -321,14 +439,14 @@
 
 * appendonly:是否开启AOF模式,生产环境必然开启
 * appendfilename:AOF文件名,默认为appendonly.aof
-* no-appendfsync-on-rewrite:设置yes后,如果有保存的进程在执行,则不执行aof的appendfsync策略的fsync
-* appendfsync:执行fynsc的策略,取值范围:
+* no-appendfsync-on-rewrite:设置当redis在rewrite的时候,是否允许appendsync.因为redis进程在进行AOF重写的时候,fsync()在主进程中的调用会被阻止,也就是redis的持久化功能暂时失效.默认为no,这样能保证数据安全  
+* appendfsync:将数据同步到磁盘时,执行fynsc()的策略
 
-  * everysec:默认每秒执行sync
+  * everysec:默认每秒执行fsync
   * always:等到下次执行beforesleep时执行fsync
-  * no:不执行fsync
+  * no:不执行fsync,让系统自行决定何时调用
   * 设置always往往比较影响性能,但是数据丢失的风险最低,一般推荐设置everysec
-* auto-aof-rewrite-min-size:自动重写AOF文件的最小大小,比auto-aof-rewrite-percentage优先级高
+* auto-aof-rewrite-min-size:自动重写AOF的最小大小,比auto-aof-rewrite-percentage优先级高
 * auto-aof-rewrite-percentage:相对于上次AOF文件重写时文件大小增长百分比.如果超过这个值,则重写AOF
 * aof-rewrite-incremental-fsync:数据是否增量写入aof文件
   * yes:则每32mb执行fsync一次,增量式,避免一次性大写入导致的延时
@@ -372,6 +490,8 @@
 * list-compress-depth:不压缩quicklist,距离首尾节点小于等于这个值的ziplist节点,默认首尾节点不压缩
   * 1:head->next->...->prev->tail,不压缩next,prev,以此类推
   * 0:都不压缩
+* list-max-ziplist-entries:设置使用ziplist的最大的entry数
+* list-max-ziplist-value:设置使用ziplist的值的最大长度
 
 
 
@@ -387,8 +507,17 @@
 
 
 
-* zset-max-ziplist-entries:当sorted set 的元素数量小于这个值时,使用ziplist,节约内存,大于这个值zset表示
-* zset-max-ziplist-value:当sorted set 的元素大小小于这个值时,使用ziplist,节约内存,大于这个值zser表示
+* zset-max-ziplist-entries:当sorted set 的元素数量小于这个值时,使用ziplist,大于用zset
+* zset-max-ziplist-value:当sorted set 的元素大小小于这个值时,使用ziplist,大于用zset
+
+
+
+## Hash
+
+
+
+* hash-max-ziplist-entries:hash中的项数量小于或等于这个值使用ziplist,超过这个值使用hash
+* hash-max-ziplist-value:设置使用ziplist的值的最大长度  
 
 
 
@@ -396,9 +525,10 @@
 
 
 
-* replicaof(slaveof) ip port:主从复制时的主机ip和端口
+* replicaof(slaveof) ip port:主从复制时的主Redis的ip和端口.从redis应该设置一个不同频率的快照持久化的周期,或者为从redis配置一个不同的服务端口
+* masterauth:如果主redis设置了验证密码的话,则在从redis的配置中要使用masterauth来设置校验密码
 * repl-ping-replica(slave)-period:从发给主的心跳周期,如果小于0则启动失败,默认10秒
-* repl-timeout:多少秒没收到心跳的响应认为超时,最好设置的比repl-ping-replica(slave)-period大.如果小于0则启动失败
+* repl-timeout:多少秒没收到心跳的响应认为超时,最好设置的比repl-ping-replica(slave)-period大
 * repl-disable-tcp-nodelay:是否禁用tcp-nodelay,如果设置yes,会导致主从同步有40ms滞后(linux默认),如果no,则主从同步更及时
 * repl-diskless-sync:主从复制是生成rdb文件,然后传输给从节点,配置成yes后可以不进行写磁盘直接进行复制,适用于磁盘慢网络带宽大的场景
 * repl-diskless-sync-delay:当启用diskless复制后,让主节点等待更多从节点来同时复制,设置过小,复制时来的从节点必须等待下一次rdb transfer.单位秒,如果小于0则启动失败
@@ -412,8 +542,8 @@
 * masterauth:主从复制时主redis的密码验证
 * replica(slave)-serve-stale-data:默认yes,当从节点和主节点的连接断开或者复制正在进行中
   * yes:继续提供服务
-  * no:那么返回sync with master in progress错误
-* replica(slave)-read-only:配置从节点是否只读,但是配置的修改还是可以的
+  * no:返回sync with master in progress错误
+* replica(slave)-read-only:配置从节点数据是否只读,但是配置的修改还是可以的
 * replica(slave)-ignore-maxmemory:从节点是否忽略maxmemory配置,默认yes
 
 
@@ -546,10 +676,7 @@ save  60  1000
 
 * 配置AOF持久化,生产环境中,AOF一般都是开启的:将redis.conf中的appendonly no改为appendonly yes即可开启
 * 同时开启了RDB和AOF时,redis重启之后,**仍然优先读取AOF中的数据**,但是AOF数据恢复比较慢
-* fsync策略,配置文件中修改appendfsync
-  * everysec:每秒进行一次fsync写入操作,默认,性能较RDB慢,但可胜任生产环境
-  * always:每写入一条数据,立即将数据对应的写日志fsync到磁盘上去,性能非常非常差,吞吐量很低
-  * no:redis仅仅负责将数据写入os cache,后面os自己会时不时有自己的策略将数据刷入磁盘,不可控
+* fsync策略,在配置文件中修改appendfsync
 * AOF文件只有一份,当文件增加到一定大小时,AOF会进行rewrite操作,会基于当前redis内存中的数据,重新构造一个更小的AOF文件,然后将大的文件删除
 * 可以使用bgrewriteaof强制进行AOF文件重写
 * rewrite是另外一线程来写,对redis本身的性能影响不大
@@ -558,7 +685,7 @@ save  60  1000
 * 如果AOF文件有破损,备份之后,可以用**redis-check-aof  --fix appendonly.aof**命令进行修复,命令在redis的bin目录下
 * 修复后可以用diff -u查看两个文件的差异,确认问题点
 * RDB的快照和AOF的fsync不会同时进行,必须先等其中一个执行完之后才会执行另外一个
-* 热启动appendonly,在数据恢复时可用,但并没有修改配置文件,仍需手动修改:**config set appendonly yes**
+* 热启动appendonly,数据恢复时可用,但并没有修改配置文件,仍需手动修改:**config set appendonly yes**
 
 
 
@@ -1018,60 +1145,105 @@ redis自己提供的redis-benchmark压测工具,在redis/src下
 
 
 
+# 性能监控
+
+* info []:查看 Redis 服务器的各种信息和统计数值
+  * all:所有服务器信息
+  * default:默认值,最常见也最重要的一些服务器信息
+  * server:服务器本身的信息.比如版本号, 监听端口号,服务器 ID 等等
+  * clients:已连接客户端的信息.比如已连接客户端的数量,正在被阻塞的客 户端数量等等
+  * memoery:内存信息.比如内存占用数量,使用的内存分配器等等
+  * persistence:和RDB以及AOF持久化有关的信息.比如RDB是否正在进行,AOF重写是否正在进行等
+  * stats:服务器的统计信息.比如已处理的命令请求数量,每秒钟处理的命令请求数量等等
+  * replication:和主从复制有关的信息.比如服务器的角色,主从服务器的连接状态是否正常等等
+  * cpu:服务器的系统 CPU 占用量和用户 CPU 占用量
+  * commandstats:命令执行的统计信息.比如命令执行的次数,命令耗费的 CPU 时间,执行每个命令耗费的平均 CPU 时间等等
+  * cluster:集群功能的相关信息
+  * keyspace:和数据库键空间有关的信息.比如数据库的键数量,数据库已经被删除的过期键数量等等
+
+* slowlog get:获取慢日志,可以通过配置文件的slowlog-log-slower-than来设置时间限制,默认是10000微秒,slowlog-max-len来限制记录条数.返回的记录包含四个部分
+  * 日志的id
+  * 该命令执行的unix时间
+  * 该命令消耗的时间,单位微秒
+  * 命令和参数
+* slowlog len:查看目前已有的慢查询日志数量
+* slowlog reset:删除所有慢查询日志
+* monitor:监控Redis执行的所有命令,这个命令比较耗性能,仅用在开发调试阶段.格式为`时间戳 [数据库号码 IP地址和端口号] 被执行的命令`  
+
+
+
 # 优化
 
+
+
+## 通用
+
 * 精简键值名
-* 使用管道(pipeline),可以减少客户端和redis的通信次数
+* 使用管道(pipeline),可以减少客户端和redis的通信次数,降低网络延迟
 * 减少存储的冗余数据
 * 尽量使用mset来赋值,比set效率高点
 * 尽量使用hash来存储对象
 * 使用hash时尽量保证每个key下面的键值数目不超过64
+* 配置使用ziplist以优化list
+  * 如果list的元素个数小于list-max-ziplist-entries且元素值的长度小于list-max-ziplist-value,则可以编码成ziplist类型存储,否则采用Dict存储.Dict实际是Hash Table的一种实现
+* 配置使用intset以优化set
+  * 当set集合中的元素为整数且元素个数小于set-max-intset-entries时,使用intset数据结构存储,否则转化为Dict结构
+* 配置使用ziplist以优化sorted set
+  * 当sorted set的元素个数小于zset-max-ziplist-entries且元素值长度小于zset-max-ziplist-value时,它是用ziplist来存储
+* 配置使用zipmap以优化hash
+  * 当entry数量小于hash-max-ziplist-entries且entry值的长度小于hash-max-ziplist-value时,会用zipmap来编码
+  * HashMap的查找和操作的时间复杂度都是O(1),而放弃Hash采用一维存储则是O(n).如果成员数量很少,则影响不大,否则会严重影响性能.所以要权衡好这些值的设置,在时间成本和空间成本上进行权衡
+* 一定要设置maxmemory,该参数能保护Redis不会因为使用了过多的物理内存而严重影响性能甚至崩溃
+* 排序优化
+
+  * 尽量让要排序的Key存放在一个Server上
+    * 如果采用客户端分片,是由client的算法来决定哪个key存在哪个服务器上的,因此可以通过只对key的部分进行hash.比如client如果发现key中包含{},那么只对key中{}包含的内容进行hash
+    * 如果采用服务端分片,也可以通过控制key的有效部分,来让这些数据分配到同一个插槽中
+  * 尽量减少Sort的集合大小
+    * 如果要排序的集合非常大,会消耗很长时间,Redis单线程的,长时间的排序操作会阻塞其它client的请求
+    * 解决办法是通过主从复制,将数据复制到多个slave上,然后只在slave上做排序操作,并尽可能的对排序结果缓存
 
 
 
 ## fork
 
-1. RDB和AOF时会产生rdb快照,aof的rewrite,消耗io,主进程fork子进程
-2. 通常状态下,如果1个G内存数据,fork需要20m左右,一般控制内存在10G以内
-3. 从info的stats中的latest_fork_usec可以查看最近一个fork的时长
+* RDB和AOF时会产生rdb快照,aof的rewrite,消耗io,主进程fork子进程
+* 通常状态下,如果1个G内存数据,fork需要20m左右,一般控制内存在10G以内
+* 从info的stats中的latest_fork_usec可以查看最近一个fork的时长
 
 
 
 ## 阻塞
 
-1. redis将数据写入AOF缓冲区需要单个开个线程做fsync操作,每秒一次
-2. redis每个进行fsync操作时,会检查2次fsync之间的时间间隔,若超过了2秒,写请求就会阻塞
-3. everysec:最多丢失2秒的数据,若fsync超过2秒,整个redis就会被拖慢
-4. 优化写入速度,最好用ssd硬盘
+* redis将数据写入AOF缓冲区需要单个开个线程做fsync操作,每秒一次
+* redis每个进行fsync操作时,会检查2次fsync之间的时间间隔,若超过了2秒,写请求就会阻塞
+* everysec:最多丢失2秒的数据,若fsync超过2秒,整个redis就会被拖慢
+* 优化写入速度,最好用ssd硬盘
 
 
 
 ## 主从延迟
 
-1. 主从复制可能会超时严重,需要进行良好的监控和报警机制
-2. 在info replication中,可以看到master和slave复制的offset,做一个差值就可以看到对应的延迟
-3. 如果延迟过多就报警
+* 主从复制可能会超时严重,需要进行良好的监控和报警机制
+* 在info replication中,可以看到master和slave复制的offset,做一个差值就可以看到对应的延迟
+* 如果延迟过多就报警
 
 
 
 ## 主从复制风暴
 
-1. 主从之间,若是slave过多,在进行全量复制时,同样会导致网络带宽被占用,导致延迟
-2. 尽量使用合适的slave数,若必须挂多个slave,则采用树状结构,slave下再挂slave
+* 主从之间,若是slave过多,在进行全量复制时,同样会导致网络带宽被占用,导致延迟
+* 尽量使用合适的slave数,若必须挂多个slave,则采用树状结构,slave下再挂slave
 
 
 
 ## overcommit_memory
 
-1. 该值为liunx系统内存设置参数,有3个值
-
-   > 0:检查有没有足够内存,若没有的话申请内存失败
-   >
-   > 1:允许使用内存直到内存用完
-   >
-   > 2:内存地址空间不能超过swap+50%
-
-2. cat /proc/sys/vm/overcommit_memory,默认是0
+* 修改Linux系统内存参数设置,该值为liunx系统内存设置参数,有3个值
+  * 0:检查有没有足够内存,若没有的话申请内存失败
+  * 1:允许使用内存直到内存用完
+  * 2:内存地址空间不能超过swap+50%
+* cat /proc/sys/vm/overcommit_memory,默认是0
 
 
 
@@ -1109,6 +1281,8 @@ redis自己提供的redis-benchmark压测工具,在redis/src下
 
 # 其他
 
+
+
 ## 自启动
 
 * 在redis目录里的utils目录下有个redis_init_script脚本,将该脚本拷贝到/etc/init.d中,并改名,将后缀改为redis的端口号:cp redis_init_script /etc/init.d/redis_6379
@@ -1121,10 +1295,38 @@ redis自己提供的redis-benchmark压测工具,在redis/src下
 
 
 
-## redis-cli
+## 管理工具
+
+
+
+### redis-benchmark
+
+* 性能测试工具,测试Redis在你的系统及配置下的读写性能
+
+
+
+### redis-check-aof
+
+* 用于修复出问题的AOF文件
+
+
+
+### redis-check-dump
+
+* 用于修复出问题的dump.rdb文件
+
+
+
+### redis-cli
 
 * 在redis安装目录的src下,执行./redis-cli,可进入redis控制台
 * redis-cli -h ip -p port:连接指定ip地址的redis控制台
+
+
+
+### redis-sentinel
+
+* Redis集群的管理工具
 
 
 
@@ -1146,7 +1348,147 @@ docker run -d -p 6379:6379 --requirepass '123456' -v /app/redis/conf/redis.conf:
 
 
 
+# Lua脚本
+
+
+
+* 使用脚本的好处
+  * 减少网络开销
+  * 原子操作:Redis会把脚本当作一个整体来执行,中间不会插入其它命令
+  * 复用功能
+* 在Redis脚本中不允许使用全局变量,以防止脚本之间相互影响
+* Redis脚本中不能使用Lua的模块化功能
+
+
+
+## Lua标准库
+
+* Lua的标准库提供了很多使用的功能,Redis支持其中大部分
+* Base:提供一些基础函数
+* String:提供用于操作字符串的函数
+* Table:提供用于表操作的函数
+* Math:提供数据计算的函数
+* Debug:提供用于调试的函数
+
+
+
+## Redis常用函数
+
+* string.len(string):字符串长度
+* string.lower(string)/string.upper(string):字符串转为小写/大写
+* string.rep(s, n):返回重复s字符串n次的字符串
+* string.sub(string,start[,end]),索引从1开始,-1表示最后一个
+* string.char(n…):把数字转换成字符
+* string.byte (s [, i [, j]]):用于把字符串转换成数字
+* string.find (s, pattern [, init [, plain]]):查找目标模板在给定字符串中出现的位置,找到返回起始和结束位置,没找到返回nil
+* string.gsub (s, pattern, repl [, n]):将所有符合匹配模式的地方都替换成替代字符串,并返回替换后的字符串,以及替换次数.四个参数:给定字符串,匹配模式,替代字符串和要替换的次数
+* string.match (s, pattern [, init]):将返回第一个出现在给定字符串中的匹配字符串,基本的模式有:
+  * .:所有字符
+  * %a:字母
+  * %c:控制字符
+  * %d:数字
+  * %l:小写字母
+  * %p:标点符号字符
+  * %s:空格
+  * %u:大写字母
+  * %w:文字数字字符
+  * %x:16进制数字等
+* string.reverse (s):逆序输出字符串
+* string.gmatch (s, pattern):返回一个迭代器,用于迭代所有出现在给定字符串中的匹配字符串
+* table.concat(table[,sep[,i[,j]]]):将数组转换成字符串,以sep指定的字符串分割,默认是空,i和j用来限制要转换的表索引的范围,默认是1和表的长度,不支持负索引
+* table.insert(table,[pos,]value):向数组中插入元素,pos为指定插入的索引,默认是数组长度加1,会将索引后面的元素顺序后移
+* table.remove(table[,pos]):从数组中弹出一个元素,也就是删除这个元素,将后面的元素前移,返回删除的元素值,默认pos是数组的长度
+* table.sort(table[,sortFunction]):对数组进行排序,可以自定义排序函数
+* Math库里面常见的:abs、ceil、floor、max、min、pow、sqrt、sin、cos、tan等
+* math.random([m[,n]]):获取随机数,如果是同一个种子的话,每次获得的随机数是一样的,没有参数,返回0-1的小数;只有m,返回1-m的整数;设置了m和n,返回m-n的整数
+* math.randomseed(x):设置生成随机数的种子
+
+
+
+## 其它库
+
+* 除了标准库外,Redis还会自动加载cjson和cmsgpack库,以提供对Json和MessagePack的支持,在脚本中分别通过cjson和cmsgpack两个全局变量来访问相应功能
+* cjson.encode(表):把表序列化成字符串
+* cjson.decode(string):把字符串还原成为表
+* cmsgpack.pack(表):把表序列化成字符串
+* cmsgpack.unpack(字符串):把字符串还原成为表  
+
+
+
+## Lua中调用Redis
+
+* redis.call:在脚本中调用Redis命令,遇到错误会直接返回
+* redis.pcall:在脚本中调用Redis命令,遇到错误会记录错误并继续执行
+
+
+
+## Lua和Redis返回值类型对应
+
+* 数字——整数
+* 字符串——字符串
+* 表类型——多行字符串
+* 表类型(只有一个ok字段存储状态信息)——状态回复
+* 表类型(只有一个err字段存储错误信息)——错误回复
+
+
+
+## 相关脚本命令
+
+### eval
+
+* 在Redis中执行脚本
+* eval 脚本内容 key参数数量 [key…] [arg…]:通过key和arg两类参数来向脚本传递数据,在脚本中分别用KEYS[index]和ARGV[index]来获取,index从1开始
+* 对于KEYS和ARGV的使用并不是强制的,也可以不从KEYS去获取键,而是在脚本中硬编码,但是这种写法无法兼容集群
+
+
+
+### evalsha
+
+* 可以通过脚本摘要来运行,其他同eval.执行的时候会根据摘要去找缓存的脚本,找到了就执行,否则返回错误
+
+
+
+### script load
+
+* 将脚本加入缓存,返回值就是SHA1摘要
+
+
+
+### script exists
+
+* 判断脚本是否已经缓存
+
+
+
+### script flush
+
+* 清空脚本缓存
+
+
+
+### script kill
+
+* 强制终止脚本的执行,如果脚本中修改了某些数据,那么不会终止脚本的执行,以保证脚本执行的原子性
+  
+
+## 沙箱
+
+* 为了保证Redis服务器的安全,并且要确保脚本的执行结果只和脚本执行时传递的参数有关,Redis禁止脚本中使用操作文件或系统调用相关的函数,脚本中只能对Redis数据进行操作
+* Redis会禁用脚本的全局变量,以保证脚本之间是隔离的,互不相干的
+
+
+
+## 随机数和随机结果的处理
+
+* 为了确保执行结果可以重现,Redis对随机数的功能进行了处理,以保证每次执行脚本生成的随机数列都相同
+* Redis还对产生随机结果进行了处理,比如smembers或hkeys等,数据都是无序的,Redis会对结果按照字典进行顺序排序
+* 对于会产生随机结果但无法排序的命令,Redis会在这类命令执行后,把该脚本标记为lua_random_dirty,此后只允许读命令,不可改,否则返回错误.这类Redis命令有:spop,srandmember,randomkey,time
+
+
+
 # 缓存穿透
+
+
 
 * 高并发下去查询一个没有的数据,缓存和数据库中都没有该值,此时就会造成缓存穿透
 * 为避免这种情况可以在缓存中存null或一个特定的值表示该值不存在,同时设置较短过期时间
@@ -1156,6 +1498,8 @@ docker run -d -p 6379:6379 --requirepass '123456' -v /app/redis/conf/redis.conf:
 
 # 缓存雪崩
 
+
+
 * 大量相同过期时间的key同时过期或缓存服务器崩溃,造成请求全部转到数据库,数据库压力过大而崩溃
 * 在原有的过期时间上增加一个随机值,这样每个缓存的过期时间重复率就会降低,就很难引发缓存集体失效
 * 加上本地缓存ehcache以及降级组件(hystrix或sentinel),先走流量降级,再走本地ehcache,最后走redis
@@ -1164,6 +1508,8 @@ docker run -d -p 6379:6379 --requirepass '123456' -v /app/redis/conf/redis.conf:
 
 # 缓存击穿
 
+
+
 * 对于一些设置了过期时间的key,如果这些key可能会在某些时间点被超高并发地访问,说明这些数据是非常热点的数据
 * 如果这个key在大量请求同时进来前正好失效,那么所有对这个key的数据查询都将到数据库,此时就会造成缓存击穿
 * 加锁可以解决该问,大量并发只让一个去查,其他人等待,查到后释放锁,其他请求获得锁,再次从缓存中查询数据,此时就会有数据,不用去数据库查询
@@ -1171,6 +1517,8 @@ docker run -d -p 6379:6379 --requirepass '123456' -v /app/redis/conf/redis.conf:
 
 
 # 缓存一致性
+
+
 
 * 数据库和redis中缓存不一致,先删缓存,再修改数据库
 * 若是先修改数据库,再删缓存,当缓存删除失败时,会造成数据不一致问题
@@ -1192,6 +1540,8 @@ docker run -d -p 6379:6379 --requirepass '123456' -v /app/redis/conf/redis.conf:
 
 # 无底洞
 
+
+
 * 增加了机器,但是已经到了极限,再增加机器也缓解不了缓存的压力
 * 尽量少使用keys,hgetall bigkey等操作
 * 降低接入成本,例如NIO,客户端长连接
@@ -1199,6 +1549,8 @@ docker run -d -p 6379:6379 --requirepass '123456' -v /app/redis/conf/redis.conf:
 
 
 # 缓存热点
+
+
 
 * 减少重缓存的次数
 * 数据尽可能一致
