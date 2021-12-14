@@ -66,6 +66,12 @@ import com.wy.mybatis.CustomPlugin;
  * ->使用ParameterHandler来给sql设置参数
  * ->调用StatementHandler的增删改查方法
  * ->ResultSetHandler封装结果
+ * 
+ * 1.根据配置文件创建SQLSessionFactory:
+ * 2.返回SqlSession的实现类DefaultSqlSession对象,他里面包含了Executor和Configuration,Executor会在这一步被创建
+ * 3.getMapper返回接口的代理对象,包含了SqlSession对象
+ * 4.进行查询
+ * 图文解析:docs/db/MyBatis01.png->MyBatis04.png
  * </pre>
  * 
  * MyBatis主要对象:

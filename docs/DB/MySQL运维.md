@@ -393,7 +393,7 @@ table_definition_cache=1400
 long_query_time = 10 # 慢查询的超时时间,单位为秒
 slow_query_log = 1/on # 开启慢日志,默认不开启
 slow_query_log_file = /data/slow.log # 慢查询日志文件地址
-log_queries_not_using_indexes = 1 # 记录所有查询到日志中
+log_queries_not_using_indexes = 1 # 记录所有未使用索引的查询到日志中
 log_slow_admin_statements = 1
 log_slow_slave_statements = 1
 log_throttle_queries_not_using_indexes = 10
@@ -804,20 +804,58 @@ systemctl restart crontab # 重启定时任务
 
 ## 原理
 
+
+
+### Binlog复制
+
+
+
 * slave服务器上执行start slave,开启主从复制开关
 * 此时,slave服务器的io线程会通过在master上授权的复制用户权限请求连接master服务器,并请求从指定bin_log日志文件的指定位置(日志文件名和位置就是在配置主从复制服务器时执行的changet master命令指定的)之后发送bin_log日志内容
 * master服务器接收到来自slave服务器的io线程请求后,master服务器上负责复制的io线程根据slave服务器的io线程请求的信息读取指定bin_log日志文件指定位置之后的bin_log日志信息,然后返回给slave端的io线程.返回的信息中除了bin_log日志内容外,还有本次返回日志内容后在master服务器端的新的bin_log文件名称以及在bin_log中的下一个指定更新位置
 * 当slave服务器的io线程获取到来自master服务器上io线程发送的日志内容以及日志文件位置点后,将bin_log日志内容一次写入到slave自身的relaylog(中继日志)文件(mysql-relay-bin.xxxxxx)的最末端,并将新的bin_log文件名和位置记录到master-info文件中,以便下次读取master端新bin_log日志时能够告诉master服务器要从新bin_log的那个文件,那个位置开始请求
 * slave服务器的sql线程会实时的检测本地relaylog中新增加的日志内容,并在吱声slave服务器上按语句的顺序执行应用这些sql语句,应用完毕后清理应用过的日志
-
 * 由于主从同步是异步执行的,突发情况下仍然会造成数据的丢失
 * 正常的主动同步下,应该主从都开启bin_log,在从库上开启全量和增量方式的备份,可以防止人为对主库的误操作导致数据丢失.确保备份的从库实时和主库是同步状态
 
 
 
+### GTID复制
+
+
+
+* 全局事务ID,由source_id:trans_id组成.source_id是MySQL启动时生成的UUID串,保存在MySQL目录中,每一个MySQL实例都会有唯一的UUID串;trans_id是每个事务的id
+
+* 从库保存已执行事务的GTID值,再请求主数据库,获得从库没有执行事务的GTID值
+
+* 保证同一个事务在一个从库上只执行一次
+
+* 配置和binlog复制相同,不同的是主服务器的需要开启相关配置
+
+  ```mysql
+  gtid_mode=on
+  # 打开该配置后,不能使用create table...select语句,也不能使用临时表相关操作
+  enforce-gtid-consistency=on
+  # 在5.7以上的版本中不需要配置该参数
+  log-slave-updates=on
+  ```
+
+* 从服务器上也需要开启gtid_mode和enforce-gtid-consistency
+
+* 启动基于GTID的复制
+
+  ```mysql
+  # MASTER_AUTO_POSITION=1就是开启GTID复制
+  CHANGE MASTER TO MASTER_HOST='masterip' MASTER_PORT='master_port' MASTER_USER='' MASTER_PASSWORD='' MASTER_AUTO_POSITION=1;
+  ```
+
+  
+
+
+
 ## 正常配置
 
-* 每个slave只有一个master,每个master可以有多个slave
+* 每个slave只有一个master,每个master可以有多个slave.5.7后一个从库可以有多个主库
 
 * mysql主从之间的log复制是异步且串行化的
 
@@ -981,9 +1019,34 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 ## 延迟
 
 * 分库,将一个主库拆分为4个主库,每个主库的写并发就500/s,此时主从延迟可忽略
+
 * 打开mysql支持的并行复制,多个库并行复制
+
 * 根据业务重写代码,不要在插入之后即可查询
+
 * 若必须立刻查询,则读取的操作直接连接主库
+
+* 若事务太大,将大事务分成小事务
+
+* 在5.7版本之后,可以在从库上进行多线程复制,使用逻辑时钟
+
+  ```mysql
+  stop slave;
+  set global slave_parallel_type='logical_clock';
+  set global slave_parallel_workers=4;
+  start slave;
+  ```
+
+  
+
+
+
+## 延迟校验
+
+* show master status\G,查看File和Position的值
+* show slave status\G,查看Master_Log_File和Read_Master_Log_Pos的值
+* 比较查看上述2个值的文件名和大小
+* 或者查看Exec_Master_Log_Pos和Relay_Log_Space的值
 
 
 
@@ -1047,18 +1110,45 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
-# 故障
+# 故障监控
 
 * mysql无法启动,启动时显示MySQL is running...,但是查询的时候并没有mysql的服务,造成该情况可能是mysql停止时出现错误导致
 
   * 解决:删除mysql.sock以及mysql.pid文件之后重新启动,若显示Starting MYSQL表示正常
+* 可用性监控:mysqladmin -uroot -p123456 -h127.0.0.1 ping
+* 主从复制确认主是否可写,检查read_only是否为on
+* 确认表查询是否可用:select @@version;
+* 监控数据库的最大连接数:show variables like 'max_connections';获取当前数据库的线程连接数:show global status  like 'Threads_connected';如果这2个参数的值大于执行只就发邮件报警
+* 数据库性能监控:
+  * QPS,TPS
+  * 监控Innodb的阻塞
 
+
+
+# mysqlslap
+
+* 使用MySQL自带的基准测试工具
+* --auto-generate-sql:由系统自动生成SQL脚本进行测试
+* --auto-generate-sql-add-autoincrement:在生成的表中生成自增ID
+* --auto-generate-sql-load-type:指定测试中使用的查询类型
+* --auto-generate-sql-write-number:指定初始化数据时生成的数据量
+* --concurrency:指定并发线程数
+* --engine:指定要测试表的存储引擎,可以用逗号隔开
+* --no-drop:指定测试完后不清理测试数据
+* --iterations:指定测试运行次数
+* --number-of-queries:指定每一个线程执行的查询数量
+* --debug-info:指定输出额外的内存及CPU统计信息
+* --number-int-cols:指定测试表中包含的int类型列的数量
+* --number-char-cols:指定测试表中包含的varchar类型的数量
+* --create-schema:指定用于执行测试的数据库名
+* --query:用于指定自定义SQL的脚本
+* --only-print:并不运行测试脚本,而是把生成的脚本打印出来
 
 
 
 # HeartBeat
 
-> 将资源从一台计算机快速转移到另外一台机器上继续提供服务,类似keepalived
+* 将资源从一台计算机快速转移到另外一台机器上继续提供服务,类似keepalived
 
 
 
@@ -1161,6 +1251,7 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 * 用于分析mysql慢查询的工具,可以分析binlog,general log,slowlog
 * 可以通过showprocesslist或tcpdump抓取的MySQL协议数据进行分析
 * 可以把分析结果输出到文件中,分析过程是先对查询语句的条件进行参数化,然后对参数化以后的查询进行分组统计,统计出各查询的执行时间,次数,占比等
+* 对数据库表进行分表
 
 
 

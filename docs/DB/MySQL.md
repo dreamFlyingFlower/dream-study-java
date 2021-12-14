@@ -86,6 +86,18 @@
 
 
 
+# 三范式
+
+
+
+* 数据库表中的字段都只有单一属性
+* 单一属性的列都是由基本数据类型构成
+* 设计的表都是简单的二维表
+* 一个表中只有一个业务主键,即不要存在复合组件
+* 非主属性即不部分依赖于主键也不传递依赖主键,即非主属性与业务主键无关
+
+
+
 # 数据库引擎
 
 > 主要介绍MyISAM和InnoDB,还有其他类型,用的不多.mysql5.5之前默认是MyISAM,之后是InnoDB
@@ -695,21 +707,6 @@ ANALYZE [LOCAL|NO_WRITE_TO_BINLOG] TABLE tablename1,tablename2
 ```mysql
 EXPLAIN select ... # explain后接sql语句
 ```
-
-
-
-
-
-# 硬件优化
-
-
-
-* 数据库主机的IO性能是需要最优先考虑的因素,适当增大IO数
-* CPU处理能力需求更大
-* 网络设备性能要好
-* 打开tcp连接数的限制,打开文件数的限制,安全性的限制
-
-
 
 
 
@@ -1357,9 +1354,37 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
 
 
 
+# 查询消耗时间优化
+
+* 需要先设置开启优化配置:set profiling=1;
+
+* show profiles:执行查询语句之后,使用该语句可查询消耗的总时间,结果中会出现一个query_id
+
+* show profile for query query_id:查看单个查询各个部分消耗的时间
+
+* show profile cpu for query_id:查看CPU情况
+
+* 在高版本中profile已经废弃,需要使用performance_schema表进行查询,开启相关设置
+
+  * UPDATE setup_instruments SET enabled='YES',timed='YES' where name like 'stage%';
+  * UPDATE setup_consumers SET enabled='YES' where name like 'events%';
+
+* 使用查询语句查询所有表每个阶段消耗时间
+
+  ```sql
+  SELECT a.THREAD_ID,a.SQL_TEXT,c.EVENT_NAME,(c.TIMER_END-c.TIMER_START)/1000000000 'DURATION(ms)'
+  FROM events_statements_history_long a
+  JOIN threads b ON a.THREAD_ID = b.THREAD_ID
+  JOIN events_stages_history_long c ON c.THREAD_ID = b.THREAD_ID AND c.EVENT_ID BETWEEN a.EVENT_ID AND a.END_EVENT_ID
+  WHERE b.PROCESSLIST_ID = CONNECTION_ID() AND a.EVENT_NAME = 'statement/sql/select'
+  ORDER BY a.THREAD_ID,c.EVENT_ID;
+  ```
+
+
+
 # 其他优化
 
-* 当单表数据超过700W(根据数据库不同而不同)时,sql优化已达到极致,此时应该增加缓存,读写分离,分库分表
+* 当单表数据超过700W(根据数据库不同而不同)时,sql优化已达到极致,此时应增加缓存,读写分离,分库分表
 
 * 尽量避免全表扫描,避免多表连接,首先应考虑在where以及order by设计的列上建立索引
 
@@ -1406,6 +1431,10 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
     * 停止mysq服务,修改参数,并删除Innodb相关文件
     * 重启mysql服务,重建Innodb独立空间
     * 重新导入数据
+  
+* 通过慢日志进行优化查询语句,优化未使用索引语句
+
+* 实时查询有性能问题的SQL:select * from information_schema.PROCESSLIST where time>5;通过特定表查询超过指定时间的sql,时间单位为S.可通过脚本实时查询,进行分析
 
 
 
@@ -1624,19 +1653,24 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
+## 分片方法
+
+* 将分区键进行hash之后再根据分片数量进行取模
+* 根据分区键范围分片.和hash一样,可能会形成部分分片中数据少,部分分片数据大的情况
+* 建立分区键和分片的映射关系表.会加大数据库压力
+
+
+
 # 硬件优化
 
 * CPU:选择64位系统,更高的频率,更多个核心数
-
 * 内存:选择足够大的内存,但是如果超出了数据库中数据的大小,也无法起到更快的读写效果
-
 * 磁盘性能:PCI-E>ssd(固态硬盘)>sas>sata,raid:raid0>raid10>raid5>raid1
-
 * 网卡:多网卡bind,以及buffer,tcp优化
+* 数据库主机的IO性能是需要最优先考虑的因素,适当增大IO数
+* 打开tcp连接数的限制,打开文件数的限制,安全性的限制
 
-  
 
-  
 
 # CentOS系统参数优化
 
@@ -1686,25 +1720,43 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 # 日志
 
+
+
 ## binlog
 
-> 默认是不开启的,是一个顺序读写的日志,记录**所有数据库**增删改,用于主从,数据恢复等
+
+
+* 默认是不开启的,是一个顺序读写的日志,记录**所有数据库**增删改,用于主从,数据恢复等
 
 * bin_log的记录会影响数据库的性能,特别是事务条件下
-* 有3种模式:Row,Statement,Mixed(Statement为主,特殊条件下切换成row)
-  * Row:将每一条sql产生的所有行的变更都记录为一行日志
-  * Statement:每条修改的ssql都会记录到master的binlog中
+* 有3种模式:Row,Statement,Mixed(Statement为主,特殊条件下切换成row),配置为binlog_format
+  * Row:将每一条sql产生的所有行的变更都记录为一行日志,解决了Statement模式的主从不一致问题,但是会浪费更多的系统空间,更消耗系统性能
+  * Statement:每条修改的sql都会记录到master的binlog中,但是对UUID()这种系统函数在主从复制时可能出现数据不一致的问题
   * sync_binlog=1:每条bin.log都需要记录
 * bin_log默认会放在mysql的数据库目录(data)下,以6位数字进行区分,如mysql-bin.000001
 * mysqlbinlog [] mysql-bin.000001:只能用mysqlbinlog命令查看bin_log文件,用cat方式会乱码
 * mysqlbinlog -d dbname mysql-bin.000001 > test.sql:将bin_log中的dbname数据库数据全部拆出来输出到sql中
 * mysqlbinlog mysql-bin.000021 --start-position=30 --stop-position=199 -r pos.sql:从指定的bin_log中拆出从指定位置开始到指定位置结束的日志到sql中.具体的位置点可以直接查看bin_log日志,不能是不存在的位置点,含头不含尾,末尾的点不会放到sql中
+* 基于Statement主从复制的优缺点:
+  * 生成的日志量少,节省网络IO
+  * 并不强制要求主从数据的表结构完全相同
+  * 相比于Row方式的主从复制更加灵活
+  * 对于非确定事件,如UUID(),无法保证主从复制数据的一致性
+  * 对于存储过程,触发器,自定义函数也可能造成数据不一致问题
+  * 相比于Row方式的主从复制,在从数据库上执行需要更多的行锁
+* 基于Row主从复制的优缺点:
+  * 可以应用于任何SQL的复制包括非确定函数,存储过程等
+  * 可以减少数据库锁的使用
+  * 要求主从数据库表一致,否则可能会中断复制
+  * 无法在从上单独执行触发器
 
 
 
 ## error
 
-> 默认是关闭的,记录严重的警告和错误信息,每次mysqld启动和关闭的详细信息
+
+
+* 默认是关闭的,记录严重的警告和错误信息,每次mysqld启动和关闭的详细信息
 
 * Mysql的启动,停止,crash,recovery,错误信息
 * --log-warning/log_warnings:记录交互错误和连接中断
@@ -1712,6 +1764,8 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 ## slow
+
+
 
 * 记录mysql中响应时间超过阈值的语句,具体指运行时间超过long_query_time值的sql
 
@@ -1726,13 +1780,13 @@ PARTITION BY RANGE(YEAR(createtime)){
 * mysqldumpslow [] slow_log:分析慢sql日志的命令行工具,slow_log为日志地址
   * --verbose:详细分析
   * -s:按照何种方式排序
-  * -c:访问次数
-  * -l:锁定时间
-  * -r:返回记录
-  * -t:查询时间
-  * -al:平均锁定时间
-  * -ar:平均返回记录数
-  * -at:平均查询时间
+    * -s c:访问次数
+    * -s l:锁定时间
+    * -s r:返回记录
+    * -s t:查询时间
+    * -s al:平均锁定时间
+    * -s ar:平均返回记录数
+    * -s at:平均查询时间
   * -t:即为返回前面多少条的数据
   * -g:后边搭配一个整个匹配模式,大小写不敏感
 * 慢日志格式
@@ -1757,6 +1811,8 @@ select sleep(12);
 
 
 ## general_log
+
+
 
 * 记录客户端连接信息和执行sql语句信息,永远不要在生产环境中开启该功能,严重影响程序
 
