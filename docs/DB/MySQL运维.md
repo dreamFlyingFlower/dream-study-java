@@ -668,7 +668,11 @@ SHOW GRANTS FOR username;
 
 # 备份还原
 
-## 备份
+
+
+## 数据库表备份
+
+
 
 ```mysql
 # 直接输入用户名和密码进行备份,username是登录的用户名,password是登录的密码,dbname是数据库名
@@ -718,6 +722,25 @@ CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 
 
 
+## Binlog备份
+
+
+
+* mysqlbinlog --raw --read-from-remote-server --stop-never --host localhost --port 3306 -u root -p 123456 bin.log:对二进制文件进行备份,可远程备份
+* --raw:输出的二进制文件
+* --read-from-remote-server:从服务器上读取二进制文件
+* --stop-never:开启之后不停止,一直读取
+
+
+
+## 第三方工具备份
+
+
+
+* Xtrabackup
+
+
+
 ## 还原
 
 ```shell
@@ -729,9 +752,9 @@ source /bak/mysql/sql_bak_dbname.sql
 gizp -d sql_bak_dbname.sql.gz # 之后再用上面的方法恢复
 ```
 
-* 只有一个主库是否需要做增量回复
+* 只有一个主库是否需要做增量恢复
 
-  * 应该做定时全量备份(一天一次)以及增量备份(每个10分钟左右对bin)log日志做切割然后备份到其他服务器上,或者本地其他的硬盘里)或者写到网络文件系统(备份服务器)
+  * 应该做定时全量备份(一天一次)以及增量备份(每个10分钟左右对binlog做切割然后备份到其他服务器上,或者本地其他的硬盘里)或者写到网络文件系统(备份服务器)
   * 如果不允许数据丢失,最好的办法是做从库,通过drbd(基于磁盘块的)同步
 
 * 还原时能锁库锁表的尽量锁库锁表,避免在恢复时用户又写入数据

@@ -2,9 +2,7 @@ package com.wy.model;
 
 import java.util.Date;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 /**
  * 专门来测试的实体类
@@ -12,9 +10,7 @@ import lombok.ToString;
  * @author ParadiseWY
  * @date 2020-09-27 20:20:56
  */
-@Getter
-@Setter
-@ToString
+@Data
 public class Pojo {
 
 	private Integer id;

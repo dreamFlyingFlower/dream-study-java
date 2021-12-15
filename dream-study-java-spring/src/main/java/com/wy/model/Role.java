@@ -1,5 +1,6 @@
 package com.wy.model;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,9 +10,8 @@ import lombok.Setter;
  * @author ParadiseWY
  * @date 2019年8月26日
  */
-@Getter
-@Setter
-public class Role {
+@Data
+public class Role extends Pojo{
 
 	private Long roleId;
 
