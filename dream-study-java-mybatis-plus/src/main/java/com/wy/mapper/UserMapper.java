@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.wy.User;
 import com.wy.base.BaseMappers;
-import com.wy.model.User;
 
 /**
  * 用户表

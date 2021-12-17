@@ -7,9 +7,9 @@ import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import com.wy.User;
 import com.wy.base.Mapper;
 import com.wy.enums.UserType;
-import com.wy.model.User;
 
 /**
  * mybatis使用的对应user类的对应类,相当于UserDao,但是不能使用jpa,所有sql都需要自己写.该类使用的方法和UserDao一样

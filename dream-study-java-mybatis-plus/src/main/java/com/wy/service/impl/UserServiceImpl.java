@@ -8,9 +8,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wy.User;
 import com.wy.base.AbstractService;
 import com.wy.mapper.UserMapper;
-import com.wy.model.User;
 import com.wy.service.UserService;
 
 /**

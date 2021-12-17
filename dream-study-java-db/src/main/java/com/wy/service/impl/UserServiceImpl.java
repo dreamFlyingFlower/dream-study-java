@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.wy.User;
 import com.wy.mapper.UserMapper;
-import com.wy.model.User;
 import com.wy.service.UserService;
 
 /**
