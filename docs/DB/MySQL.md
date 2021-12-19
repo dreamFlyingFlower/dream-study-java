@@ -94,11 +94,11 @@
 
 
 
-* 数据库表中的字段都只有单一属性
+* 表中所有字段都是不可再分的,即数据库表中的字段都只有单一属性
 * 单一属性的列都是由基本数据类型构成
 * 设计的表都是简单的二维表
-* 一个表中只有一个业务主键,即不要存在复合组件
-* 非主属性即不部分依赖于主键也不传递依赖主键,即非主属性与业务主键无关
+* 一个表中只有一个业务主键,即不要存在复合组件,并且非主键都依赖于业务主键
+* 非主属性即不部分依赖于主键也不传递依赖主键,即非主属性列之间不能相互依赖
 
 
 
@@ -418,6 +418,8 @@
   substr('sioioplb,-5); # ioplb
   ```
 
+* SUBSTRING_INDEX(str,delimiter,n):返回str按delimiter分割的前n个子字符串
+
 * LEFT(str,length):从str开头向末尾截取length个字符.若str长度不够,返回str.若length为负数,返回空字符串
 
 * RIGHT(str,length):从str末尾起开头截取length个字符.若str长度不够,返回str.若length为负数,返回空字符串
@@ -445,6 +447,8 @@
 * REPLACE(str ,search_str ,replace_str):在str中用replace_str替换所有的search_str
 
 * CHARSET(str):返回字串字符集
+
+* FORMAT(num,n):将数字格式化为#,###,###.##格式,并保留n位小数
 
 
 
@@ -696,10 +700,69 @@ END REPEAT[label]
 
 
 
+# CTE
+
+
+
+* 公用表表达式,MySQL8以后才有的语法,类似递归,可以自引用,可多次重复使用
+
+  ```mysql
+  # WITH开头,定义一个公用表表达式
+  # RECURSIVE:若不写该参数,不能自引用
+  # test为公用表表达式的名称,类似于表名.若有多列字段,可以指定字段名
+  WITH RECURSIVE test[(column1,column2...)] AS(
+      # 第一步的结果查询后先放入test中
+  	SELECT 1 AS n
+  	UNION ALL
+      # 获得上一步的结果,执行第二步的语句,将第二步的结果放入test中
+      # 继续查询的时候一直先放入结果再查询,若不指定条件有无限递归了
+      # 相当于得到第二步的结果之后,暂停查询,先将结果放入test中,再继续查询,发现还有数据就继续查询
+  	SELECT 1+n FROM test WHERE n<10
+  )
+  SELECT * FROM test
+  ```
+
+  
+
+
+
+# 窗口函数
+
+
+
+* MySQL8新功能,返回的是一组记录的分组情况
+
+  ```mysql
+  # 函数名,可以是聚合函数,也可以是其他特定窗口函数
+  function_name([exp])
+  OVER(
+      # 窗口分组
+  	[PARTITION BY exp [,...]]
+      # 排序
+  	[ORDER BY exp[ASC|DESC] [,...]]
+  )
+  
+  SELECT userId,username,ROW_NUMBER() OVER(PARTITION BY state) AS state,
+  RANK() OVER(PARTITION BY age ORDER BY createtime DESC) AS age
+  ```
+
+* 窗口函数中可使用所有的聚合函数
+
+* ROW_NUMBER():返回窗口分区内数据的行号
+
+* RANK():类似于ROW_NUMBER(),只是对于相同数据会产生重复的行号,之后的数据行号会产生间隔
+
+* DENSE_RANK():对于相同数据会产生重复的行号,但后续的行号不会产生间隔
+
+* 若需要对窗口函数的结果进行进一步过滤(WHERE),可以结合CTE使用
+
+
 
 
 
 # 表检查
+
+
 
 ## 检查表错误
 
@@ -1466,7 +1529,9 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
   
 * 通过慢日志进行优化查询语句,优化未使用索引语句
 
-* 实时查询有性能问题的SQL:select * from information_schema.PROCESSLIST where time>5;通过特定表查询超过指定时间的sql,时间单位为S.可通过脚本实时查询,进行分析
+* 实时查询有性能问题的SQL:`select * from information_schema.PROCESSLIST where time>5`;通过特定表查询超过指定时间的sql,时间单位为S.可通过脚本实时查询,进行分析
+
+* 打开死锁日志:`set global innodb_print_all_deadlocks=on;`
 
 
 
