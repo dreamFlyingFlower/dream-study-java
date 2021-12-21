@@ -1,7 +1,7 @@
 package com.wy.service;
 
-import com.wy.User;
 import com.wy.base.BaseService;
+import com.wy.model.User;
 
 /**
  * User用户业务接口

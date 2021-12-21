@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.wy.intercepter.FirstInterceptor;
+import com.wy.interceptor.FirstInterceptor;
 
 /**
  * 添加interceptor到web容器中,可以继承{@link WebMvcConfigurationSupport}或实现{@link WebMvcConfigurer}

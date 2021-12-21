@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import com.wy.User;
+import com.wy.model.User;
 import com.wy.base.Mapper;
 import com.wy.enums.UserType;
 

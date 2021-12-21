@@ -1,0 +1,10 @@
+server:
+  port: 12301
+
+spring:
+  application:
+    name: dream-study-java-xxljob
+  profiles:
+    active:
+    - dev
+    - xxljob

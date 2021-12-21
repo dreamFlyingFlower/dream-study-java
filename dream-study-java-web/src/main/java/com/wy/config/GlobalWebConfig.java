@@ -9,7 +9,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wy.filters.SecondFilter;
-import com.wy.intercepter.FirstInterceptor;
+import com.wy.interceptor.FirstInterceptor;
+import com.wy.interceptor.RateLimitInterceptor;
 import com.wy.servlet.listener.SecondListener;
 
 /**
@@ -41,8 +42,8 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 	 */
 	@Bean
 	public ServletListenerRegistrationBean<SecondListener> getServletListenerRegistrationBean() {
-		ServletListenerRegistrationBean<SecondListener> bean = new ServletListenerRegistrationBean<SecondListener>(
-				new SecondListener());
+		ServletListenerRegistrationBean<SecondListener> bean =
+				new ServletListenerRegistrationBean<SecondListener>(new SecondListener());
 		return bean;
 	}
 
@@ -52,5 +53,6 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new FirstInterceptor());
+		registry.addInterceptor(new RateLimitInterceptor());
 	}
 }

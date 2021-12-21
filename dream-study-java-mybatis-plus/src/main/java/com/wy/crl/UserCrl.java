@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wy.User;
 import com.wy.base.AbstractCrl;
+import com.wy.model.User;
 import com.wy.result.Result;
 import com.wy.service.UserService;
 

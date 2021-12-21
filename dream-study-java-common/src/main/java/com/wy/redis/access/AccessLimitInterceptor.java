@@ -12,7 +12,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.wy.common.Constant;
-import com.wy.limit.LimitAccess;
+import com.wy.limit.annotation.LimitAccess;
 import com.wy.redis.RedisUtils;
 import com.wy.redis.idempotent.TokenService;
 

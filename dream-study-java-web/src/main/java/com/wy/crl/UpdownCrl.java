@@ -48,7 +48,6 @@ public class UpdownCrl {
 	@ApiOperation(value = "文件已经形成,重新形成流传输,前端形成文件,如下载一张图片", hidden = true)
 	@RequestMapping("downloadFile")
 	public ResponseEntity<byte[]> downloadFile(String fileType, HttpServletRequest request) {
-		HttpHeaders headers = new HttpHeaders();
 		ResponseEntity<byte[]> entity = null;
 		try (InputStream in = new FileInputStream(new File("d:/myImg/001.png"));) {
 			byte[] bytes = new byte[in.available()];
@@ -64,12 +63,14 @@ public class UpdownCrl {
 				filename = new String(filename.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 			}
 			in.read(bytes);
+			HttpHeaders headers = new HttpHeaders();
 			// 通知浏览器以attachment方式打开图片
 			headers.add("Content-Disposition", "attachment;filename=" + filename);
-			// HttpHeaders headers = new HttpHeaders();
 			// headers.setContentDispositionFormData("attachment", filename);
 			// 二进制文件流
 			// headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			// Excel文件流
+			// headers.add("content-type","application/vnd.ms-excel;charset=UTF-8");
 			entity = new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
 		} catch (IOException e) {
 			e.printStackTrace();

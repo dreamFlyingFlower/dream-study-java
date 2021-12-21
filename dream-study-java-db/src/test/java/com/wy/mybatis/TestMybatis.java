@@ -16,7 +16,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.wy.User;
+import com.wy.model.User;
 
 @SpringBootTest
 public class TestMybatis {
