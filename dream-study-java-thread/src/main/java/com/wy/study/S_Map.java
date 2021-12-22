@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
- * 线程安全的map方法,HashTable基本已经淘汰
+ * HashMap , ConcurrentHashMap ,HashTable基本已经淘汰
  * 
- * {@link HashMap}:数组,链表,红黑树结合在一起使用,也就是链表散列,链表长度超过8就转为红黑树:
+ * {@link HashMap}:数组+链表+红黑树,数组长度超过64且链表长度超过8就转为红黑树;红黑树长度小于6转为链表
  * 
  * <pre>
  * HashMap 通过 key 的 hashCode 经过扰动函数处理过后得到 hash 值,
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * </pre>
  * 
  * {@link ConcurrentHashMap}:JDK8抛弃了Segment分段锁机制,利用CAS+Synchronized来保证线程安全,
- * 底层依然是数组+链表+红黑树.当链表长度超过8时,链表转换为红黑树
+ * 底层依然是数组+链表+红黑树
  * 
  * <pre>
  * table:第一次插入时初始化,默认大小为16的数组,用来存储Node节点数据,扩容时大小总是2的幂次方
@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * 		只有table扩容时,该值作为一个占位符放在table中表示当前节点为null或则已经被移动
  * 扩容:当容器中的元素个数大于capacity * loadfactor时,容器会进行扩容resize 为 2n
  * 		table的元素数量达到容量阈值sizeCtl时,先构建一个nextTable,大小为table的两倍,再将table的数据复制到nextTable中
+ * 		数组扩容时key的hash值是不变的
  * </pre>
  * 
  * {@link ConcurrentHashMap#put()}:存储元素,key和value都不能时null
