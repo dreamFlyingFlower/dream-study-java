@@ -3,6 +3,7 @@ package com.wy.study;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * HashMap , ConcurrentHashMap ,HashTable基本已经淘汰
@@ -18,8 +19,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * 拉链法:将链表和数组相结合,也就是数组中每一格就是一个链表.若遇到哈希冲突,则将冲突的值加到链表中即可
  * </pre>
  * 
- * {@link ConcurrentHashMap}:JDK8抛弃了Segment分段锁机制,利用CAS+Synchronized来保证线程安全,
- * 底层依然是数组+链表+红黑树
+ * {@link ConcurrentHashMap}:底层依然是数组+链表+红黑树,但是JDK8抛弃了Segment分段锁机制,
+ * 利用CAS+Synchronized+Node来保证线程安全.如果数组index没有发生冲突,则使用CAS;发生冲突则使用Synchronized加锁.
+ * JDK8之所以抛弃Segment,是因为需要先要查询Segment的位置,再根据key从Segment中查询key的位置;
+ * JDK7使用{@link ReentrantLock}进行加锁,该锁是重量级锁.但是Synchronized会自动升级,从轻量级锁开始->自旋锁->重量级锁
  * 
  * <pre>
  * table:第一次插入时初始化,默认大小为16的数组,用来存储Node节点数据,扩容时大小总是2的幂次方
