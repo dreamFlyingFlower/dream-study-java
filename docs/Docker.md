@@ -225,7 +225,10 @@
 * 新建一个Dockerfile文件,无后缀,内容如下:
 
   * FROM:该参数表示依赖的已经存在的镜像名,格式为iname[:tag],必须是第一条非注释指令
-  * MAINTAINER:维护者的信息,多个用空格隔开
+  * MAINTAINER:维护者的信息,多个用空格隔开,已废弃
+  * LABEL:标签,代替了MAINRAINER,可以写多个,以KEY=VALUE形式存在
+    * LABEL Author=dreamFlyingFlower
+    * LABEL Version=0.0.1
   * RUN:可以有多个,有2种模式
     * shell命令:/bin/sh -c command,其中command自定义,其他固定写法
     * exec模式:["executable","arg1","arg2"...].相当于每一个空格都是一个参数
@@ -234,7 +237,7 @@
   * ENTRYPOINT:模式和CMD相同,但是在默认情况下不会被docker run中的命令覆盖,但可以使用--entrypoint参数强行覆盖.entrypoint和cmd配置使用,entrypoint中只写主要命令,cmd中只写参数,这样可以在docker run时使用-g 'args'覆盖cmd中参数
   * ADD src des:将其他文件或目录复制到使用dockerfile构建的镜像中.若是文件路径中有空格,可以使用["src","des"].
   * COPY src des:功能同ADD,不同的是add有类似解压的功能,若单纯的复制文件,推荐copy
-  * VOLUME["/data1","/data2"]:向镜像中提供卷,用于持久化和数据共享.类似于docker run的-v参数,但是它不能映射到主机中
+  * VOLUME ["/data1","/data2"]:向镜像中提供卷,用于持久化和数据共享.类似于docker run的-v参数,但是它不能映射到主机中
   * WORKDIR /path:在创建容器时指定默认的工作目录,即cmd的默认目录
   * ENV k v/k=v:设置环境变量
   * USER username:指定容器以那个用户运行,若不使用,默认以root用户运行
@@ -278,10 +281,116 @@
 
 
 
-# Docker compose
+# DockerCompose
 
 * 一种用于通过使用单个命令创建和启动Docker应用程序的工具,主要用来做开发,测试等
 * 需要配置一个docker-compose.yml文件,详见[官网](https://docs.docker.com/compose/extends/)
+
+
+
+## 概述
+
+
+
+* Docker Compose运行目录下的所有文件(docker-compose.yml,extends文件或环境变量文件等)组成一个工程,若无特殊指定工程名即为当前目录名
+* 一个工程当中可包含多个服务,每个服务中定义了容器运行的镜像,参数,依赖
+* 一个服务当中可包括多个容器实例
+* 没有解决负载均衡的问题,因此需要借助其它工具实现服务发现及负载均衡
+* 配置文件默认为docker-compose.yml,可通过环境变量COMPOSE_FILE或-f参数自定义配置文件,其定义了多个有依赖关系的服务及每个服务运行的容器
+* 服务(service):一个应用的容器,实际上可以包括若干运行相同镜像的容器实例
+* 项目(project):由一组关联的应用容器组成的一个完整业务单元,在docker-compose.yml 文件中定义
+* 一个项目可以由多个服务(容器)关联而成,Compose 面向项目进行管理,通过子命令对项目中的一组容器进行便捷地生命周期管理
+* Compose 项目由Python编写,实现上调用了 Docker 服务提供的 API 来对容器进行管理.因此,只要所操作的平台支持 Docker API,就可以在其上利用 Compose 来进行编排管理
+
+
+
+## Shell
+
+
+
+* docker-compose -h:查看帮助
+* docker-compose up:创建并运行所有容器
+* docker-compose up -d:创建并后台运行所有容器
+* docker-compose -f docker-compose.yml up -d:指定模板
+* docker-compose down:停止并删除容器,网络,卷,镜像
+* docker-compose logs:查看容器输出日志
+* docker-compose pull:拉取依赖镜像
+* dokcer-compose config:检查配置
+* dokcer-compose config -q:检查配置,有问题才有输出
+* docker-compose restart:重启服务
+* docker-compose start:启动服务
+* docker-compose stop:停止服务
+* docker-compose ps:列出项目中所有的容器
+
+
+
+## 使用
+
+
+
+* 创建一个docker-compose.yml
+  * image:镜像名称
+  * build:根据docker file 打包 成镜像
+  * context:指定docker file文件位置
+  * commond:使用command可以覆盖容器启动后默认执行的命令
+  * container_name:容器名称
+  * depends_on:指定依赖那个服务
+  * ports:映射的端口号
+  * extra_hosts:会在/etc/hosts文件中添加一些记录
+  * volumes:持久化目录
+  * volumes_from:从另外一个容器挂在数据卷
+  * dns:设置dns
+* 定制docker-compose内容
+* 运行docker-compose up
+
+```yaml
+version: '3.0'
+services:
+	# 服务名称
+	tomcat80: 
+        # container_name: tomcat8080 指定容器名称
+        image: tomcat:8
+        ports:
+            - 8080:8080
+        volumes:
+            - /usr/tomcat/webapps:/usr/local/tomcat/webapps
+        # 定义网络的桥
+        networks:  
+            - test_web
+    mysql:
+        image: mysql:5.7
+        # 解决外部无法访问
+        command: --default-authentication-plugin=mysql_native_password
+        ports:
+        	- 3306:3306
+        environment:
+        	# root密码
+            MYSQL_ROOT_PASSWORD: 'root'
+            # 连接密码不能为空
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+            # 默认创建数据库test
+            MYSQL_DATABASE: 'test'
+            # 默认创建一个test的用户,并指定密码
+            MYSQL_USER: 'test'
+            MYSQL_PASSWORD: 'root'
+        networks:
+        	- test_web
+    # 自己单独的springboot项目
+    test-web:
+        hostname: localhost
+        # 需要构建的Dockerfile文件
+        build: ./
+        ports:
+        	- "38000:8080"
+        # web服务依赖mysql服务,要等mysql服务先启动
+        depends_on:
+        	- mysql
+        networks:
+        	- test_web
+# 定义一个网络,让多个组件之间可以相互连通
+networks:
+	test_web:
+```
 
 
 
@@ -330,6 +439,8 @@ services:
 * git search,git pull可正常使用,其他打tag,commit,push等都要带上私服地址
 * git tag iid/iname 192.168.1.150:5000/newiname[:tag]:在私服上打tag
 * git push 192.168.1.150:5000/newiname[:tag]:上传新的镜像到私服上
+
+
 
 # Maven中使用
 

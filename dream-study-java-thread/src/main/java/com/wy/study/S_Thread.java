@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit;
  * 
  * 线程的打断,恢复:Interrupt()
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2019-05-08 20:39:35
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_Thread {
 
