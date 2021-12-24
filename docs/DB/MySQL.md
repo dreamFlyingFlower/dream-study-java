@@ -1824,7 +1824,6 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 * 默认是不开启的,是一个顺序读写的日志,记录**所有数据库**增删改,用于主从,数据恢复等
-
 * bin_log的记录会影响数据库的性能,特别是事务条件下
 * 有3种模式:Row,Statement,Mixed(Statement为主,特殊条件下切换成row),配置为binlog_format
   * Row:将每一条sql产生的所有行的变更都记录为一行日志,解决了Statement模式的主从不一致问题,但是会浪费更多的系统空间,更消耗系统性能
@@ -1832,8 +1831,10 @@ PARTITION BY RANGE(YEAR(createtime)){
   * sync_binlog=1:每条bin.log都需要记录
 * bin_log默认会放在mysql的数据库目录(data)下,以6位数字进行区分,如mysql-bin.000001
 * mysqlbinlog [] mysql-bin.000001:只能用mysqlbinlog命令查看bin_log文件,用cat方式会乱码
-* mysqlbinlog -d dbname mysql-bin.000001 > test.sql:将bin_log中的dbname数据库数据全部拆出来输出到sql中
-* mysqlbinlog mysql-bin.000021 --start-position=30 --stop-position=199 -r pos.sql:从指定的bin_log中拆出从指定位置开始到指定位置结束的日志到sql中.具体的位置点可以直接查看bin_log日志,不能是不存在的位置点,含头不含尾,末尾的点不会放到sql中
+  * -d dbname mysql-bin.000001 > test.sql:将bin_log中的dbname数据库数据全部拆出来输出到sql中
+  * --start-position=30 --stop-position=199 -r bak.sql mysql-bin.000021:从指定bin_log中拆出从指定位置开始到指定位置结束的日志到sql中.具体的位置点可以直接查看bin_log日志,不能是不存在的位置点,含头不含尾,末尾的点不会放到sql中
+  * --start-datetime=xxx --stop-datetime=xxx:时间级别过滤
+  * mysql-bin.00000[0-9]*:文件名正则
 * 基于Statement主从复制的优缺点:
   * 生成的日志量少,节省网络IO
   * 并不强制要求主从数据的表结构完全相同
@@ -1999,6 +2000,15 @@ select sleep(12);
 
 
 
+### WAL
+
+
+
+* 预写式日志(Write-Ahead Logging),是数据库系统中提供原子性(Atomicity)和持久性(Durability)的一系列技术
+* 在使用WAL的系统中,所有的修改在提交前,都要先写入LOG文件中
+
+
+
 ### UNDO.LOG
 
 ![](MYSQL14.png)
@@ -2007,16 +2017,22 @@ select sleep(12);
 * delete undo log:用于回滚,提交即清理
 * update undo log:用于回滚,同时实现快照读,不能随便删除
 * 依据系统活跃的最小事务ID去清理undo.log
+* DML操作导致的数据记录变化,均需要将记录的前镜像写入Undo日志
+* DML操作修改聚簇索引前,记录Undo日志
+* 二级索引记录的修改,不记录Undo日志
+* Undo页面的修改,同样需要记录Redo日志
 
 
 
 ### REDO.LOG
 
 * 实现事务持久性,记录修改,同时用于异常恢复
+* 在页面修改完成之后,在脏页刷出磁盘之前,写入Redo日志
+* 日志先行,日志一定比数据页先写回磁盘
+* DML操作导致的页面变化,聚簇索引/二级索引/Undo页面修改,均需要记录Redo日志  
 * REDO.LOG和数据库磁盘文件的区别:
   * REDO.LOG体积小,只记录页的修改,比写入页代价低
   * 末尾追加,将数据库页的随机写变顺序写,发生改变的页不固定
-
 * 4个redo.log循环写的方式实现事务持久性功能
   * Write Pos:写入开始位置
   * Check Point:刷盘位置,即可以将数据覆盖的位置.Write Pos不停的往前写数据,Check Point则在后面覆盖数据

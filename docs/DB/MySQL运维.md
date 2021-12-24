@@ -163,27 +163,99 @@ mysqladmin -u root password "密码" # 从10那步的日志中找
    vi /etc/init.d/mysqld # 价格datadir和basedir的目录改成自己的
    ```
 
-###  启动数据库
+
+
+### 编译安装
+
+
+
+#### 依赖
+
+
+
+* gcc/g++:MySQL 5.6开始,需要使用g++进行编译
+* cmake:MySQL 5.5开始,使用cmake进行工程管理,cmake需要2.8以上版本
+* bison:MySQL语法解析器需要使用bison进行编译
+* ncurses-devel:用于终端操作的开发包
+* zlib:MySQL使用zlib进行压缩
+* libxml:用于XML输入输出方式的支持
+* openssl:使用openssl安全套接字方式通信
+* dtrace:用于诊断MySQL问题
+
+
+
+#### 编译参数
+
+
+
+* CMAKE_BUILD_TYPE:编译的版本类型.RelWithDebInfo和Debug,RelWithDebInfo会进行优化
+
+* CMAKE_INSTALL_PREFIX:指定make install安装的目标路径
+
+* SYSCONFDIR:指定配置文件的默认路径
+
+* MYSQL_DATADIR:指定data目录的默认路径
+
+* WITH_DEBUG:指定是否有debug信息,一般用于源码调试时,生产环境关闭
+
+* ENABLED_PROFILING:指定是否可以使用show profile显示操作执行的详细信息
+
+* DEFAULT_CHARSET:指定默认字符集,可以在启动的配置文件中指定
+
+* DEFAULT_COLLATION:指定默认字符比较,排序的规则
+
+* WITH_EXTRA_CHARSETS:指定其他可能使用的字符集
+
+* WITH_SSL:指定SSL的类型,从5.6.6开始默认bundled类型,也可以指定SSL库的路径地址
+
+* WITH_ZLIB:指定zlib的类型,用于压缩功能
+
+* WITH_storage_STORAGE_ENGINE:指定编译支持的存储引擎.默认支持MyISAM,MERGE,MEMORY,CSV存储引擎
+
+* ENABLED_LOCAL_INFILE:指定是否允许使用load data infile功能
+
+* WITH_EMBEDDED_SERVER:指定是否编译libmysqld嵌入式库
+
+* INSTALL_LAYOUT:指定安装的布局类型
+
+* 编译语句
+
+  ```shell
+  CFLAGS="-O3 -g -fno-exceptions -static-libgcc -fno-omit-frame-pointer -fno-strict-aliasing"
+  CXX=g++
+  CXXFLAGS="-O3 -g -fno-exceptions -fno-rtti -static-libgcc -fno-omit-frame-pointer -fno-strict-aliasing"
+  export CFLAGS CXX CXXFLAGS
+  cmake . [PARAMETERS]
+  make -j & make install
+  ```
+
+
+
+
+##  启动数据库
+
+
 
 * service mysqld start/systemctl start mysqld
-
 * service mysqld restart/systemctl  restart mysqld
 
 
 
-### 停止数据库
+## 停止数据库
 
+
+
+* 一定不能强制关闭数据库,大概率造成数据库损坏,数据丢失
 * service mysqld stop/systemctl stop mysqld
-
 * mysqladmin -uroot -p123456 shutdown
-
 * /etc/init.d/mysqld stop
-
 * kill -USER2 \`cat path/pid\`:不要用这种方法,可能造成数据丢失
 
 
 
-### 多实例
+# 多实例
+
+
 
 > 一台机器上开多不同的服务端口,运行多个Mysql服务进程,这些Mysql多实例公用一套安装程序,使用相同的/不同的my.cnf配置,启动程序,数据文件
 
@@ -205,7 +277,13 @@ mysqladmin -uroot -p123456 -S /app/mysql/data/3307/mysql.sock shutdown
 
 
 
+# 密码管理
+
+
+
 ##  修改密码
+
+
 
 * 在mysql环境外
 
@@ -231,12 +309,16 @@ ALTER USER "root"@"localhost" IDENTIFIED BY "新密码";
 
 ## 忘记密码
 
+
+
 ```shell
 # 停止mysql
 systemctl stop mysqld
 # /etc/init.d/mysqld stop
 # 跳过权限启动mysql
 mysqld_safe --skip-grant-tables --user=mysql &;
+# 如果有多实例,需要加上配置文件地址
+# mysqld_safe --default-file=/mysql/my.cnf --skip-grant-tables --user=mysql &;
 # 如果上面的命令无效报错,则执行下面这段命令
 # mysqld --skip-grant-tables --user=mysql &;
 # 或者直接在/etc/my.cnf加上如下,之后再正常启动mysql
@@ -246,7 +328,7 @@ mysql -uroot -p
 # 更新root密码
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'newpwd';
 # 或者
-UPDATE MYSQL.`user` SET PASSWORD=PASSWORD('newpwd') WHERE `user` = 'root';
+UPDATE MYSQL.`user` SET PASSWORD=PASSWORD("newpwd") WHERE `user` = 'root';
 # 刷新权限
 FLUSH PRIVILEGES;
 ```
@@ -266,42 +348,46 @@ FLUSH PRIVILEGES;
 
 ## 登录加密
 
-1. **注意打开远程访问时,mysql8之前的版本和8以后的版本不一样,因为登录时密码的加密方式不一样.MYSQL_NATIVE_PASSWORD是5的加密方式,8的加密方式改成了caching_sha2_password**,若是用远程访问工具登录数据库时,需要做部分修改
-
-2. 创建用户时指定登录的加密方式,该方式只会影响单个用户,不会影响其他用户
-
-   ```mysql
-   CREATE USER 'newuser'@'%' IDENTIFIED WITH MYSQL_NATIVE_PASSWORD BY 'newpwd';
-   ```
-
-3. 修改用户登录时候的加密方式
-
-   ```mysql
-   ALTER USER 'newuser'@'%' IDENTIFIED WITH mysql_native_password BY 'newpwd';
-   ```
-
-4. 在配置文件的mysqld下加上如下配置,则所有的加密方式都用旧的
-
-   ```mysql
-   default_authentication_plugin=mysql_native_password
-   service mysqld restart # 重启之后还需要重置原帐号密码,重新设置
-   update mysql.user set authentication_string='' where user='root';
-   alter user 'root'@'%' identified by '123456';
-   flush privileges;
-   ```
-
-5. 登录mysql
-
-   ```shell
-   # mysql是服务名称,默认mysql
-   # -h是登录的数据库自治,-u表示登录mysql的用户名,-p表示对应的用户名密码
-   # 密码可以明文接在-p后面,也可以回车之后提示输入密码
-   mysql [-h127.0.0.1] -uroot -p
-   ```
 
 
+* **注意打开远程访问时,mysql8之前的版本和8以后的版本不一样,因为登录时密码的加密方式不一样.MYSQL_NATIVE_PASSWORD是5的加密方式,8的加密方式改成了caching_sha2_password**,若是用远程访问工具登录数据库时,需要做部分修改
 
-## 配置文件
+* 创建用户时指定登录的加密方式,该方式只会影响单个用户,不会影响其他用户
+
+  ```mysql
+  CREATE USER 'newuser'@'%' IDENTIFIED WITH MYSQL_NATIVE_PASSWORD BY 'newpwd';
+  ```
+
+* 修改用户登录时候的加密方式
+
+  ```mysql
+  ALTER USER 'newuser'@'%' IDENTIFIED WITH mysql_native_password BY 'newpwd';
+  ```
+
+* 在配置文件的mysqld下加上如下配置,则所有的加密方式都用旧的
+
+  ```mysql
+  default_authentication_plugin=mysql_native_password
+  service mysqld restart # 重启之后还需要重置原帐号密码,重新设置
+  update mysql.user set authentication_string='' where user='root';
+  alter user 'root'@'%' identified by '123456';
+  flush privileges;
+  ```
+
+* 登录mysql
+
+  ```mysql
+  # mysql是服务名称,默认mysql
+  # -h是登录的数据库自治,-u表示登录mysql的用户名,-p表示对应的用户名密码
+  # 密码可以明文接在-p后面,也可以回车之后提示输入密码
+  mysql [-h127.0.0.1] -uroot -p
+  ```
+
+  
+
+
+
+# 配置文件
 
 > mysqld --help --verbose|grep -A 1 'Default options':查看mysql读取配置文件的顺序,不同系统顺序不一样
 
@@ -414,7 +500,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-## 字符集
+# 字符集
 
 * 在安装时指定服务端和客户端的字符集,一般utf8或utfmb4
 
@@ -450,14 +536,14 @@ log-error=/app/mysql/logs/mysql-error.log
 
 * **修改已有数据库乱码数据的唯一办法:将数据导出,之后修改数据库的字符集,再将数据重新导入**,以将数据库远字符集为gbk切换成utf8为例
 
-  1. 导出表结构
+  * 导出表结构
 
   ```mysql
   # -d表示只导出表结构
   mysqldump -uroot -p123456 --default-charater-set=gbk -d dbname > alltable.sql --default-character-set=utf8
   ```
 
-  2. 确保数据库不再更新数据,导出所有数据
+  * 确保数据库不再更新数据,导出所有数据
 
   ```mysql
   # --quick:用于转出大的表,强制mysqldump从服务器一次一行的加锁数据而不是检索所有行,并输出前cache到内存中
@@ -467,8 +553,8 @@ log-error=/app/mysql/logs/mysql-error.log
   mysqldump -uroot -p123456 --quick --no-create-info --extended-insert --default-character-set=gbk > alldata.sql
   ```
 
-  7. 打开alldata.sql将set names gbk 修改成 utf8.或者删除该语句,直接将mysql服务端和客户端字符集设置为utf8
-  8. 创建数据库,表,导入数据
+  * 打开alldata.sql将set names gbk 修改成 utf8.或者删除该语句,直接将mysql服务端和客户端字符集设置为utf8
+  * 创建数据库,表,导入数据
 
   ```mysql
   create database dbname default charset utf8;
@@ -479,7 +565,7 @@ log-error=/app/mysql/logs/mysql-error.log
 
 
 
-## 开启远程访问
+# 开启远程访问
 
 1. 登录数据库
 
@@ -561,6 +647,11 @@ mysqld --initialize --user=mysql --console
 
 
 
+* 查看MySQL历史操作:`cat ~/.mysql_history`
+* 历史操作:删除数据库相关的历史操作记录:`cat /dev/null > ~/.mysql_history`
+
+
+
 ## 用户信息
 
 1. 用户信息表:mysql.user
@@ -584,9 +675,7 @@ DROP mysql.USER username;
 
 
 
-## 权限操作
-
-### 赋权
+## 赋权
 
 GRANT 权限列表 ON dbname.tablename TO 'username'@'ip';
 
@@ -605,7 +694,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 撤销权限
+## 撤销权限
 
 1. 单个权限:REVOKE 权限列表 ON tablename FROM username;
 2. 所有权限:REVOKE ALL PRIVILEGES GRANT OPTION FROM username;
@@ -613,7 +702,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 权限层级
+## 权限层级
 
 1. 要使用GRANT或REVOKE,您必须拥有GRANT OPTION权限,并且您必须用于您正在授予或撤销的权限
 
@@ -633,7 +722,7 @@ SHOW GRANTS FOR username;
 
 
 
-### 权限列表
+## 权限列表
 
 * ALL [PRIVILEGES]:设置除GRANT OPTION之外的所有简单权限
 * ALTER:允许使用ALTER TABLE
@@ -666,18 +755,29 @@ SHOW GRANTS FOR username;
 
 
 
+# 强制访问控制
+
+
+
+* 强制访问控制:MAC,是系统强制主体服从访问控制策略,与自主访问控制(DAC)基于系统实体身份及其到系统资源的接入授权方式,同保证用户的权限
+* 实现策略:
+  * 创建系统表:定义用户的强制访问权限管理表
+  * 修改用户认证逻辑:在sql_acl.cc中修改用户验证逻辑,检查强制访问权限管理表,是否符合用户认证要求
+
+
+
 # 备份还原
 
 
 
-## 数据库表备份
+## 数据库备份
 
 
 
 ```mysql
-# 直接输入用户名和密码进行备份,username是登录的用户名,password是登录的密码,dbname是数据库名
+# 直接输入用户名和密码进行备份,username是用户名,password是密码,dbname是数据库名
 # 最后的sql文件可以是路径,若不是路径直接保存到当前目录
-mysqldump -uusername -ppassword []> sql_bak_dbname.sql
+mysqldump -uroot -ppwd -hlocalhost -p3306 []> sql_bak_dbname.sql
 ```
 
 * --databases dbname1 dbname2...:指定备份多个数据库数据和表结构
@@ -691,14 +791,16 @@ mysqldump -uusername -ppassword []> sql_bak_dbname.sql
 * dbname tablename1 tablename2...:备份数据库中的指定表
 * -d dbname:只备份数据库中所有表的结构
 * -t dbname:只备份数据库中所有表的数据
-* --master-data=1:在备份时直接定位到当前bin-log的终点位置,恢复的时候可以直接从提示的位置恢复.需要结合bin_log相关命令完成全量备份,见7.1
+* --master-data=1:在备份时直接定位到当前bin-log的终点位置,恢复的时候可以直接从提示的位置恢复.需要结合bin_log相关命令完成全量备份
+  * 1:输出change master命令
+  * 2:注释输出change master命令
 
 ```mysql
 # 会在备份的文件开头添加此时备份的数据到那个文件,在该文件的那个位置
 CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 ```
 
-* --default-character-set=utf8:备份时设置导出数据的字符集
+* --default-character-set=utf8mb4:备份时设置导出数据的字符集
 
 * --compact:去除备份的sql中的注释部分,调试的时候才可以用
 
@@ -706,7 +808,7 @@ CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 
 * -l或--lock-tables:锁指定数据库的所有表为只读
 
-* --single-transaction:适合innodb事务数据库备份,用来保证事务的一致性.本质上设置本次的会话隔离级别为REPEATABLE READ
+* --single-transaction:适合innodb事务数据库备份,用来保证事务的一致性.本质上设置本次的会话隔离级别为REPEATABLE READ,关闭--lock-tables
 
 * --triggers:备份触发器
 
@@ -733,11 +835,102 @@ CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 
 
 
+## 物理备份
+
+
+
+* 简单而言就是直接将整个data目录复制保存再恢复
+
+
+
+```mysql
+# 备份
+mysqldamin -u[USER] -p[PASSWORD] -h127.0.0.1 -P3306 shutdown
+tar -czvf /$MYSQL_HOME/data data.tar.gz
+# 恢复
+mysqldamin -u[USER] -p[PASSWORD] -h127.0.0.1 -P3306 shutdown
+tar -xzvf data.tar.gz
+# 替换当前data目录
+mysqld_safe
+change master
+```
+
+
+
 ## 第三方工具备份
 
 
 
-* Xtrabackup
+### Xtrabackup
+
+
+
+* 二进制的可执行程序(基于MySQL的源码+Patch),只能备份innodb存储引擎
+
+
+
+#### 参数
+
+
+
+* 全量备份
+* 增量备份:--incremental,--incremental-basedir
+* 差分备份:--incremental,--incremental-basedir
+* 备份压缩:--stream;tar,xbstream;gzip
+* 并发备份:--parallel
+* 备份加密:--encryption,openssl
+
+
+
+### mydumper
+
+
+
+#### 安装
+
+
+
+```shell
+yum install pcre-devel
+cmake .
+make & make install
+```
+
+
+
+#### 参数
+
+
+
+* statement-size:备份参数,sql语句最大长度
+* rows:备份参数,按照执行rows分割table数据
+* chunk-filesize:备份参数,按照输出文件的大小分割table数据
+* no-locks:备份参数,不锁表
+* binlogs:备份参数,备份binlog日志
+* threads:备份恢复都可用.并发线程数
+* queries-per-transaction:恢复参数,每个事务包含的记录数
+* overwrite-tables:恢复参数,drop table if exists
+* enable-binlog:恢复参数,binlog恢复数据
+
+
+
+#### 备份
+
+
+
+```shell
+mydumper -u[USER] -p[PASSWORD] -h[HOST] -P[PORT] -t[THREADS] -b -c -B [DB] -o /tmp/backup
+```
+
+
+
+#### 恢复
+
+
+
+```shell
+myloader -u[USER] -p[PASSWORD] -h[HOST] -P[PORT] -t[THREADS] -o /tmp/backup -B [DB]
+```
 
 
 

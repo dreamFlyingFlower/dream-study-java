@@ -36,6 +36,10 @@
 
 * nginx -s reload:nginx重启
 
+* nginx -c /usr/local/nginx/conf/nginx.conf:启动时加载指定位置的配置文件
+
+* nginx -s stop:停止nginx
+
 
 
 ## 安装包安装
@@ -51,11 +55,18 @@
   * --modules-path=PATH:模块路径.默认为/usr/local/nginx/modules
   * --conf-path=PATH:nginx.conf配置文件路径.默认为/usr/local/nginx/conf/nginx.conf
   * --error-log-path=PATH:错误日志路径.默认为/usr/local/nginx/logs/error.log
+  * --http-log-path=PATH:访问日志,默认为/var/log/nginx/access.log
   * --pid-path=PATH:运行时的pid文件路径.默认为/usr/local/nginx/logs/nginx.pid
   * --with:可以加上该参数,安装该模块
   * --without:已经安装了的模块,卸载该模块
   * --add-module=PATH:添加指定的模块,必须是已经下载到本地目录中
   * --add-dynamic-module=PATH:动态添加模块
+  * --lock-path=PATH:锁定文件,默认为/var/lock/nginx.lock
+  * --http-client-body-temp-path=/var/temp/nginx/client:客户端定义
+  * --http-proxy-temp-path=/var/temp/nginx/proxy:代理临时目录位置
+  * --http-fastcgi-temp-path=/var/temp/nginx/fastcgi:快速访问临时目录
+  * --http-uwsgi-temp-path=/var/temp/nginx/uwsgi:sgi 访问目录
+  * --http-scgi-temp-path=/var/temp/nginx/scgi:scgi访问临时目录  
 
   ```shell
   ./configure --prifix=/app/software/nginx \ # 根目录
@@ -66,18 +77,39 @@
 
 
 
+## 目录
+
+
+
+* auto:存放 Nginx 自动安装的相关文件
+* conf:存放 Nginx 服务器配置文件
+* configure:命令,用于对即将安装的软件的配置,完成 makefile 编译文件的生成
+* contrib:存放由其他机构贡献的文档材料
+* html:存放 Nginx 欢迎页面
+* man:manual,手册,存放 Nginx 帮助文档
+* src:存放 Nginx 源码
+
+
+
 # 配置文件
 
+
+
 * 每一行配置后都需要有分号
+
 * nginx.conf包括全局块,events块,http块
 
 * 全局块:配置影响nginx全局的指令,如用户组,日志,配置文件引入等
+
+* user:代表访问权限是什么,就是通过 nginx 访问 linux 服务器中文件时,使用的用户权限
 
 * events:核心配置,与内核相关.配置影响nginx服务器或与用户的网络连接,如每个进程的最大连接数等
 
   * worker_connection:每个工作进程的最大连接数,跟系统的最大开启文件描述符相关,可使用ulimit相关命令查看和修改
 
-* work_processes:工作进程数,默认为1,最多最好和服务器核心数相同
+* work_processes:工作进程数,默认为1,最好设置成和服务器核心数相同,也可设置成auto
+
+* include:可以包含其他路径中的nginx配置文件,通常多个服务都是每个服务一个配置文件.包含在include中的配置文件中server就是最上层,其中root,index等参数可以直接写在最外层,不需要写在location中
 
 * http:包含http全局快和server块.可以嵌套多个server,配置代理,缓存,日志定义等绝大多数功能和第三方模块的配置,如文件引入,mime-type定义,日志自定义,连接超时等
 
@@ -129,12 +161,17 @@
 
 
 
-
 ## http
 
-* include:可以包含其他路径中的nginx配置文件,通常多个服务都是每个服务一个配置文件.包含在include中的配置文件中server就是最上层,其中root,index等参数可以直接写在最外层,不需要写在location中
-* log_format main:在ngxin.conf.default中可以看到该参数,表示日志的输出格式,可以根据默认配置文件中的说明进行配置.main是一个标识,在access_log中要用到.更多格式化参数可以参考nginx官网
+
+
+* 定义http服务器内容
+
+* include:加载响应类型
+* default_type:默认使用 IO 流实现请求/应答
+* log_format main:在ngxin.conf.default中可以看到该参数,表示日志的输出格式,可以根据默认配置文件中的说明进行配置.main是一个标识,在access_log中要用到.更多参数参考nginx官网
 * access_log foldername main:将nginx的日志以main格式输入到指定目录的文件中
+* sendfile on/off:是否支持文件传输
 * keepalive_timeout:保持连接的最大时间
 * gzip:是否开启数据压缩
 
@@ -147,16 +184,26 @@
 
 ```nginx
 server{
-	location /{
-        listen 12345;
-		server_name localhost;
+    listen 12345;
+	server_name localhost;
+    # 处理ip:port/a的请求
+	location /a{
         autoindex on;
-        root /app;
+        root /a;
         # add_header Content-Type "text/plain;charset=utf8;"; # 设置请求头的某些属性
         index index.html index.htm;
         rewrite ^(.*)\.vue$ /index.html; # 任何以vue结尾的都跳到index
         proxy_set_header Host 域名
-        proxy_pass http://ip:port; # 或者可以写成proxy_pass name
+        proxy_pass http://ip:port/; # 或者可以写成proxy_pass name
+    }
+    # 处理ip:port/b的请求
+	location /b{
+        autoindex on;
+        root /b;
+        index index.html index.htm;
+        rewrite ^(.*)\.vue$ /index.html; # 任何以vue结尾的都跳到index
+        proxy_set_header Host 域名
+        proxy_pass http://ip:port/; # 或者可以写成proxy_pass name
     }
 }
 ```
@@ -170,11 +217,19 @@ server{
 
 * server_name:监听的域名,ip地址.若有域名,可写域名.多个域名,ip中间用空格隔开
 
+* location:根据请求地址访问本地不同的资源或转发请求
+
 * autoindex:自动索引,即自动搜索目录中的文件和目录并且展现在页面上
 
-* root:项目根目录地址,绝对路径
+* root:当前服务对应本地目录地址.相对地址从 nginx 安装目录开始寻址,绝对地址从根开始寻址
+
+* alias:目录别名,当项目根目录不在nginx中时指定,绝对路径
 
 * index:启动项目时打开的首页,多个用空格隔开
+
+* proxy_pass:代理IP地址,可以是upstream的名称,也可以写多个IP.注意,IP结尾带不带/可能造成无法访问的问题
+
+* error_page 500 502 503 504 /50x.html:错误页面
 
 
 
@@ -276,6 +331,80 @@ location /{ # 请求URI
   * ip_hash:根据请求的ip进行hash之后转发到其他服务器
   * fair:按后端服务器的响应时间来分配请求,响应时间短的优先分配
   * hash:按访问url的hash结果来分配请求,使每个url定向到同一个后端服务器,后端服务器为缓存时比较有效.在upstream中加入hash语句,server语句中不能写入weight等其他的参数,hash_method是使用的hash算法
+
+
+
+# Keepalived
+
+
+
+* 在Linux上配合keepalived,利用Linux的LVS功能实现高可用
+
+
+
+## 配置文件
+
+
+
+```shell
+# 执行的脚本
+vrrp_script chk_nginx {
+	# 运行脚本,检测nginx宕机以后,重启Nginx服务
+    script "/etc/keepalived/nginx_check.sh"
+    # 检测时间间隔,单位秒
+    interval 2
+    # 如果条件成立的话,则权重 -20
+    weight -20 
+}
+# 定义虚拟路由,VI_1为虚拟路由的标示符,可自定义
+vrrp_instance VI_1 {
+	# 决定主从,MASTER主,SLAVE从
+    state MASTER 
+    # 绑定虚拟IP的网络接口,根据实际情况填写,同时外网要打开防火墙
+    interface ens33
+    # 虚拟路由的ID号,主从节点设置必须一样
+    virtual_router_id 121
+    # 本机真实IP
+    mcast_src_ip 192.168.212.140
+    # 节点优先级,主节点比从节点优先级高,若相同会造成IP抢占,网络不稳
+    priority 100
+    # 优先级高的设置 nopreempt 解决异常恢复后再次抢占的问题
+    nopreempt
+    # 组播信息发送间隔,主从节点设置必须一样,默认1s
+    advert_int 1
+    # 主从节点验证信息,必须设置相同
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    # 将 track_script 块加入 instance 配置块
+    track_script {
+    	# 执行 Nginx 监控的服务
+        chk_nginx
+    }
+    # 虚拟ip,也就是解决写死程序的ip怎么能切换的ip,可配置多个
+    virtual_ipaddress {
+        192.168.1.110
+        192.168.1.111
+    }
+}
+```
+
+
+
+```shell
+#!/bin/bash
+# chk_nginx.sh
+A=`ps -C nginx - |wc -l`
+if [ $A -eq 0 ];then
+	# nginx启动地址,根据实际情况修改
+    /usr/local/nginx/sbin/nginx
+    sleep 2
+    if [ `ps -C nginx --no-header |wc -l` -eq 0 ];then
+        killall keepalived
+    fi
+fi
+```
 
 
 
