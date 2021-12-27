@@ -203,7 +203,7 @@ server{
         index index.html index.htm;
         rewrite ^(.*)\.vue$ /index.html; # 任何以vue结尾的都跳到index
         proxy_set_header Host 域名
-        proxy_pass http://ip:port/; # 或者可以写成proxy_pass name
+        proxy_pass http://ip:port/; # 或者可以写成proxy_pass name   
     }
 }
 ```
@@ -230,6 +230,8 @@ server{
 * proxy_pass:代理IP地址,可以是upstream的名称,也可以写多个IP.注意,IP结尾带不带/可能造成无法访问的问题
 
 * error_page 500 502 503 504 /50x.html:错误页面
+
+* if:同Java中的if,只能在server和location中用,配合内置函数使用,详细语法见Nginx官方文档
 
 
 
@@ -263,11 +265,10 @@ location /{ # 请求URI
   * 正则:不完全匹配普通模式时才匹配正则
   * 若同时匹配多个正则,则按照匹配规则在文件中的顺序来,先匹配,先应用
   
-* rewrite src des:重定向,可以使用正则表达式对需要重定向的页面执行规则
-  * rewrite [flag]:关键字,正则,替代内容,flag
-  * 关键字:重写语法关键字
-  * 正则:perl兼容正则表达式语句进行规则匹配
-  * 替代内容:将正则匹配的内容替换成replacement
+* rewrite src des [flag]:重定向,可以使用正则表达式对需要重定向的页面执行规则
+  
+  * src:符合正则的请求地址
+  * des:匹配后的重定向地址
   * flag:rewrite支持的flag标记
     * last:本条规则匹配完成后,继续向下匹配新的location URI规则
     * break:本条规则匹配完成即终止,不再匹配后面的任何规则
@@ -303,6 +304,8 @@ location /{ # 请求URI
     deny all;
   }
   ```
+  
+* allow:允许某个IP访问.如果是网段,用/隔开.如127.0.0.1/64
 
 
 

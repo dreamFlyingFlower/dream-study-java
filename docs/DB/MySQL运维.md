@@ -261,6 +261,27 @@ mysqladmin -u root password "密码" # 从10那步的日志中找
 
 * 配置多个数据目录,多个配置文件及多个启动程序实现多实例
 
+  ```mysql
+  # 多实例中需要修改的参数
+  [client]
+  port
+  socket
+  [mysql]
+  no-auto-rehash
+  [mysqld]
+  port
+  socket
+  basedir
+  datadir
+  log-error
+  log-slow-quries
+  pid-file
+  log-bin
+  relay-log
+  relay-log-info-file
+  server-id
+  ```
+
 * 多实例启动mysql
 
 ```shell
@@ -778,19 +799,21 @@ SHOW GRANTS FOR username;
 # 直接输入用户名和密码进行备份,username是用户名,password是密码,dbname是数据库名
 # 最后的sql文件可以是路径,若不是路径直接保存到当前目录
 mysqldump -uroot -ppwd -hlocalhost -p3306 []> sql_bak_dbname.sql
+# 压缩备份
+mysqldump -uroot -ppwd -hlocalhost -p3306 [] | gzip> sql_bak_dbname.sql.gz
 ```
 
-* --databases dbname1 dbname2...:指定备份多个数据库数据和表结构
-* -A:备份所有数据库数据和结构
+* -A,--all-databases:备份所有数据库数据和结构
 * -A -d:备份所有数据库表结构
 * -A -t:备份所有数据库数据
+* -B db|gzip:在备份的sql中添加创建数据库和使用使用数据库的语句,并压缩文件
+* -B db1 db2,--databases db1,db2...:同时备份多个库,不能和表连用
 * -A  -B  --events:将所有数据库都一次备份完成
+* -F,--flush-logs:刷新binlog日志
 * -A  -B  -F  --events:将所有数据库都一次备份完成,并且对bin-log进行分割,产生新的bin-log日志,而以前的数据就直接从即将备份的文件中取,以后增量数据从产生的新的bin-log日志中读.需要将bin-log先打开
-* -B dbname1 dbname2...:备份的sql中添加创建数据库和使用数据库的语句,可同时备份多个库
-* -B dbname|gzip:在备份的sql中添加创建数据库和使用使用数据库的语句,并压缩文件
-* dbname tablename1 tablename2...:备份数据库中的指定表
-* -d dbname:只备份数据库中所有表的结构
-* -t dbname:只备份数据库中所有表的数据
+* db table1 table2...:备份数据库中的指定表,此时不能和-B参数一起连用
+* -d dbname [table]:只备份数据库中所有表的结构或备份指定表的表结构
+* -t dbname [table]:只备份数据库中所有表的数据或备份指定表的数据
 * --master-data=1:在备份时直接定位到当前bin-log的终点位置,恢复的时候可以直接从提示的位置恢复.需要结合bin_log相关命令完成全量备份
   * 1:输出change master命令
   * 2:注释输出change master命令
@@ -804,9 +827,9 @@ CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 
 * --compact:去除备份的sql中的注释部分,调试的时候才可以用
 
-* -x或--lock-all-tables:锁所有数据库的所有表,不能进行更新
+* -x,--lock-all-tables:锁所有数据库的所有表,不能进行更新
 
-* -l或--lock-tables:锁指定数据库的所有表为只读
+* -l,--lock-tables:锁指定数据库的所有表为只读
 
 * --single-transaction:适合innodb事务数据库备份,用来保证事务的一致性.本质上设置本次的会话隔离级别为REPEATABLE READ,关闭--lock-tables
 
@@ -817,10 +840,33 @@ CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 * **专业的DBA备份**
 
   ```mysql
-  mysqldump -uroot -p123456 --all-databases --flush-privileges --single-transactioin --master-data=1 --flush-logs --triggers --routines --events --hex-blob > #BACKUP_DIR/full_dump_$BACKUP_TIMESTAMP.SQL
+  # 全参数备份,pv参数限流
+  mysqldump -uroot -p123456 --all-databases --flush-logs --events --flush-privileges --single-transactioin --master-data=2 --triggers --routines --hex-blob |pv -q -L 10M|gzip > #BACKUP_DIR/full_dump_$BACKUP_TIMESTAMP.SQL.gz
+  # 简参数备份
+  mysqldump -uroot -p123456 -A -F -E --flush-privileges --single-transactioin --master-data=2 --triggers --routines --hex-blob|pv -q -L 10M |gzip > #BACKUP_DIR/full_dump_$BACKUP_TIMESTAMP.SQL.gz
   ```
 
 * rsync备份:rsync -avz /data/mysql-bin.0* rsync_backup@127.0.0.1::backup -password-file=/etc/rsync.password
+
+* 批量备份数据库
+
+  ```mysql
+  # 拼接所有的数据库的备份语句
+  mysql -uroot -p123456 -e"show databases;"|grep -Evi "database|infor|prefor" |sed  -r 's#^([a-z].*$)#mysqldump -uroot -p123456 --events -B \1|gzip > /app/bak/mysql\1.sql.gz#g'
+  # 执行备份
+  mysql -uroot -p123456 -e"show databases;"|grep -Evi "database|infor|prefor" |sed  -r 's#^([a-z0-9_].*$)#mysqldump -uroot -p123456 --events -B \1|gzip > /app/bak/mysql\1.sql.gz#g'|bash
+  ```
+
+  ```shell
+  # 使用脚本备份
+  # /bin/bash
+  for dbname in `mysql -uroot -p123456 -e "show databases;"|grep -Evi "database|info|perfor"`
+  do
+  	mysqldump -uroot -p123456 --events -B $dbname|gzip > /app/bak/mysql/${dbname}_bak.sql.gz
+  done
+  ```
+
+  
 
 
 
@@ -828,10 +874,12 @@ CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000016',MASTER_LOG_POS=17;
 
 
 
-* mysqlbinlog --raw --read-from-remote-server --stop-never --host localhost --port 3306 -u root -p 123456 bin.log:对二进制文件进行备份,可远程备份
+* mysqlbinlog --raw --read-from-remote-server --stop-never --host localhost --port 3306 -uroot -p123456 bin.log>binlog_bak.sql:对二进制文件进行备份,可远程备份
 * --raw:输出的二进制文件
 * --read-from-remote-server:从服务器上读取二进制文件
 * --stop-never:开启之后不停止,一直读取
+* -d db:只备份执行数据库的日志
+* --start-position=xx --stop-position=xxx:将binlog中指定位置点的日志输出
 
 
 
@@ -857,19 +905,15 @@ change master
 
 
 
-## 第三方工具备份
+## Xtrabackup
 
 
 
-### Xtrabackup
+* 第三方工具备份,二进制的可执行程序(基于MySQL的源码+Patch),只能备份innodb存储引擎
 
 
 
-* 二进制的可执行程序(基于MySQL的源码+Patch),只能备份innodb存储引擎
-
-
-
-#### 参数
+### 参数
 
 
 
@@ -882,11 +926,11 @@ change master
 
 
 
-### mydumper
+## mydumper
 
 
 
-#### 安装
+### 安装
 
 
 
@@ -898,7 +942,7 @@ make & make install
 
 
 
-#### 参数
+### 参数
 
 
 
@@ -914,7 +958,7 @@ make & make install
 
 
 
-#### 备份
+### 备份
 
 
 
@@ -924,7 +968,7 @@ mydumper -u[USER] -p[PASSWORD] -h[HOST] -P[PORT] -t[THREADS] -b -c -B [DB] -o /t
 
 
 
-#### 恢复
+### 恢复
 
 
 
