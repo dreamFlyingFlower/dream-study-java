@@ -86,6 +86,66 @@
 
 
 
+## Physical Redo
+
+
+
+### MLOG_SINGLE_REC
+
+
+
+* 当前日志,记录的是一个Page的一个Redo日志
+* 对应操作:简单的I/U/D,Undo的Redo等
+* 例如:一个Insert操作会产生3个MLOG_SINGLE_REC,分别对应:聚簇索引页;二级索引页;Undo页
+* MLOG_SINGLE_REC日志,一定是有效的
+
+
+
+### MLOG_MULTI_REC
+
+
+
+* 当前日志,是一组日志中的一个,这一组日志,包含了多个Page的多条Redo日志
+* 对应操作:I/U/D导致的索引分裂,合并;Varchar/LOB导致的链接行等
+* 例如:Insert使得聚簇索引分裂,分裂操作需要涉及至少3个Page,这三个Pages上的所有修改日志,均为MLOG_MULTI_REC中的一部分
+* MLOG_MULTI_REC日志组,只有当最后一条MLOG_MULTI_REC_END写出之后,才起作用;否则全部丢弃
+
+
+
+## Logical Redo
+
+
+
+* 逻辑Redo,不是记录页面的实际修改,而是记录修改页面的一类固定操作
+* 如何写页面初始化日志:
+  * 写MLOG_COMP_PAGE_CREATE日志
+  * 重做此日志, 只需再次调用page0page.c::page_create方法初始化对应的Page即可
+* MLOG_COMP_PAGE_CREATE;MLOG_UNDO_HDR_CREATE;MLOG_IBUF_BITMAP_INIT
+* 这类动作是固定的,减少Redo的一个优化
+
+
+
+## Mini-Transaction
+
+![](MYSQL28.PNG)
+
+* MTR,不属于事务,InnoDB内部使用,对于InnoDB内所有page的访问(I/U/D/S),都需要mini-transaction支持
+* 访问page,对page加latch(只读访问:S latch;写访问:X latch)
+* 修改page,写redo日志 (mtr本地缓存)
+* page操作结束,提交mini-transaction (非事务提交)
+  * 将redo日志写入log buffer
+  * 将脏页加入Flush List链表
+  * 释放页面上的 S/X latch
+* 保证单page操作的原子性(读/写单一page),保证多pages操作的原子性(索引SMO/记录链出,多pages访问的原子性)
+
+
+
+## LogBuffer
+
+
+
+
+
 # 数据库设计规范
 
 
@@ -2053,6 +2113,72 @@ select sleep(12);
 * 存储引擎先将数据写入到undo.log中,之后更新内存数据
 * 记录页的修改,状态更改为prepare
 * 存储引擎数据更新完成之后,事务进行提交,将事务记录为commit状态
+
+
+
+#### Insert
+
+![](MYSQL23.PNG)
+
+* 将插入记录的主键值,写入Undo
+* 将[space_id, page_no, 完整插入记录, 系统列, ...]写入Redo
+* space_id, page_no 组合代表了日志操作的页面
+
+
+
+#### Delete
+
+![](MYSQL24.PNG)
+
+* Delete,在InnoDB内部为Delete Mark操作,将记录上标识Delete_Bit,而不删除记录
+* 将当前记录的系统列写入Undo (DB_TRX_ID, ROLLBACK_PTR, ...)
+* 将当前记录的主键列写入Undo
+* 将当前记录的所有索引列写入Undo (why? for what?)
+* 将Undo Page的修改,写入Redo
+* 将[space_id, page_no, 系统列,记录在页面中的Slot, ...]写入Redo
+
+
+
+#### Update
+
+
+
+* 未修改聚簇索引键值,属性列长度未变化,聚簇索引
+
+  ![](MYSQL25.PNG)
+
+  * 将当前记录的系统列写入Undo (DB_TRX_ID, ROLLBACK_PTR, ...)
+  * 将当前记录的主键列写入Undo
+  * 将当前Update列的前镜像写入Undo
+  * 若Update列中包含二级索引列,则将二级索引其他未修改列写入Undo
+  * 将Undo页面的修改,写入Redo
+  * 进行In Place Update,记录Update Redo日志(聚簇索引)
+  * 若更新列包含二级索引列,二级索引肯定不能进行In Place Update,记录Delete Mark + Insert Redo日志
+
+* 未修改聚簇索引键值,属性列长度发生变化,聚簇索引
+
+  ![](MYSQL26.PNG)
+
+  * 将当前记录的系统列写入Undo (DB_TRX_ID, ROLLBACK_PTR, ...)
+  * 将当前记录的主键列写入Undo
+  * 将当前Update列的前镜像写入Undo
+  * 若Update列中包含二级索引列,则将二级索引其他未修改列写入Undo
+  * 将Undo页面的修改,写入Redo
+  * 不可进行In Place Update,记录Delete + Insert Redo日志(聚簇索引)
+  * 若更新列包含二级索引列,二级索引肯定不能进行In Place Update,记录Delete Mark + Insert Redo日志
+
+* 修改聚簇索引键值,聚簇索引
+
+  ![](MYSQL27.PNG)
+
+  * 不可进行In Place Update,Update = Delete Mark + Insert
+  * 对原有记录进行Delete Mark操作,写入Delete Mark操作Undo
+  * 将新纪录插入聚簇索引,写入Insert操作Undo
+  * 将Undo页面的修改,写入Redo
+  * 不可进行In Place Update,记录Delete Mark + Insert Redo日志(聚簇索引)
+  * 若更新列包含二级索引列,二级索引肯定不能进行In Place Update,记录Delete Mark + Insert Redo日志
+
+
 
 
 
