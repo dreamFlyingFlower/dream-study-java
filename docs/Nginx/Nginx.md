@@ -361,14 +361,14 @@ vrrp_script chk_nginx {
 }
 # 定义虚拟路由,VI_1为虚拟路由的标示符,可自定义
 vrrp_instance VI_1 {
-	# 决定主从,MASTER主,SLAVE从
+	# 决定主从,MASTER主,BACKUP从.会根据网络动态变化
     state MASTER 
     # 绑定虚拟IP的网络接口,根据实际情况填写,同时外网要打开防火墙
     interface ens33
     # 虚拟路由的ID号,主从节点设置必须一样
     virtual_router_id 121
     # 本机真实IP
-    mcast_src_ip 192.168.212.140
+    #mcast_src_ip 192.168.212.140
     # 节点优先级,主节点比从节点优先级高,若相同会造成IP抢占,网络不稳
     priority 100
     # 优先级高的设置 nopreempt 解决异常恢复后再次抢占的问题

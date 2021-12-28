@@ -25,7 +25,7 @@ import com.wy.lang.StrTool;
 import com.wy.model.AlipayTransfer;
 import com.wy.model.TransferMoney;
 import com.wy.pay.factory.Payment;
-import com.wy.properties.ConfigPropertes;
+import com.wy.properties.AlipayProperties;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,13 +62,13 @@ public class Alipayment implements Payment, ApplicationContextAware {
 	public String pay(Map<String, Object> param) {
 		// 这里和普通的接口调用不同,使用的是sdkExecute
 		AlipayClient alipayClient = applicationContext.getBean(AlipayClient.class);
-		ConfigPropertes config = applicationContext.getBean(ConfigPropertes.class);
+		AlipayProperties config = applicationContext.getBean(AlipayProperties.class);
 		AlipayTradeAppPayModel tradeAppPayModel = new AlipayTradeAppPayModel();
 		BeanUtils.copyProperties(param, tradeAppPayModel);
 		AlipayTradeAppPayRequest t = new AlipayTradeAppPayRequest();
 		tradeAppPayModel.setProductCode("QUICK_MSECURITY_PAY");
 		t.setBizModel(tradeAppPayModel);
-		t.setNotifyUrl(config.getAlipay().getNotifyUrl());
+		t.setNotifyUrl(config.getNotifyUrl());
 		try {
 			return alipayClient.sdkExecute(t).getBody();
 		} catch (AlipayApiException e) {

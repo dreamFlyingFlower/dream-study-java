@@ -144,6 +144,20 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * 
  * {@link AsyncHandlerInterceptor}:针对异步请求的接口,异步方法不会调用后置拦截器方法,详见{@link DispatcherServlet}1063行
  * 
+ * 浏览器和服务器之间交互过程:
+ * 
+ * <pre>
+ * 浏览器输入URL地址,查找DNS,解析URL对应的IP地址
+ * 初始化网络连接,经过3次握手之后发送HTTP请求,网络请求传输到服务器
+ * Web服务器接收到请求,经过处理转发到相应的Web应用
+ * Web应用处理请求,并返回相应的应答
+ * 网络传输应答内容给浏览器,浏览器解析从服务器返回的应答,并开始渲染和绘制页面
+ * 根据HTML,CSS构建DOM,加载解析样式,此时不包括脚本,图片等资源
+ * 根据DOM和CSS构建渲染树,加载需要的图片,脚本等资源
+ * 构建过程中在适当的时候会把构建好的部分渲染到页面上,直到渲染完成
+ * 整个页面加载完成,触发onLoad事件
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2020-11-18 13:31:27
  * @git {@link https://github.com/dreamFlyingFlower}

@@ -7,7 +7,7 @@
 	<!-- 定义全局变量,日志存储的根目录 -->
 	<property name="logHome" value="logs"></property>
 	<!-- 定义日志文件名称 -->
-	<property name="appName" value="paradise-study-java-service"></property>
+	<property name="appName" value="dream-study-java-pay"></property>
 	<!-- 控制台打印日志的相关配置 -->
 	<appender name="STD_OUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- 日志格式:%d:日期时间;%thread:线程名;%-5level:级别从左显示5个字符宽度 -->
