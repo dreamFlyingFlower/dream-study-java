@@ -3,6 +3,8 @@ package com.wy;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.wy.service.impl.WeixinPayServiceImpl;
+
 /**
  * 支付宝接口
  * 
@@ -13,8 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 1.完善alipay
  * 2.去掉jdom
  * 3.完善com.google.zxing
-
- https://pan.baidu.com/s/1B2_uyrz2uKN1Z_Ivbv7lgw -->
+ * 4.去除weixin-popular-> {@link WeixinPayServiceImpl#weixinPayMobile}:SnsAPI
+ * https://pan.baidu.com/s/1B2_uyrz2uKN1Z_Ivbv7lgw -->
  * </pre>
  * 
  * @author 飞花梦影

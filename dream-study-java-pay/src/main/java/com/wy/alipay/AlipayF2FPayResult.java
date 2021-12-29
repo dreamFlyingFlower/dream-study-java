@@ -1,6 +1,7 @@
 package com.wy.alipay;
 
 import com.alipay.api.response.AlipayTradePayResponse;
+import com.wy.enums.TradeStatus;
 
 /**
  * 

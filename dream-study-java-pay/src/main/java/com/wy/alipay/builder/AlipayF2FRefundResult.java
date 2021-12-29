@@ -2,7 +2,7 @@ package com.wy.alipay.builder;
 
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.wy.alipay.AlipayResult;
-import com.wy.alipay.TradeStatus;
+import com.wy.enums.TradeStatus;
 
 /**
  * 
