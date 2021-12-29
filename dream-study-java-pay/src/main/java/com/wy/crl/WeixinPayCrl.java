@@ -13,8 +13,6 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -33,16 +31,20 @@ import com.wy.util.XMLUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * 微信支付
+ * 微信支付 API
+ * 
+ * @author 飞花梦影
+ * @date 2021-12-29 23:37:08
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-@Api(tags = "微信支付")
+@Api(tags = "微信支付 API")
 @Controller
-@RequestMapping(value = "weixinpay")
+@RequestMapping("weixinpay")
+@Slf4j
 public class WeixinPayCrl {
-
-	private static final Logger logger = LoggerFactory.getLogger(WeixinPayCrl.class);
 
 	@Autowired
 	private WeixinPayService weixinPayService;
@@ -56,7 +58,7 @@ public class WeixinPayCrl {
 	@ApiOperation(value = "二维码支付(模式一)根据商品ID预先生成二维码")
 	@RequestMapping(value = "qcPay1", method = RequestMethod.POST)
 	public String qcPay1(Product product, ModelMap map) {
-		logger.info("二维码支付(模式一)");
+		log.info("二维码支付(模式一)");
 		weixinPayService.weixinPay1(product);
 		String img = "../qrcode/" + product.getProductId() + ".png";
 		map.addAttribute("img", img);
@@ -66,7 +68,7 @@ public class WeixinPayCrl {
 	@ApiOperation(value = "二维码支付(模式二)下单并生成二维码")
 	@RequestMapping(value = "qcPay2", method = RequestMethod.POST)
 	public String qcPay2(Product product, ModelMap map) {
-		logger.info("二维码支付(模式二)");
+		log.info("二维码支付(模式二)");
 		// 参数自定义 这只是个Demo
 		product.setProductId("20170721");
 		product.setBody("两个苹果八毛钱 ");
@@ -84,12 +86,9 @@ public class WeixinPayCrl {
 	/**
 	 * 支付后台回调
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @param response
 	 * @throws Exception void
-	 * @Date 2017年7月31日 更新日志 2017年7月31日 科帮网 首次创建
-	 *
 	 */
 	@ApiOperation(value = "支付后台回调")
 	@RequestMapping(value = "pay", method = RequestMethod.POST)
@@ -126,7 +125,7 @@ public class WeixinPayCrl {
 		String key = weixinProperties.getApiKey(); // key
 		// 判断签名是否正确
 		if (PayCommonUtil.isTenpaySign("UTF-8", packageParams, key)) {
-			logger.info("微信支付成功回调");
+			log.info("微信支付成功回调");
 			// ------------------------------
 			// 处理业务开始
 			// ------------------------------
@@ -134,13 +133,13 @@ public class WeixinPayCrl {
 			if ("SUCCESS".equals((String) packageParams.get("result_code"))) {
 				// 这里是支付成功
 				String orderNo = (String) packageParams.get("out_trade_no");
-				logger.info("微信订单号{}付款成功", orderNo);
+				log.info("微信订单号{}付款成功", orderNo);
 				// 这里 根据实际业务场景 做相应的操作
 				// 通知微信.异步确认成功.必写.不然会一直通知后台.八次之后就认为交易失败了.
 				resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
 						+ "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
 			} else {
-				logger.info("支付失败,错误信息：{}", packageParams.get("err_code"));
+				log.info("支付失败,错误信息：{}", packageParams.get("err_code"));
 				resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
 						+ "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
 			}
@@ -152,25 +151,21 @@ public class WeixinPayCrl {
 			out.flush();
 			out.close();
 		} else {
-			logger.info("通知签名验证失败");
+			log.info("通知签名验证失败");
 		}
-
 	}
 
 	/**
 	 * 模式一支付回调URL(生成二维码见 qrCodeUtil) 商户支付回调URL设置指引：进入公众平台-->微信支付-->开发配置-->扫码支付-->修改
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @param response
 	 * @throws Exception void
-	 * @Date 2017年8月3日 更新日志 2017年8月3日 科帮网 首次创建
-	 *
 	 */
 	@ApiOperation(value = "模式一支付回调URL")
 	@RequestMapping(value = "bizpayurl", method = RequestMethod.POST)
 	public void bizpayurl(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		logger.info("模式一支付回调URL");
+		log.info("模式一支付回调URL");
 		// 读取参数
 		InputStream inputStream = request.getInputStream();
 		StringBuffer sb = new StringBuffer();
@@ -221,7 +216,7 @@ public class WeixinPayCrl {
 			if ("SUCCESS".equals(returnCode)) {
 				String resultCode = (String) payResult.get("result_code");
 				if ("SUCCESS".equals(resultCode)) {
-					logger.info("(订单号：{}生成微信支付码成功)", out_trade_no);
+					log.info("(订单号：{}生成微信支付码成功)", out_trade_no);
 
 					String prepay_id = payResult.get("prepay_id");
 					SortedMap<Object, Object> prepayParams = new TreeMap<Object, Object>();
@@ -240,14 +235,14 @@ public class WeixinPayCrl {
 					out.close();
 				} else {
 					String errCodeDes = (String) map.get("err_code_des");
-					logger.info("(订单号：{}生成微信支付码(系统)失败[{}])", out_trade_no, errCodeDes);
+					log.info("(订单号：{}生成微信支付码(系统)失败[{}])", out_trade_no, errCodeDes);
 				}
 			} else {
 				String returnMsg = (String) map.get("return_msg");
-				logger.info("(订单号：{} 生成微信支付码(通信)失败[{}])", out_trade_no, returnMsg);
+				log.info("(订单号：{} 生成微信支付码(通信)失败[{}])", out_trade_no, returnMsg);
 			}
 		} else {
-			logger.info("签名错误");
+			log.info("签名错误");
 		}
 	}
 }

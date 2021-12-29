@@ -9,11 +9,12 @@ import javax.net.ssl.SSLContext;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.springframework.util.ResourceUtils;
 
@@ -22,6 +23,10 @@ import com.wy.properties.WeixinProperties;
 
 /**
  * 退款认证
+ * 
+ * @author 飞花梦影
+ * @date 2021-12-29 23:50:10
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class ClientCustomSSL {
 
@@ -42,7 +47,8 @@ public class ClientCustomSSL {
 		SSLContext sslcontext =
 				SSLContexts.custom().loadKeyMaterial(keyStore, properties.getMchId().toCharArray()).build();
 		SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1" }, null,
-				SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+				// SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+				new DefaultHostnameVerifier());
 		CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
 		try {
 			HttpPost httpost = new HttpPost(url);

@@ -27,11 +27,15 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 支付宝支付 创建者 科帮网 创建时间 2017年7月30日
+ * 支付宝支付 API
+ * 
+ * @author 飞花梦影
+ * @date 2021-12-29 23:34:16
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-@Api(tags = "支付宝支付")
+@Api(tags = "支付宝支付 API")
 @Controller
-@RequestMapping(value = "alipay")
+@RequestMapping("alipay")
 @Slf4j
 public class AliPayCrl {
 
@@ -85,11 +89,9 @@ public class AliPayCrl {
 	/**
 	 * 支付宝支付后台回调(二维码、H5、网站)
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @param response
 	 * @throws Exception void
-	 * @Date 2017年7月30日 更新日志 2017年7月30日 科帮网 首次创建
 	 */
 	@ApiOperation(value = "支付宝支付回调(二维码、H5、网站)")
 	@RequestMapping(value = "pay", method = RequestMethod.POST)
@@ -152,10 +154,8 @@ public class AliPayCrl {
 	/**
 	 * 支付宝支付PC端前台回调
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @return String
-	 * @Date 2018年11月20日 更新日志 2018年11月20日 科帮网 首次创建
 	 */
 	@RequestMapping("/frontRcvResponse")
 	public String frontRcvResponse(HttpServletRequest request) {

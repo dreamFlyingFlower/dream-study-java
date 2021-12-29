@@ -26,11 +26,15 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 银联支付 创建者 科帮网 创建时间 2017年8月2日
+ * 银联支付 API
+ * 
+ * @author 飞花梦影
+ * @date 2021-12-29 23:35:05
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-@Api(tags = "银联支付")
+@Api(tags = "银联支付 API")
 @Controller
-@RequestMapping(value = "unionpay")
+@RequestMapping("unionpay")
 @Slf4j
 public class UnionPayCrl {
 
@@ -58,15 +62,11 @@ public class UnionPayCrl {
 	}
 
 	/**
-	 * 其实我小时候的梦想并不是要当什么程序员， 我只是幻想自己是地主家的少爷，家有良田万顷， 终日不学无术，没事领着一群狗奴才上街去调戏一下良家少女。
-	 * 然后这个方法的基本作用就是 银联支付回调 通知我们支付是否成功。
+	 * 银联支付回调 通知我们支付是否成功
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @param response
 	 * @throws Exception void
-	 * @Date 2017年8月2日 更新日志 2017年8月2日 科帮网 首次创建
-	 *
 	 */
 	@ApiOperation(value = "银联回调通知")
 	@RequestMapping(value = "pay", method = RequestMethod.POST)
@@ -89,7 +89,7 @@ public class UnionPayCrl {
 				valideData.put(key, value);
 			}
 		}
-		// 重要！验证签名前不要修改reqParam中的键值对的内容，否则会验签不过
+		// 重要！验证签名前不要修改reqParam中的键值对的内容,否则会验签不过
 		if (!AcpService.validate(valideData, encoding)) {
 			log.info("银联验证签名结果[失败].");
 		} else {
@@ -104,11 +104,8 @@ public class UnionPayCrl {
 	/**
 	 * 获取请求参数中所有的信息
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @return Map<String,String>
-	 * @Date 2017年8月2日 更新日志 2017年8月2日 科帮网 首次创建
-	 *
 	 */
 	public static Map<String, String> getAllRequestParam(final HttpServletRequest request) {
 		Map<String, String> res = new HashMap<String, String>();
@@ -118,7 +115,7 @@ public class UnionPayCrl {
 				String en = (String) temp.nextElement();
 				String value = request.getParameter(en);
 				res.put(en, value);
-				// 在报文上送时，如果字段的值为空，则不上送<下面的处理为在获取所有参数数据时，判断若值为空，则删除这个字段>
+				// 在报文上送时,如果字段的值为空,则不上送<下面的处理为在获取所有参数数据时,判断若值为空,则删除这个字段>
 				// System.out.println("ServletUtil类247行 temp数据的键=="+en+" 值==="+value);
 				if (null == res.get(en) || "".equals(res.get(en))) {
 					res.remove(en);

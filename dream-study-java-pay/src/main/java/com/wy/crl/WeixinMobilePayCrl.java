@@ -8,8 +8,6 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -32,17 +30,20 @@ import com.wy.util.XMLUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * 微信H5支付 创建者 科帮网 创建时间 2017年7月31日
- *
+ * 微信H5支付 API
+ * 
+ * @author 飞花梦影
+ * @date 2021-12-29 23:36:03
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-@Api(tags = "微信H5支付")
+@Api(tags = "微信H5支付 API")
 @Controller
-@RequestMapping(value = "weixinMobile")
+@RequestMapping("weixinMobile")
+@Slf4j
 public class WeixinMobilePayCrl {
-
-	private static final Logger logger = LoggerFactory.getLogger(WeixinMobilePayCrl.class);
 
 	@Autowired
 	private WeixinPayService weixinPayService;
@@ -56,7 +57,7 @@ public class WeixinMobilePayCrl {
 	@ApiOperation(value = "H5支付(需要公众号内支付)")
 	@RequestMapping(value = "pay", method = RequestMethod.POST)
 	public String pay(Product product, ModelMap map) {
-		logger.info("H5支付(需要公众号内支付)");
+		log.info("H5支付(需要公众号内支付)");
 		String url = weixinPayService.weixinPayMobile(product);
 		return "redirect:" + url;
 	}
@@ -71,7 +72,7 @@ public class WeixinMobilePayCrl {
 	@ApiOperation(value = "纯H5支付(不建议在APP端使用)")
 	@RequestMapping(value = "h5pay", method = RequestMethod.POST)
 	public String h5pay(Product product, ModelMap map) {
-		logger.info("纯H5支付(不建议在APP端使用)");
+		log.info("纯H5支付(不建议在APP端使用)");
 		// mweb_url为拉起微信支付收银台的中间页面，可通过访问该url来拉起微信客户端，完成支付,mweb_url的有效期为5分钟。
 		String mweb_url = weixinPayService.weixinPayH5(product);
 		if (StrTool.isNotBlank(mweb_url)) {
@@ -84,7 +85,7 @@ public class WeixinMobilePayCrl {
 	@ApiOperation(value = "小程序支付(需要HTTPS)")
 	@RequestMapping(value = "smallRoutine", method = RequestMethod.POST)
 	public String smallRoutine(Product product, ModelMap map) {
-		logger.info("小程序支付(需要HTTPS)、不需要支付目录和授权域名");
+		log.info("小程序支付(需要HTTPS)、不需要支付目录和授权域名");
 		String url = weixinPayService.weixinPayMobile(product);
 		return "redirect:" + url;
 	}
@@ -92,13 +93,10 @@ public class WeixinMobilePayCrl {
 	/**
 	 * 预下单(对于已经产生的订单)
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @param response
 	 * @return
 	 * @throws Exception String
-	 * @Date 2017年7月31日 更新日志 2017年7月31日 科帮网 首次创建
-	 *
 	 */
 	@SuppressWarnings("rawtypes")
 	@ApiOperation(value = "预下单")
@@ -153,11 +151,11 @@ public class WeixinMobilePayCrl {
 				url.append("&signType=MD5" + "&paySign=" + sign + "&appid=" + weixinProperties.getAppId());
 				url.append("&orderNo=" + orderNo + "&totalFee=" + totalFee);
 			} else {
-				logger.info("订单号:{}错误信息:{}", orderNo, errCodeDes);
+				log.info("订单号:{}错误信息:{}", orderNo, errCodeDes);
 				url.append("redirect:/weixinMobile/error?code=0&orderNo=" + orderNo);// 该订单已支付
 			}
 		} else {
-			logger.info("订单号:{}错误信息:{}", orderNo, returnMsg);
+			log.info("订单号:{}错误信息:{}", orderNo, returnMsg);
 			url.append("redirect:/weixinMobile/error?code=1&orderNo=" + orderNo);// 系统错误
 		}
 		return url.toString();
@@ -166,12 +164,9 @@ public class WeixinMobilePayCrl {
 	/**
 	 * 手机支付完成回调
 	 * 
-	 * @Author 科帮网
 	 * @param request
 	 * @param response
 	 * @param platForm void
-	 * @Date 2017年7月31日 更新日志 2017年7月31日 科帮网 首次创建
-	 *
 	 */
 	@ApiOperation(value = "手机支付完成回调")
 	@RequestMapping(value = "WXPayBack", method = RequestMethod.POST)
@@ -185,17 +180,17 @@ public class WeixinMobilePayCrl {
 			if (return_code.equals("SUCCESS")) {
 				if (out_trade_no != null) {
 					// 处理订单逻辑
-					logger.info("微信手机支付回调成功订单号:{}", out_trade_no);
+					log.info("微信手机支付回调成功订单号:{}", out_trade_no);
 					resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
 							+ "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
 				}
 			} else {
-				logger.info("微信手机支付回调失败订单号:{}", out_trade_no);
+				log.info("微信手机支付回调失败订单号:{}", out_trade_no);
 				resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
 						+ "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
 			}
 		} catch (Exception e) {
-			logger.error("手机支付回调通知失败", e);
+			log.error("手机支付回调通知失败", e);
 			resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
 					+ "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
 		}

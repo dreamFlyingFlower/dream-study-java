@@ -59,7 +59,6 @@ import com.wy.util.alipay.AliPayConfig;
  * 对支付结果的验签工作也一定要在服务端完成，绝对不能在客户端验签，因为支付宝公钥一旦存储在客户端用来验签，那就可能被反编译，这样就谁都可以验签支付结果并篡改了。
  * ======================
  * 支付宝建议加签方式升级为RSA(SHA256)密钥，以为 SHA 貌似已经被破解了。
- * 
  */
 @Service
 @Component("aliPayService")

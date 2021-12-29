@@ -1,22 +1,30 @@
 package com.wy.enums;
+
+import lombok.Getter;
+
 /**
  * 支付途径
- * 创建者 科帮网
- * 创建时间	2017年7月27日
- *
+ * 
+ * @author 飞花梦影
+ * @date 2021-12-29 23:39:00
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
+@Getter
 public enum PayWay {
-	PC("PC,平板",(short)1),MOBILE("手机",(short)2);
-	
+
+	PC("PC,平板", (short) 1),
+	MOBILE("手机", (short) 2);
+
 	private Short code;
+
 	private String name;
-	
+
 	private PayWay(String name, Short code) {
 		this.name = name;
 		this.code = code;
 	}
 
-	public static String getName(Short code,String name) {
+	public static String getName(Short code, String name) {
 		for (PayWay c : PayWay.values()) {
 			if (c.getCode() == code) {
 				return c.name;
@@ -24,21 +32,4 @@ public enum PayWay {
 		}
 		return null;
 	}
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public short getCode() {
-		return code;
-	}
-
-	public void setCode(short code) {
-		this.code = code;
-	}
-
 }

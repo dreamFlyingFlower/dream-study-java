@@ -30,11 +30,8 @@ public class UnionPayServiceImpl implements UnionPayService {
 	/**
 	 * 银联支付返回一个form表单
 	 * 
-	 * @Author 科帮网
 	 * @param product
 	 * @return
-	 * @Date 2017年8月2日 更新日志 2017年8月2日 科帮网 首次创建
-	 *
 	 */
 	@Override
 	public String unionPay(Product product) {
