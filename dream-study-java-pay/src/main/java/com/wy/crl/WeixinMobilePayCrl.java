@@ -9,23 +9,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.wy.common.Constants;
+import com.wy.http.HttpTool;
 import com.wy.lang.StrTool;
 import com.wy.model.Product;
+import com.wy.properties.CommonProperties;
 import com.wy.properties.WeixinProperties;
 import com.wy.service.WeixinPayService;
 import com.wy.util.AddressUtils;
-import com.wy.util.ConfigUtil;
-import com.wy.util.DateUtil;
-import com.wy.util.HttpUtil;
-import com.wy.util.MobileUtil;
-import com.wy.util.PayCommonUtil;
+import com.wy.util.WeixinUtils;
 import com.wy.util.XMLUtil;
 
 import io.swagger.annotations.Api;
@@ -48,8 +45,8 @@ public class WeixinMobilePayCrl {
 	@Autowired
 	private WeixinPayService weixinPayService;
 
-	@Value("${server.context.url}")
-	private String server_url;
+	@Autowired
+	private CommonProperties commonProperties;
 
 	@Autowired
 	private WeixinProperties weixinProperties;
@@ -78,7 +75,7 @@ public class WeixinMobilePayCrl {
 		if (StrTool.isNotBlank(mweb_url)) {
 			return "redirect:" + mweb_url;
 		} else {
-			return "redirect:https://blog.52itstyle.com";// 自定义错误页面
+			return "redirect:https://localhost.com";// 自定义错误页面
 		}
 	}
 
@@ -107,11 +104,11 @@ public class WeixinMobilePayCrl {
 		// 获取code 这个在微信支付调用时会自动加上这个参数 无须设置
 		String code = request.getParameter("code");
 		// 获取用户openID(JSAPI支付必须传openid)
-		String openId = MobileUtil.getOpenId(code);
-		String notify_url = server_url + "/weixinMobile/WXPayBack";// 回调接口
+		String openId = WeixinUtils.getOpenId(code);
+		String notify_url = commonProperties.getServerUrl() + "/weixinMobile/WXPayBack";// 回调接口
 		String trade_type = "JSAPI";// 交易类型H5支付 也可以是小程序支付参数
 		SortedMap<Object, Object> packageParams = new TreeMap<Object, Object>();
-		ConfigUtil.commonParams(packageParams);
+		WeixinUtils.commonParams(packageParams);
 		packageParams.put("body", "报告");// 商品描述
 		packageParams.put("out_trade_no", orderNo);// 商户订单号
 		packageParams.put("total_fee", totalFee);// 总金额
@@ -119,10 +116,10 @@ public class WeixinMobilePayCrl {
 		packageParams.put("notify_url", notify_url);// 回调地址
 		packageParams.put("trade_type", trade_type);// 交易类型
 		packageParams.put("openid", openId);// 用户openID
-		String sign = PayCommonUtil.createSign("UTF-8", packageParams, weixinProperties.getApiKey());
+		String sign = WeixinUtils.createSign("UTF-8", packageParams, weixinProperties.getApiKey());
 		packageParams.put("sign", sign);// 签名
-		String requestXML = PayCommonUtil.getRequestXml(packageParams);
-		String resXml = HttpUtil.postData(Constants.UNIFIED_ORDER_URL, requestXML);
+		String requestXML = WeixinUtils.getRequestXml(packageParams);
+		String resXml = HttpTool.sendPost(Constants.UNIFIED_ORDER_URL, requestXML);
 		Map map = XMLUtil.doXMLParse(resXml);
 		String returnCode = (String) map.get("return_code");
 		String returnMsg = (String) map.get("return_msg");
@@ -136,7 +133,7 @@ public class WeixinMobilePayCrl {
 				String prepay_id2 = "prepay_id=" + prepay_id;
 				String packages = prepay_id2;
 				SortedMap<Object, Object> finalpackage = new TreeMap<Object, Object>();
-				String timestamp = DateUtil.getTimestamp();
+				String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
 				String nonceStr = packageParams.get("nonce_str").toString();
 				finalpackage.put("appId", weixinProperties.getAppId());
 				finalpackage.put("timeStamp", timestamp);
@@ -145,7 +142,7 @@ public class WeixinMobilePayCrl {
 				finalpackage.put("signType", "MD5");
 				// 这里很重要 参数一定要正确 狗日的腾讯 参数到这里就成大写了
 				// 可能报错信息(支付验证签名失败 get_brand_wcpay_request:fail)
-				sign = PayCommonUtil.createSign("UTF-8", finalpackage, weixinProperties.getApiKey());
+				sign = WeixinUtils.createSign("UTF-8", finalpackage, weixinProperties.getApiKey());
 				url.append("redirect:/weixinMobile/payPage?");
 				url.append("timeStamp=" + timestamp + "&nonceStr=" + nonceStr + "&package=" + packages);
 				url.append("&signType=MD5" + "&paySign=" + sign + "&appid=" + weixinProperties.getAppId());
@@ -174,7 +171,7 @@ public class WeixinMobilePayCrl {
 		String resXml = "";
 		try {
 			// 解析XML
-			Map<String, String> map = MobileUtil.parseXml(request);
+			Map<String, String> map = WeixinUtils.parseXml(request);
 			String return_code = map.get("return_code");// 状态
 			String out_trade_no = map.get("out_trade_no");// 订单号
 			if (return_code.equals("SUCCESS")) {

@@ -1,6 +1,22 @@
 server:
   port: 12301
+  # 证书
+#  ssl:
+#    enabled: true
+#    key-store: classpath:keystore.p12
+#    key-store-password: 123456
+#    key-store-type: PKCS12
 
 spring:
   application:
-    name: paradise-study-java-pay
+    name: dream-study-java-pay
+  profiles:
+    active:
+    - dev
+  thymeleaf:
+    cache: false
+    mode: HTML5
+    encoding: UTF-8
+  web: 
+    resources:
+      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/templates/

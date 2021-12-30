@@ -11,8 +11,6 @@ public enum TradeStatus {
 
 	SUCCESS,
 	FAILED,
+	WAITING,
 	UNKNOWN;
-
-	private TradeStatus() {
-	}
 }

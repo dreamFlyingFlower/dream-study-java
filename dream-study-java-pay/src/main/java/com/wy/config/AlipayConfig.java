@@ -1,5 +1,6 @@
 package com.wy.config;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,8 @@ public class AlipayConfig {
 	@Autowired
 	private Environment environment;
 
-	@Bean(name = { "alipayClient" })
-	public AlipayClient alipayClientService(AlipayProperties alipay, HttpProperties http) throws Exception {
+	@Bean(name = "alipayClient")
+	public AlipayClient alipayClient(AlipayProperties alipay, HttpProperties http) throws Exception {
 		CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
 		// 设置网关地址
 		certAlipayRequest.setServerUrl(alipay.getServerUrl());
@@ -46,34 +47,27 @@ public class AlipayConfig {
 		// 如果是生产环境或者预演环境,则使用代理模式
 		String[] profiles = environment.getActiveProfiles();
 		if (ArrayTool.contains(profiles, "prod") || ArrayTool.contains(profiles, "test")) {
-			// 设置应用公钥证书路径
+			// 设置应用公钥证书内容
 			certAlipayRequest.setCertContent(getCertContentByPath(alipay.getAppCertPath()));
-			// 设置支付宝公钥证书路径
+			// 设置支付宝公钥证书内容
 			certAlipayRequest.setAlipayPublicCertContent(getCertContentByPath(alipay.getAlipayCertPath()));
-			// 设置支付宝根证书路径
+			// 设置支付宝根证书内容
 			certAlipayRequest.setRootCertContent(getCertContentByPath(alipay.getAlipayRootCertPath()));
 			certAlipayRequest.setProxyHost(http.getProxyHost());
 			certAlipayRequest.setProxyPort(http.getProxyPort());
 		} else {
-			// local
-			String serverPath = this.getClass().getResource("/").getPath();
-			// 设置应用公钥证书路径
-			certAlipayRequest.setCertPath(serverPath + alipay.getAppCertPath());
-			// 设置支付宝公钥证书路径
-			certAlipayRequest.setAlipayPublicCertPath(serverPath + alipay.getAlipayCertPath());
-			// 设置支付宝根证书路径
-			certAlipayRequest.setRootCertPath(serverPath + alipay.getAlipayRootCertPath());
+			certAlipayRequest.setCertContent(getCertContentByPath(alipay.getAppCertPath()));
+			certAlipayRequest.setAlipayPublicCertContent(getCertContentByPath(alipay.getAlipayCertPath()));
+			certAlipayRequest.setRootCertContent(getCertContentByPath(alipay.getAlipayRootCertPath()));
 		}
 		return new DefaultAlipayClient(certAlipayRequest);
 	}
 
 	public String getCertContentByPath(String name) {
-		InputStream inputStream = null;
 		String content = null;
-		try {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream(name);
+		try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(name);) {
 			content = new String(FileCopyUtils.copyToByteArray(inputStream));
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return content;

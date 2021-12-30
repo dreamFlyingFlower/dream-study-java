@@ -37,7 +37,7 @@
 		                layer.msg('登陆成功，正在跳转......', { icon: 6 });
 		                layer.closeAll('page');
 		                setTimeout(function () {
-		                    location.href = "main.shtml";
+		                    location.href = "main.html";
 		                }, 1000);
 		            }
           		}

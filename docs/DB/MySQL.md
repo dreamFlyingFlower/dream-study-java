@@ -1562,7 +1562,7 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
 
 * show profiles:是mysql提供可用来分析当前会话中语句执行的资源消耗情况.默认情况下,参数处于关闭状态,并保存最近15次运行的结果
   * show profiles:查看最近记录运行的sql语句,其中包括查询id,查询消耗时间以及查询语句
-  * show profiles [] for query 查询id:查看该id的sql语句在执行中的全过程
+  * show profile [] for query 查询id:查看该id的sql语句在执行中的全过程
     * cpu:显示cpu相关信息
     * block io:显示io相关开销
     * all:显示所有信息
@@ -1592,6 +1592,19 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
 * 实时查询有性能问题的SQL:`select * from information_schema.PROCESSLIST where time>5`;通过特定表查询超过指定时间的sql,时间单位为S.可通过脚本实时查询,进行分析
 
 * 打开死锁日志:`set global innodb_print_all_deadlocks=on;`
+
+* count优化:查询表中全部数据总量很快,因为表已经记录了该值,但是带条件的查询就相对较慢,且条件越大,查询越慢,此时可以根据情况改变条件,再根据总数据做比对,修改条件达到相同效果
+
+  ```mysql
+  -- 假设表中有1000W数据,此时查全表数据很快,但是查id大于1000就很慢
+  select count(*) from t1;
+  select count(1) from t1 where id>1000;
+  -- 查id小于1000的就很快,因为要全表扫描,结合小于和总数进行相见得到结果
+  select count(1) from t1 where id<=1000;
+  select (select count(*) from t1)- (select count(1) from t1 where id<=1000);
+  ```
+
+  
 
 
 

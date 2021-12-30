@@ -39,4 +39,7 @@ public class WeixinProperties {
 
 	/** 微信支付证书名称 */
 	private String certPath = "apiclient_cert.p12";
+
+	/** 微信后台回调 */
+	private String notifyUrl = "";
 }

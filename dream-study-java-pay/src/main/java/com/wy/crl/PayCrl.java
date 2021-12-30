@@ -7,11 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.wy.util.DateUtil;
+import com.wy.util.DateTimeTool;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,8 +24,8 @@ public class PayCrl {
 
 	private static final Logger logger = LoggerFactory.getLogger(PayCrl.class);
 
-	@ApiOperation(value = "登陆")
-	@RequestMapping(value = "login", method = RequestMethod.POST)
+	@ApiOperation("登陆")
+	@PostMapping("login")
 	public @ResponseBody String login(HttpServletRequest request, HttpServletResponse response, String account,
 			String password) throws Exception {
 		logger.info("登陆");
@@ -35,12 +36,12 @@ public class PayCrl {
 		return param;
 	}
 
-	@ApiOperation(value = "后台展示")
-	@RequestMapping(value = "main", method = RequestMethod.GET)
+	@ApiOperation("后台展示")
+	@GetMapping("main")
 	public String main(HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 		model.addAttribute("ip", "192.168.1.66");
 		model.addAttribute("address", "青岛");
-		model.addAttribute("time", DateUtil.getTime());
+		model.addAttribute("time", DateTimeTool.formatDateTime());
 		return "web/main";
 	}
 }

@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.wy.enums.PayWay;
 import com.wy.model.Product;
 import com.wy.service.UnionPayService;
-import com.wy.unionpay.util.AcpService;
-import com.wy.unionpay.util.SDKConstants;
+import com.wy.util.unionpay.AcpService;
+import com.wy.util.unionpay.SDKConstants;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

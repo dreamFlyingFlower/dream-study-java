@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
@@ -19,12 +20,15 @@ import springfox.documentation.spring.web.plugins.Docket;
  * JsonNaming(PropertyNamingStrategy.UpperCamelCaseStrategy.class):字段以大写开头
  * JsonAutoDetect(fieldVisibility = Visibility.ANY):检测所有修饰符字段
  * 
- * @author ParadiseWY
+ * {@link EnableOpenApi}:Swagger3.0需要使用该注解打开网页浏览,且浏览地址变为ip:port/swagger-ui/index.html
+ * 
+ * @author 飞花梦影
  * @date 2020-12-08 11:29:10
  * @git {@link https://github.com/mygodness100}
  */
 // @Configuration
 // @EnableSwagger2
+@EnableOpenApi
 public class Swagger2Config {
 
 	@Bean

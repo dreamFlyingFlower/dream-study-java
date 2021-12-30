@@ -5,13 +5,13 @@ import java.util.Map;
 import com.wy.model.Product;
 
 /**
- * 扫码支付以及手机H5支付
+ * 支付宝扫码支付以及手机H5支付
  * 
  * @author 飞花梦影
  * @date 2021-12-29 23:39:59
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public interface AliPayService {
+public interface AlipayService {
 
 	/**
 	 * 阿里支付预下单
@@ -74,7 +74,6 @@ public interface AliPayService {
 	/**
 	 * APP支付
 	 * 
-	 * @Author 科帮网
 	 * @param product
 	 * @return String
 	 */

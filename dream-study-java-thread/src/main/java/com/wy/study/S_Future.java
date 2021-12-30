@@ -12,14 +12,16 @@ import java.util.concurrent.TimeoutException;
 /**
  * 传统的线程没有返回值,自1.5之后出现了可带返回值的线程类,并且可带泛型
  * 
- * @apiNote 实现Callable接口,可产生带返回值的线程,重写该接口的call方法,在线程启动之后,可得到该返回值
- *          Callable不能直接被Thread调用,必须先放到FutureTask中,而FutureTask实现了Runnable接口
- * @apiNote Feature获得结果的方法:<br>
- *          get():获得结果时会阻塞线程,若一直不返回结果,则线程一直阻塞,可手动打断
- *          get(long,timeunit):获得结果时会阻塞线程,会等待指定的时间,若仍不返回结果,则抛出异常,可手动打断
- * @author ParadiseWY
+ * 实现Callable接口,可产生带返回值的线程,重写该接口的call方法,在线程启动之后,可得到该返回值
+ * Callable不能直接被Thread调用,必须先放到FutureTask中,而FutureTask实现了Runnable接口
+ * 
+ * Feature获得结果的方法:<br>
+ * get():获得结果时会阻塞线程,若一直不返回结果,则线程一直阻塞,可手动打断
+ * get(long,timeunit):获得结果时会阻塞线程,会等待指定的时间,若仍不返回结果,则抛出异常,可手动打断
+ * 
+ * @author 飞花梦影
  * @date 2019-05-06 22:54:52
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_Future {
 
@@ -159,10 +161,10 @@ public class S_Future {
 
 		/** 多任务组合 **/
 		// 等待所有任务执行完成
-		CompletableFuture<Void> E = CompletableFuture.allOf(A,B,C,D);
+		CompletableFuture<Void> E = CompletableFuture.allOf(A, B, C, D);
 		// 等待所有线程执行完毕
 		E.get();
 		// 只要有一个任务完成即可
-		CompletableFuture.anyOf(A,B,C,D);
+		CompletableFuture.anyOf(A, B, C, D);
 	}
 }

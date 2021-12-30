@@ -12,22 +12,22 @@ import lombok.Getter;
 @Getter
 public enum PayType {
 
-	ALI("支付宝", (short) 1),
-	WECHAT("微信", (short) 2),
-	UNION("银联", (short) 3);
-
-	private Short code;
+	ALIPAY("支付宝", 1),
+	WECHAT("微信", 2),
+	UNION("银联", 3);
 
 	private String name;
 
-	private PayType(String name, Short code) {
+	private Integer code;
+
+	private PayType(String name, Integer code) {
 		this.name = name;
 		this.code = code;
 	}
 
-	public static String getName(Short code, String name) {
+	public static String getName(Integer code, String name) {
 		for (PayType c : PayType.values()) {
-			if (c.getCode() == code) {
+			if (c.getCode().intValue() == code.intValue()) {
 				return c.name;
 			}
 		}

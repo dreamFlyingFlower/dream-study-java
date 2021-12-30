@@ -46,6 +46,7 @@ public class AlipayProperties {
 
 	private String alipayRootCertPath = "/cert/alipayRootCert.crt";
 
+	/** 支付宝回调地址 */
 	private String notifyUrl = "";
 
 	/** 当面付最大查询次数和查询间隔,单位毫秒 */

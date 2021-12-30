@@ -14,19 +14,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.wy.common.Constants;
+import com.wy.http.HttpTool;
 import com.wy.model.Product;
 import com.wy.properties.WeixinProperties;
 import com.wy.service.WeixinPayService;
-import com.wy.util.ConfigUtil;
-import com.wy.util.HttpUtil;
-import com.wy.util.PayCommonUtil;
+import com.wy.util.WeixinUtils;
 import com.wy.util.XMLUtil;
 
 import io.swagger.annotations.Api;
@@ -48,9 +46,6 @@ public class WeixinPayCrl {
 
 	@Autowired
 	private WeixinPayService weixinPayService;
-
-	@Value("${wexinpay.notify.url}")
-	private String notify_url;
 
 	@Autowired
 	private WeixinProperties weixinProperties;
@@ -124,7 +119,7 @@ public class WeixinPayCrl {
 		// 账号信息
 		String key = weixinProperties.getApiKey(); // key
 		// 判断签名是否正确
-		if (PayCommonUtil.isTenpaySign("UTF-8", packageParams, key)) {
+		if (WeixinUtils.isTenpaySign("UTF-8", packageParams, key)) {
 			log.info("微信支付成功回调");
 			// ------------------------------
 			// 处理业务开始
@@ -193,24 +188,24 @@ public class WeixinPayCrl {
 			packageParams.put(parameter, v);
 		}
 		// 判断签名是否正确
-		if (PayCommonUtil.isTenpaySign("UTF-8", packageParams, weixinProperties.getApiKey())) {
+		if (WeixinUtils.isTenpaySign("UTF-8", packageParams, weixinProperties.getApiKey())) {
 			// 统一下单
 			SortedMap<Object, Object> params = new TreeMap<Object, Object>();
-			ConfigUtil.commonParams(params);
+			WeixinUtils.commonParams(params);
 			// 随即生成一个 入库 走业务逻辑
 			String out_trade_no = Long.toString(System.currentTimeMillis());
 			params.put("body", "模式一扫码支付");// 商品描述
 			params.put("out_trade_no", out_trade_no);// 商户订单号
 			params.put("total_fee", "100");// 总金额
 			params.put("spbill_create_ip", "192.168.1.66");// 发起人IP地址
-			params.put("notify_url", notify_url);// 回调地址
+			params.put("notify_url", weixinProperties.getNotifyUrl());// 回调地址
 			params.put("trade_type", "NATIVE");// 交易类型
 
-			String paramsSign = PayCommonUtil.createSign("UTF-8", params, weixinProperties.getApiKey());
+			String paramsSign = WeixinUtils.createSign("UTF-8", params, weixinProperties.getApiKey());
 			params.put("sign", paramsSign);// 签名
-			String requestXML = PayCommonUtil.getRequestXml(params);
+			String requestXML = WeixinUtils.getRequestXml(params);
 
-			String resXml = HttpUtil.postData(Constants.UNIFIED_ORDER_URL, requestXML);
+			String resXml = HttpTool.sendPost(Constants.UNIFIED_ORDER_URL, requestXML);
 			Map<String, String> payResult = XMLUtil.doXMLParse(resXml);
 			String returnCode = (String) payResult.get("return_code");
 			if ("SUCCESS".equals(returnCode)) {
@@ -220,13 +215,13 @@ public class WeixinPayCrl {
 
 					String prepay_id = payResult.get("prepay_id");
 					SortedMap<Object, Object> prepayParams = new TreeMap<Object, Object>();
-					ConfigUtil.commonParams(params);
+					WeixinUtils.commonParams(params);
 					prepayParams.put("prepay_id", prepay_id);
 					prepayParams.put("return_code", "SUCCESS");
 					prepayParams.put("result_code", "SUCCESS");
-					String prepaySign = PayCommonUtil.createSign("UTF-8", prepayParams, weixinProperties.getApiKey());
+					String prepaySign = WeixinUtils.createSign("UTF-8", prepayParams, weixinProperties.getApiKey());
 					prepayParams.put("sign", prepaySign);
-					String prepayXml = PayCommonUtil.getRequestXml(prepayParams);
+					String prepayXml = WeixinUtils.getRequestXml(prepayParams);
 
 					// 通知微信 预下单成功
 					BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());

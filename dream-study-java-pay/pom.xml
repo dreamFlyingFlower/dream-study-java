@@ -46,6 +46,11 @@
 			<version>0.0.1</version>
 		</dependency>
 		<dependency>
+			<groupId>dream.flying.flower</groupId>
+			<artifactId>dream-tool-http</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-boot-starter</artifactId>
 			<version>3.0.0</version>

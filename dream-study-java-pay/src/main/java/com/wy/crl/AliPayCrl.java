@@ -20,7 +20,7 @@ import com.alipay.api.internal.util.AlipaySignature;
 import com.wy.common.Constants;
 import com.wy.model.Product;
 import com.wy.properties.AlipayProperties;
-import com.wy.service.AliPayService;
+import com.wy.service.AlipayService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AliPayCrl {
 
 	@Autowired
-	private AliPayService aliPayService;
+	private AlipayService alipayService;
 
 	@Autowired
 	private AlipayProperties alipayProperties;
@@ -49,7 +49,7 @@ public class AliPayCrl {
 	@RequestMapping(value = "pcPay", method = RequestMethod.POST)
 	public String pcPay(Product product, ModelMap map) {
 		log.info("电脑支付");
-		String form = aliPayService.aliPayPc(product);
+		String form = alipayService.aliPayPc(product);
 		map.addAttribute("form", form);
 		return "alipay/pay";
 	}
@@ -58,7 +58,7 @@ public class AliPayCrl {
 	@RequestMapping(value = "mobilePay", method = RequestMethod.POST)
 	public String mobilePay(Product product, ModelMap map) {
 		log.info("手机H5支付");
-		String form = aliPayService.aliPayMobile(product);
+		String form = alipayService.aliPayMobile(product);
 		map.addAttribute("form", form);
 		return "alipay/pay";
 	}
@@ -67,7 +67,7 @@ public class AliPayCrl {
 	@RequestMapping(value = "qcPay", method = RequestMethod.POST)
 	public String qcPay(Product product, ModelMap map) {
 		log.info("二维码支付");
-		String message = aliPayService.aliPay(product);
+		String message = alipayService.aliPay(product);
 		if (Constants.SUCCESS.equals(message)) {
 			String img = "../qrcode/" + product.getOutTradeNo() + ".png";
 			map.addAttribute("img", img);
@@ -81,7 +81,7 @@ public class AliPayCrl {
 	@RequestMapping(value = "appPay", method = RequestMethod.POST)
 	public String appPay(Product product, ModelMap map) {
 		log.info("app支付服务端");
-		String orderString = aliPayService.appPay(product);
+		String orderString = alipayService.appPay(product);
 		map.addAttribute("orderString", orderString);
 		return "alipay/pay";
 	}
@@ -177,7 +177,7 @@ public class AliPayCrl {
 			// 商户订单号
 			String orderNo = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"), "UTF-8");
 			// 前台回调验证签名 v1 or v2
-			boolean signVerified = aliPayService.rsaCheckV1(params);
+			boolean signVerified = alipayService.rsaCheckV1(params);
 			if (signVerified) {
 				log.info("订单号" + orderNo + "验证签名结果[成功].");
 				// 处理业务逻辑
