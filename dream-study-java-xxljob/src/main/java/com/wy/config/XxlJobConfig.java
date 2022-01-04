@@ -1,78 +1,44 @@
 package com.wy.config;
 
-import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.wy.properties.XxlJobProperties;
+import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
+
 /**
- * xxl-job config
+ * xxljob注册配置
+ * 
+ * 针对多网卡,容器内部署等情况,可借助spring-cloud-commons提供的InetUtils组件灵活定制注册IP
  *
- * @author xuxueli 2017-04-28
+ * 1.引入依赖:org.springframework.cloud->spring-cloud-commons
+ * 
+ * 2.配置文件,或者容器启动变量 spring.cloud.inetutils.preferred-networks: 'xxx.xxx.xxx.'
+ *
+ * 3.获取IP String ip_ = inetUtils.findFirstNonLoopbackHostInfo().getIpAddress();
+ * 
+ * @author 飞花梦影
+ * @date 2022-01-04 17:15:43
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Configuration
 public class XxlJobConfig {
-    private Logger logger = LoggerFactory.getLogger(XxlJobConfig.class);
 
-    @Value("${xxl.job.admin.addresses}")
-    private String adminAddresses;
+	@Autowired
+	private XxlJobProperties xxlJobProperties;
 
-    @Value("${xxl.job.accessToken}")
-    private String accessToken;
-
-    @Value("${xxl.job.executor.appname}")
-    private String appname;
-
-    @Value("${xxl.job.executor.address}")
-    private String address;
-
-    @Value("${xxl.job.executor.ip}")
-    private String ip;
-
-    @Value("${xxl.job.executor.port}")
-    private int port;
-
-    @Value("${xxl.job.executor.logpath}")
-    private String logPath;
-
-    @Value("${xxl.job.executor.logretentiondays}")
-    private int logRetentionDays;
-
-
-    @Bean
-    public XxlJobSpringExecutor xxlJobExecutor() {
-        logger.info(">>>>>>>>>>> xxl-job config init.");
-        XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
-        xxlJobSpringExecutor.setAdminAddresses(adminAddresses);
-        xxlJobSpringExecutor.setAppname(appname);
-        xxlJobSpringExecutor.setAddress(address);
-        xxlJobSpringExecutor.setIp(ip);
-        xxlJobSpringExecutor.setPort(port);
-        xxlJobSpringExecutor.setAccessToken(accessToken);
-        xxlJobSpringExecutor.setLogPath(logPath);
-        xxlJobSpringExecutor.setLogRetentionDays(logRetentionDays);
-
-        return xxlJobSpringExecutor;
-    }
-
-    /**
-     * 针对多网卡、容器内部署等情况，可借助 "spring-cloud-commons" 提供的 "InetUtils" 组件灵活定制注册IP；
-     *
-     *      1、引入依赖：
-     *          <dependency>
-     *             <groupId>org.springframework.cloud</groupId>
-     *             <artifactId>spring-cloud-commons</artifactId>
-     *             <version>${version}</version>
-     *         </dependency>
-     *
-     *      2、配置文件，或者容器启动变量
-     *          spring.cloud.inetutils.preferred-networks: 'xxx.xxx.xxx.'
-     *
-     *      3、获取IP
-     *          String ip_ = inetUtils.findFirstNonLoopbackHostInfo().getIpAddress();
-     */
-
-
+	@Bean
+	public XxlJobSpringExecutor xxlJobExecutor() {
+		XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
+		xxlJobSpringExecutor.setAdminAddresses(xxlJobProperties.getAdminAddresses());
+		xxlJobSpringExecutor.setAppname(xxlJobProperties.getExecutor().getAppname());
+		xxlJobSpringExecutor.setAddress(xxlJobProperties.getExecutor().getAddress());
+		xxlJobSpringExecutor.setIp(xxlJobProperties.getExecutor().getIp());
+		xxlJobSpringExecutor.setPort(xxlJobProperties.getExecutor().getPort());
+		xxlJobSpringExecutor.setAccessToken(xxlJobProperties.getAccessToken());
+		xxlJobSpringExecutor.setLogPath(xxlJobProperties.getExecutor().getLogPath());
+		xxlJobSpringExecutor.setLogRetentionDays(xxlJobProperties.getExecutor().getLogRetentionDays());
+		return xxlJobSpringExecutor;
+	}
 }
