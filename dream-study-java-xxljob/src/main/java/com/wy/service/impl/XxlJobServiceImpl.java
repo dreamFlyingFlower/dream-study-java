@@ -8,21 +8,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -61,9 +55,6 @@ public class XxlJobServiceImpl implements XxlJobService {
 	@Autowired
 	private XxlJobProperties xxlJobProperties;
 
-	@Autowired
-	private RestTemplate restTemplate;
-
 	/**
 	 * 从登录的请求接口中获得cookie
 	 * 
@@ -72,16 +63,23 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 */
 	private String getCookie(HttpResponse httpResponse) {
 		if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-			ReturnT<String> ret = JSON.parseObject(AssertTool.notBlank(httpResponse.getBody()).toString(),
-					new TypeReference<ReturnT<String>>() {
-					});
-			if (200 == ret.getCode()) {
-				// Set-Cookie=[XXL_JOB_LOGIN_IDENTITY=cookie; Path=/; HttpOnly]
-				String cookie = httpResponse.getHeaders(HttpHeaders.SET_COOKIE)(0);
-				int start = cookie.indexOf(XXLJOB_COOKIE_LOGIN_KEY) + 1 + XXLJOB_COOKIE_LOGIN_KEY.length();
-				cookie = cookie.substring(start, cookie.indexOf(";", start));
-				USER_COOKIE.put(xxlJobProperties.getUsername(), cookie);
-				return cookie;
+			try {
+				// 拿不到结果
+				System.out.println(EntityUtils.toString(httpResponse.getEntity()));
+				ReturnT<String> ret =
+						JSON.parseObject(AssertTool.notBlank(EntityUtils.toString(httpResponse.getEntity())).toString(),
+								new TypeReference<ReturnT<String>>() {
+								});
+				if (200 == ret.getCode()) {
+					// Set-Cookie=[XXL_JOB_LOGIN_IDENTITY=cookie; Path=/; HttpOnly]
+					String cookie = httpResponse.getHeaders(HttpHeaders.SET_COOKIE)[0].getValue();
+					int start = cookie.indexOf(XXLJOB_COOKIE_LOGIN_KEY) + 1 + XXLJOB_COOKIE_LOGIN_KEY.length();
+					cookie = cookie.substring(start, cookie.indexOf(";", start));
+					USER_COOKIE.put(xxlJobProperties.getUsername(), cookie);
+					return cookie;
+				}
+			} catch (ParseException | IOException e) {
+				e.printStackTrace();
 			}
 		}
 		return null;
@@ -108,12 +106,11 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 * 
 	 * @return 请求头
 	 */
-	private HttpHeaders getHttpHeaders() {
+	private Map<String, Object> getHttpHeaders() {
 		String cookie = getCookie();
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		httpHeaders.addAll(HttpHeaders.COOKIE, new ArrayList<>(Arrays.asList(XXLJOB_COOKIE_LOGIN_KEY + "=" + cookie)));
-		return httpHeaders;
+		return MapTool.builder("Content-Type", "application/x-www-form-urlencoded")
+				.put(HttpHeaders.COOKIE, new ArrayList<>(Arrays.asList(XXLJOB_COOKIE_LOGIN_KEY + "=" + cookie)))
+				.build();
 	}
 
 	/**
@@ -127,22 +124,20 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 */
 	private <T> String getResponse(String api, HttpMethod httpMethod, T t) {
 		// 返回指定泛型的结果
-		ParameterizedTypeReference<ReturnT<String>> typeReference = new ParameterizedTypeReference<ReturnT<String>>() {
-		};
-		ResponseEntity<ReturnT<String>> responseEntity = null;
+		HttpResponse httpResponse = null;
 		if (Objects.isNull(t)) {
-			// typeReference);
 		} else {
-			responseEntity = restTemplate.exchange(xxlJobProperties.getAdminAddresses().split(",")[0] + api, httpMethod,
-					new HttpEntity<T>(getHttpHeaders()), typeReference, t);
+			httpResponse = HttpClientTools.sendPostForm(xxlJobProperties.getAdminAddresses().split(",")[0] + api,
+					JSON.parseObject(JSON.toJSONString(t), new TypeReference<Map<String, String>>() {
+					}), StandardCharsets.UTF_8, getHttpHeaders());
 		}
-		if (HttpStatus.SC_OK == responseEntity.getStatusCodeValue()) {
-			ReturnT<String> ret = responseEntity.getBody();
-			if (200 == ret.getCode()) {
-				return ret.getContent();
-			} else {
-				throw new ResultException(ret.getMsg());
-			}
+		if (HttpStatus.SC_OK == httpResponse.getStatusLine().getStatusCode()) {
+			// ReturnT<String> ret = responseEntity.getBody();
+			// if (200 == ret.getCode()) {
+			// return ret.getContent();
+			// } else {
+			// throw new ResultException(ret.getMsg());
+			// }
 		}
 		return null;
 	}
@@ -159,15 +154,10 @@ public class XxlJobServiceImpl implements XxlJobService {
 				xxlJobProperties.getAdminAddresses().split(",")[0] + xxlJobProperties.getLoginPath(), hashMap,
 				StandardCharsets.UTF_8,
 				MapTool.builder(HTTP.CONTENT_TYPE, "application/x-www-form-urlencoded").build());
-		Header[] allHeaders = httpResponse.getAllHeaders();
-		for (Header header : allHeaders) {
-			System.out.println(header.getName() + ":" + header.getValue());
-		}
-		try {
-			System.out.println(EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8));
-		} catch (ParseException | IOException e) {
-			e.printStackTrace();
-		}
+		// Header[] allHeaders = httpResponse.getAllHeaders();
+		// for (Header header : allHeaders) {
+		// System.out.println(header.getName() + ":" + header.getValue());
+		// }
 		return getCookie(httpResponse);
 	}
 
@@ -177,11 +167,12 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 * @param jobInfo 定时任务信息
 	 */
 	@Override
-	public Integer add(XxlJobInfo jobInfo) {
+	public Integer add(XxlJobInfo jobInfo1) {
 
-		jobInfo = XxlJobInfo.builder().jobGroup(1).jobDesc("test").author("admin").scheduleType("CRON").glueType("BEAN")
-				.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
-				.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
+		XxlJobInfo jobInfo =
+				XxlJobInfo.builder().jobGroup(1).jobDesc("test").author("admin").scheduleType("CRON").glueType("BEAN")
+						.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
+						.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
 
 		if (Objects.isNull(jobInfo.getJobGroup())) {
 			throw new ResultException("定时任务JobGroup不能为空");
@@ -245,6 +236,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 			throw new ResultException(MessageService.getMessage("jobinfo_field_executorBlockStrategy")
 					+ MessageService.getMessage("system_unvalid"));
 		}
+
 		String content = getResponse("/jobinfo/add", HttpMethod.POST, jobInfo);
 		if (StrTool.isNotBlank(content) && NumberTool.isNumber(content)) {
 			return Integer.parseInt(content);
