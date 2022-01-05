@@ -1,6 +1,8 @@
 package com.wy.study;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -13,6 +15,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -51,6 +55,19 @@ public class MyRestTemplate {
 		httpHeaders.set("Authorization", authHeader);
 		restTemplate.exchange("http://ip:port/", HttpMethod.GET, new HttpEntity<User>(httpHeaders), User.class)
 				.getBody();
+		// 发送带参数的POST请求,参数只能用MultiValueMap类型,否则响应方接收不到
+		MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+		params.add("username", "admin");
+		params.add("password", "123456");
+		// post带参数只能用exchange发,否则可能接收不到参数.参数只能放在HttpEntity中,否则可能接收不到参数
+		restTemplate.exchange("http://ip:port", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, Object>>(params, httpHeaders), String.class);
+		// 发送带cookie的请求
+		HttpHeaders httpHeadersCookie = new HttpHeaders();
+		httpHeadersCookie.addAll(HttpHeaders.COOKIE,
+				new ArrayList<>(Arrays.asList("cookieName" + "=" + "cookieValue")));
+		restTemplate.exchange("http://ip:port", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, Object>>(params, httpHeadersCookie), String.class);
 		// 使用RequestEntity发送请求
 		// 构建无参地址
 		UriComponents uriComponents = UriComponentsBuilder.fromUriString("http://ip:port/").build();

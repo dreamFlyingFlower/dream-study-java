@@ -1,18 +1,16 @@
 package com.wy.config;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * RestTemplate
+ * 
  *
  * @author 飞花梦影
- * @date 2022-01-04 17:29:11
+ * @date 2022-01-05 17:10:53
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-@ConditionalOnMissingBean(RestTemplate.class)
 @Configuration
 public class RestTemplateConfig {
 

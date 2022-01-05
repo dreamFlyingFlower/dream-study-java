@@ -112,9 +112,10 @@ public class JobInfoController {
 	@RequestMapping("/pageList")
 	@ResponseBody
 	public Map<String, Object> pageList(@RequestParam(required = false, defaultValue = "0") int start,
-			@RequestParam(required = false, defaultValue = "10") int length, int jobGroup, int triggerStatus,
-			String jobDesc, String executorHandler, String author) {
-
+			@RequestParam(required = false, defaultValue = "10") int length,
+			@RequestParam(required = false, defaultValue = "0") Integer jobGroup,
+			@RequestParam(required = false, defaultValue = "-1") Integer triggerStatus, String jobDesc,
+			String executorHandler, String author) {
 		return xxlJobService.pageList(start, length, jobGroup, triggerStatus, jobDesc, executorHandler, author);
 	}
 

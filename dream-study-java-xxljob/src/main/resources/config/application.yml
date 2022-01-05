@@ -8,3 +8,5 @@ spring:
     active:
     - dev
     - xxljob
+  messages:
+    basename: i18n/message
