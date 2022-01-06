@@ -9,5 +9,24 @@ package com.wy.common;
  */
 public interface Constants {
 
+	/** 登录xxljob-admin时存储的Cookie Key */
 	String XXLJOB_COOKIE_LOGIN_KEY = "XXL_JOB_LOGIN_IDENTITY";
+
+	/** 添加定时任务URL */
+	String XXLJOB_URL_API_ADD = "/jobinfo/add";
+
+	/** 更新定时任务URL */
+	String XXLJOB_URL_API_UPDATE = "/jobinfo/update";
+
+	/** 删除定时任务URL */
+	String XXLJOB_URL_API_REMOVE = "/jobinfo/remove";
+
+	/** 开始定时任务URL */
+	String XXLJOB_URL_API_START = "/jobinfo/start";
+
+	/** 执行一次定时任务URL */
+	String XXLJOB_URL_API_TRIGGER = "/jobinfo/trigger";
+
+	/** 停止定时任务URL */
+	String XXLJOB_URL_API_STOP = "/jobinfo/stop";
 }

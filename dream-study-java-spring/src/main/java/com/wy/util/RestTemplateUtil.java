@@ -1,20 +1,60 @@
 package com.wy.util;
 
 import java.lang.reflect.Field;
+import java.text.MessageFormat;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import com.wy.collection.MapTool;
+import com.wy.lang.StrTool;
 import com.wy.reflect.ReflectTool;
 
 /**
- * 
+ * RestTemplate工具类
  *
  * @author 飞花梦影
  * @date 2022-01-06 13:57:10
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class RestTemplateUtil {
+
+	/** Get请求URL */
+	private static final String FORMAT_URL_GET = "{0}?{1}";
+
+	/**
+	 * Get请求将参数构建到URL中
+	 * 
+	 * @param params 参数
+	 * @return 构建后的参数字符串
+	 */
+	public static String generateGetUrl(Map<String, Object> params) {
+		return generateGetUrl("", params);
+	}
+
+	/**
+	 * Get请求将参数构建到URL中
+	 * 
+	 * @param url URL
+	 * @param params 参数
+	 * @return 构建后的URL字符串
+	 */
+	public static String generateGetUrl(String url, Map<String, Object> params) {
+		if (MapTool.isNotEmpty(params)) {
+			StringBuilder stringBuilder = new StringBuilder();
+			for (Map.Entry<String, Object> entry : params.entrySet()) {
+				if (StrTool.isBlank(entry.getKey()) || Objects.isNull(entry.getValue())) {
+					continue;
+				}
+				stringBuilder.append(entry.getKey()).append("={").append(entry.getKey()).append("}");
+			}
+			url = MessageFormat.format(FORMAT_URL_GET, Optional.ofNullable(url).orElse(""), stringBuilder.toString());
+		}
+		return url;
+	}
 
 	/**
 	 * 将对象转为表单可接收的 LinkedMultiValueMap

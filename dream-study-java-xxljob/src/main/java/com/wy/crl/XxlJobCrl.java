@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wy.result.Result;
 import com.wy.service.XxlJobService;
 
 @RequestMapping("xxlJob")
@@ -29,5 +30,10 @@ public class XxlJobCrl {
 	public String login() {
 		xxljobService.login();
 		return null;
+	}
+
+	@GetMapping("trigger")
+	public Result<?> trigger(Integer id) {
+		return xxljobService.trigger(id, null, null);
 	}
 }

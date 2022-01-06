@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import com.wy.collection.MapTool;
 import com.wy.common.Constants;
 import com.wy.config.MessageService;
 import com.wy.enums.ExecutorRouteStrategyEnum;
@@ -27,6 +29,7 @@ import com.wy.lang.NumberTool;
 import com.wy.lang.StrTool;
 import com.wy.model.XxlJobInfo;
 import com.wy.properties.XxlJobProperties;
+import com.wy.result.Result;
 import com.wy.result.ResultException;
 import com.wy.service.XxlJobService;
 import com.wy.util.CronExpression;
@@ -49,6 +52,9 @@ import lombok.extern.slf4j.Slf4j;
 public class XxlJobServiceImpl implements XxlJobService {
 
 	private static final Map<String, String> USER_COOKIE = new HashMap<>();
+
+	private ParameterizedTypeReference<ReturnT<String>> retType = new ParameterizedTypeReference<ReturnT<String>>() {
+	};
 
 	@Autowired
 	private XxlJobProperties xxlJobProperties;
@@ -92,29 +98,50 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 * 
 	 * @return 请求头
 	 */
-	private HttpHeaders getHttpHeaders() {
+	private HttpHeaders generateHeader() {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add(HttpHeaders.COOKIE, Constants.XXLJOB_COOKIE_LOGIN_KEY + "=" + getCookie());
 		return httpHeaders;
 	}
 
 	/**
-	 * 获得结果集
+	 * Get请求
+	 * 
+	 * @param api 接口地址
+	 * @param params 参数
+	 * @return 结果
+	 */
+	private String get(String api, Map<String, Object> params) {
+		String url = RestTemplateUtil.generateGetUrl(xxlJobProperties.getAdminAddresses().split(",")[0] + api, params);
+		ResponseEntity<ReturnT<String>> responseEntity =
+				restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<String>(generateHeader()), retType, params);
+		return handlerResponse(responseEntity);
+	}
+
+	/**
+	 * Post请求传输对象
 	 * 
 	 * @param <T>
 	 * @param api 接口地址
-	 * @param httpMethod 请求方式
 	 * @param t 参数
 	 * @return 结果
 	 */
-	private <T> String getResponse(String api, T t) {
-		ParameterizedTypeReference<ReturnT<String>> retType = new ParameterizedTypeReference<ReturnT<String>>() {
-		};
+	private <T> String postObject(String api, T t) {
 		ResponseEntity<ReturnT<String>> responseEntity =
 				restTemplate.exchange(xxlJobProperties.getAdminAddresses().split(",")[0] + api, HttpMethod.POST,
 						new HttpEntity<MultiValueMap<String, Object>>(RestTemplateUtil.toLinkedMultiValueMap(t),
-								getHttpHeaders()),
+								generateHeader()),
 						retType);
+		return handlerResponse(responseEntity);
+	}
+
+	/**
+	 * 处理结果
+	 * 
+	 * @param responseEntity 响应
+	 * @return 结果字符串
+	 */
+	private String handlerResponse(ResponseEntity<ReturnT<String>> responseEntity) {
 		if (responseEntity.getStatusCode() == HttpStatus.OK) {
 			if (200 == responseEntity.getBody().getCode()) {
 				return responseEntity.getBody().getContent();
@@ -128,35 +155,19 @@ public class XxlJobServiceImpl implements XxlJobService {
 	}
 
 	/**
-	 * http登录admin,获得cookie,由于地址可能有多个,最好是配置中的adminAddresses只写一个
-	 */
-	@Override
-	public String login() {
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		RequestEntity<MultiValueMap<String, Object>> requestEntity = new RequestEntity<>(
-				RestTemplateUtil.builder().add("userName", xxlJobProperties.getUsername())
-						.add("password", xxlJobProperties.getPassword()).build(),
-				httpHeaders, HttpMethod.POST,
-				URI.create(xxlJobProperties.getAdminAddresses().split(",")[0] + xxlJobProperties.getLoginPath()));
-		ParameterizedTypeReference<ReturnT<String>> retType = new ParameterizedTypeReference<ReturnT<String>>() {
-		};
-		ResponseEntity<ReturnT<String>> responseEntity = restTemplate.exchange(requestEntity, retType);
-		return getCookie(responseEntity);
-	}
-
-	/**
-	 * 新怎定时任务
+	 * 新增定时任务,会重复新增相同的定时任务,即会有多个executorHandler相同的任务
+	 * 
+	 * FIXME 先查是否存在名称和组都相同的任务,没有再增加
 	 * 
 	 * @param jobInfo 定时任务信息
 	 */
 	@Override
-	public Integer add(XxlJobInfo jobInfo1) {
+	public Integer add(XxlJobInfo jobInfo) {
 
-		XxlJobInfo jobInfo =
-				XxlJobInfo.builder().jobGroup(1).jobDesc("test").author("admin").scheduleType("CRON").glueType("BEAN")
-						.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
-						.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
+		// 测试数据
+		jobInfo = XxlJobInfo.builder().jobGroup(1).jobDesc("test").author("admin").scheduleType("CRON").glueType("BEAN")
+				.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
+				.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
 
 		if (Objects.isNull(jobInfo.getJobGroup())) {
 			throw new ResultException("定时任务JobGroup不能为空");
@@ -221,10 +232,127 @@ public class XxlJobServiceImpl implements XxlJobService {
 					+ MessageService.getMessage("system_unvalid"));
 		}
 
-		String content = getResponse("/jobinfo/add", jobInfo);
+		String content = postObject(Constants.XXLJOB_URL_API_ADD, jobInfo);
 		if (StrTool.isNotBlank(content) && NumberTool.isNumber(content)) {
 			return Integer.parseInt(content);
 		}
 		return null;
+	}
+
+	/**
+	 * http登录admin,获得cookie,由于地址可能有多个,最好是配置中的adminAddresses只写一个
+	 */
+	@Override
+	public String login() {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		RequestEntity<MultiValueMap<String, Object>> requestEntity = new RequestEntity<>(
+				RestTemplateUtil.builder().add("userName", xxlJobProperties.getUsername())
+						.add("password", xxlJobProperties.getPassword()).build(),
+				httpHeaders, HttpMethod.POST,
+				URI.create(xxlJobProperties.getAdminAddresses().split(",")[0] + xxlJobProperties.getLoginPath()));
+		ParameterizedTypeReference<ReturnT<String>> retType = new ParameterizedTypeReference<ReturnT<String>>() {
+		};
+		ResponseEntity<ReturnT<String>> responseEntity = restTemplate.exchange(requestEntity, retType);
+		return getCookie(responseEntity);
+	}
+
+	// FIXME 未测试
+	@Override
+	public Result<?> remove(Integer id) {
+		postObject(Constants.XXLJOB_URL_API_REMOVE, id);
+		return Result.ok();
+	}
+
+	// FIXME 未测试
+	@Override
+	public Result<?> start(Integer id) {
+		postObject(Constants.XXLJOB_URL_API_START, id);
+		return Result.ok();
+	}
+
+	// FIXME 未测试
+	@Override
+	public Result<?> stop(Integer id) {
+		postObject(Constants.XXLJOB_URL_API_STOP, id);
+		return Result.ok();
+	}
+
+	// FIXME 未测试executorParam,addressList
+	@Override
+	public Result<?> trigger(Integer id, String executorParam, String addressList) {
+		get(Constants.XXLJOB_URL_API_TRIGGER,
+				MapTool.builder("id", id).put("executorParam", executorParam).put("addressList", addressList).build());
+		return Result.ok();
+	}
+
+	// FIXME 未测试
+	@Override
+	public Result<?> update(XxlJobInfo jobInfo) {
+
+		// 测试数据
+		jobInfo = XxlJobInfo.builder().jobGroup(1).jobDesc("test").author("admin").scheduleType("CRON").glueType("BEAN")
+				.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
+				.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
+
+		// valid base
+		if (StrTool.isBlank(jobInfo.getJobDesc())) {
+			throw new ResultException(MessageService.getMessage("system_please_input")
+					+ MessageService.getMessage("jobinfo_field_jobdesc"));
+		}
+		if (StrTool.isBlank(jobInfo.getAuthor())) {
+			throw new ResultException(MessageService.getMessage("system_please_input")
+					+ MessageService.getMessage("jobinfo_field_author"));
+		}
+
+		// valid trigger
+		ScheduleTypeEnum scheduleTypeEnum = ScheduleTypeEnum.match(jobInfo.getScheduleType(), null);
+		Optional.ofNullable(scheduleTypeEnum).orElseThrow(() -> new ResultException(
+				MessageService.getMessage("schedule_type") + MessageService.getMessage("system_unvalid")));
+		if (scheduleTypeEnum == ScheduleTypeEnum.CRON) {
+			if (jobInfo.getScheduleConf() == null || !CronExpression.isValidExpression(jobInfo.getScheduleConf())) {
+				throw new ResultException("Cron" + MessageService.getMessage("system_unvalid"));
+			}
+		} else if (scheduleTypeEnum == ScheduleTypeEnum.FIX_RATE /* || scheduleTypeEnum == ScheduleTypeEnum.FIX_DELAY */) {
+			if (jobInfo.getScheduleConf() == null) {
+				throw new ResultException(
+						MessageService.getMessage("schedule_type") + MessageService.getMessage("system_unvalid"));
+			}
+			try {
+				int fixSecond = Integer.valueOf(jobInfo.getScheduleConf());
+				if (fixSecond < 1) {
+					throw new ResultException(
+							MessageService.getMessage("schedule_type") + MessageService.getMessage("system_unvalid"));
+				}
+			} catch (Exception e) {
+				throw new ResultException(
+						MessageService.getMessage("schedule_type") + MessageService.getMessage("system_unvalid"));
+			}
+		}
+
+		// valid advanced
+		if (ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null) == null) {
+			throw new ResultException(MessageService.getMessage("jobinfo_field_executorRouteStrategy")
+					+ MessageService.getMessage("system_unvalid"));
+		}
+		if (MisfireStrategyEnum.match(jobInfo.getMisfireStrategy(), null) == null) {
+			throw new ResultException(
+					MessageService.getMessage("misfire_strategy") + MessageService.getMessage("system_unvalid"));
+		}
+		if (ExecutorBlockStrategyEnum.match(jobInfo.getExecutorBlockStrategy(), null) == null) {
+			throw new ResultException(MessageService.getMessage("jobinfo_field_executorBlockStrategy")
+					+ MessageService.getMessage("system_unvalid"));
+		}
+
+		// group valid
+		Optional.ofNullable(jobInfo.getJobGroup()).orElseThrow(() -> new ResultException(
+				MessageService.getMessage("jobinfo_field_jobgroup") + MessageService.getMessage("system_unvalid")));
+
+		// stage job info
+		Optional.ofNullable(jobInfo.getId()).orElseThrow(() -> new ResultException(
+				MessageService.getMessage("jobinfo_field_id") + MessageService.getMessage("system_not_found")));
+
+		postObject(Constants.XXLJOB_URL_API_UPDATE, jobInfo);
+		return Result.ok();
 	}
 }
