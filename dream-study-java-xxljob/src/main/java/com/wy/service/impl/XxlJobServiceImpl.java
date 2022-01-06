@@ -1,32 +1,28 @@
 package com.wy.service.impl;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.wy.collection.MapTool;
+import com.wy.common.Constants;
 import com.wy.config.MessageService;
 import com.wy.enums.ExecutorRouteStrategyEnum;
 import com.wy.enums.MisfireStrategyEnum;
 import com.wy.enums.ScheduleTypeEnum;
-import com.wy.http.HttpClientTools;
-import com.wy.lang.AssertTool;
 import com.wy.lang.NumberTool;
 import com.wy.lang.StrTool;
 import com.wy.model.XxlJobInfo;
@@ -34,9 +30,12 @@ import com.wy.properties.XxlJobProperties;
 import com.wy.result.ResultException;
 import com.wy.service.XxlJobService;
 import com.wy.util.CronExpression;
+import com.wy.util.RestTemplateUtil;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
 import com.xxl.job.core.glue.GlueTypeEnum;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * xxljob远程调用实现类.该类不提供生产前端调用,只提供测试调用
@@ -46,44 +45,16 @@ import com.xxl.job.core.glue.GlueTypeEnum;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Service
+@Slf4j
 public class XxlJobServiceImpl implements XxlJobService {
-
-	private static final String XXLJOB_COOKIE_LOGIN_KEY = "XXL_JOB_LOGIN_IDENTITY";
 
 	private static final Map<String, String> USER_COOKIE = new HashMap<>();
 
 	@Autowired
 	private XxlJobProperties xxlJobProperties;
 
-	/**
-	 * 从登录的请求接口中获得cookie
-	 * 
-	 * @param responseEntity 登录响应结果
-	 * @return cookie值
-	 */
-	private String getCookie(HttpResponse httpResponse) {
-		if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-			try {
-				// 拿不到结果
-				System.out.println(EntityUtils.toString(httpResponse.getEntity()));
-				ReturnT<String> ret =
-						JSON.parseObject(AssertTool.notBlank(EntityUtils.toString(httpResponse.getEntity())).toString(),
-								new TypeReference<ReturnT<String>>() {
-								});
-				if (200 == ret.getCode()) {
-					// Set-Cookie=[XXL_JOB_LOGIN_IDENTITY=cookie; Path=/; HttpOnly]
-					String cookie = httpResponse.getHeaders(HttpHeaders.SET_COOKIE)[0].getValue();
-					int start = cookie.indexOf(XXLJOB_COOKIE_LOGIN_KEY) + 1 + XXLJOB_COOKIE_LOGIN_KEY.length();
-					cookie = cookie.substring(start, cookie.indexOf(";", start));
-					USER_COOKIE.put(xxlJobProperties.getUsername(), cookie);
-					return cookie;
-				}
-			} catch (ParseException | IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
+	@Autowired
+	private RestTemplate restTemplate;
 
 	/**
 	 * 从缓存中获取cookie,缓存中没有则调用登录接口获取
@@ -102,15 +73,29 @@ public class XxlJobServiceImpl implements XxlJobService {
 	}
 
 	/**
+	 * 从登录的请求接口中获得cookie
+	 * 
+	 * @param responseEntity 登录响应结果
+	 * @return cookie值
+	 */
+	private String getCookie(ResponseEntity<ReturnT<String>> responseEntity) {
+		// Set-Cookie=[XXL_JOB_LOGIN_IDENTITY=cookie; Path=/; HttpOnly]
+		String cookie = responseEntity.getHeaders().get(HttpHeaders.SET_COOKIE).get(0);
+		int start = cookie.indexOf(Constants.XXLJOB_COOKIE_LOGIN_KEY) + 1 + Constants.XXLJOB_COOKIE_LOGIN_KEY.length();
+		cookie = cookie.substring(start, cookie.indexOf(";", start));
+		USER_COOKIE.put(xxlJobProperties.getUsername(), cookie);
+		return cookie;
+	}
+
+	/**
 	 * 构建带cookie的请求头
 	 * 
 	 * @return 请求头
 	 */
-	private Map<String, Object> getHttpHeaders() {
-		String cookie = getCookie();
-		return MapTool.builder("Content-Type", "application/x-www-form-urlencoded")
-				.put(HttpHeaders.COOKIE, new ArrayList<>(Arrays.asList(XXLJOB_COOKIE_LOGIN_KEY + "=" + cookie)))
-				.build();
+	private HttpHeaders getHttpHeaders() {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add(HttpHeaders.COOKIE, Constants.XXLJOB_COOKIE_LOGIN_KEY + "=" + getCookie());
+		return httpHeaders;
 	}
 
 	/**
@@ -122,24 +107,24 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 * @param t 参数
 	 * @return 结果
 	 */
-	private <T> String getResponse(String api, HttpMethod httpMethod, T t) {
-		// 返回指定泛型的结果
-		HttpResponse httpResponse = null;
-		if (Objects.isNull(t)) {
+	private <T> String getResponse(String api, T t) {
+		ParameterizedTypeReference<ReturnT<String>> retType = new ParameterizedTypeReference<ReturnT<String>>() {
+		};
+		ResponseEntity<ReturnT<String>> responseEntity =
+				restTemplate.exchange(xxlJobProperties.getAdminAddresses().split(",")[0] + api, HttpMethod.POST,
+						new HttpEntity<MultiValueMap<String, Object>>(RestTemplateUtil.toLinkedMultiValueMap(t),
+								getHttpHeaders()),
+						retType);
+		if (responseEntity.getStatusCode() == HttpStatus.OK) {
+			if (200 == responseEntity.getBody().getCode()) {
+				return responseEntity.getBody().getContent();
+			} else {
+				throw new ResultException(responseEntity.getBody().getMsg());
+			}
 		} else {
-			httpResponse = HttpClientTools.sendPostForm(xxlJobProperties.getAdminAddresses().split(",")[0] + api,
-					JSON.parseObject(JSON.toJSONString(t), new TypeReference<Map<String, String>>() {
-					}), StandardCharsets.UTF_8, getHttpHeaders());
+			log.error("###:xxljob请求响应失败,错误码为:{}", responseEntity.getStatusCodeValue());
+			throw new ResultException("###:xxljob请求响应失败,错误码为:%s", responseEntity.getStatusCodeValue());
 		}
-		if (HttpStatus.SC_OK == httpResponse.getStatusLine().getStatusCode()) {
-			// ReturnT<String> ret = responseEntity.getBody();
-			// if (200 == ret.getCode()) {
-			// return ret.getContent();
-			// } else {
-			// throw new ResultException(ret.getMsg());
-			// }
-		}
-		return null;
 	}
 
 	/**
@@ -147,18 +132,17 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 */
 	@Override
 	public String login() {
-		HashMap<String, String> hashMap = new HashMap<>(4);
-		hashMap.put("userName", "admin");
-		hashMap.put("password", "123456");
-		HttpResponse httpResponse = HttpClientTools.sendPostForm(
-				xxlJobProperties.getAdminAddresses().split(",")[0] + xxlJobProperties.getLoginPath(), hashMap,
-				StandardCharsets.UTF_8,
-				MapTool.builder(HTTP.CONTENT_TYPE, "application/x-www-form-urlencoded").build());
-		// Header[] allHeaders = httpResponse.getAllHeaders();
-		// for (Header header : allHeaders) {
-		// System.out.println(header.getName() + ":" + header.getValue());
-		// }
-		return getCookie(httpResponse);
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		RequestEntity<MultiValueMap<String, Object>> requestEntity = new RequestEntity<>(
+				RestTemplateUtil.builder().add("userName", xxlJobProperties.getUsername())
+						.add("password", xxlJobProperties.getPassword()).build(),
+				httpHeaders, HttpMethod.POST,
+				URI.create(xxlJobProperties.getAdminAddresses().split(",")[0] + xxlJobProperties.getLoginPath()));
+		ParameterizedTypeReference<ReturnT<String>> retType = new ParameterizedTypeReference<ReturnT<String>>() {
+		};
+		ResponseEntity<ReturnT<String>> responseEntity = restTemplate.exchange(requestEntity, retType);
+		return getCookie(responseEntity);
 	}
 
 	/**
@@ -237,7 +221,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 					+ MessageService.getMessage("system_unvalid"));
 		}
 
-		String content = getResponse("/jobinfo/add", HttpMethod.POST, jobInfo);
+		String content = getResponse("/jobinfo/add", jobInfo);
 		if (StrTool.isNotBlank(content) && NumberTool.isNumber(content)) {
 			return Integer.parseInt(content);
 		}

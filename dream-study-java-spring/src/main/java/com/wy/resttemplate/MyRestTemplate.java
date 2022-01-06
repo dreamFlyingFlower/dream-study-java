@@ -1,10 +1,11 @@
-package com.wy.study;
+package com.wy.resttemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
@@ -15,13 +16,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.wy.collection.MapTool;
+import com.wy.util.RestTemplateUtil;
 
 /**
  * 使用RestTemplate
@@ -41,11 +42,8 @@ public class MyRestTemplate {
 		// 返回指定泛型的结果
 		ParameterizedTypeReference<List<User>> typeReference = new ParameterizedTypeReference<List<User>>() {
 		};
-		ResponseEntity<List<User>> responseEntity =
-				restTemplate.exchange("http://ip:port/", HttpMethod.GET, null, typeReference);
-		System.out.println(responseEntity.getBody());
+		restTemplate.exchange("http://ip:port/", HttpMethod.GET, null, typeReference);
 		// 在请求中添加请求头
-		// 定义HTTP的头信息
 		HttpHeaders httpHeaders = new HttpHeaders();
 		// 认证的原始信息,由用户名和密码拼接而成
 		String auth = "cat:123456";
@@ -56,18 +54,32 @@ public class MyRestTemplate {
 		restTemplate.exchange("http://ip:port/", HttpMethod.GET, new HttpEntity<User>(httpHeaders), User.class)
 				.getBody();
 		// 发送带参数的POST请求,参数只能用MultiValueMap类型,否则响应方接收不到
-		MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-		params.add("username", "admin");
-		params.add("password", "123456");
-		// post带参数只能用exchange发,否则可能接收不到参数.参数只能放在HttpEntity中,否则可能接收不到参数
+		MultiValueMap<String, Object> params =
+				RestTemplateUtil.builder().add("username", "admin").add("password", "123456").build();
 		restTemplate.exchange("http://ip:port", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, Object>>(params, httpHeaders), String.class);
+		restTemplate.postForEntity("http://ip:port", new HttpEntity<MultiValueMap<String, Object>>(params, httpHeaders),
+				String.class);
+		// 如果POST不需要请求头参数,可直接使用postForObject,直接传递参数
+		restTemplate.postForObject("http://ip:port", params, String.class);
 		// 发送带cookie的请求
 		HttpHeaders httpHeadersCookie = new HttpHeaders();
 		httpHeadersCookie.addAll(HttpHeaders.COOKIE,
 				new ArrayList<>(Arrays.asList("cookieName" + "=" + "cookieValue")));
 		restTemplate.exchange("http://ip:port", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, Object>>(params, httpHeadersCookie), String.class);
+		// 使用Get发送请求,参数可以封装到Map中,只能用HashMap,且URL要使用占位符
+		Map<String, Object> paramMap = MapTool.builder("pageIndex", "1").put("pageSize", "10").build();
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", authHeader);
+		HttpEntity<MultiValueMap<String, Object>> httpEntity =
+				new HttpEntity<MultiValueMap<String, Object>>(null, headers);
+		restTemplate.exchange("http://127.0.0.1:8080/getList?pageIndex={pageIndex}&pageSize={pageSize}", HttpMethod.GET,
+				httpEntity, String.class, paramMap);
+		// 发送DELETE请求,基本同GET
+		restTemplate.exchange("http://127.0.0.1:8080/delete/{id}", HttpMethod.DELETE, null, String.class,
+				MapTool.builder("id", 1).build());
+
 		// 使用RequestEntity发送请求
 		// 构建无参地址
 		UriComponents uriComponents = UriComponentsBuilder.fromUriString("http://ip:port/").build();
