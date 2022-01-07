@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -44,14 +45,14 @@ public class RestTemplateUtil {
 	 */
 	public static String generateGetUrl(String url, Map<String, Object> params) {
 		if (MapTool.isNotEmpty(params)) {
-			StringBuilder stringBuilder = new StringBuilder();
+			StringJoiner stringJoiner = new StringJoiner("&");
 			for (Map.Entry<String, Object> entry : params.entrySet()) {
 				if (StrTool.isBlank(entry.getKey()) || Objects.isNull(entry.getValue())) {
 					continue;
 				}
-				stringBuilder.append(entry.getKey()).append("={").append(entry.getKey()).append("}");
+				stringJoiner.add(entry.getKey() + "={" + entry.getKey() + "}");
 			}
-			url = MessageFormat.format(FORMAT_URL_GET, Optional.ofNullable(url).orElse(""), stringBuilder.toString());
+			url = MessageFormat.format(FORMAT_URL_GET, Optional.ofNullable(url).orElse(""), stringJoiner.toString());
 		}
 		return url;
 	}

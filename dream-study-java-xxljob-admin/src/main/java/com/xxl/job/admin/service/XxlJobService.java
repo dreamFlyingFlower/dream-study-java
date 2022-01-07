@@ -1,6 +1,5 @@
 package com.xxl.job.admin.service;
 
-
 import com.xxl.job.admin.core.model.XxlJobInfo;
 import com.xxl.job.core.biz.model.ReturnT;
 
@@ -25,7 +24,8 @@ public interface XxlJobService {
 	 * @param author
 	 * @return
 	 */
-	public Map<String, Object> pageList(int start, int length, int jobGroup, int triggerStatus, String jobDesc, String executorHandler, String author);
+	Map<String, Object> pageList(int start, int length, int jobGroup, int triggerStatus, String jobDesc,
+			String executorHandler, String author);
 
 	/**
 	 * add job
@@ -33,7 +33,7 @@ public interface XxlJobService {
 	 * @param jobInfo
 	 * @return
 	 */
-	public ReturnT<String> add(XxlJobInfo jobInfo);
+	ReturnT<String> add(XxlJobInfo jobInfo);
 
 	/**
 	 * update job
@@ -41,15 +41,24 @@ public interface XxlJobService {
 	 * @param jobInfo
 	 * @return
 	 */
-	public ReturnT<String> update(XxlJobInfo jobInfo);
+	ReturnT<String> update(XxlJobInfo jobInfo);
 
 	/**
 	 * remove job
-	 * 	 *
+	 * 
 	 * @param id
 	 * @return
 	 */
-	public ReturnT<String> remove(int id);
+	ReturnT<String> remove(int id);
+
+	/**
+	 * 根据组名和执行器删除任务
+	 * 
+	 * @param groupName 组名
+	 * @param executorHandler 执行器名
+	 * @return 200->成功,500->失败
+	 */
+	ReturnT<String> removeByName(String groupName, String executorHandler);
 
 	/**
 	 * start job
@@ -57,7 +66,16 @@ public interface XxlJobService {
 	 * @param id
 	 * @return
 	 */
-	public ReturnT<String> start(int id);
+	ReturnT<String> start(int id);
+
+	/**
+	 * 根据组名和执行器开始任务
+	 * 
+	 * @param groupName 组名
+	 * @param executorHandler 执行器名
+	 * @return 200->成功,500->失败
+	 */
+	ReturnT<String> startByName(String groupName, String executorHandler);
 
 	/**
 	 * stop job
@@ -65,14 +83,34 @@ public interface XxlJobService {
 	 * @param id
 	 * @return
 	 */
-	public ReturnT<String> stop(int id);
+	ReturnT<String> stop(int id);
+
+	/**
+	 * 根据组名和执行器停止任务
+	 * 
+	 * @param groupName 组名
+	 * @param executorHandler 执行器名
+	 * @return 200->成功,500->失败
+	 */
+	ReturnT<String> stopByName(String groupName, String executorHandler);
+
+	/**
+	 * 根据组名和执行器执行一次任务
+	 * 
+	 * @param groupName 组名
+	 * @param executorHandler 执行器名
+	 * @param executorParam 执行参数
+	 * @param addressList 执行服务地址列表
+	 * @return 200->成功,500->失败
+	 */
+	ReturnT<String> triggerByName(String groupName, String executorHandler, String executorParam, String addressList);
 
 	/**
 	 * dashboard info
 	 *
 	 * @return
 	 */
-	public Map<String,Object> dashboardInfo();
+	Map<String, Object> dashboardInfo();
 
 	/**
 	 * chart info
@@ -81,6 +119,5 @@ public interface XxlJobService {
 	 * @param endDate
 	 * @return
 	 */
-	public ReturnT<Map<String,Object>> chartInfo(Date startDate, Date endDate);
-
+	ReturnT<Map<String, Object>> chartInfo(Date startDate, Date endDate);
 }

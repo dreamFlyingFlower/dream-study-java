@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import com.alibaba.fastjson.JSON;
 import com.wy.collection.MapTool;
 import com.wy.common.Constants;
 import com.wy.config.MessageService;
@@ -142,6 +143,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 * @return 结果字符串
 	 */
 	private String handlerResponse(ResponseEntity<ReturnT<String>> responseEntity) {
+		log.info("@@@:XxlJob请求结果:{}", JSON.toJSONString(responseEntity));
 		if (responseEntity.getStatusCode() == HttpStatus.OK) {
 			if (200 == responseEntity.getBody().getCode()) {
 				return responseEntity.getBody().getContent();
@@ -157,17 +159,16 @@ public class XxlJobServiceImpl implements XxlJobService {
 	/**
 	 * 新增定时任务,会重复新增相同的定时任务,即会有多个executorHandler相同的任务
 	 * 
-	 * FIXME 先查是否存在名称和组都相同的任务,没有再增加
-	 * 
 	 * @param jobInfo 定时任务信息
 	 */
 	@Override
 	public Integer add(XxlJobInfo jobInfo) {
 
 		// 测试数据
-		jobInfo = XxlJobInfo.builder().jobGroup(1).jobDesc("test").author("admin").scheduleType("CRON").glueType("BEAN")
-				.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
-				.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
+		jobInfo =
+				XxlJobInfo.builder().jobGroup(1).jobDesc("test44").author("admin").scheduleType("CRON").glueType("BEAN")
+						.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
+						.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
 
 		if (Objects.isNull(jobInfo.getJobGroup())) {
 			throw new ResultException("定时任务JobGroup不能为空");
@@ -257,28 +258,46 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return getCookie(responseEntity);
 	}
 
-	// FIXME 未测试
 	@Override
 	public Result<?> remove(Integer id) {
-		postObject(Constants.XXLJOB_URL_API_REMOVE, id);
+		get(Constants.XXLJOB_URL_API_REMOVE, MapTool.builder("id", id).build());
 		return Result.ok();
 	}
 
 	// FIXME 未测试
+	@Override
+	public Result<?> removeByName(String groupName, String executorHandler) {
+		get(Constants.XXLJOB_URL_API_REMOVE_BY_NAME,
+				MapTool.builder("groupName", groupName).put("executorHandler", executorHandler).build());
+		return Result.ok();
+	}
+
 	@Override
 	public Result<?> start(Integer id) {
-		postObject(Constants.XXLJOB_URL_API_START, id);
+		get(Constants.XXLJOB_URL_API_START, MapTool.builder("id", id).build());
 		return Result.ok();
 	}
 
-	// FIXME 未测试
+	@Override
+	public Result<?> startByName(String groupName, String executorHandler) {
+		get(Constants.XXLJOB_URL_API_START_BY_NAME,
+				MapTool.builder("groupName", groupName).put("executorHandler", executorHandler).build());
+		return Result.ok();
+	}
+
 	@Override
 	public Result<?> stop(Integer id) {
-		postObject(Constants.XXLJOB_URL_API_STOP, id);
+		get(Constants.XXLJOB_URL_API_STOP, MapTool.builder("id", id).build());
 		return Result.ok();
 	}
 
-	// FIXME 未测试executorParam,addressList
+	@Override
+	public Result<?> stopByName(String groupName, String executorHandler) {
+		get(Constants.XXLJOB_URL_API_STOP_BY_NAME,
+				MapTool.builder("groupName", groupName).put("executorHandler", executorHandler).build());
+		return Result.ok();
+	}
+
 	@Override
 	public Result<?> trigger(Integer id, String executorParam, String addressList) {
 		get(Constants.XXLJOB_URL_API_TRIGGER,
@@ -286,14 +305,22 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return Result.ok();
 	}
 
-	// FIXME 未测试
+	@Override
+	public Result<?> triggerByName(String groupName, String executorHandler, String executorParam, String addressList) {
+		get(Constants.XXLJOB_URL_API_TRIGGER_BY_NAME,
+				MapTool.builder("groupName", groupName).put("executorHandler", executorHandler)
+						.put("executorParam", executorParam).put("addressList", addressList).build());
+		return Result.ok();
+	}
+
 	@Override
 	public Result<?> update(XxlJobInfo jobInfo) {
 
 		// 测试数据
-		jobInfo = XxlJobInfo.builder().jobGroup(1).jobDesc("test").author("admin").scheduleType("CRON").glueType("BEAN")
-				.executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING").scheduleConf("0 0/1 * * * ?")
-				.executorHandler("demoJobHandler").executorBlockStrategy("SERIAL_EXECUTION").build();
+		jobInfo = XxlJobInfo.builder().jobGroup(1).id(11).jobDesc("test55").author("admin").scheduleType("CRON")
+				.glueType("BEAN").executorRouteStrategy("FIRST").misfireStrategy("DO_NOTHING")
+				.scheduleConf("0 0/1 * * * ?").executorHandler("demoJobHandler")
+				.executorBlockStrategy("SERIAL_EXECUTION").build();
 
 		// valid base
 		if (StrTool.isBlank(jobInfo.getJobDesc())) {

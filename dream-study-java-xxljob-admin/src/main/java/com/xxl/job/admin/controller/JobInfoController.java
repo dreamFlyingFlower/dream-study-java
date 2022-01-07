@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -137,16 +138,34 @@ public class JobInfoController {
 		return xxlJobService.remove(id);
 	}
 
+	@GetMapping("removeByName")
+	@ResponseBody
+	public ReturnT<String> removeByName(String groupName, String executorHandler) {
+		return xxlJobService.removeByName(groupName, executorHandler);
+	}
+
 	@RequestMapping("/stop")
 	@ResponseBody
 	public ReturnT<String> pause(int id) {
 		return xxlJobService.stop(id);
 	}
 
+	@GetMapping("stopByName")
+	@ResponseBody
+	public ReturnT<String> stopByName(String groupName, String executorHandler) {
+		return xxlJobService.stopByName(groupName, executorHandler);
+	}
+
 	@RequestMapping("/start")
 	@ResponseBody
 	public ReturnT<String> start(int id) {
 		return xxlJobService.start(id);
+	}
+
+	@GetMapping("startByName")
+	@ResponseBody
+	public ReturnT<String> startByName(String groupName, String executorHandler) {
+		return xxlJobService.startByName(groupName, executorHandler);
 	}
 
 	@RequestMapping("/trigger")
@@ -162,14 +181,19 @@ public class JobInfoController {
 		return ReturnT.SUCCESS;
 	}
 
+	@GetMapping("/triggerByName")
+	@ResponseBody
+	public ReturnT<String> triggerByName(String groupName, String executorHandler, String executorParam,
+			String addressList) {
+		return xxlJobService.triggerByName(groupName, executorHandler, executorParam, addressList);
+	}
+
 	@RequestMapping("/nextTriggerTime")
 	@ResponseBody
 	public ReturnT<List<String>> nextTriggerTime(String scheduleType, String scheduleConf) {
-
 		XxlJobInfo paramXxlJobInfo = new XxlJobInfo();
 		paramXxlJobInfo.setScheduleType(scheduleType);
 		paramXxlJobInfo.setScheduleConf(scheduleConf);
-
 		List<String> result = new ArrayList<>();
 		try {
 			Date lastTime = new Date();
