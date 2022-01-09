@@ -3,7 +3,7 @@ package com.wy.enums;
 import com.wy.config.MessageService;
 
 /**
- * 国际化
+ * 定时任务类型
  *
  * @author 飞花梦影
  * @date 2022-01-05 14:30:36

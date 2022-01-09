@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wy.result.Result;
+import com.wy.service.XxlJobGroupService;
+import com.wy.service.XxlJobInfoService;
 import com.wy.service.XxlJobService;
 
 @RequestMapping("xxlJob")
@@ -14,70 +16,82 @@ import com.wy.service.XxlJobService;
 public class XxlJobCrl {
 
 	@Autowired
-	private XxlJobService xxljobService;
+	private XxlJobInfoService xxlJobInfoService;
 
-	@GetMapping("add")
-	public String add() {
-		xxljobService.add(null);
-		return "add";
-	}
+	@Autowired
+	private XxlJobService xxlJobService;
+
+	@Autowired
+	private XxlJobGroupService xxlJobGroupService;
 
 	@GetMapping("login")
 	public String login() {
-		xxljobService.login();
+		xxlJobService.login();
 		return null;
+	}
+
+	@GetMapping("getJobGroup")
+	public String getJobGroup() {
+		xxlJobGroupService.getJobGroup(null);
+		return null;
+	}
+
+	@GetMapping("add")
+	public String add() {
+		xxlJobInfoService.add(null);
+		return "add";
 	}
 
 	@GetMapping("remove/{id}")
 	public String remove(@PathVariable Integer id) {
-		xxljobService.remove(id);
+		xxlJobInfoService.remove(id);
 		return null;
 	}
 
 	@GetMapping("removeByName")
 	public String removeByName(String groupName, String executorHandler) {
-		xxljobService.removeByName(groupName, executorHandler);
+		xxlJobInfoService.removeByName(groupName, executorHandler);
 		return null;
 	}
 
 	@GetMapping("start/{id}")
 	public String start(@PathVariable Integer id) {
-		xxljobService.start(id);
+		xxlJobInfoService.start(id);
 		return null;
 	}
 
 	@GetMapping("startByName")
 	public String startByName(String groupName, String executorHandler) {
-		xxljobService.startByName(groupName, executorHandler);
+		xxlJobInfoService.startByName(groupName, executorHandler);
 		return null;
 	}
 
 	@GetMapping("stop/{id}")
 	public String stop(@PathVariable Integer id) {
-		xxljobService.stop(id);
+		xxlJobInfoService.stop(id);
 		return null;
 	}
 
 	@GetMapping("stopByName")
 	public String stopByName(String groupName, String executorHandler) {
-		xxljobService.stopByName(groupName, executorHandler);
+		xxlJobInfoService.stopByName(groupName, executorHandler);
 		return null;
 	}
 
 	@GetMapping("update")
 	public String update() {
-		xxljobService.update(null);
+		xxlJobInfoService.update(null);
 		return null;
 	}
 
 	@GetMapping("trigger")
 	public Result<?> trigger(Integer id) {
-		return xxljobService.trigger(id, null, null);
+		return xxlJobInfoService.trigger(id, null, null);
 	}
 
 	@GetMapping("triggerByName")
 	public String triggerByName(String groupName, String executorHandler) {
-		xxljobService.triggerByName(groupName, executorHandler, null, null);
+		xxlJobInfoService.triggerByName(groupName, executorHandler, null, null);
 		return null;
 	}
 }

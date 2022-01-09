@@ -1,9 +1,12 @@
 package com.wy.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.wy.common.Constants;
+import com.wy.lang.StrTool;
 import com.wy.properties.XxlJobProperties;
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 
@@ -28,11 +31,17 @@ public class XxlJobConfig {
 	@Autowired
 	private XxlJobProperties xxlJobProperties;
 
+	@Value("${spring.application.name}")
+	private String appName;
+
 	@Bean
 	public XxlJobSpringExecutor xxlJobExecutor() {
 		XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
 		xxlJobSpringExecutor.setAdminAddresses(xxlJobProperties.getAdminAddresses());
-		xxlJobSpringExecutor.setAppname(xxlJobProperties.getExecutor().getAppname());
+		// 设置appName,该值需要先在数据库中创建,否则在操作定时任务时会抛异常
+		xxlJobSpringExecutor.setAppname(StrTool.isBlank(xxlJobProperties.getExecutor().getAppname())
+				? StrTool.isBlank(appName) ? Constants.XXLJOB_DEFAULT_GROUP_NAME : appName
+				: xxlJobProperties.getExecutor().getAppname());
 		xxlJobSpringExecutor.setAddress(xxlJobProperties.getExecutor().getAddress());
 		xxlJobSpringExecutor.setIp(xxlJobProperties.getExecutor().getIp());
 		xxlJobSpringExecutor.setPort(xxlJobProperties.getExecutor().getPort());

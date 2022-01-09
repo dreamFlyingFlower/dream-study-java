@@ -1,109 +1,64 @@
 package com.wy.service;
 
-import com.wy.model.XxlJobInfo;
-import com.wy.result.Result;
+import java.util.Map;
+
+import org.springframework.core.ParameterizedTypeReference;
+
+import com.wy.model.XxlJobList;
 
 /**
- * xxljob调用
- *
+ * xxljob通用方法
+ * 
  * @author 飞花梦影
- * @date 2022-01-04 17:32:11
- * @git {@link https://github.com/dreamFlyingFlower }
+ * @date 2022-01-08 01:00:39
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public interface XxlJobService {
 
 	/**
-	 * 登录
+	 * Get请求
 	 * 
-	 * @return 登录的cookie
+	 * @param api 接口地址
+	 * @param params 参数
+	 * @return 结果
+	 */
+	String getString(String api, Map<String, Object> params);
+
+	/**
+	 * Get请求
+	 * 
+	 * @param api 接口地址
+	 * @param params 参数
+	 * @param parameterizedTypeReference 结果类型
+	 * @return 结果
+	 */
+	<T> XxlJobList<T> getList(String api, Map<String, Object> params,
+			ParameterizedTypeReference<XxlJobList<T>> parameterizedTypeReference);
+
+	/**
+	 * 获得定时任务执行器标识
+	 * 
+	 * 若指定了执行器标识,直接返回;若未指定,使用appName->spring.application.name->default-group
+	 * 
+	 * @param appName 指定的执行器标识
+	 * @return 执行器标识
+	 */
+	String getAppName(String appName);
+
+	/**
+	 * 内置登录
+	 * 
+	 * @return cookie
 	 */
 	String login();
 
 	/**
-	 * 新增定时任务
+	 * Post请求传输对象
 	 * 
-	 * @param jobInfo 定时任务对象
-	 * @return 新增成功之后的任务编号jobinfoid
+	 * @param <T>
+	 * @param api 接口地址
+	 * @param t 参数
+	 * @return 结果
 	 */
-	Integer add(XxlJobInfo jobInfo);
-
-	/**
-	 * 更新定时任务
-	 * 
-	 * @param jobInfo 定时任务对象
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> update(XxlJobInfo jobInfo);
-
-	/**
-	 * 删除定时任务
-	 * 
-	 * @param jobInfoId 定时任务编号
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> remove(Integer jobInfoId);
-
-	/**
-	 * 通过组名和执行器名删除定时任务
-	 * 
-	 * @param groupName 组名
-	 * @param executorName 执行器名
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> removeByName(String groupName, String executorName);
-
-	/**
-	 * 开始定时任务,之后将会一直运行
-	 * 
-	 * @param jobInfoId 定时任务编号
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> start(Integer jobInfoId);
-
-	/**
-	 * 通过组名和执行器名开始定时任务,之后将会一直运行
-	 * 
-	 * @param groupName 组名
-	 * @param executorName 执行器名
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> startByName(String groupName, String executorName);
-
-	/**
-	 * 停止定时任务
-	 * 
-	 * @param jobInfoId 定时任务编号
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> stop(Integer jobInfoId);
-
-	/**
-	 * 通过组名和执行器名停止定时任务
-	 * 
-	 * @param groupName 组名
-	 * @param executorName 执行器名
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> stopByName(String groupName, String executorName);
-
-	/**
-	 * 执行一次定时任务后停止
-	 * 
-	 * @param jobInfoId 定时任务编号
-	 * @param executorParam 执行定时任务的参数,需自定义
-	 * @param addressList 执行定时任务的服务地址
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> trigger(Integer jobInfoId, String executorParam, String addressList);
-
-	/**
-	 * 通过组名和执行器名执行一次定时任务后停止
-	 * 
-	 * @param groupName 组名
-	 * @param executorName 执行器名
-	 * @param executorParam 执行定时任务的参数,需自定义
-	 * @param addressList 执行定时任务的服务地址
-	 * @return 1->成功,0->失败
-	 */
-	Result<?> triggerByName(String groupName, String executorName, String executorParam, String addressList);
+	<T> String postObject(String api, T t);
 }

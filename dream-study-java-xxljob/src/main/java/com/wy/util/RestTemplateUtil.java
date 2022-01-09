@@ -66,8 +66,7 @@ public class RestTemplateUtil {
 	 */
 	public static <T> MultiValueMap<String, Object> toLinkedMultiValueMap(T t) {
 		MultiValueMap<String, Object> valueMap = new LinkedMultiValueMap<>();
-		Class<?> clazz = t.getClass();
-		Field[] fields = clazz.getDeclaredFields();
+		Field[] fields = t.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			ReflectTool.fixAccessible(field);
 			try {

@@ -140,6 +140,7 @@ Head:指向当前分支,并非指向master.切换到那个分支就是指向那�
 * `-p -- filename`:输出指定文件的详细改变信息
 * `-L begin,+n:filename`:查看指定文件从begin开始的n行历史记录
 * `-n filename`:查看最近n个版本的历史信息
+* `git reflog`:查看所有的历史版本记录,包括回退的版本记录
 
 
 

@@ -39,5 +39,5 @@ public interface XxlJobInfoDao {
 
 	int scheduleUpdate(XxlJobInfo xxlJobInfo);
 
-	List<XxlJobInfo> selectByGroupName(String jobGroupName, String executorHandler);
+	List<XxlJobInfo> selectByAppName(String appName, String executorHandler);
 }

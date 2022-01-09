@@ -140,8 +140,8 @@ public class JobInfoController {
 
 	@GetMapping("removeByName")
 	@ResponseBody
-	public ReturnT<String> removeByName(String groupName, String executorHandler) {
-		return xxlJobService.removeByName(groupName, executorHandler);
+	public ReturnT<String> removeByName(String appName, String executorHandler) {
+		return xxlJobService.removeByName(appName, executorHandler);
 	}
 
 	@RequestMapping("/stop")
@@ -152,8 +152,8 @@ public class JobInfoController {
 
 	@GetMapping("stopByName")
 	@ResponseBody
-	public ReturnT<String> stopByName(String groupName, String executorHandler) {
-		return xxlJobService.stopByName(groupName, executorHandler);
+	public ReturnT<String> stopByName(String appName, String executorHandler) {
+		return xxlJobService.stopByName(appName, executorHandler);
 	}
 
 	@RequestMapping("/start")
@@ -164,8 +164,8 @@ public class JobInfoController {
 
 	@GetMapping("startByName")
 	@ResponseBody
-	public ReturnT<String> startByName(String groupName, String executorHandler) {
-		return xxlJobService.startByName(groupName, executorHandler);
+	public ReturnT<String> startByName(String appName, String executorHandler) {
+		return xxlJobService.startByName(appName, executorHandler);
 	}
 
 	@RequestMapping("/trigger")
@@ -183,9 +183,9 @@ public class JobInfoController {
 
 	@GetMapping("/triggerByName")
 	@ResponseBody
-	public ReturnT<String> triggerByName(String groupName, String executorHandler, String executorParam,
+	public ReturnT<String> triggerByName(String appName, String executorHandler, String executorParam,
 			String addressList) {
-		return xxlJobService.triggerByName(groupName, executorHandler, executorParam, addressList);
+		return xxlJobService.triggerByName(appName, executorHandler, executorParam, addressList);
 	}
 
 	@RequestMapping("/nextTriggerTime")

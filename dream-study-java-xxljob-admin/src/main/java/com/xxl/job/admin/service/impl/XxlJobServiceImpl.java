@@ -12,10 +12,11 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.xxl.job.admin.core.cron.CronExpression;
 import com.xxl.job.admin.core.model.XxlJobGroup;
@@ -181,19 +182,32 @@ public class XxlJobServiceImpl implements XxlJobService {
 			temp = temp.substring(0, temp.length() - 1);
 			jobInfo.setChildJobId(temp);
 		}
-
 		// group valid
-		XxlJobGroup group = xxlJobGroupDao.load(jobInfo.getJobGroup());
-		if (group == null) {
-			return new ReturnT<String>(ReturnT.FAIL_CODE,
-					(I18nUtil.getString("system_please_choose") + I18nUtil.getString("jobinfo_field_jobgroup")));
+		if (jobInfo.getJobGroup() > 0) {
+			XxlJobGroup group = xxlJobGroupDao.load(jobInfo.getJobGroup());
+			if (group == null) {
+				return new ReturnT<String>(ReturnT.FAIL_CODE,
+						(I18nUtil.getString("system_please_choose") + I18nUtil.getString("jobinfo_field_jobgroup")));
+			}
+			jobInfo.setAppName(group.getAppname());
+		} else {
+			if (!StringUtils.hasText(jobInfo.getAppName())) {
+				return new ReturnT<String>(ReturnT.FAIL_CODE, (I18nUtil.getString("system_please_choose")
+						+ I18nUtil.getString("jobinfo_field_jobgroup") + " or input the appname"));
+			} else {
+				List<XxlJobGroup> xxlJobGroups = xxlJobGroupDao.pageList(0, 1, jobInfo.getAppName(), null);
+				if (CollectionUtils.isEmpty(xxlJobGroups)) {
+					return new ReturnT<String>(ReturnT.FAIL_CODE, (I18nUtil.getString("system_please_choose")
+							+ I18nUtil.getString("jobinfo_field_jobgroup") + " or input the appname"));
+				}
+				jobInfo.setJobGroup(xxlJobGroups.get(0).getId());
+			}
 		}
 		return ReturnT.SUCCESS;
 	}
 
 	@Override
 	public ReturnT<String> add(XxlJobInfo jobInfo) {
-		// valid base
 		ReturnT<String> checkParam = checkParam(jobInfo);
 		if (checkParam.getCode() == ReturnT.FAIL_CODE) {
 			return checkParam;
@@ -204,8 +218,6 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (pageList.size() > 0) {
 			return updateBySave(pageList.get(0), jobInfo);
 		}
-
-		// add in db
 		jobInfo.setAddTime(new Date());
 		jobInfo.setUpdateTime(new Date());
 		jobInfo.setGlueUpdatetime(new Date());
@@ -223,16 +235,33 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (checkParam.getCode() == ReturnT.FAIL_CODE) {
 			return checkParam;
 		}
-		// stage job info
-		XxlJobInfo exists_jobInfo = xxlJobInfoDao.loadById(jobInfo.getId());
-		if (exists_jobInfo == null) {
-			return new ReturnT<String>(ReturnT.FAIL_CODE,
-					(I18nUtil.getString("jobinfo_field_id") + I18nUtil.getString("system_not_found")));
+		XxlJobInfo exists_jobInfo = null;
+		if (jobInfo.getId() > 0) {
+			exists_jobInfo = xxlJobInfoDao.loadById(jobInfo.getId());
+			if (exists_jobInfo == null) {
+				return new ReturnT<String>(ReturnT.FAIL_CODE,
+						(I18nUtil.getString("jobinfo_field_id") + I18nUtil.getString("system_not_found")));
+			}
+		} else {
+			if (StringUtils.hasText(jobInfo.getExecutorHandler())) {
+				List<XxlJobInfo> xxlJobInfos =
+						xxlJobInfoDao.selectByAppName(jobInfo.getAppName(), jobInfo.getExecutorHandler());
+				if (CollectionUtils.isEmpty(xxlJobInfos)) {
+					return new ReturnT<String>(ReturnT.FAIL_CODE,
+							("the task for appName:[" + jobInfo.getAppName() + "] and executorHandler:["
+									+ jobInfo.getExecutorHandler() + "] " + I18nUtil.getString("system_not_found")));
+				}
+				exists_jobInfo = xxlJobInfos.get(0);
+			} else {
+				return new ReturnT<String>(ReturnT.FAIL_CODE,
+						("the task for appName:[" + jobInfo.getAppName() + "] and executorHandler:["
+								+ jobInfo.getExecutorHandler() + "] " + I18nUtil.getString("system_not_found")));
+			}
 		}
 		return updateBySave(exists_jobInfo, jobInfo);
 	}
 
-	public ReturnT<String> updateBySave(XxlJobInfo exists_jobInfo, XxlJobInfo jobInfo) {
+	private ReturnT<String> updateBySave(XxlJobInfo exists_jobInfo, XxlJobInfo jobInfo) {
 		// next trigger time (5s后生效,避开预读周期)
 		long nextTriggerTime = exists_jobInfo.getTriggerNextTime();
 		boolean scheduleDataNotChanged = jobInfo.getScheduleType().equals(exists_jobInfo.getScheduleType())
@@ -270,7 +299,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		exists_jobInfo.setTriggerNextTime(nextTriggerTime);
 		exists_jobInfo.setUpdateTime(new Date());
 		xxlJobInfoDao.update(exists_jobInfo);
-		return ReturnT.SUCCESS;
+		return new ReturnT<String>(exists_jobInfo.getId() + "");
 	}
 
 	@Override
@@ -286,8 +315,8 @@ public class XxlJobServiceImpl implements XxlJobService {
 	}
 
 	@Override
-	public ReturnT<String> removeByName(String jobGroupName, String executorHandler) {
-		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByGroupName(jobGroupName, executorHandler);
+	public ReturnT<String> removeByName(String appName, String executorHandler) {
+		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByAppName(appName, executorHandler);
 		if (CollectionUtils.isEmpty(xxlJobInfos)) {
 			return new ReturnT<>(ReturnT.SUCCESS_CODE, "the task executorHandler:[" + executorHandler + "] not exist");
 		}
@@ -304,8 +333,8 @@ public class XxlJobServiceImpl implements XxlJobService {
 	}
 
 	@Override
-	public ReturnT<String> startByName(String jobGroupName, String executorHandler) {
-		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByGroupName(jobGroupName, executorHandler);
+	public ReturnT<String> startByName(String appName, String executorHandler) {
+		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByAppName(appName, executorHandler);
 		if (CollectionUtils.isEmpty(xxlJobInfos)) {
 			return new ReturnT<>(ReturnT.FAIL_CODE, "the task executorHandler:[" + executorHandler + "] not exist");
 		}
@@ -353,8 +382,8 @@ public class XxlJobServiceImpl implements XxlJobService {
 	}
 
 	@Override
-	public ReturnT<String> stopByName(String jobGroupName, String executorHandler) {
-		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByGroupName(jobGroupName, executorHandler);
+	public ReturnT<String> stopByName(String appName, String executorHandler) {
+		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByAppName(appName, executorHandler);
 		if (CollectionUtils.isEmpty(xxlJobInfos)) {
 			return new ReturnT<>(ReturnT.SUCCESS_CODE, "the task executorHandler:[" + executorHandler + "] not exist");
 		}
@@ -371,12 +400,12 @@ public class XxlJobServiceImpl implements XxlJobService {
 	}
 
 	@Override
-	public ReturnT<String> triggerByName(String jobGroupName, String executorHandler, String executorParam,
+	public ReturnT<String> triggerByName(String appName, String executorHandler, String executorParam,
 			String addressList) {
 		if (executorParam == null) {
 			executorParam = "";
 		}
-		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByGroupName(jobGroupName, executorHandler);
+		List<XxlJobInfo> xxlJobInfos = xxlJobInfoDao.selectByAppName(appName, executorHandler);
 		if (CollectionUtils.isEmpty(xxlJobInfos)) {
 			return new ReturnT<>(ReturnT.FAIL_CODE, "the task executorHandler :[" + executorHandler + "] not exist");
 		}

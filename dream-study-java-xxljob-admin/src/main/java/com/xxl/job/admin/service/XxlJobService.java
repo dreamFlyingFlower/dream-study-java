@@ -54,11 +54,11 @@ public interface XxlJobService {
 	/**
 	 * 根据组名和执行器删除任务
 	 * 
-	 * @param groupName 组名
+	 * @param appName 执行器标识
 	 * @param executorHandler 执行器名
 	 * @return 200->成功,500->失败
 	 */
-	ReturnT<String> removeByName(String groupName, String executorHandler);
+	ReturnT<String> removeByName(String appName, String executorHandler);
 
 	/**
 	 * start job
@@ -71,11 +71,11 @@ public interface XxlJobService {
 	/**
 	 * 根据组名和执行器开始任务
 	 * 
-	 * @param groupName 组名
+	 * @param appName 执行器标识
 	 * @param executorHandler 执行器名
 	 * @return 200->成功,500->失败
 	 */
-	ReturnT<String> startByName(String groupName, String executorHandler);
+	ReturnT<String> startByName(String appName, String executorHandler);
 
 	/**
 	 * stop job
@@ -88,22 +88,22 @@ public interface XxlJobService {
 	/**
 	 * 根据组名和执行器停止任务
 	 * 
-	 * @param groupName 组名
+	 * @param appName 执行器标识
 	 * @param executorHandler 执行器名
 	 * @return 200->成功,500->失败
 	 */
-	ReturnT<String> stopByName(String groupName, String executorHandler);
+	ReturnT<String> stopByName(String appName, String executorHandler);
 
 	/**
 	 * 根据组名和执行器执行一次任务
 	 * 
-	 * @param groupName 组名
+	 * @param appName 执行器标识
 	 * @param executorHandler 执行器名
 	 * @param executorParam 执行参数
 	 * @param addressList 执行服务地址列表
 	 * @return 200->成功,500->失败
 	 */
-	ReturnT<String> triggerByName(String groupName, String executorHandler, String executorParam, String addressList);
+	ReturnT<String> triggerByName(String appName, String executorHandler, String executorParam, String addressList);
 
 	/**
 	 * dashboard info

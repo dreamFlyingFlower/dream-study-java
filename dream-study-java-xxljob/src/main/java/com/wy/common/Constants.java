@@ -12,6 +12,15 @@ public interface Constants {
 	/** 登录xxljob-admin时存储的Cookie Key */
 	String XXLJOB_COOKIE_LOGIN_KEY = "XXL_JOB_LOGIN_IDENTITY";
 
+	/** 当不指定默认appName时,使用default-group,但是该值需要手动创建 */
+	String XXLJOB_DEFAULT_GROUP_NAME = "default-group";
+
+	/** 执行器列表查询地址 */
+	String XXLJOB_URL_API_GROUP_LIST = "/jobgroup/pageList";
+
+	/** 登录URL */
+	String XXLJOB_URL_API_LOGIN = "/login";
+
 	/** 添加定时任务URL */
 	String XXLJOB_URL_API_ADD = "/jobinfo/add";
 

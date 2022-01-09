@@ -2,6 +2,9 @@ package com.wy.model;
 
 import java.util.Date;
 
+import com.xxl.job.core.glue.GlueTypeEnum;
+
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,51 +23,153 @@ import lombok.NoArgsConstructor;
 @Builder
 public class XxlJobInfo {
 
-	private Integer id; // 主键ID
+	/**
+	 * 定时任务信息主键ID
+	 */
+	@ApiModelProperty("定时任务信息主键ID")
+	private Integer id;
 
-	private Integer jobGroup; // 执行器主键ID
+	/**
+	 * 执行器组主键ID
+	 */
+	@ApiModelProperty("执行器组主键ID")
+	private Integer jobGroup;
 
+	/**
+	 * 执行器标识,唯一
+	 */
+	@ApiModelProperty("执行器标识,唯一")
+	private String appName;
+
+	/**
+	 * 定时任务描述
+	 */
+	@ApiModelProperty("定时任务描述")
 	private String jobDesc;
 
+	/**
+	 * 定时器新增时间
+	 */
+	@ApiModelProperty("定时器新增时间")
 	private Date addTime;
 
+	/**
+	 * 定时器更新时间
+	 */
+	@ApiModelProperty("定时器更新时间")
 	private Date updateTime;
 
-	private String author; // 负责人
+	/**
+	 * 负责人
+	 */
+	@ApiModelProperty("负责人")
+	private String author;
 
-	private String alarmEmail; // 报警邮件
+	/**
+	 * 报警邮件
+	 */
+	@ApiModelProperty("报警邮件")
+	private String alarmEmail;
 
-	private String scheduleType; // 调度类型
+	/**
+	 * 调度类型
+	 */
+	@ApiModelProperty("调度类型")
+	private String scheduleType;
 
-	private String scheduleConf; // 调度配置,值含义取决于调度类型
+	/**
+	 * 调度配置,值含义取决于调度类型
+	 */
+	@ApiModelProperty("调度配置,值含义取决于调度类型")
+	private String scheduleConf;
 
-	private String misfireStrategy; // 调度过期策略
+	/**
+	 * 调度过期策略
+	 */
+	@ApiModelProperty("调度过期策略")
+	private String misfireStrategy;
 
-	private String executorRouteStrategy; // 执行器路由策略
+	/**
+	 * 执行器路由策略
+	 */
+	@ApiModelProperty("执行器路由策略")
+	private String executorRouteStrategy;
 
-	private String executorHandler; // 执行器,任务Handler名称
+	/**
+	 * 执行器,任务Handler名称
+	 */
+	@ApiModelProperty("执行器,任务Handler名称")
+	private String executorHandler;
 
-	private String executorParam; // 执行器,任务参数
+	/**
+	 * 执行器,任务参数
+	 */
+	@ApiModelProperty("执行器,任务参数")
+	private String executorParam;
 
-	private String executorBlockStrategy; // 阻塞处理策略
+	/**
+	 * 阻塞处理策略
+	 */
+	@ApiModelProperty("阻塞处理策略")
+	private String executorBlockStrategy;
 
-	private Integer executorTimeout; // 任务执行超时时间,单位秒
+	/**
+	 * 任务执行超时时间,单位秒
+	 */
+	@ApiModelProperty("任务执行超时时间,单位秒")
+	private Integer executorTimeout;
 
-	private Integer executorFailRetryCount; // 失败重试次数
+	/**
+	 * 失败重试次数
+	 */
+	@ApiModelProperty("失败重试次数")
+	private Integer executorFailRetryCount;
 
-	private String glueType; // GLUE类型 #com.xxl.job.core.glue.GlueTypeEnum
+	/**
+	 * GLUE类型 {@link GlueTypeEnum}
+	 */
+	@ApiModelProperty("GLUE类型")
+	private String glueType;
 
-	private String glueSource; // GLUE源代码
+	/**
+	 * GLUE源代码
+	 */
+	@ApiModelProperty("GLUE源代码")
+	private String glueSource;
 
-	private String glueRemark; // GLUE备注
+	/**
+	 * GLUE备注
+	 */
+	@ApiModelProperty("GLUE备注")
+	private String glueRemark;
 
-	private Date glueUpdatetime; // GLUE更新时间
+	/**
+	 * GLUE更新时间
+	 */
+	@ApiModelProperty("GLUE更新时间")
+	private Date glueUpdatetime;
 
-	private String childJobId; // 子任务ID,多个逗号分隔
+	/**
+	 * 子任务ID,多个逗号分隔
+	 */
+	@ApiModelProperty("子任务ID,多个逗号分隔")
+	private String childJobId;
 
-	private Integer triggerStatus; // 调度状态：0-停止,1-运行
+	/**
+	 * 调度状态：0-停止,1-运行
+	 */
+	@ApiModelProperty("调度状态：0-停止,1-运行")
+	private Integer triggerStatus;
 
-	private Long triggerLastTime; // 上次调度时间
+	/**
+	 * 上次调度时间
+	 */
+	@ApiModelProperty("上次调度时间")
+	private Long triggerLastTime;
 
-	private Long triggerNextTime; // 下次调度时间
+	/**
+	 * 下次调度时间
+	 */
+	@ApiModelProperty("下次调度时间")
+	private Long triggerNextTime;
 }

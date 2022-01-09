@@ -252,14 +252,14 @@
 		id = #{id}
 	</update>
 
-	<select id="selectByGroupName" resultMap="XxlJobInfo">
+	<select id="selectByAppName" resultMap="XxlJobInfo">
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM xxl_job_info t INNER JOIN
 		xxl_job_group b ON t.job_group = b.id
 		WHERE t.executor_handler =
 		#{executorHandler}
-		AND b.app_name = #{jobGroupName}
+		AND b.app_name = #{appName}
 		ORDER BY t.id DESC
 		LIMIT 0,1
 	</select>

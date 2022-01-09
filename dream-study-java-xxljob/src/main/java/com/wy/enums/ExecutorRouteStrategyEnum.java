@@ -3,7 +3,7 @@ package com.wy.enums;
 import com.wy.config.MessageService;
 
 /**
- * 
+ * 路由策略
  *
  * @author 飞花梦影
  * @date 2022-01-05 14:46:04
