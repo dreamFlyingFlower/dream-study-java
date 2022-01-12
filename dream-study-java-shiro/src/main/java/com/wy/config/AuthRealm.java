@@ -55,6 +55,7 @@ public class AuthRealm extends AuthorizingRealm {
                 }
             }
         }
+        // 设置用户角色和权限
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
         simpleAuthorizationInfo.addStringPermissions(permissionNames);
         simpleAuthorizationInfo.addRoles(roleNames);

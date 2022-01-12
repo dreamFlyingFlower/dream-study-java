@@ -1,5 +1,7 @@
 package com.wy.config;
 
+import java.util.LinkedHashMap;
+
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -9,8 +11,6 @@ import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreato
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.LinkedHashMap;
 
 /**
  * Shiro配置类
@@ -36,7 +36,7 @@ public class ShiroConfig {
 		// 拦截请求的各种方式
 		LinkedHashMap<String, String> map = new LinkedHashMap<>();
 		// 拦截的请求和方式,方式可见
-		// authc:必须登录
+		// authc:必须登录验证
 		map.put("/user/index", "authc");
 		// anon:不需要任何校验
 		map.put("/user/login", "anon");

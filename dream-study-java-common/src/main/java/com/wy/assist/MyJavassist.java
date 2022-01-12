@@ -1,5 +1,6 @@
 package com.wy.assist;
 
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -7,6 +8,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
+import com.wy.annotation.Example;
+
+import javassist.CannotCompileException;
 import javassist.ClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -15,6 +19,13 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.LoaderClassPath;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ConstPool;
+import javassist.bytecode.MethodInfo;
+import javassist.bytecode.ParameterAnnotationsAttribute;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.ArrayMemberValue;
+import javassist.bytecode.annotation.StringMemberValue;
 
 /**
  * Javassist代理,作用和ASM相同,在不改变源代码的情况下进行其他相关操作,如收集日志.
@@ -101,6 +112,50 @@ public class MyJavassist implements ClassFileTransformer {
 			return new byte[0];
 		}
 		return null;
+	}
+}
+
+@Example
+class AssistExample {
+
+	/**
+	 * 添加注解
+	 * 
+	 * @param ctClass
+	 * @param ctMethod
+	 * @param clazz
+	 * @throws CannotCompileException
+	 * @throws IOException
+	 */
+	public static void addAnnotation(CtClass ctClass, CtMethod ctMethod, Class<?> clazz)
+			throws CannotCompileException, IOException {
+		MethodInfo methodInfo = ctMethod.getMethodInfo();
+		ConstPool constPool = methodInfo.getConstPool();
+		// 要添加的注解
+		AnnotationsAttribute methodAttr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+		Annotation methodAnnot = new Annotation("org.springframework.kafka.annotation.KafkaListener", constPool);
+		// 添加方法注解
+		StringMemberValue[] elements =
+				{ new StringMemberValue(String.join("-", ctClass.getName(), ctMethod.getName()), constPool) };
+		ArrayMemberValue amv = new ArrayMemberValue(constPool);
+		amv.setValue(elements);
+		methodAnnot.addMemberValue("topics", amv);
+		methodAnnot.addMemberValue("groupId", new StringMemberValue("test-group", constPool));
+		methodAttr.addAnnotation(methodAnnot);
+		ctMethod.getMethodInfo().addAttribute(methodAttr);
+		// 添加参数注解
+		ParameterAnnotationsAttribute parameterAtrribute =
+				new ParameterAnnotationsAttribute(constPool, ParameterAnnotationsAttribute.visibleTag);
+		Annotation paramAnnot = new Annotation("org.springframework.messaging.handler.annotation.Payload", constPool);
+		paramAnnot.addMemberValue("value", new StringMemberValue("", constPool));
+		Annotation[][] paramArrays = new Annotation[1][1];
+		paramArrays[0][0] = paramAnnot;
+		parameterAtrribute.setAnnotations(paramArrays);
+		ctMethod.getMethodInfo().addAttribute(parameterAtrribute);
+		// 写入class文件
+		String path = clazz.getDeclaringClass().getResource("").getPath();
+		ctClass.writeFile(path);
+		ctClass.defrost();
 	}
 
 	public static Class<?> example() {
