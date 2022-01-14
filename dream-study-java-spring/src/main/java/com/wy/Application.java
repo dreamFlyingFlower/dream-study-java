@@ -16,6 +16,7 @@ import org.springframework.beans.factory.support.AbstractBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -47,7 +48,10 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.SpringServletContainerInitializer;
+import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 /**
  * SpringBoot学习:初始化initialize,listener,自动配置,配置文件.
@@ -165,6 +169,8 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * -->{@link ServletWebServerApplicationContext#onRefresh}:Web项目中是调用该实现类
  * -->{@link ServletWebServerApplicationContext#createWebServer}:创建Web容器
  * --->{@link TomcatServletWebServerFactory#getWebServer}:默认由Tomcat创建Web容器
+ * ---->{@link SpringServletContainerInitializer}:该类不进行任何实质化的操作,具体的的操作应该交给
+ * 			{@link WebApplicationInitializer}的具体实现类完成,比如说 {@link DispatcherServlet},listeners等
  * ->{@link AbstractApplicationContext#registerListeners()}:在所有bena中查找listener bean并注册到消息广播中
  * 
  * ->{@link AbstractApplicationContext#finishBeanFactoryInitialization()}:初始化所有剩下的非延迟初始化的单例bean对象实例
