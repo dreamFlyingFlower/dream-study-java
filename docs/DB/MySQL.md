@@ -1831,6 +1831,68 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 
 
+# MySQL服务优化
+
+
+
+* 通过脚本,刷新观察status
+
+* 判断是否周期性故障或波动
+
+* 一般由访问高峰或缓存崩溃引起,加缓存并更改缓存失效策略,使失效时间分散或夜间定时失效
+
+* 若仍出现不规则的延迟或卡顿现象,使用`show processlist`或开启慢查询获取有问题SQL
+
+* profilling分析语句以及explain SQL语句
+
+* 如果语句等待时间过长,则调优服务器参数,如缓冲区,线程数等
+
+* 如果语句执行过长,则优化SQL,优化表,优化关联查询,优化索引等
+
+  ```shell
+  #!/bin/bash
+  # MySQL status观察脚本
+  while true
+  do
+  mysqladmin -h127.0.0.1 -uroot -p123456 ext|awk '/Queries/ {q=$4} /Threads_connected/{tc=$4} /Threads_running/{tr=$4} END{printf "%3d %s %s\n",q,tc,tr}' >> num.txt
+  sleep 1
+  done
+  
+  # awk 计算每秒查询数
+  awk '{q=$1-last;last=$1}{printf("%d\t%d\t%d\n",q,$2,$3)}' num.txt > num2.txt
+  ```
+
+  
+
+
+
+# mysqlslap基准测试
+
+
+
+* --concurrency:并发数量,多个可以用逗号隔开,concurrency=10,50,100, 并发连接线程数分别是10、50、100个并发
+
+* --engines:要测试的引擎,可以有多个,用分隔符隔开
+
+* --iterations:要运行这些测试多少次
+
+* --auto-generate-sql:用系统自己生成的SQL脚本来测试
+
+* --auto-generate-sql-load-type:测试读或写或两者混合的(read,write,update,mixed)
+
+* --number-of-queries:总共要运行多少次查询.每个客户运行的查询数量可以用查询总数/并发数来计算
+
+* --debug-info:要额外输出CPU以及内存的相关信息
+
+  ```mysql
+  -- 非MySQL环境
+  mysqlslap -h127.0.0.1 -uroot -p123456 --concurrency 20 --iterations 1 --create-schema=test --query='select * from user limit 1';
+  ```
+
+* 可以用第三方如sysbench,tpcc测试
+
+
+
 # 硬件优化
 
 * CPU:选择64位系统,更高的频率,更多个核心数

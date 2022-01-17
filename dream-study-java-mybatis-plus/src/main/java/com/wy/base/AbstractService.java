@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Serializable>
-		extends ServiceImpl<BaseMapper<T>, T> implements BaseService<T, ID> {
+		extends ServiceImpl<M, T> implements BaseService<T, ID> {
 
 	/** 存储反射过程中使用的类和字段 */
 	private Map<Class<?>, List<Field>> CACHE_FIELDS = new ConcurrentHashMap<>(128);
