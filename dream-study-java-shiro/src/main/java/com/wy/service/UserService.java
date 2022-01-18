@@ -1,5 +1,7 @@
 package com.wy.service;
 
+import java.util.List;
+
 import com.wy.model.User;
 
 /**
@@ -18,4 +20,6 @@ public interface UserService {
 	 * @return User
 	 */
 	User getByUsername(String username);
+
+	List<User> getList(User user);
 }

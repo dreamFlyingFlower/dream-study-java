@@ -29,7 +29,7 @@
 		select * from ti_user
 		<where>
 			<!-- 使用的OGNL表达式,可参照官方文档.特殊字符需要转移 -->
-			<if test="username != null and username !=&quot;&quot; ">username=#{_username}</if>
+			<if test="username != null and username !=&quot;&quot; ">username like #{_username}</if>
 			<if test="email != null">and email=#{email}</if>
 			<if test="tel!=null">and tel=#{tel}</if>
 		</where>

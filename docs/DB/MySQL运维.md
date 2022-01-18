@@ -1387,22 +1387,44 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 # mysqlslap
 
-* 使用MySQL自带的基准测试工具
+* 使用MySQL自带的基准测试工具,也可以用第三方如sysbench,tpcc测试
+
 * --auto-generate-sql:由系统自动生成SQL脚本进行测试
+
 * --auto-generate-sql-add-autoincrement:在生成的表中生成自增ID
+
 * --auto-generate-sql-load-type:指定测试中使用的查询类型
+
 * --auto-generate-sql-write-number:指定初始化数据时生成的数据量
+
 * --concurrency:指定并发线程数
+
 * --engine:指定要测试表的存储引擎,可以用逗号隔开
+
 * --no-drop:指定测试完后不清理测试数据
+
 * --iterations:指定测试运行次数
+
 * --number-of-queries:指定每一个线程执行的查询数量
+
 * --debug-info:指定输出额外的内存及CPU统计信息
+
 * --number-int-cols:指定测试表中包含的int类型列的数量
+
 * --number-char-cols:指定测试表中包含的varchar类型的数量
+
 * --create-schema:指定用于执行测试的数据库名
+
 * --query:用于指定自定义SQL的脚本
+
 * --only-print:并不运行测试脚本,而是把生成的脚本打印出来
+
+  ```mysql
+  -- 非MySQL环境
+  mysqlslap -h127.0.0.1 -uroot -p123456 --concurrency 20 --iterations 1 --create-schema=test --query='select * from user limit 1';
+  ```
+
+  
 
 
 

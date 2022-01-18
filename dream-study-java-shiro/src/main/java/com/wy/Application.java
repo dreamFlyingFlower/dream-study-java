@@ -60,7 +60,7 @@ import org.apache.shiro.subject.Subject;
  *
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @SpringBootApplication
 public class Application {

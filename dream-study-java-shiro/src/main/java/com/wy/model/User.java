@@ -56,6 +56,11 @@ public class User implements Serializable {
 
 	private String telphone;
 
+	/**
+	 * 用于密码加密的盐
+	 */
+	private String salt;
+
 	private Role role;
 
 	private List<Role> roles;

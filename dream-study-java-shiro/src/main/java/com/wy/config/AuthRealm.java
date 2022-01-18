@@ -14,6 +14,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -29,53 +30,60 @@ import java.util.Set;
  */
 public class AuthRealm extends AuthorizingRealm {
 
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private UserService userService;
 
-    /**
-     * 授权
-     *
-     * @param principals 用户信息
-     * @return 授权信息
-     */
-    @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        User user = (User)principals.fromRealm(this.getClass().getName()).iterator().next();
-        List<Role> roles = user.getRoles();
-        List<String> permissionNames = new ArrayList<>();
-        List<String> roleNames = new ArrayList<>();
-        if (ListTool.isNotEmpty(roles)){
-            for (Role role :roles){
-                roleNames.add(role.getRoleName());
-                Set<Permission> permissions = role.getPermissions();
-                if (ListTool.isNotEmpty(permissions)){
-                    for (Permission permission : permissions){
-                        permissionNames.add(permission.getName());
-                    }
-                }
-            }
-        }
-        // 设置用户角色和权限
-        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        simpleAuthorizationInfo.addStringPermissions(permissionNames);
-        simpleAuthorizationInfo.addRoles(roleNames);
-        return simpleAuthorizationInfo;
-    }
+	/**
+	 * 授权
+	 *
+	 * @param principals 用户信息
+	 * @return 授权信息
+	 */
+	@Override
+	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+		User user = (User) principals.fromRealm(this.getName()).iterator().next();
+		// 同doGetAuthenticationInfo()返回值的第一个参数
+		// User user = (User) principals.getPrimaryPrincipal();
+		List<Role> roles = user.getRoles();
+		List<String> permissionNames = new ArrayList<>();
+		List<String> roleNames = new ArrayList<>();
+		if (ListTool.isNotEmpty(roles)) {
+			for (Role role : roles) {
+				roleNames.add(role.getRoleName());
+				Set<Permission> permissions = role.getPermissions();
+				if (ListTool.isNotEmpty(permissions)) {
+					for (Permission permission : permissions) {
+						permissionNames.add(permission.getName());
+					}
+				}
+			}
+		}
+		// 设置用户角色和权限
+		SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+		simpleAuthorizationInfo.addStringPermissions(permissionNames);
+		simpleAuthorizationInfo.addRoles(roleNames);
+		return simpleAuthorizationInfo;
+	}
 
-    /**
-     * 认证登录
-     *
-     * @param token 用户登录的信息,用户名和密码
-     * @return 认证信息
-     * @throws AuthenticationException
-     */
-    @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        if (token instanceof UsernamePasswordToken) {
-            String username = ((UsernamePasswordToken) token).getUsername();
-            User user = userService.getByUsername(username);
-            return new SimpleAuthenticationInfo(user, user.getPassword(), this.getClass().getName());
-        }
-        return null;
-    }
+	/**
+	 * 认证登录
+	 *
+	 * @param token 用户登录的信息,用户名和密码
+	 * @return 认证信息
+	 * @throws AuthenticationException
+	 */
+	@Override
+	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+		if (token instanceof UsernamePasswordToken) {
+			String username = ((UsernamePasswordToken) token).getUsername();
+			User user = userService.getByUsername(username);
+			// 不加盐
+			// return new SimpleAuthenticationInfo(user, user.getPassword(),
+			// this.getClass().getName());
+			// 加盐
+			return new SimpleAuthenticationInfo(user, user.getPassword(), ByteSource.Util.bytes(user.getSalt()),
+					this.getName());
+		}
+		return null;
+	}
 }

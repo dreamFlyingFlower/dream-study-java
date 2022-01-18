@@ -1501,6 +1501,8 @@ select * from user t1 join class t2 on t1.userid = t2.userid;
 
 # 表优化
 
+
+
 * 尽量遵循三范式原则,但在必要的情况下,可以适当做数据的冗余,反三范式
 * 不常用的字段单独存在在一个表中
 * 大字段独立存在到一个表中
@@ -1837,18 +1839,6 @@ PARTITION BY RANGE(YEAR(createtime)){
 
 * 通过脚本,刷新观察status
 
-* 判断是否周期性故障或波动
-
-* 一般由访问高峰或缓存崩溃引起,加缓存并更改缓存失效策略,使失效时间分散或夜间定时失效
-
-* 若仍出现不规则的延迟或卡顿现象,使用`show processlist`或开启慢查询获取有问题SQL
-
-* profilling分析语句以及explain SQL语句
-
-* 如果语句等待时间过长,则调优服务器参数,如缓冲区,线程数等
-
-* 如果语句执行过长,则优化SQL,优化表,优化关联查询,优化索引等
-
   ```shell
   #!/bin/bash
   # MySQL status观察脚本
@@ -1862,34 +1852,89 @@ PARTITION BY RANGE(YEAR(createtime)){
   awk '{q=$1-last;last=$1}{printf("%d\t%d\t%d\n",q,$2,$3)}' num.txt > num2.txt
   ```
 
-  
+* 判断是否周期性故障或波动
 
+* 一般由访问高峰或缓存崩溃引起,加缓存并更改缓存失效策略,使失效时间分散或夜间定时失效
 
+* 若仍出现不规则的延迟或卡顿现象,使用`show processlist`或开启慢查询获取有问题SQL
 
-# mysqlslap基准测试
-
-
-
-* --concurrency:并发数量,多个可以用逗号隔开,concurrency=10,50,100, 并发连接线程数分别是10、50、100个并发
-
-* --engines:要测试的引擎,可以有多个,用分隔符隔开
-
-* --iterations:要运行这些测试多少次
-
-* --auto-generate-sql:用系统自己生成的SQL脚本来测试
-
-* --auto-generate-sql-load-type:测试读或写或两者混合的(read,write,update,mixed)
-
-* --number-of-queries:总共要运行多少次查询.每个客户运行的查询数量可以用查询总数/并发数来计算
-
-* --debug-info:要额外输出CPU以及内存的相关信息
-
-  ```mysql
-  -- 非MySQL环境
-  mysqlslap -h127.0.0.1 -uroot -p123456 --concurrency 20 --iterations 1 --create-schema=test --query='select * from user limit 1';
+  ```shell
+  # 观察MySQL进程状态
+  mysql -h127.0.0.1 -uroot -p123456 -e 'show processlist\G'|grep State:|sort|uniq -c|sort -rn
   ```
 
-* 可以用第三方如sysbench,tpcc测试
+  * converting HEAP to MyISAM:查询结果太大时,把结果放在磁盘
+  * create tmp table:创建临时表(如group时储存中间结果)
+  * Copying to tmp table on disk:把内存临时表复制到磁盘
+  * locked:被其他查询锁住
+  * logging slow query:记录慢查询
+
+* profilling分析语句以及explain SQL语句
+
+  ```mysql
+  # 会分析最近使用的10条SQL
+  show profiles;
+  # 通过上一条语句查询到ID,再分析单条语句的执行情况
+  show profiles for query id;
+  ```
+
+* 如果语句等待时间过长,则调优服务器参数,如缓冲区,线程数等
+
+* 如果语句执行过长,则优化SQL,优化表,优化关联查询,优化索引等
+
+* 产生临时表的情况:
+
+  * group by 的列没有索引,必产生内部临时表
+  * group by 的列和order by 的列不同时,或多表联查时,group/order by使用的不是第一张表的列
+  * distinct 和 order by 一起使用时
+  * 开启了 SQL_SMALL_RESULT 选项
+  * union合并查询时会用到临时表
+  * 某些视图会用到临时表,如使用temptable方式建立,或使用union或聚合查询的视图
+
+* 什么情况下临时表写到磁盘上:
+
+  * 取出的列含有text/blob类型时 ---内存表储存不了text/blob类型
+  * 在group by 或distinct的列中存在>512字节的string列
+  * select 中含有>512字节的string列,同时又使用了union或union all语句
+
+
+
+# Show processlist
+
+
+
+* Converting HEAP to MyISAM:查询结果太大时,把结果放在磁盘.如果服务器频繁出现converting HEAP to MyISAM,说明:
+  * sql有问题,取出的结果或中间结果过大,内存临时表放不下
+  * 服务器配置的临时表内存参数过小.可修改tmp_table_size和max_heap_table_size
+* Create tmp table:创建临时表(如group时储存中间结果)以存放部分查询结果
+* Copying to tmp table on disk:由于临时结果集大于tmp_table_size,将临时表从内存存储转为磁盘存储以此节省内存
+* locked:被其他查询锁住
+* logging slow query:记录慢查询
+
+* Checking table:正在检查数据表(这是自动的)
+* Closing tables:正在将表中修改的数据刷新到磁盘中,同时正在关闭已经用完的表.这是一个很快的操作,如果不是这样的话,就应该确认磁盘空间是否已经满了或者磁盘是否正处于重负中
+* Connect Out:复制从服务器正在连接主服务器
+* deleting from main table:服务器正在执行多表删除中的第一部分,刚删除第一个表
+* deleting from reference tables:服务器正在执行多表删除中的第二部分,正在删除其他表的记录
+* Flushing tables:正在执行FLUSH TABLES,等待其他线程关闭数据表
+* Killed:发送了一个kill请求给某线程,那么这个线程将会检查kill标志位,同时会放弃下一个kill请求.MySQL会在每次的主循环中检查kill标志位,不过有些情况下该线程可能会过一小段才能死掉.如果该线程程被其他线程锁住了,那么kill请求会在锁释放时马上生效
+* Sending data:正在处理SELECT查询的记录,同时正在把结果发送给客户端
+* Sorting for group:正在为GROUP BY做排序
+* Sorting for order:正在为ORDER BY做排序
+* Opening tables:这个过程应该会很快,除非受到其他因素的干扰.例如,在执ALTER TABLE或LOCK TABLE语句行完以前,数据表无法被其他线程打开,正尝试打开一个表
+* Removing duplicates:正在执行一个SELECT DISTINCT方式的查询,但是MySQL无法在前一个阶段优化掉那些重复的记录.因此,MySQL需要再次去掉重复的记录,然后再把结果发送给客户端
+* Reopen table:获得了对一个表的锁,但是必须在表结构修改之后才能获得这个锁.已经释放锁,关闭数据表,正尝试重新打开数据表
+* Repair by sorting:修复指令正在排序以创建索引
+* Repair with keycache:修复指令正在利用索引缓存一个一个地创建新索引.它会比Repair by sorting慢些
+* Searching rows for update:正在讲符合条件的记录找出来以备更新.它必须在UPDATE要修改相关的记录之前就完成了
+* Sleeping:正在等待客户端发送新请求
+* System lock:正在等待取得一个外部的系统锁.如果当前没有运行多个mysqld服务器同时请求同一个表,那么可以通过增加--skip-external-locking参数来禁止外部系统锁
+* Upgrading lock:INSERT DELAYED正在尝试取得一个锁表以插入新记录
+* Updating:正在搜索匹配的记录,并且修改它们
+* User Lock:正在等待GET_LOCK()
+* Waiting for tables:该线程得到通知,数据表结构已经被修改了,需要重新打开数据表以取得新的结构.为了能够重新打开数据表,必须等到所有其他线程关闭这个表.以下几种情况下会产生这个通知:FLUSH TABLES tbl_name, ALTER TABLE, RENAME TABLE, REPAIR TABLE, ANALYZE TABLE,或OPTIMIZE TABLE
+* waiting for handler insert:INSERT DELAYED已处理完所有待处理的插入操作,正在等待新的请求
+* 大部分状态操作很快,只要有一个线程保持同一个状态好几秒,就可能是有问题发生了,需要检查
 
 
 
