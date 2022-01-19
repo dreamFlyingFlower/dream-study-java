@@ -1544,6 +1544,7 @@ ssh admin
   * 若ifcfg-xxx中不写任何DNS,那么resolv中必须添加网关地址
 * /etc/hosts:ip地址和域名之间的映射,格式为ip 域名,可以写多个,一行一个
 * /etc/sysconfig/network:可修改其中hostname的信息,修改后需要重启才生效
+* /sbin/route add -host 10.0.10.8 dev eth2:新增一条路由到指定网址,同时指定网卡
 
 
 

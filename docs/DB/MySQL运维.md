@@ -1512,6 +1512,105 @@ Keepalived+LVS+MYSQL+GALERA(同步复制)
 
 
 
+## 配置文件
+
+
+
+```shell
+# 全局配置项
+global {
+	# 是否参加DRBD使用者统计,默认是yes
+	usage-count no;
+	# minor-count dialog-refresh disable-ip-verification
+}
+
+# 公共配置项
+common {
+	syncer {
+		# 设置主备节点同步时的网络速率最大值,单位字节
+		rate 10M;
+		# 数据校验算法
+		verify-alg crc32c;
+	}
+
+	handlers {
+
+		# pri-on-incon-degr "/usr/lib/drbd/notify-pri-on-incon-degr.sh; /usr/lib/drbd/notify-emergency-reboot.sh; echo b > /proc/sysrq-trigger ; reboot -f";
+		# pri-lost-after-sb "/usr/lib/drbd/notify-pri-lost-after-sb.sh; /usr/lib/drbd/notify-emergency-reboot.sh; echo b > /proc/sysrq-trigger ; reboot -f";
+		# local-io-error "/usr/lib/drbd/notify-io-error.sh; /usr/lib/drbd/notify-emergency-shutdown.sh; echo o > /proc/sysrq-trigger ; halt -f";
+		# fence-peer "/usr/lib/drbd/crm-fence-peer.sh";
+		# split-brain "/usr/lib/drbd/notify-split-brain.sh root";
+		# out-of-sync "/usr/lib/drbd/notify-out-of-sync.sh root";
+		# before-resync-target "/usr/lib/drbd/snapshot-resync-target-lvm.sh -p 15 -- -c 16k";
+		# after-resync-target /usr/lib/drbd/unsnapshot-resync-target-lvm.sh;
+	}
+
+	startup {
+		# wfc-timeout degr-wfc-timeout outdated-wfc-timeout wait-after-sb
+	}
+
+	options {
+		# cpu-mask on-no-data-accessible
+	}
+
+	disk {
+		# size on-io-error fencing disk-barrier disk-flushes
+		# disk-drain md-flushes resync-rate resync-after al-extents
+                # c-plan-ahead c-delay-target c-fill-target c-max-rate
+                # c-min-rate disk-timeout
+        # IO错误的处理方式,分离
+        on-io-error detach;
+	}
+
+	net {
+		# protocol timeout max-epoch-size max-buffers unplug-watermark
+		# connect-int ping-int sndbuf-size rcvbuf-size ko-count
+		# allow-two-primaries cram-hmac-alg shared-secret after-sb-0pri
+		# after-sb-1pri after-sb-2pri always-asbp rr-conflict
+		# ping-timeout data-integrity-alg tcp-cork on-congestion
+		# congestion-fill congestion-extents csums-alg verify-alg
+		# use-rle
+	}
+}
+# 资源.data是标识符,可自定义
+resource data {
+    net {
+    	# 协议
+        protocol C;
+
+        on-congestion pull-ahead;
+        congestion-fill 400M;
+        congestion-extents 1000;
+    }
+}
+
+# 节点,data-1-1是主机名,可自定义
+on data-1-1 {
+	# 存放数据信息
+	device 		/dev/drbd0;
+	disk 		/dev/sdb1;
+	# 心跳等通讯地址
+	address		10.0.0.7:12345;
+	# 存放元数据信息,外部模式,元数据和数据不在一个盘,也可以改成internal,放在一个盘里
+	meta-disk	/dev/sdb2[0];
+}
+```
+
+
+
+## Shell
+
+
+
+* cat /proc/drbd:查看drbd状态
+* drbdadm connect data:数据连接
+* drbdadm disconnect data:断开数据连接
+* drbdadm primay data:将当前节点设置为主节点
+* drbdadm secondary data:将当前节点设置为从节点
+* drbdadm dstate all:查看磁盘状态,UpToDate/UpToDate是正常状态
+
+
+
 ## 脑裂
 
 
@@ -1539,13 +1638,13 @@ net {
 
 * 在从节点上做如下操作:
   * drbdadm secondary data:将提升为主节点的原从节点再次设置为从节点
-  * drbdadm --discard-my-data connect data:放弃本地更新数据进行主从连接
+  * drbdadm --  --discard-my-data connect data:放弃本地更新数据进行主从连接
 * 在主节点上通过cat /proc/drbd查看状态,如果不是WFConnection状态,需要再手动连接
   * drbdadm connect data:主从连接
 
 
 
-## 相关数据同步工具
+# 相关数据同步工具
 
 * rsync:实时同步工具sersync,inotify,lsyncd
 * scp
