@@ -207,11 +207,6 @@ import org.springframework.web.servlet.DispatcherServlet;
  * ->{@link AnnotationConfigUtils.registerPostProcessor()}
  * ->{@link BeanDefinitionRegistry.registerBeanDefinition()}
  * </pre>
- *
- * {@link AutowiredAnnotationBeanPostProcessor}:加载由 Autowired
- * 和{@link Value}修饰的变量,支持{@link Inject}, 由{@link BeanUtils#instantiateClass}实例化
- * {@link AnnotationConfigApplicationContext},{@link AnnotationConfigWebApplicationContext}:
- * 根据环境不同启动加载{@link Configuration}
  * 
  * {@link ApplicationContextInitializer}:在spring调用refreshed方法之前调用该方法.是为了对spring容器做进一步的控制
  * 注入实现了该类的方法有2种:Configuration或者在META-INF的spring.factories中添加该类,可参照spring-autoconfigure包里的添加
@@ -232,16 +227,19 @@ import org.springframework.web.servlet.DispatcherServlet;
  * <pre>
  * {@link FactoryBean}:工厂bean,类似于抽象工厂模式中返回实例接口的工厂
  * {@link BeanFactory}:Spring容器,默认情况是{@link DefaultListableBeanFactory},加载了Spring中组件及相关参数
- * {@link BeanPostProcessor}:在接口或类初始化之前,之后进行的操作.AOP主要接口实现该接口
- * ->{@link BeanPostProcessor#postProcessBeforeInitialization()}:初始化前进行的后置操作,比如afterPropertiesSet,init等
- * ->{@link BeanPostProcessor#postProcessAfterInitialization()}:初始化后进行的后置操作,比如AOP,事务等
- * {@link InstantiationAwareBeanPostProcessor}:BeanPostProcessor 子接口,该接口在实例化之前添加回调,
+ * {@link BeanPostProcessor}:在接口或类初始化之前,之后进行的操作,对实例进行修改.AOP主要接口实现该接口
+ *	{@link BeanPostProcessor#postProcessBeforeInitialization()}:初始化前进行的后置操作,比如afterPropertiesSet,init等
+ * 	{@link BeanPostProcessor#postProcessAfterInitialization()}:初始化后进行的后置操作,比如AOP,事务等
+ * ->{@link InstantiationAwareBeanPostProcessor}:BeanPostProcessor 子接口,该接口在实例化之前添加回调,
  * 		并在实例化之后但在set或 Autowired 注入之前添加回调
- * {@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,
+ * -->{@link AutowiredAnnotationBeanPostProcessor}:BeanPostProcessor 实现类,加载由{@link Autowired}和{@link Value}
+ * 		修饰的变量,构造等,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化
+ * -->{@link AnnotationConfigApplicationContext},{@link AnnotationConfigWebApplicationContext}:
+ * 		根据环境不同启动加载{@link Configuration}
+ * -->{@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,
  * 		在调用bean本身之前委托给指定的拦截器
- * {@link BeanFactoryPostProcessor}:对{@link BeanDefinition}进行修改
- * {@link Value}:将配置文件中的值或系统值赋值给某个变量.
- * 		该注解由{@link BeanPostProcessor#postProcessBeforeInitialization()}的实现类实现,
+ * {@link BeanFactoryPostProcessor}:对{@link BeanDefinition}进行修改,不对实例进行修改
+ * {@link Value}:将配置文件中的值或系统值赋值给某个变量.该注解由{@link BeanPostProcessor}的实现类实现,
  * 		所以不能在 BeanPostProcessor,BeanFactoryPostProcessor 的实现类中使用,会造成循环引用,可使用{@link Autowired}代替
  * </pre>
  * 
