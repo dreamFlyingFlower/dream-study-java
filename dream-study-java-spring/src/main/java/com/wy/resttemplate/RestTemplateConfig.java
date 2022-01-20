@@ -1,4 +1,4 @@
-package com.wy.config;
+package com.wy.resttemplate;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.wy.study.MyConnectionKeepAliveStrategy;
+import com.wy.actuator.MyConnectionKeepAliveStrategy;
 
 import lombok.extern.slf4j.Slf4j;
 

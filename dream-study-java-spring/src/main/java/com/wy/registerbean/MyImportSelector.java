@@ -1,4 +1,4 @@
-package com.wy.study;
+package com.wy.registerbean;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

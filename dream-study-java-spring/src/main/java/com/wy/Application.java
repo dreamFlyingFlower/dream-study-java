@@ -1,5 +1,7 @@
 package com.wy;
 
+import javax.servlet.annotation.HandlesTypes;
+
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
@@ -31,6 +33,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
@@ -242,6 +245,11 @@ import org.springframework.web.servlet.DispatcherServlet;
  * {@link Value}:将配置文件中的值或系统值赋值给某个变量.该注解由{@link BeanPostProcessor}的实现类实现,
  * 		所以不能在 BeanPostProcessor,BeanFactoryPostProcessor 的实现类中使用,会造成循环引用,可使用{@link Autowired}代替
  * </pre>
+ * 
+ * {@link SpringServletContainerInitializer}:该类负责对容器启动时相关组件进行初始化,当前类只是完成一些验证和组件装配,
+ * 		具体初始化由类上注解{@link HandlesTypes}的值决定,实际上就是{@link WebApplicationInitializer}的实现类.
+ * #TomcatStarter:该类并非通过SPI机制实例化,因为该类非public,也无无参构造,本质上是通过new实例化的.
+ * 		该类和{@link SpringServletContainerInitializer}类似,主要初始化是通过{@link ServletContextInitializer}完成
  * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40

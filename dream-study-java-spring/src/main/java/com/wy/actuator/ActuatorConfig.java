@@ -1,4 +1,4 @@
-package com.wy.config;
+package com.wy.actuator;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.export.jmx.JmxMetricsExportAutoConfiguration;
 import org.springframework.boot.actuate.health.HealthIndicator;

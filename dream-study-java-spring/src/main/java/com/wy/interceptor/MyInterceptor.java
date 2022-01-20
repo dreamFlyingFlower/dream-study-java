@@ -1,4 +1,4 @@
-package com.wy.study;
+package com.wy.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
