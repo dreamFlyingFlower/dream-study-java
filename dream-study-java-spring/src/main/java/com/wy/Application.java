@@ -32,6 +32,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.loader.JarLauncher;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
@@ -250,6 +251,16 @@ import org.springframework.web.servlet.DispatcherServlet;
  * 		具体初始化由类上注解{@link HandlesTypes}的值决定,实际上就是{@link WebApplicationInitializer}的实现类.
  * #TomcatStarter:该类并非通过SPI机制实例化,因为该类非public,也无无参构造,本质上是通过new实例化的.
  * 		该类和{@link SpringServletContainerInitializer}类似,主要初始化是通过{@link ServletContextInitializer}完成
+ * 
+ * Jar启动原理:
+ * 
+ * <pre>
+ * 通过打包后目录下的META-INF/MANIFEST.MF文件指定用户定义的启动类,指定加载lib和classes的类
+ * Start-Class:指定JAR包的启动类,即用户自定义的启动类,添加了{@link SpringBootApplication}的类
+ * Main-Class: 指定{@link JarLauncher}加载用户自定义类以及扩展引用JAR包
+ * Spring-Boot-Classes:指定用户class目录,默认BOOT-INF/classes/
+ * Spring-Boot-Lib:指定引用JAR包目录,默认BOOT-INF/lib/
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40
