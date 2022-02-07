@@ -24,6 +24,7 @@
 		<module>dream-study-java-mybatis-plus</module>
 		<module>dream-study-java-pay</module>
 		<module>dream-study-java-process</module>
+		<module>dream-study-java-rbac</module>
 		<module>dream-study-java-search</module>
 		<module>dream-study-java-service</module>
 		<module>dream-study-java-sharding</module>
