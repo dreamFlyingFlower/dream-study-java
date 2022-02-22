@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
  * Stream的中间和结束方法都只能对流中的每一个元素进行操作,但不能汇总.汇总常用的是collect()或toArray()
  * collect():将流转换为其他形式,参数是Collector接口的实现
  * Collectors:该工具类可以求avg,sum,max,min,groupby,parting(分区),joining,summary(方法汇总)等
- * parallel:并行流,当数据量超过百万时效果比较明显.并行流类似多选线程的fork,join,根据条件将任务分解到最小,并行运算
+ * parallel:并行流,当数据量超过百万时效果比较明显.并行流类似多选线程的fork,join,根据条件将任务分解到最小,并行运算.有线程安全问题
  * 
  * Stream的运行机制:
  * 
@@ -60,6 +61,7 @@ public class MyTestStream {
 	 * map:将元素转换成其他形式或提取信息,接收一个方法,该方法将运行到每一个元素上,映射成一个新元素
 	 * flatMap:将元素中的每一个元素都转换成一个流,再将所有的流连接成一个流
 	 * sorted:不带参数是自然排序,带参数的是定制排序
+	 * concat:将2个流合成为一个流,之前的流不能再进行操作
 	 * </pre>
 	 * 
 	 * 结束方法:只能用在stream的末尾,用了这些方法之后就不可再进行链式调用
@@ -78,7 +80,8 @@ public class MyTestStream {
 	 * 
 	 * reduce:归约方法,可以将流中的元素反复进行操作,得到一个值.类似递归
 	 * 
-	 * collect:将流转换为其他形式,接收一个Collector接口的实现,可使用Collectors工具类来返回值
+	 * collect:将流转换为其他形式,接收一个Collector接口的实现,可使用 Collectors 工具类来返回值 Collectors
+	 * 中包括List,Set,Map,最大值,最小值,求和,平均值,递归,计数,分组(返回一个Map<Integer,List>),二次分组,拼接,分区
 	 */
 	public static void testStream() {
 		List<Integer> test = new ArrayList<>(Arrays.asList(1234, 6546, 765723));
@@ -99,6 +102,7 @@ public class MyTestStream {
 				// 对流中的元素进行操作,将元素的第1和第2个值赋值给2个参数,将结果赋值给下一次运算的x,流元素赋给y
 				// .reduce((x,y)->x+y)
 				// 第1个参数为起始值,将起始值赋值给x,流的第1个元素赋值给y,其他同上
+				// 再次执行方法时会将上一次的结果赋值给x,流的下一个元素赋值给y,依次类推运行
 				.reduce(0, (x, y) -> x + y);
 		// 直接使用Collectors自带的汇总方法
 		test.stream().map(t -> t.intValue() + 3).collect(Collectors.toList());
@@ -112,6 +116,12 @@ public class MyTestStream {
 		Collections.sort(test, (t1, t2) -> {
 			return Integer.compare(t1, t2);
 		});
+		// 根据指定条件分组,返回值就是key
+		Map<Integer, List<Integer>> groupMap = test.stream().collect(Collectors.groupingBy(t -> t));
+		System.out.println(groupMap);
+		// 分区,只能分2个区:true或false
+		Map<Boolean, List<Integer>> partition = test.stream().collect(Collectors.partitioningBy(t -> t > 100));
+		System.out.println(partition);
 		// 无限流,
 		// 迭代.从第一个参数开始,不停的进行操作.下一次的操作参数就是第一次的结果
 		Stream<Integer> stream = Stream.iterate(0, x -> x + 2);

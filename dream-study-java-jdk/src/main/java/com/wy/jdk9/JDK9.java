@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  * 1.接口中可定义静态/非静态私有方法,默认方法可调用静态/非静态私有方法,静态方法可以调用静态私有方法
  * 2.自动推断类型运算符<>在JDK9之前不支持匿名内部类,在JDK9中也对匿名内部类做了支持
  * 3.try-with-resources可自动关闭资源,但必须写在try中,JDK9可以引用try代码块之外的变量自动关闭
- * 4.便利的集合特性:of()
+ * 4.便利的集合特性:of(),创建只读的List,Set,Map
  * 5.增强的Stream API:添加了新的Stream方法takeWhile,dropWhile,ofNullable.重写了iterate
  * 6.String存储结构变更:JDK9之前的字符串底层是存的字符数组,9以后是用字节数组.
  * 		9以前字符编码是变长存储字符串;9以后增加了一个编码标识,同时所有的字符都改为2位存储
@@ -42,7 +42,7 @@ import java.util.stream.Stream;
  * 11.JS引擎升级:Nashorn
  * 12.JavaDoc的HTML5支持
  * 13.多分辨率图像API
- * 14.添加JShell命令,多版本兼容JAR包
+ * 14.添加JShell命令,多版本兼容JAR包,需要从安装目录的bin中打开jshell,类似于JS.进入jshell之后使用/edit命令可打开文本编辑器
  * 15.下划线使用限制:JDK9不能使用单独的下划线定义变量
  * </pre>
  *
@@ -55,7 +55,6 @@ public class JDK9 {
 	public static void main(String[] args) {
 		test04();
 		test05();
-
 	}
 
 	/**
