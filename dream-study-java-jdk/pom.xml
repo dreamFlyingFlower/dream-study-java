@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -42,6 +43,17 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.2.75</version>
+		</dependency>
+		<!-- 使用jmh时放开 -->
+		<dependency>
+		<groupId>org.openjdk.jmh</groupId>
+		<artifactId>jmh-core</artifactId>
+		<version>1.14.1</version>
+		</dependency>
+		<dependency>
+		<groupId>org.openjdk.jmh</groupId>
+		<artifactId>jmh-generator-annprocess</artifactId>
+		<version>1.14.1</version>
 		</dependency>
 
 		<dependency>
@@ -88,6 +100,17 @@
 					</archive>
 				</configuration>
 			</plugin>
+			<!-- 使用jmh时放开 -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-compiler-plugin</artifactId> -->
+			<!-- <version>3.8.0</version> -->
+			<!-- <configuration> -->
+			<!-- <release>12</release> -->
+			<!-- 中间无空格 -->
+			<!-- <compilerArgs> - -enable-preview </compilerArgs> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
 		</plugins>
 	</build>
 
