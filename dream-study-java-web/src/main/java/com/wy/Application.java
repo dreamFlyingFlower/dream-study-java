@@ -1,7 +1,9 @@
 package com.wy;
 
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.BeanWrapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
@@ -37,7 +39,11 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandlerCom
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.FrameworkServlet;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.HttpServletBean;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
 import org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter;
@@ -114,21 +120,32 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * {@link AbstractHttpSessionApplicationInitializer}:可以自定义Session操作,但比较繁琐,可使用Spring自带的配置
  * </pre>
  * 
- * {@link DispatcherServlet},解析前端URL接口以及视图主要逻辑类,由{@link DispatcherServletAutoConfiguration}自动引入
+ * {@link DispatcherServletAutoConfiguration}:引入{@link DispatcherServlet},引入文件视图等
  * 
  * <pre>
+ * {@link HttpServletBean}:继承{@link HttpServlet},因此在容器初始化时会调用init(),该初始化的作用:
+ * 		1.将Servlet初始化参数设置到该组件上,通过{@link BeanWrapper}简化设置过程,方便后续使用
+ * 		2.提供给子类初始化扩展点:initServletBean(),该方法由{@link FrameworkServlet}覆盖
+ * {@link FrameworkServlet}:继承 {@link HttpServletBean},通过initServletBean()进行Web上下文初始化,该方法主要作用:
+ * 		1.初始化Web上下文
+ * 		2.提供给子类初始化扩展点
+ * {@link FrameworkServlet#initWebApplicationContext}:初始化上下文,调用 {@link DispatcherServlet}
+ * {@link FrameworkServlet#initFrameworkServlet}:空方法,主要是为了扩展,由子类自定义实现
+ * {@link DispatcherServlet}:继承 FrameworkServlet,主要是调度.解析前端URL,执行业务,返回视图等
  * {@link DispatcherServlet#initStrategies}:在刷新Spring上下文时初始化一系列解析器,包括URL接口,ViewResolver等等
- * {@link DispatcherServlet#initMultipartResolver}:初始化多媒体文件视图解析器
+ * {@link DispatcherServlet#initMultipartResolver}:初始化多媒体文件视图解析器,主要用于文件上传
  * {@link DispatcherServlet#initLocaleResolver}:初始化本地自定义视图解析器
  * {@link DispatcherServlet#initThemeResolver}:初始化主题视图解析器
  * {@link DispatcherServlet#initHandlerMappings}:初始化请求URL Map,从上下文获得所有{@link HandlerMapping}子类并排序.
+ * 		将请求映射到处理器,返回一个{@link HandlerExecutionChain},它包括一个处理器,多个{@link HandlerInterceptor}拦截器
  * ->{@link BeanNameUrlHandlerMapping}:通过定义的 beanName 进行查找要请求的Controller
  * ->{@link RequestMappingHandlerMapping}:通过注解{@link RequestMapping}来查找对应的Controller
- * {@link DispatcherServlet#initHandlerAdapters}:初始化适配器
- * {@link DispatcherServlet#initHandlerExceptionResolvers}:初始化异常视图
- * {@link DispatcherServlet#initRequestToViewNameTranslator}:
+ * {@link DispatcherServlet#initHandlerAdapters}:初始化适配器,以便支持多种类型的处理器( HandlerExecutionChain 中的处理器)
+ * {@link DispatcherServlet#initHandlerExceptionResolvers}:初始化异常视图,解析执行过程中的异常
+ * {@link DispatcherServlet#initRequestToViewNameTranslator}:将请求到视图之间进行转换
  * {@link DispatcherServlet#initViewResolvers}:初始化视图解析器,如{@link BeanNameViewResolver},{@link FreeMarkerViewResolver}
- * {@link DispatcherServlet#initFlashMapManager}:
+ * {@link DispatcherServlet#initFlashMapManager}:用于管理FlashMap的策略接口,FlashMap用于存储一个请求的输出,
+ * 		当进入请求时作为该请求的输入,通常用于重定向场景
  * {@link DispatcherServlet#doDispatch}:处理从前端传过来的URL请求,判断是否为媒体文件请求,前置方法,后置方法等
  * {@link AbstractHandlerMethodAdapter#handle}:真正处理请求的方法
  * ->{@link RequestMappingHandlerAdapter#handleInternal}:处理请求
