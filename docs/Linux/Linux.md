@@ -189,6 +189,8 @@ init num:控制台中直接修改运行级别
 
 ## 系统信息
 
+
+
 * free []:显示当前内存和交换空间的使用情况,默认是k为单位
   * -h:显示计算单位,同时以最优方式显示数据
   * -b:以字节为单位显示内存和交换空间大小信息
@@ -249,6 +251,8 @@ init num:控制台中直接修改运行级别
   
 * cat /proc/meminfo:查看内存等系统信息
 
+  * cat /proc/meminfo|grep MemTotal:查看内存,以kb显示
+
 * cat /proc/cpuinfo:查看cpu信息
 
 * bg:将当前脚本转换为后台运行
@@ -290,7 +294,7 @@ init num:控制台中直接修改运行级别
     * TIME:占用CPU的总时间
     * COMMAND:启动命令
     * CMD:启动进程所用的命令的参数
-  
+
 * pstree:显示进程状态树
 
 * strace:跟踪一个进程的系统调用情况
@@ -338,7 +342,7 @@ init num:控制台中直接修改运行级别
   ```shell
   nohup java -jar test.jar & # 程序将在后台运行,即使关闭终端界面,仍可正常运行
   ```
-  
+
 * /etc/secutiry/limits.conf:修改单个文件能打开的最大句柄数
 
   ```shell
@@ -354,7 +358,42 @@ init num:控制台中直接修改运行级别
   sysctl -p
   ```
 
-  
+
+
+
+### ulimit
+
+
+
+* -a:显示目前资源限制的设定
+* -u:用户最多可开启的程序数目,大致计算公式为:`内存大小(kb)/128(kb)`
+
+
+
+### 修改线程数大小限制
+
+
+
+* /etc/security/limits.conf:修改该文件可修改默认打开的最大文件句柄数
+
+  ```
+  # 用户,硬件/软件,文件,最大数量
+  root soft nofile 65535
+  root hard nofile 65535
+  * soft nofile 65535
+  * hard nofile 65535
+  ```
+
+* 修改完后重启生效
+
+* /etc/security/limits.d/20-nproc.conf:修改该问价可修改可创建的最大线程数
+
+  ```
+  *          soft    nproc     4096
+  root       soft    nproc     unlimited
+  ```
+
+* 修改完后重启生效
 
 
 

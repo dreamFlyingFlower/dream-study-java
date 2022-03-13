@@ -280,7 +280,7 @@
 1410750754 D 0 0 0 1 0 67108864
 # 各字段含义如下(按照顺序)
 # 时间戳
-# 操作类型(A：增加,D：删除)
+# 操作类型(A:增加,D:删除)
 # store_path_index
 # sub_path_high
 # sub_path_low
@@ -444,6 +444,168 @@ vi /etc/rc.d/rc.local
 
 
 
+# 配置
+
+
+
+## Tracker
+
+
+
+* /etc/fdfs/mod_fastdfs.conf:fastdfs配置文件
+* connect_timeout:Socket连接超时时间,默认30S
+* network_timeout:网络超时时间,单位秒
+* base_path:fastdfs存储数据以及日志的目录,在会该目录下生成data和logs目录
+  * data/storage_groups.dat:存储分组信息,字段以逗号隔开,依次是:
+    * group_name:组名
+    * storage_port:storage server 端口号
+
+  * data/storage_servers.dat:存储服务器列表,字典用逗号隔开,依次是:
+    * group_name:所属组名
+    * ip_addr: ip 地址
+    * status:状态
+    * sync_src_ip_addr:向该 storage server 同步已有数据文件的源服务器
+    * sync_until_timestamp:同步已有数据文件的截至时间(UNIX 时间戳)
+    * stat.total_upload_count:上传文件次数
+    * stat.success_upload_count:成功上传文件次数
+    * stat.total_set_meta_count:更改 meta data 次数
+    * stat.success_set_meta_count:成功更改 meta data 次数
+    * stat.total_delete_count:删除文件次数
+    * stat.success_delete_count:成功删除文件次数
+    * stat.total_download_count:下载文件次数
+    * stat.success_download_count:成功下载文件次数
+    * stat.total_get_meta_count:获取 meta data 次数
+    * stat.success_get_meta_count:成功获取 meta data 次数
+    * stat.last_source_update:最近一次源头更新时间(更新操作来自客户端)
+    * stat.last_sync_update:最近一次同步更新时间(更新操作来自其他 storage server 的同步)  
+
+* log_level:日志等级,大小写敏感
+  * emerg
+  * alert
+  * crit
+  * error
+  * warn
+  * notice
+  * info
+  * debug
+* allow_hosts:可访问的域名,主机名或ip地址,*表示所有ip都可访问.可以写ip段,如10.10.10.[1-15,20],或者主机名段,如host[1-6,12]
+* port:tracker.conf独有,访问服务时的端口
+* store_lookup:存储策略
+  * 0:默认,轮询
+  * 1:特殊的组,需要配置store_group使用
+  * 2:负载均衡,选择剩余空间最大的组
+* store_group:当store_lookup为1时,指定访问的组名
+* store_server:上传服务器的选择方式
+  * 0:默认,轮询方式
+  * 1:根据ip地址进行排序选择第一个服务器(IP地址最小者)
+  * 2:根据优先级进行排序(优先级由Storage设置,参数名为upload_priority),值越小优先级越高
+* store_path:上传路径的选择方式.Storage可以有多个存放文件的base_path
+  * 0:轮流方式,多个目录依次存放文件
+  * 2:存储负载均衡,选择剩余空间最大的目录存放文件
+* download_Server:下载服务器的选择方式
+  * 0:默认轮询
+  * 1:IP最小者
+  * 2:优先级排序,值最小的,优先级最高
+* reserved_storage_space:预留空间,当存储服务器的可用空间小于该值时,将不再存储文件
+  * G or g:gigabyte,GB
+  * M or m:megabyte,MB
+  * K or k:kiloby,KB
+  * 默认为字节,也可以使用百分比
+* run_by_group:指定运行该程序的用户组
+* run_by_user:指定运行该程序的用户
+* check_active_interval:检测Storage存活的时间间隔,单位秒.Storage定期向Tracker发心跳,如果Tracker在一个check_active_interval内还没有收到Storage的一次心跳,便认为该Storage已下线.所以本参数值必须大于Storage配置的心跳时间,通常为Storage心跳时间间隔的2倍或3倍
+* thread_stack_size:设置线程栈的大小.线程栈越大,一个线程占用的系统资源就越多.若要启动更多线程,可以适当降低本参数值.默认值为64,Tracker线程栈不应小于64KB
+* storage_ip_changed_auto_adjust:true或false.该参数控制当Storage server ip地址改变时,集群是否自动调整.只有在Storage进程重启时才完成自动调整
+* storage_sync_file_max_delay:同组Storage服务器之间同步的最大延迟时间.存储服务器之间同步文件的最大延迟时间,根据实际情况进行调整,单位为秒,默认值为1天
+* storage_sync_file_max_time:存储服务器同步一个文件需要消耗的最大时间,默认为300s
+* sync_log_buff_interval:同步或刷新日志信息到硬盘的时间间隔.Tracker的日志不是实时写硬盘的,而是先写内存,再刷到硬盘.单位为秒
+* http.disabled:true或false,是否启用 HTTP
+* http.server_port:Http服务器端口号,只有http.disabled=false时才生效
+* http.check_alive_interval:检查Storage存活状态的间隔时间,单位为秒,http.disabled=false时才生效
+* http.check_alive_type:心跳检测使用的协议方式
+  * tcp:连接到storage Server的http端口,不进行request和response
+  * http:storage check alive url must return http status 200
+  * note:只有http.disabled=false时才生效
+* http.check_alive_uri:检查Storage状态的URI,只有http.disabled=false时才生效
+* max_connections:最大并发连接数,默认256.FastDFS采用预先分配好buffer队列的做法,分配的内存大小为max_connections * buff_size.因此配置的连接数越大,消耗的内存越多,不建议配置得过大  
+* work_threads:工作线程数,默认为4.为了避免CPU上下文切换的开销,以及不必要的资源消耗,不建议将本参数设置得过大.为了发挥出多个CPU的效能,系统中的线程数总和,应等于CPU总数
+  * 对于Tracker:work_threads + 1 = CPU数
+  * 对于Storage:work_threads + 1 + (disk_reader_threads +disk_writer_threads) * store_path_count = CPU数
+* use_trunk_file:true或false.是否使用trunk文件来存储几个小文件
+* slot_min_size:trunk文件最小分配单元.即最小slot大小,默认256字节,最大4K
+* slot_max_size:trunk文件最大分配单元,超过该值会被独立存储.即最大slot大小,默认16M,必须大于slot_min_size,小于该值存储到trunk file中
+* trunk_file_size:trunk file的size,默认64M,大于4M
+* trunk_create_file_advance:true或false.是否预先创建trunk文件
+* trunk_create_file_time_base:预先创建trunk文件的基准时间
+* trunk_create_file_interval:预先创建trunk文件的时间间隔,单位秒
+* trunk_create_file_space_threshold:trunk创建文件的最大空闲空间,默认20G
+* trunk_init_check_occupying:true或false.启动时是否检查每个空闲空间列表项已经被使用
+* trunk_init_reload_from_binlog:true或false.是否纯粹从trunk-binlog重建空闲空间列表
+* trunk_compress_binlog_min_interval:对trunk-binlog进行压缩的时间间隔
+* use_storage_id:是否使用server id作为storage server标识
+* storage_ids_filename:use_storage_id为 true时设置.在文件中设置组名,server ID 和对应的 IP 地址
+* store_slave_file_use_link:存储从文件是否采用 symbol link(符号链接)方式.如果为 true,一个从文件将占用两个文件:原始文件及指向它的符号链接
+* rotate_error_log:是否定期轮转 error log,目前仅支持一天轮转一次
+* error_log_rotate_time:error log 定期轮转的时间点,只有当 rotate_error_log 设置为 true 时有效
+* rotate_error_log_size:error log 按大小轮转.设置为 0 表示不按文件大小轮转,否则当 error log 达到该大小,就会轮转到新文件中
+
+
+
+## Storage
+
+
+
+* subdir_count_per_path:Storage目录数,默认256.FastDFS采用二级目录的做法,目录会在FastDFS初始化时自动创建.存储海量小文件,打开了trunk存储方式的情况下,建议将本参数适当改小.比如设置为32,此时存放文件的目录数为 32 * 32 = 1024.假如trunk文件大小采用缺省值64MB,磁盘空间为2TB,那么每个目录下存放的trunk文件数均值为:2TB / (1024 *64MB) = 32个
+
+* storage磁盘读写线程设置:
+  * disk_rw_separated:磁盘读写是否分离,storage磁盘读写线程设置
+  * disk_reader_threads:单个磁盘读线程数,storage磁盘读写线程设置
+  * disk_writer_threads:单个磁盘写线程数,storage磁盘读写线程设置
+  * 如果磁盘读写混合,单个磁盘读写线程数为读线程数和写线程数之和
+  * 对于单盘挂载方式,磁盘读写线程分别设置为1即可
+  * 如果磁盘做了RAID,那么需要酌情加大读写线程数,这样才能最大程度地发挥磁盘性能
+* 同步延迟相关设置,为了缩短文件同步时间,可以将下方3个参数适当调小即可
+  * sync_binlog_buff_interval:将binlog buffer写入磁盘的时间间隔,取值大于0,默认为60s
+  * sync_wait_msec:如果没有需要同步的文件,对binlog进行轮询的时间间隔,取值大于0,默认100ms
+  * sync_interval:同步完一个文件后,休眠的毫秒数,默认为0
+
+
+
+
+
+# 日志
+
+
+
+## Tracker日志
+
+* 在/etc/fdfs/tracker.conf中配置base_path路径
+
+
+
+## Storage日志
+
+* 在/etc/fdfs/Storage.conf中配置base_path路径
+
+
+
+## Nginx日志
+
+* 默认在/var/log/nginx/error.log或nginx/conf下
+* 通过安装nginx时的configure脚本参数更改
+
+
+
+
+
+# Shell
+
+* /usr/bin/fdfs_monitor /etc/fdfs/client.conf:检查fastdfs运行是否正常,查看ip_addr是active为正常
+* /usr/bin/fdfs_test <client_conf_filename> <operation>:运行某些测试程序
+  * /usr/bin/fdfs_test /etc/fdfs/client.conf upload /usr/include/stdlib.h:上传文件到fastdfs
+
+
+
 # Fastdfs-nginx-module
 
 
@@ -520,7 +682,6 @@ vi /etc/fdfs/mod_fastdfs.conf
 * connect_timeout:连接超时,单位秒
 * network_timeout:网络超时,接收或发送超时,单位秒
 * response_mode:响应模式,proxy或redirect
-
 * load_fdfs_parameters_from_tracker:是否从Tracker加载配置
   * 当该值为true:
     * 调用fdfs_load_tracker_group_ex解析Tracker连接配置
@@ -575,18 +736,18 @@ vi /etc/fdfs/mod_fastdfs.conf
 
 # 缩略图
 
-* 可以直接使用FastDFS功能,但是需要上传多次文件,且还需要另外编码,此处直接使用Nginx的扩展
 
 
+* FastDFS自带,但需要多次上传文件,且还需要另外编码,直接使用nginx_http_image_filter_module
 
-## nginx_http_image_filter_module
-
-* 该模块用于对JPEG,GIF和PNG图片进行转换处理(压缩图片,裁剪图片,旋转图片).
+* 该模块用于对JPEG,GIF和PNG图片进行转换处理(压缩图片,裁剪图片,旋转图片)
 * 默认不被编译,需要在编译nginx源码的时候,加入相关配置
 
 
 
-### 安装
+## 安装
+
+
 
 ```shell
 # 检测nginx模块安装情况,查看是否安装了上述模块
@@ -605,7 +766,9 @@ make && make install
 
 
 
-### 访问普通图片
+## 访问普通图片
+
+
 
 ```shell
 location ~* /img/(.*)_(\d+)x(\d+)\.(jpg|gif|png)$ {
@@ -623,7 +786,9 @@ location ~* /img/(.*)_(\d+)x(\d+)\.(jpg|gif|png)$ {
 
 
 
-### 访问FastDFS图片
+## 访问FastDFS图片
+
+
 
 ```nginx
 location ~ group1/M00/(.+)_([0-9]+)x([0-9]+)\.(jpg|gif|png) {
@@ -651,7 +816,9 @@ location ~ group1/M00/(.+)_([0-9]+)x([0-9]+)\.(jpg|gif|png) {
 
 
 
-## nginx image
+# nginx image
+
+
 
 * 该模块主要功能是对请求的图片进行缩略/水印处理,支持文字水印和图片水印
 * 支持自定义字体,文字大小,水印透明度,水印位置
@@ -660,7 +827,9 @@ location ~ group1/M00/(.+)_([0-9]+)x([0-9]+)\.(jpg|gif|png) {
 
 
 
-### 安装
+## 安装
+
+
 
 ```shell
 yum install -y gd-devel pcre-devel libcurl-devel
@@ -688,7 +857,9 @@ make && make install
 
 
 
-### 访问普通图片
+## 访问普通图片
+
+
 
 ```nginx
 location /img/{
@@ -723,7 +894,9 @@ location /img/{
 
 
 
-### 访问**FastDFS**图片
+## 访问**FastDFS**图片
+
+
 
 ```nginx
 location /group1/M00/{
@@ -769,132 +942,3 @@ location /group1/M00/{
 * image_water_font_size:水印大小,默认 5
 * image_water_font:文字水印字体文件路径
 * image_water_color:水印文字颜色,默认#000000
-
-
-
-# 配置
-
-
-
-## Tracker
-
-* /etc/fdfs/mod_fastdfs.conf:fastdfs配置文件
-* base_path:fastdfs存储数据以及日志的目录,在会该目录下生成data和logs目录
-* log_level:日志等级,大小写敏感
-  * emerg
-  * alert
-  * crit
-  * error
-  * warn
-  * notice
-  * info
-  * debug
-* allow_hosts:可访问的域名,主机名或ip地址,*表示所有ip都可访问.可以写ip段,如10.10.10.[1-15,20],或者主机名段,如host[1-6,12]
-* port:tracker.conf独有,访问服务时的端口
-* store_lookup:存储策略
-  * 0:默认,轮询
-  * 1:特殊的组,需要配置store_group使用
-  * 2:负载均衡,选择剩余空间最大的组
-* store_group:当store_lookup为1时,指定访问的组名
-* store_server:上传服务器的选择方式
-  * 0:默认,轮询方式
-  * 1:根据ip地址进行排序选择第一个服务器(IP地址最小者)
-  * 2:根据优先级进行排序(优先级由Storage设置,参数名为upload_priority),值越小优先级越高
-* store_path:上传路径的选择方式.Storage可以有多个存放文件的base_path
-  * 0:轮流方式,多个目录依次存放文件
-  * 2:存储负载均衡,选择剩余空间最大的目录存放文件
-* download_Server:下载服务器的选择方式
-  * 0:默认轮询
-  * 1:IP最小者
-  * 2:优先级排序,值最小的,优先级最高
-* reserved_storage_space:预留空间,当存储服务器的可用空间小于该值时,将不再存储文件
-  * G or g for gigabyte
-  * M or m for megabyte
-  * K or k for kiloby  
-* run_by_group:指定运行该程序的用户组
-* run_by_user:指定运行该程序的用户
-* check_active_interval:检测Storage存活的时间间隔,单位秒.Storage定期向Tracker发心跳,如果Tracker在一个check_active_interval内还没有收到Storage的一次心跳,那便认为该Storage已下线.所以本参数值必须大于Storage配置的心跳时间.通常配置为Storage心跳时间间隔的2倍或3倍
-* thread_stack_size:设置线程栈的大小.线程栈越大,一个线程占用的系统资源就越多.若要启动更多线程,可以适当降低本参数值.默认值为64,Tracker线程栈不应小于64KB
-* storage_ip_changed_auto_adjust:true或false.该参数控制当Storage server ip地址改变时,集群是否自动调整.只有在Storage进程重启时才完成自动调整
-* storage_sync_file_max_delay:同组Storage服务器之间同步的最大延迟时间.存储服务器之间同步文件的最大延迟时间,根据实际情况进行调整,单位为秒,默认值为1天
-* storage_sync_file_max_time:存储服务器同步一个文件需要消耗的最大时间,默认为300s
-* sync_log_buff_interval:同步或刷新日志信息到硬盘的时间间隔.Tracker的日志不是时时写硬盘的,而是先写内存.单位为秒
-* http.disabled:true或false,是否启用 HTTP
-* http.Server_port:HTTP 服务器端口号,只有http.disabled=false时才生效
-* http.check_alive_interval:检查Storage存活状态的间隔时间,单位为秒,http.disabled=false时才生效
-* http.check_alive_type:心跳检测使用的协议方式
-  * tcp:连接到storage Server的http端口,不进行request和response
-  * http:storage check alive url must return http status 200
-  * note:只有http.disabled=false时才生效
-* http.check_alive_uri:检查Storage状态的URI,只有http.disabled=false时才生效
-* max_connections:最大并发连接数,默认256.FastDFS采用预先分配好buffer队列的做法,分配的内存大小为max_connections * buff_size.因此配置的连接数越大,消耗的内存越多,不建议配置得过大  
-* work_threads:工作线程数,默认为4.为了避免CPU上下文切换的开销,以及不必要的资源消耗,不建议将本参数设置得过大.为了发挥出多个CPU的效能,系统中的线程数总和,应等于CPU总数
-  * 对于Tracker:work_threads + 1 = CPU数
-  * 对于Storage:work_threads + 1 + (disk_reader_threads +disk_writer_threads) * store_path_count = CPU数
-* use_trunk_file:true或false.是否使用trunk文件来存储几个小文件
-* slot_min_size:trunk文件最小分配单元.即最小slot大小,默认256字节,最大4K
-* slot_max_size:trunk文件最大分配单元,超过该值会被独立存储.即最大slot大小,默认16M,必须大于slot_min_size,小于该值存储到trunk file中
-* trunk_file_size:trunk file的size,默认64M,大于4M
-* trunk_create_file_advance:true或false.是否预先创建trunk文件
-* trunk_create_file_time_base:预先创建trunk文件的基准时间
-* trunk_create_file_interval:预先创建trunk文件的时间间隔,单位秒
-* trunk_create_file_space_threshold:trunk创建文件的最大空闲空间,默认20G
-* trunk_init_check_occupying:true或false.启动时是否检查每个空闲空间列表项已经被使用
-* trunk_init_reload_from_binlog:true或false.是否纯粹从trunk-binlog重建空闲空间列表
-* trunk_compress_binlog_min_interval:对trunk-binlog进行压缩的时间间隔
-
-
-
-## Storage
-
-
-
-* subdir_count_per_path:Storage目录数,默认256.FastDFS采用二级目录的做法,目录会在FastDFS初始化时自动创建.存储海量小文件,打开了trunk存储方式的情况下,建议将本参数适当改小.比如设置为32,此时存放文件的目录数为 32 * 32 = 1024.假如trunk文件大小采用缺省值64MB,磁盘空间为2TB,那么每个目录下存放的trunk文件数均值为:2TB / (1024 *64MB) = 32个
-
-* storage磁盘读写线程设置:
-  * disk_rw_separated:磁盘读写是否分离,storage磁盘读写线程设置
-  * disk_reader_threads:单个磁盘读线程数,storage磁盘读写线程设置
-  * disk_writer_threads:单个磁盘写线程数,storage磁盘读写线程设置
-  * 如果磁盘读写混合,单个磁盘读写线程数为读线程数和写线程数之和
-  * 对于单盘挂载方式,磁盘读写线程分别设置为1即可
-  * 如果磁盘做了RAID,那么需要酌情加大读写线程数,这样才能最大程度地发挥磁盘性能
-* 同步延迟相关设置,为了缩短文件同步时间,可以将下方3个参数适当调小即可
-  * sync_binlog_buff_interval:将binlog buffer写入磁盘的时间间隔,取值大于0,默认为60s
-  * sync_wait_msec:如果没有需要同步的文件,对binlog进行轮询的时间间隔,取值大于0,默认100ms
-  * sync_interval:同步完一个文件后,休眠的毫秒数,默认为0
-
-
-
-
-
-# 日志
-
-
-
-## Tracker日志
-
-* 在/etc/fdfs/tracker.conf中配置base_path路径
-
-
-
-## Storage日志
-
-* 在/etc/fdfs/Storage.conf中配置base_path路径
-
-
-
-## Nginx日志
-
-* 默认在/var/log/nginx/error.log或nginx/conf下
-* 通过安装nginx时的configure脚本参数更改
-
-
-
-
-
-# Shell
-
-* /usr/bin/fdfs_monitor /etc/fdfs/client.conf:检查fastdfs运行是否正常,查看ip_addr是active为正常
-* /usr/bin/fdfs_test <client_conf_filename> <operation>:运行某些测试程序
-  * /usr/bin/fdfs_test /etc/fdfs/client.conf upload /usr/include/stdlib.h:上传文件到fastdfs
-
