@@ -23,7 +23,7 @@
 
 
 
-### Tracker Server
+## Tracker Server
 
 
 
@@ -35,7 +35,7 @@
 
 
 
-### Storage Server
+## Storage Server
 
 
 
@@ -46,7 +46,7 @@
 
 
 
-### Client
+## Client
 
 
 
@@ -175,6 +175,8 @@
 
 
 # 合并存储
+
+
 
 * FastDFS提供的合并存储功能,默认创建的大文件为64MB,然后在该大文件中存储很多小文件
 
@@ -459,7 +461,6 @@ vi /etc/rc.d/rc.local
   * data/storage_groups.dat:存储分组信息,字段以逗号隔开,依次是:
     * group_name:组名
     * storage_port:storage server 端口号
-
   * data/storage_servers.dat:存储服务器列表,字典用逗号隔开,依次是:
     * group_name:所属组名
     * ip_addr: ip 地址
@@ -477,8 +478,18 @@ vi /etc/rc.d/rc.local
     * stat.total_get_meta_count:获取 meta data 次数
     * stat.success_get_meta_count:成功获取 meta data 次数
     * stat.last_source_update:最近一次源头更新时间(更新操作来自客户端)
-    * stat.last_sync_update:最近一次同步更新时间(更新操作来自其他 storage server 的同步)  
-
+    * stat.last_sync_update:最近一次同步更新时间(更新操作来自其他 storage server 的同步)
+  * data/.data_init_flag:当前storage server初始化信息
+  * data/storage_stat.dat:当前storage server统计信息
+  * data/sync:存放数据同步相关文件
+    * binlog.index:当前的binlog文件索引号
+    * binlog.###:存放更新操作记录(日志)
+    * ${ip_addr}_${port}.mark:存放同步的完成情况
+  * data/一级目录:256个存放数据文件的目录,如:00, 1F
+    * 二级目录:256个存放数据文件的目录
+  * logs/storaged.log:storage server日志文件
+  * logs/trackerd.log:tracker server日志文件
+  
 * log_level:日志等级,大小写敏感
   * emerg
   * alert
@@ -555,8 +566,70 @@ vi /etc/rc.d/rc.local
 
 
 
+* group_name:指定此 storage server 所在组(卷)
+* bind_addr:同Tracker
+* client_bind:bind_addr通常是针对 server,当指定 bind_addr 时,本参数才有效.当前storage server 作为 client 连接其他服务器(如 tracker server,其他 storage server),是否绑定 bind_addr
+* port:storage server 服务端口
+* connect_timeout:连接超时时间,针对 socket 套接字函数 connect
+* network_timeout:storage server 发送或接收数据时网络超时时间,单位秒
+* heart_beat_interval:心跳间隔时间,单位秒(这里是指主动向 tracker server 发送心跳)
+* stat_report_interval:storage server 向 tracker server 报告磁盘剩余空间的时间间隔,单位秒
+* base_path:base_path 目录地址.根目录必须存在,子目录会自动生成
+* max_connections:同Tracker Server
+* work_threads:工作线程数,通常设置为 CPU 数
+* buff_size:设置队列结点的 buffer 大小.工作队列消耗的内存大小 = `buff_size * max_connections`,设置得大一些,系统整体性能会有所提升.消耗的内存请不要超过系统物理内存大小
+* disk_rw_direct:为 true 表示不使用操作系统的文件内容缓冲特性.如果文件数量很多,且访问很分散,可以考虑将本参数设置为 true
+* disk_rw_separated:磁盘 IO 读写是否分离,默认是分离的
+* disk_reader_threads:针对单个存储路径的读线程数,缺省值为 1
+  * 读写分离时,系统中的读线程数 = disk_reader_threads * store_path_count
+  * 读写混合时,系统中的读写线程数 = (disk_reader_threads + disk_writer_threads) *
+    store_path_count
+* disk_writer_threads:针对单个存储路径的写线程数,缺省值为 1
+  * 读写分离时,系统中的写线程数 = disk_writer_threads * store_path_count
+  * 读写混合时,系统中的读写线程数 = (disk_reader_threads + disk_writer_threads) *
+    store_path_count
+* sync_wait_msec:同步文件时,如果从 binlog 中没有读到要同步的文件,休眠 N 毫秒后重新读取.0 表示不休眠,立即再次尝试读取.出于 CPU 消耗考虑,不建议设置为 0.如果想同步尽可能快一些,可以将本参数设置得小一些,比如设置为 10ms
+* sync_interval:同步上一个文件后,再同步下一个文件的时间间隔,单位为毫秒,0 表示不休眠,直接同步下一个文件
+* sync_start_time:同步开始时间,如00:00
+* sync_end_time:同步结束时间,如23:59
+* write_mark_file_freq:同步完 N 个文件后,把 storage 的 mark 文件同步到磁盘.如果 mark 文件内容没有变化,则不会同步
+* store_path_count:存放文件时 storage server 支持多个路径(例如磁盘),这里配置存放文件的基路径数目,通常只配一个目录
+* store_path0:配置 store_path 路径,索引从0开始.如store_path1,store_path2...
+* subdir_count_per_path:FastDFS 存储文件时,采用了两级目录,这里配置存放文件的目录个数
+* tracker_server:tracker_server 的列表,要写端口.多个 tracker server ,每个 tracker server 写一行
+* log_level:日志级别
+* run_by_group:同Tracker Server
+* run_by_user:同Tracker  Server
+* allow_hosts:允许连接本 Storage Server 的 IP 地址列表(不包括自带 HTTP 服务的所有连接).可配置多行,每行都会起作用
+* file_distribute_path_mode:文件在 data 目录下分散存储策略
+  * 0:轮流存放.在一个目录下存储设置的文件数后(参数 file_distribute_rotate_count 中设置
+    文件数),使用下一个目录进行存储
+  * 1:随机存储.根据文件名对应的 hash code 来分散存储
+* file_distribute_rotate_count:当 file_distribute_path_mode 配置为 0时,本参数有效.当一个目录下的文件存放的文件数达到本参数值时,后续上传的文件存储到下一个目录中
+* fsync_after_written_bytes:当写入大文件时,每写入 N 个字节,调用一次系统函数 fsync 将内容强行同步到硬盘.0表示从不调用 fsync
+* sync_log_buff_interval:同步或刷新日志信息到硬盘的时间间隔,单位秒
+* sync_binlog_buff_interval:同步 binglog到硬盘的时间间隔,单位秒
+* sync_stat_file_interval:把 storage 的 stat 文件同步到磁盘的时间间隔,单位秒
+* thread_stack_size:线程栈的大小.线程栈越大,一个线程占用的系统资源就越多
+* upload_priority:上传文件的优先级,可以为负数.值越小,优先级越高.这里就和 tracker.conf 中 store_server= 2 时的配置相对应
+* check_file_duplicate:是否检测上传文件已经存在.如果已经存在,则不存在文件内容,建立一个符号链接以节省磁盘空间.这个应用要配合 FastDHT 使用,所以打开前要先安装 FastDHT
+  * 1 或 yes:检测
+  * 0 或 no:不检测
+* file_signature_method:文件去重时,文件内容的签名方式:hash或md5
+* key_namespace:当check_file_duplicate设定为 1 或 yes 时, 在 FastDHT 中的命名空间
+* keep_alive:与 FastDHT servers 的连接方式(是否为持久连接),默认是 0(短连接).可以考虑使用长连接,这要看 FastDHT server 的连接数是否够用
+* use_access_log:是否将文件操作记录到 access log
+* rotate_access_log:是否定期轮转 access log,目前仅支持一天轮转一次
+* access_log_rotate_time:access log 定期轮转的时间点,只有当 rotate_access_log 为 true 时有效
+* rotate_error_log:是否定期轮转 error log,目前仅支持一天轮转一次
+* error_log_rotate_time:error log 定期轮转的时间点,只有当 rotate_error_log 设置为 true 时有效
+* rotate_access_log_size:access log 按文件大小轮转.设置为 0 表示不按文件大小轮转,否则当 access log 达到该大小,就会轮转到新文件中
+* rotate_error_log_size:error log 按文件大小轮转.设置为 0 表示不按文件大小轮转,否则当 error log 达到该大小,就会轮转到新文件中
+* file_sync_skip_invalid_record:文件同步的时候,是否忽略无效的 binlog 记录
+* HTTP相关配置:
+  * http.trunk_size:读取文件内容的 buffer 大小(一次读取的文件内容大小),也就是回复给 HTTP client 的块大小
+  * http.domain_name:storage server 上 web server 域名,通常仅针对单独部署的 web server.这样 URL 中就可以通过域名方式来访问 storage server 上的文件.为空就是 IP 地址的方式
 * subdir_count_per_path:Storage目录数,默认256.FastDFS采用二级目录的做法,目录会在FastDFS初始化时自动创建.存储海量小文件,打开了trunk存储方式的情况下,建议将本参数适当改小.比如设置为32,此时存放文件的目录数为 32 * 32 = 1024.假如trunk文件大小采用缺省值64MB,磁盘空间为2TB,那么每个目录下存放的trunk文件数均值为:2TB / (1024 *64MB) = 32个
-
 * storage磁盘读写线程设置:
   * disk_rw_separated:磁盘读写是否分离,storage磁盘读写线程设置
   * disk_reader_threads:单个磁盘读线程数,storage磁盘读写线程设置
@@ -568,6 +641,8 @@ vi /etc/rc.d/rc.local
   * sync_binlog_buff_interval:将binlog buffer写入磁盘的时间间隔,取值大于0,默认为60s
   * sync_wait_msec:如果没有需要同步的文件,对binlog进行轮询的时间间隔,取值大于0,默认100ms
   * sync_interval:同步完一个文件后,休眠的毫秒数,默认为0
+  * sync_start_time,sync_end_time:允许系统同步的时间段(默认是全天).一般用于避免高峰同步产
+    生一些问题而设定,只需要设置小时和分钟  
 
 
 
