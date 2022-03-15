@@ -6,12 +6,17 @@ import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.HierarchicalBeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
@@ -151,21 +156,21 @@ import org.springframework.web.servlet.DispatcherServlet;
  * -->{@link AbstractRefreshableApplicationContext#createBeanFactory}:创建 {@link BeanFactory}
  * -->{@link AbstractRefreshableApplicationContext#customizeBeanFactory}:对新创建的beanFactory定制化
  * -->{@link AbstractRefreshableApplicationContext#loadBeanDefinitions}:加载bean的定义
- * --->{@link AbstractXmlApplicationContext#loadBeanDefinitions}:加载bean的定义
- * ---->{@link AbstractBeanDefinitionReader#loadBeanDefinitions}:读取XML配置文件,加载bean定义
- * ----->{@link XmlBeanDefinitionReader#loadBeanDefinitions(EncodedResource)}:加载bean定义
- * ----->{@link XmlBeanDefinitionReader#doLoadBeanDefinitions()}:解析XML文件,出则bean定义
+ * --->{@link AbstractXmlApplicationContext#loadBeanDefinitions}:主要加载XML资源,包括从Resource资源对象和资源路径加载
+ * ---->{@link AbstractBeanDefinitionReader#loadBeanDefinitions}:读取XML配置文件,加载 BeanDefinition
+ * ----->{@link XmlBeanDefinitionReader#loadBeanDefinitions(EncodedResource)}:解析XML,加载 BeanDefinition
+ * ----->{@link XmlBeanDefinitionReader#doLoadBeanDefinitions()}:解析XML文件,加载箣竹 BeanDefinition
  * ------>{@link DefaultBeanDefinitionDocumentReader#processBeanDefinition()}:处理XML生成的bean定义
  * ------->{@link BeanDefinitionReaderUtils#registerBeanDefinition()}:注册最后的BeanDefinitionHolder对象
  * -------->{@link DefaultListableBeanFactory#registerBeanDefinition()}:将bean定义放入到beanFactory的Map缓存中
  * 
  * ->{@link AbstractApplicationContext#prepareBeanFactory()}:预处理beanFactory,为在上下文中使用,注册默认environment,
- * 		systemEnvironment,systemProperties
+ * 		systemEnvironment,systemProperties,设置一些公共属性
  * ->{@link AbstractApplicationContext#postProcessBeanFactory()}:由子类实现该方法,Spring不做任何处理
  * ->{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}:获得包扫描时由注解标注的bean class,然后放入上下文.
  * 		激活各种BeanFactory处理器,目前BeanFactory没有注册任何BeanFactoryPostProcessor,此处相当于不做任何处理.
  * 		MyBatis就是在此处注入了#MapperScannerConfigurer,从而进一步解析MyBatis XML
- * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:注册拦截Bean创建的Bean处理器,
+ * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:注册 BeanPostProcessor 后置处理器,
  * 		如果没有BeanProcessors,不做任何处理
  * ->{@link AbstractApplicationContext#initMessageSource()}:在上下文初始化注册MessageaSource的bean,国际化语言处理
  * ->{@link AbstractApplicationContext#initApplicationEventMulticaster()}:在上下文初始化注册applicationEventMulticaster的bean,
@@ -176,9 +181,11 @@ import org.springframework.web.servlet.DispatcherServlet;
  * --->{@link TomcatServletWebServerFactory#getWebServer}:默认由Tomcat创建Web容器
  * ---->{@link SpringServletContainerInitializer}:该类不进行任何实质化的操作,具体的的操作应该交给
  * 			{@link WebApplicationInitializer}的具体实现类完成,比如说 {@link DispatcherServlet},listeners等
+ * 
  * ->{@link AbstractApplicationContext#registerListeners()}:在所有bena中查找listener bean并注册到消息广播中
  * 
- * ->{@link AbstractApplicationContext#finishBeanFactoryInitialization()}:初始化所有剩下的非延迟初始化的单例bean对象实例
+ * ->{@link AbstractApplicationContext#finishBeanFactoryInitialization()}:初始化所有剩下的非延迟初始化的单例bean对象实例,
+ * 		Bean的IOC,DI,AOP都是在该方法中调用
  * -->{@link AbstractBeanFactory#doGetBean()}:执行获得bean实例的方法
  * -->{@link AbstractBeanFactory#getSingleton()}:获得bean实例的单例对象
  * --->{@link DefaultSingletonBeanRegistry#getSingleton()}:获得bean实例的单例对象的实际操作类
@@ -242,6 +249,14 @@ import org.springframework.web.servlet.DispatcherServlet;
  * 		根据环境不同启动加载{@link Configuration}
  * -->{@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,
  * 		在调用bean本身之前委托给指定的拦截器
+ * ->{@link AutowireCapableBeanFactory}:提供工厂的装配功能
+ * ->{@link HierarchicalBeanFactory}:提供父容器的访问功能
+ * -->{@link ConfigurableBeanFactory}:提供factory的配置功能,API等
+ * --->{@link AbstractBeanFactory}:实现了 ConfigurableBeanFactory 大部分功能
+ * ---->{@link AbstractAutowireCapableBeanFactory}:同时实现了 AbstractBeanFactory 和 AutowireCapableBeanFactory
+ * ----->{@link DefaultListableBeanFactory}:基本集成了所有的功能
+ * --->{@link ConfigurableListableBeanFactory}:集大成者,提供解析,修改bean定义,并初始化单例
+ * ->{@link ListableBeanFactory}:提供容器内bean实例的枚举功能,但不会考虑父容器内的实例
  * {@link BeanFactoryPostProcessor}:对{@link BeanDefinition}进行修改,不对实例进行修改
  * {@link Value}:将配置文件中的值或系统值赋值给某个变量.该注解由{@link BeanPostProcessor}的实现类实现,
  * 		所以不能在 BeanPostProcessor,BeanFactoryPostProcessor 的实现类中使用,会造成循环引用,可使用{@link Autowired}代替
