@@ -345,6 +345,16 @@ location /{ # 请求URI
 
 
 
+## 安装
+
+
+
+* 上传或下载 keepalived.tar.gz到 /app/software/目录
+* 解压安装,之后编译:`./configure --prefix=/app/software/keepalived;make && make install`
+* 将 keepalived 安装成 Linux 系统服务
+
+
+
 ## 配置文件
 
 
@@ -369,7 +379,7 @@ vrrp_instance VI_1 {
     virtual_router_id 121
     # 本机真实IP
     #mcast_src_ip 192.168.212.140
-    # 节点优先级,主节点比从节点优先级高,若相同会造成IP抢占,网络不稳
+    # 节点优先级,主节点比从节点优先级高,若相同会造成IP抢占,网络不稳,范围为0-254,master要比backup高
     priority 100
     # 优先级高的设置 nopreempt 解决异常恢复后再次抢占的问题
     nopreempt
@@ -398,7 +408,7 @@ vrrp_instance VI_1 {
 ```shell
 #!/bin/bash
 # chk_nginx.sh
-A=`ps -C nginx - |wc -l`
+A=`ps -C nginx -no-header |wc -l`
 if [ $A -eq 0 ];then
 	# nginx启动地址,根据实际情况修改
     /usr/local/nginx/sbin/nginx
@@ -407,6 +417,44 @@ if [ $A -eq 0 ];then
         killall keepalived
     fi
 fi
+```
+
+
+
+## 发邮件
+
+
+
+```perl
+#!/usr/bin/perl -w
+use Net::SMTP_auth;
+use strict;
+my $mailhost = 'smtp.qq.com';
+my $mailfrom = 'xxx@qq.com';
+my @mailto   = ('xxx@qq.com');
+my $subject  = 'keepalived up on backup';
+my $text = "Keepalived 1";  
+my $user   = 'xxx@qq.com';
+my $passwd = 'XXX';
+&SendMail();
+
+sub SendMail() {
+    my $smtp = Net::SMTP_auth->new( $mailhost, Timeout => 120, Debug => 1 )
+      or die "Error.\n";
+    $smtp->auth( 'LOGIN', $user, $passwd );
+    foreach my $mailto (@mailto) {
+        $smtp->mail($mailfrom);
+        $smtp->to($mailto);
+        $smtp->data();
+        $smtp->datasend("To: $mailto\n");
+        $smtp->datasend("From:$mailfrom\n");
+        $smtp->datasend("Subject: $subject\n");
+        $smtp->datasend("\n");
+        $smtp->datasend("$text\n\n"); 
+        $smtp->dataend();
+    }
+    $smtp->quit;
+}
 ```
 
 
