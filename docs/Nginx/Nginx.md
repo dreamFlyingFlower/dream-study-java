@@ -106,6 +106,7 @@
 * events:核心配置,与内核相关.配置影响nginx服务器或与用户的网络连接,如每个进程的最大连接数等
 
   * worker_connection:每个工作进程的最大连接数,跟系统的最大开启文件描述符相关,可使用ulimit相关命令查看和修改
+  * use epoll:使用epoll事件驱动,因为epoll的性能相比其他事件驱动要好很多,默认使用epoll
 
 * work_processes:工作进程数,默认为1,最好设置成和服务器核心数相同,也可设置成auto
 
@@ -166,7 +167,6 @@
 
 
 * 定义http服务器内容
-
 * include:加载响应类型
 * default_type:默认使用 IO 流实现请求/应答
 * log_format main:在ngxin.conf.default中可以看到该参数,表示日志的输出格式,可以根据默认配置文件中的说明进行配置.main是一个标识,在access_log中要用到.更多参数参考nginx官网
@@ -174,6 +174,7 @@
 * sendfile on/off:是否支持文件传输
 * keepalive_timeout:保持连接的最大时间
 * gzip:是否开启数据压缩
+* server_tokens off:隐藏nginx版本号
 
 
 

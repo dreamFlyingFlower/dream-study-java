@@ -2,6 +2,8 @@
 
 # 配置文件
 
+
+
 * 下载maven压缩文件解压之后的conf/settings.xml
 
 * maven默认远程仓库地址在MAVEN_HOME/lib/maven-model-builder-xxx.jar的pom.xml中
@@ -46,6 +48,8 @@
 
 # 常用命令
 
+
+
 * mvn clean:清理缓存,下载依赖,移除上一次构建生成的文件
 * mvn compile:将当前项目重新进行编译
 * mvn test-compile:编译测试程序
@@ -62,6 +66,8 @@
 
 # 依赖关系
 
+
+
 * 写在pom.xml每个dependency的scope中
 * 假设A为主项目,B依赖A项目
 * compile:默认,A,B都可以使用,可以向下传递.参与编译打包部署
@@ -73,6 +79,9 @@
 
 
 # 创建本地maven模版
+
+
+
 * 控制台到maven项目中: mvn archetype:create-from-project
 * 构建成功后会在本项目的target\generated-sources\archetype目录下生成必要的文件
 * 控制台进入archetype目录下:mvn install.
@@ -81,6 +90,8 @@
 
 
 # 上传JAR到本地仓库
+
+
 
 ```shell
 # DgroupId,DartifactId,Dversion:顾名思义是值依赖里的三项,随意填写
@@ -91,6 +102,8 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
 
 
 # 上传JAR到公有仓库
+
+
 
 * [教程1](https://www.sojson.com/blog/250.html),[教程2](https://www.cnblogs.com/binarylei/p/8628245.html)
 
@@ -135,6 +148,8 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
 
 
 # Nexus私服
+
+
 
 * 使用nexus sonatype搭建私服,官网上下载压缩包,解压后有2个文件夹:一个是nexus的运行程序,配置文件等;另外一个是nexus从远程仓库下载到本地的jar包存放地址
 * 配置nexus的环境变量,需要先修改bin/jsw/conf/wrapper.confg文件的wrapper.java.command的值为JDK的绝对路径,需要到bin这一级,之后在控制台使用命令:nexus install安装nexus
@@ -239,4 +254,16 @@ mvn install:install-file -DgroupId=com.wy -DartifactId=java-utils -Dversion=0.1 
 </activeProfiles>
 ```
 
-* mvn deploy:将项目发布到私服
+* mvn deploy:将项目发布到私服,需要在项目的pom.xml中添加如下
+
+  ```xml
+  <distributionManagement>  
+      <repository>  
+          <id>nexus-releases</id>  
+          <name>maven-releases</name>  
+          <url>http://192.168.0.150:8081/repository/maven-releases/</url>  
+      </repository>  
+  </distributionManagement>
+  ```
+
+* 手动上传:`mvn deploy:deploy-file -DgroupId=com.alibaba -DartifactId=dubbo -Dversion=2.8.4 -Dpackaging=jar -Dfile=/app/software/dubbo-2.8.4.jar -Durl=http://192.168.0.150:8081/repository/maven-releases/ -DrepositoryId=nexus-releases`
