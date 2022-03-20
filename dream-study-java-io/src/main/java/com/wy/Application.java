@@ -45,6 +45,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@link ServerSocketChannel}:监听新连接的TCP请求,对每一个新的连接新建一个SocketChannel,用在Socket服务端
  * </pre>
  * 
+ * 网络七层模型:
+ * 
+ * <pre>
+ * 物理层:中继器,集线器,双绞线等网络传输设备
+ * 数据链路层:网桥,以太网交换机,网卡等物理网络连接设备
+ * 网络层:路由器,三层交换机等网络设备
+ * 传输层:四层交换机,四层路由器等设备
+ * 会话层:和表示层,应用层都可以统称为应用层.
+ * 表示层:数据展示
+ * 应用层:数据展示
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2020-09-29 10:47:14
  * @git {@link https://github.com/dreamFlyingFlower}

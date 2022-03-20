@@ -188,7 +188,29 @@ import org.springframework.web.servlet.DispatcherServlet;
  * 		Bean的IOC,DI,AOP都是在该方法中调用
  * -->{@link AbstractBeanFactory#doGetBean()}:执行获得bean实例的方法
  * -->{@link AbstractBeanFactory#getSingleton()}:获得bean实例的单例对象
- * --->{@link DefaultSingletonBeanRegistry#getSingleton()}:获得bean实例的单例对象的实际操作类
+ * --->{@link DefaultSingletonBeanRegistry#getSingleton()}:获得bean实例的单例对象的实际操作类,同时解决循环依赖的问题
+ * <code>
+ * 先从一级缓存中查看是否存在bean对象
+ *	Object singletonObject = this.singletonObjects.get(beanName);
+ *	如果不存在且该bean正在创建中,则去查看二级缓存
+ *	if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+ *		查看二级缓存,如果不存在且允许循环依赖,则查看三级缓存
+ *		singletonObject = this.earlySingletonObjects.get(beanName);
+ *		if (singletonObject == null && allowEarlyReference) {
+ *			synchronized (this.singletonObjects) {
+ *			// Consistent creation of early reference within full singleton lock
+ *			singletonObject = this.singletonObjects.get(beanName);
+ *			if (singletonObject == null) {
+ *				singletonObject = this.earlySingletonObjects.get(beanName);
+ *				if (singletonObject == null) {
+ *					查看三级缓存,如果三级缓存中存在,就把依赖放入二级缓存中
+ *					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+ *					if (singletonFactory != null) {
+ *						singletonObject = singletonFactory.getObject();
+ *						this.earlySingletonObjects.put(beanName, singletonObject);
+ *						this.singletonFactories.remove(beanName);
+ *					}
+ * </code>
  * --->{@link DefaultSingletonBeanRegistry#addSingleton()}:将单例bean的实例对象放入Map中
  * -->{@link AbstractBeanFactory#createBean()}:创建bean实例
  * --->{@link AbstractAutowireCapableBeanFactory#createBean}:创建bean实例默认实现类
@@ -263,9 +285,9 @@ import org.springframework.web.servlet.DispatcherServlet;
  * </pre>
  * 
  * {@link SpringServletContainerInitializer}:该类负责对容器启动时相关组件进行初始化,当前类只是完成一些验证和组件装配,
- * 		具体初始化由类上注解{@link HandlesTypes}的值决定,实际上就是{@link WebApplicationInitializer}的实现类.
+ * 具体初始化由类上注解{@link HandlesTypes}的值决定,实际上就是{@link WebApplicationInitializer}的实现类.
  * #TomcatStarter:该类并非通过SPI机制实例化,因为该类非public,也无无参构造,本质上是通过new实例化的.
- * 		该类和{@link SpringServletContainerInitializer}类似,主要初始化是通过{@link ServletContextInitializer}完成
+ * 该类和{@link SpringServletContainerInitializer}类似,主要初始化是通过{@link ServletContextInitializer}完成
  * 
  * Jar启动原理:
  * 

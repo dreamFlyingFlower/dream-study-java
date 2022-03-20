@@ -1,5 +1,12 @@
 package com.wy.aop;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.ConstructorInterceptor;
+import org.aopalliance.intercept.Interceptor;
+import org.aopalliance.intercept.Invocation;
+import org.aopalliance.intercept.Joinpoint;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -9,10 +16,28 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.IntroductionAdvisor;
+import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory;
+import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
+import org.springframework.aop.aspectj.annotation.BeanFactoryAspectJAdvisorsBuilder;
+import org.springframework.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactory;
+import org.springframework.aop.config.AopConfigUtils;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.aop.framework.AdvisorChainFactory;
+import org.springframework.aop.framework.AopProxy;
+import org.springframework.aop.framework.AopProxyFactory;
 import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.aop.framework.ProxyConfig;
+import org.springframework.aop.framework.ProxyCreatorSupport;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
-import org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration.EnableTransactionManagementConfiguration.CglibAutoProxyConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration.EnableTransactionManagementConfiguration.JdkDynamicAutoProxyConfiguration;
@@ -31,17 +56,75 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * AOP原理:
  * 
  * <pre>
+ * {@link AbstractAutowireCapableBeanFactory#initializeBean}:主要的创建代理方法
+ * ->{@link AbstractAutowireCapableBeanFactory#applyBeanPostProcessorsBeforeInitialization}:创建代理对象
+ * -->{@link AbstractAutowireCapableBeanFactory#doCreateBean}:最终在该方法中进行初始化
+ * {@link AopProxyFactory}:AopProxy 代理工厂类,用于生产代理对象 AopProxy
+ * {@link AopProxy}:代表一个AopProxy 代理对象,可以通过该对象构造代理对象实例
+ * {@link Advised}:代表被 Advice 增强的对象,包括添加advisor的方法,添加advice等的方法
+ * {@link ProxyConfig}:一个代理对象的配置信息,包括代理的各种属性,如基于接口还是基于类构造代理
+ * {@link ProxyCreatorSupport}:AdvisedSupport 的子类,创建代理对象的支持类,内部包含 AopProxyFacory 工厂成员,可直接使用工厂成员创建 Proxy
+ * ->{@link ProxyFactory}:用于生成代理对象实例的工厂类
+ * {@link Advisor}:代表一个增强器提供者的对象,内部包含getAdvice()获取增强器
+ * {@link AdvisorChainFactory}:获取增强器链的工厂接口,提供方法返回所有增强器
+ * {@link org.springframework.aop.Pointcut}:切入点,用于匹配类和方法,满足切入点的条件是advice
+ * {@link AopConfigUtils}:AOP主要实现类,注入AOP相关切面等bean
+ * ->{@link AopConfigUtils#registerAspectJAnnotationAutoProxyCreatorIfNecessary}:根据注解定义的切点来自动代理相匹配的bean
+ * -->{@link AnnotationAwareAspectJAutoProxyCreator}:注册相关的自动代理类
+ * 
+ * ->{@link AopConfigUtils#registerOrEscalateApcAsRequired}:根据注解定义的切点来自动代理相匹配的bean
+ * <code>RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);</code>
+ * -->动态代理的{@link BeanPostProcessor}以BeanDefinition的形式注册到BeanDefinitionMaps中
+ * <code>registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);</code>
+ * -->{@link DefaultListableBeanFactory#registerBeanDefinition}:AnnotationAwareAspectJAutoProxyCreator 将会被注册到 BeanDefinitionMaps 中
+ * 
  * {@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,在调用bean本身之前委托给指定的拦截器
  * ->{@link AbstractAutoProxyCreator#postProcessAfterInitialization}:对初始化之后的bean进行AOP代理
  * -->{@link AbstractAutoProxyCreator#wrapIfNecessary}:判断Class是否需要代理,若需要,返回代理类以及相关切面
- * --->{@link BeanNameAutoProxyCreator#getAdvicesAndAdvisorsForBean}:根据beanName判断是否需要代理
+ * --->{@link AbstractAdvisorAutoProxyCreator#getAdvicesAndAdvisorsForBean}:根据beanName判断是否需要代理
+ * ---->{@link AbstractAdvisorAutoProxyCreator#findEligibleAdvisors}:找到项目中所有被{@link Aspect}修饰的类,进行排序之后返回
+ * ------>{@link AnnotationAwareAspectJAutoProxyCreator#findCandidateAdvisors}:获取所有的切面,获取 Aspect 的实现
+ * ------->{@link AbstractAdvisorAutoProxyCreator#findCandidateAdvisors}:找到XML配置文件声明的AOP增强
+ * -------->{@link BeanFactoryAspectJAdvisorsBuilder#findCandidateAdvisors}:获取所有通过 Aspect 修饰的增强
+ * --------->{@link ReflectiveAspectJAdvisorFactory#getAdvisors}:找到需要切面的类,获得{@link Before}, {@link After}等注解
+ * --------->{@link ReflectiveAspectJAdvisorFactory#getAdvisorMethods}:循环找被 {@link Pointcut}修饰的方法
+ * --------->{@link ReflectiveAspectJAdvisorFactory#getAdvisor}:创建真正的切面类并返回
+ * ---------->{@link ReflectiveAspectJAdvisorFactory#getPointcut}:获取pointcut对象进行解析,将解析出来的pointcut表达式设置到属性中
+ * ----------->{@link AbstractAspectJAdvisorFactory#findAspectJAnnotationOnMethod}:找到Pointcut,Around,Before等注解
+ * ---------> #InstantiationModelAwarePointcutAdvisorImpl:创建真正的切面类并返回
+ * 
+ * ----->{@link AbstractAdvisorAutoProxyCreator#findAdvisorsThatCanApply}:模糊匹配当前类是否作用的pointcut表示中
+ * 
  * ---->{@link AbstractAutoProxyCreator#createProxy}:将通用拦截,特殊拦截以及相关参数放入 ProxyFactory 中
  * ----->{@link ProxyFactory#getProxy()}:根据Class类型判断使用JDK动态代理或CGLIB代理,返回最终的代理对象
  * ------>{@link #JdkDynamicAopProxy#getProxy}:使用JDK动态代理生成代理类,非public
  * ------->{@link AopProxyUtils#completeProxiedInterfaces}:判断剔除不需要的代理类,返回所有需要代理的接口
+ * 
+ * ------>{@link #JdkDynamicAopProxy#invoke}:真实方法被调用时调用的代理方法
+ * ------->{@link AopUtils#invokeJoinpointUsingReflection}:Advised接口或父类接口中定义的方法,直接反射调用,不应用通知
+ * <code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器</code>
+ * ------->{@link AdvisedSupport}:对 Advised 的构建提供支持,Advised的实现类以及ProxyConfig的子类
+ * -------->{@link AdvisedSupport#getInterceptorsAndDynamicInterceptionAdvice}:获得可以应用到被拦截方法上的Interceptor列表
+ * --------->{@link AdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:获得Interceptor调用链,并将结果缓存.
+ * 		从提供的配置实例config中获取advisor列表,遍历处理这些advisor,如果是{@link IntroductionAdvisor},
+ * 		则判断此Adcisor能否应用到目标targetClass.如果是 PointcutAdvisor,则判断此 Advisor 能否应用到目标方法上.
+ * 		将满足条阿金的Advisor通过AdvisorAdaptor转换成Interceptor列表返回
+ * 
  * ------>{@link #CglibAopProxy#getProxy}:使用CGLIB动态代理生成代理类,非public
  * ------->{@link #CglibAopProxy.DynamicAdvisedInterceptor#intercept}:AOP最终的代理对象的代理方法
- * 		this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器
+ * <code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器</code>
+ * </pre>
+ * 
+ * 主要接口:
+ * 
+ * <pre>
+ * {@link Advice}:增强标记接口
+ * ->{@link Interceptor}:拦截器, Advice 子接口,标记拦截器,拦截器也是增强器的一种
+ * ->{@link MethodInterceptor}:方法拦截器, {@link Interceptor}子接口,拦截方法并处理
+ * ->{@link ConstructorInterceptor}:构造器拦截器, {@link Interceptor}子接口,拦截构造器并处理
+ * {@link Joinpoint}:连接点.在拦截器中使用,封装了原方法调用的相关信息.如参数,对象信息以及直接调用原方法的proceed()
+ * {@link Invocation}:JoinPoint 子类,添加了获取调用参数方法
+ * {@link MethodInvocation}:Invocation 的子类,包含了获取调用方法的方法
  * </pre>
  *
  * @author 飞花梦影
@@ -123,6 +206,5 @@ public class MyAspect {
 	 */
 	@AfterThrowing(pointcut = "aspect()", throwing = "throwable")
 	public void exception(JoinPoint joinPoint, Throwable throwable) {
-
 	}
 }

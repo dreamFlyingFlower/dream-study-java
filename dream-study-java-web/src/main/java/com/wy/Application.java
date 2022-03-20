@@ -31,6 +31,7 @@ import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConve
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
 import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -40,10 +41,13 @@ import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.FrameworkServlet;
+import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.HttpServletBean;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
 import org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter;
@@ -120,6 +124,22 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * {@link AbstractHttpSessionApplicationInitializer}:可以自定义Session操作,但比较繁琐,可使用Spring自带的配置
  * </pre>
  * 
+ * SpringMVC执行流程
+ * 
+ * <pre>
+ * 1.用户发送请求至前端控制器 {@link DispatcherServlet}
+ * 2. {@link DispatcherServlet}收到请求调用 {@link HandlerMapping}处理器映射器
+ * 3.处理器映射器找到具体的处理器(可以是XML配置,注解),生成处理器对象以及处理器拦截器一并返回给 {@link DispatcherServlet}
+ * 4. {@link DispatcherServlet}调用 {@link HandlerAdapter} 处理器适配器
+ * 5. {@link HandlerAdapter}经过适配调用具体的处理器(Controller)
+ * 6. {@link Controller}:执行完成返回 {@link ModelAndView}
+ * 7. {@link HandlerAdapter}将Controller执行结果 ModelAndView 返回给 {@link DispatcherServlet}
+ * 8. {@link DispatcherServlet}将ModelAndView 传给 {@link ViewResolver} 视图解析器
+ * 9. {@link ViewResolver}解析后返回具体的 View
+ * 10. {@link DispatcherServlet}根据View进行渲染视图
+ * 11. {@link DispatcherServlet}响应用户
+ * </pre>
+ * 
  * {@link DispatcherServletAutoConfiguration}:引入{@link DispatcherServlet},引入文件视图等
  * 
  * <pre>
@@ -138,9 +158,11 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * {@link DispatcherServlet#initThemeResolver}:初始化主题视图解析器
  * {@link DispatcherServlet#initHandlerMappings}:初始化请求URL Map,从上下文获得所有{@link HandlerMapping}子类并排序.
  * 		将请求映射到处理器,返回一个{@link HandlerExecutionChain},它包括一个处理器,多个{@link HandlerInterceptor}拦截器
+ * ->{@link HandlerMapping}:通过扩展处理器映射器实现不同的映射凡是,如BeanName,注解等
  * ->{@link BeanNameUrlHandlerMapping}:通过定义的 beanName 进行查找要请求的Controller
  * ->{@link RequestMappingHandlerMapping}:通过注解{@link RequestMapping}来查找对应的Controller
  * {@link DispatcherServlet#initHandlerAdapters}:初始化适配器,以便支持多种类型的处理器( HandlerExecutionChain 中的处理器)
+ * ->{@link HandlerAdapter}:通过扩展处理器适配器,支持更多类型的处理器
  * {@link DispatcherServlet#initHandlerExceptionResolvers}:初始化异常视图,解析执行过程中的异常
  * {@link DispatcherServlet#initRequestToViewNameTranslator}:将请求到视图之间进行转换
  * {@link DispatcherServlet#initViewResolvers}:初始化视图解析器,如{@link BeanNameViewResolver},{@link FreeMarkerViewResolver}
