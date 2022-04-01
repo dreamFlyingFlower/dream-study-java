@@ -338,7 +338,7 @@ public class RedisUtils {
 			} finally {
 				// 利用redis的脚本功能执行删除的操作,需要原子环境,防止锁刚过期,删除到其他人的锁.0删除失败,1删除成功
 				stringRedisTemplate.execute(new DefaultRedisScript<Long>(SCRIPT_COMPARE_AND_DELETE, Long.class),
-						Arrays.asList(key), uuid);
+						Arrays.asList(RedisKey.REDIS_KEY_LOCK.getKey(key)), uuid);
 			}
 		} else {
 			try {
