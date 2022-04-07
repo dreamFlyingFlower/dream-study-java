@@ -14,6 +14,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -29,12 +30,14 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 /**
  * 一个项目中只能有一个类继承{@link WebMvcConfigurationSupport},只会扫描继承该类的第一类中的方法
+ * 
+ * Filter,Intercpetor,Listener等初始化,最好实现WebMvcConfigurer而不继承{@link WebMvcConfigurationSupport},有可能会改变json序列化方式
  *
  * @author 飞花梦影
  * @date 2022-01-17 15:43:56
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class GlobalWebConfig extends WebMvcConfigurationSupport {
+public class GlobalWebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
@@ -58,7 +61,7 @@ public class GlobalWebConfig extends WebMvcConfigurationSupport {
 	 * 自动序列化{@link LocalDate}, {@link LocalDateTime}
 	 */
 	@Override
-	protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
 		ObjectMapper mapper = new ObjectMapper();
 		// 解决Spring Boot LocalDateTime格式处理
