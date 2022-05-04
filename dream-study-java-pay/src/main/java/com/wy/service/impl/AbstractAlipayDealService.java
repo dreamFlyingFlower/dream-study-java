@@ -1,4 +1,4 @@
-package com.wy.service.impl.alipay;
+package com.wy.service.impl;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +25,7 @@ import com.wy.response.alipay.AlipayDealPayResult;
 import com.wy.response.alipay.AlipayDealPrecreateResult;
 import com.wy.response.alipay.AlipayDealQueryResult;
 import com.wy.response.alipay.AlipayDealRefundResult;
-import com.wy.service.alipay.AlipayDealService;
+import com.wy.service.AlipayDealService;
 import com.wy.thread.ThreadTool;
 import com.wy.util.SpringContextUtils;
 

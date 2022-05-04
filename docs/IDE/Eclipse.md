@@ -16,12 +16,24 @@
 
 ### Editors
 
+
+
 #### Text Editors
+
+
 
 ##### Spelling
 
 * 不勾选
   * Enable spell checking
+
+
+
+## Keys
+
+
+
+* Ctrl+`:关闭项目
 
 
 
@@ -46,9 +58,9 @@
 ```java
 /**
  * 
- *
  * @author 飞花梦影
  * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
+ * @git {@link https://gitee.com/dreamFlyingFlower}
  */
 ```
 
@@ -59,6 +71,7 @@
  * 
  * @author 飞花梦影
  * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
+ * @git {@link https://gitee.com/dreamFlyingFlower}
  */
 ```
 
@@ -73,9 +86,9 @@ ${filecomment}
 ${package_declaration}
 /**
  * 
- *
  * @author 飞花梦影
  * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
+ * @git {@link https://gitee.com/dreamFlyingFlower}
  */
 ${typecomment}
 ${type_declaration}
@@ -114,34 +127,34 @@ ${type_declaration}
 
 #### Templates
 
-* priFinalString,Java,new a final String
+* pfsstr,Java,new a final String
 
 ```java
 private final static ${String} ${NAME} = ${null};${cursor}
 ```
 
-* priFinalHashmap,Java,new a final HashMap
+* pfsmap,Java,new a final HashMap
 
 ```java
 private final static Map<${String},${Object}> ${HASH_MAP} = new HashMap<>();${cursor}
 ${imp:import(java.util.HashMap,java.util.Map)}
 ```
 
-* priFinalConmap,Java,new a final ConcurrentHashMap
+* pfsconmap,Java,new a final ConcurrentHashMap
 
 ```java
 private final static Map<${String},${Object}> ${CONCURRENT_HASH_MAP} = new ConcurrentHashMap<>();${cursor}
 ${imp:import(java.util.concurrent.ConcurrentHashMap,java.util.Map)}
 ```
 
-* priFinalList,Java,new a final ArrayList
+* pfslist,Java,new a final ArrayList
 
 ```java
 private final static List<${String}> ${ARRAY_LIST} = new ArrayList<>();${cursor}
 ${imp:import(java.util.ArrayList,java.util.List)}
 ```
 
-* priFinalListMap,Java,new a final List<Map<String,Object>>
+* pfslistmap,Java,new a final List<Map<String,Object>>
 
 ```java
 private final static List<Map<${String},${Object}>> ${LIST_MAP} = new ArrayList<>();${cursor}
@@ -173,7 +186,7 @@ private List<${String}> ${NAME};${cursor}
 ${imp:import(java.util.List)}
 ```
 
-* pmap,Java,new a private Map
+* pmap,Java,new a private Map<String,Object>
 
 ```java
 private Map<${String},${Object}> ${map};${cursor}
@@ -208,6 +221,19 @@ List<Map<${String},${Object}>> ${listMap} = new ArrayList<>();${cursor}
 ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 ```
 
+* apic,Java,add a @Api to a class controller
+
+```java
+/**
+ * ${comment} API
+ * 
+ * @auther 飞花梦影
+ * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
+ * @git {@link https://gitee.com/dreamFlyingFlower}
+ */
+@Api(tags = "${comment} API")${imp:import(io.swagger.annotations.Api)}
+```
+
 * apim,Java,add a @ApiModel to a class entity
 
 ```java
@@ -216,7 +242,7 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
  * 
  * @auther 飞花梦影
  * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
- * @git {@link https://github.com/dreamFlyingFlower}
+ * @git {@link https://gitee.com/dreamFlyingFlower}
  */
 @ApiModel(description = "${comment}")${imp:import(io.swagger.annotations.ApiModel)}
 ```
@@ -228,6 +254,15 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
  * ${comment}
  */
 @ApiModelProperty("${comment}")${cursor}${imp:import(io.swagger.annotations.ApiModelProperty)}
+```
+
+* apio,Java,add a @ApiOperation to a controller method
+
+```java
+/**
+ * ${comment}
+ */
+@ApiOperation(value = "${comment}")${imp:import(io.swagger.annotations.ApiOperation)}
 ```
 
 * lomAll,Java,add lombok all annotation
@@ -274,14 +309,37 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 
 ## Maven
 
-* 勾选
-  * Do not automatically...
+* Do not automatically...:勾选
+* Download Artifact sources:不勾选
+
+
+
+### Installations
+
+* add->选择自己的maven插件
 
 
 
 ### UserSettings
 
 * 选择自己的Maven插件,使用自己的Maven配置文件,修改默认的仓库地址,不要放C盘
+
+
+
+## XML
+
+
+
+### XML Files
+
+
+
+#### Editor
+
+
+
+* Line Width:120
+* Split multiple attributes each on anew line:不勾选
 
 
 
@@ -320,9 +378,9 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 
 * 若出现错处,可在eclipse.ini中添加如下代码
 
-  ```
-  --illegal-access=warn
-  --add-opens java.base/java.lang=ALL-UNNAMED
+  ```ini
+  --illegal-access=permit
+  --add-opens=java.base/java.lang=ALL-UNNAMED
   --add-exports=java.base/sun.nio.ch=ALL-UNNAMED 
   --add-opens=java.base/java.lang.reflect=ALL-UNNAMED 
   --add-opens=java.base/java.io=ALL-UNNAMED 

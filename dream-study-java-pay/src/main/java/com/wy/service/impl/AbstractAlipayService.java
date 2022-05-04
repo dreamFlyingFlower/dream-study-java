@@ -1,4 +1,4 @@
-package com.wy.service.impl.alipay;
+package com.wy.service.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;

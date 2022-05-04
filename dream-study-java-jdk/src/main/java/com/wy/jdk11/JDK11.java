@@ -1,5 +1,6 @@
 package com.wy.jdk11;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +26,7 @@ import java.nio.file.Path;
  */
 public class JDK11 {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		String str = "\t    \n   ";
 		System.out.println(str.isBlank());
 		// strip()去除空格以及制表符等,同时会去除中文格式的空格等,但是trim()只能去除英文格式的空格

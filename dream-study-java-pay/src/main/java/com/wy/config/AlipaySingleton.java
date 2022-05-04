@@ -4,8 +4,8 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.wy.common.Constants;
 import com.wy.properties.AlipayProperties;
-import com.wy.service.alipay.AlipayDealService;
-import com.wy.service.impl.alipay.AlipayDealServiceImpl;
+import com.wy.service.AlipayDealService;
+import com.wy.service.impl.AlipayDealServiceImpl;
 import com.wy.util.SpringContextUtils;
 
 /**

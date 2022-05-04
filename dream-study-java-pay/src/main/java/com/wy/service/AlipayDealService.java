@@ -1,4 +1,4 @@
-package com.wy.service.alipay;
+package com.wy.service;
 
 import com.wy.request.alipay.AlipayDealPayRequest;
 import com.wy.request.alipay.AlipayDealPrecreateRequest;
