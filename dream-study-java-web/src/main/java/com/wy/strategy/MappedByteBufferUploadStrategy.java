@@ -7,12 +7,10 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.wy.model.FileUploadRequest;
 
-import ch.qos.logback.core.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,38 +23,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MappedByteBufferUploadStrategy extends SliceUploadTemplate {
 
-	@Autowired
-	private FilePathUtil filePathUtil;
-
 	@Value("${upload.chunkSize}")
 	private long defaultChunkSize;
 
 	@Override
 	public boolean upload(FileUploadRequest param) {
-		RandomAccessFile tempRaf = null;
-		FileChannel fileChannel = null;
 		MappedByteBuffer mappedByteBuffer = null;
-		try {
-			String uploadDirPath = filePathUtil.getPath(param);
-			File tmpFile = super.createTmpFile(param);
-			tempRaf = new RandomAccessFile(tmpFile, "rw");
-			fileChannel = tempRaf.getChannel();
-
+		File tmpFile = super.createTmpFile(param);
+		try (RandomAccessFile tempRaf = new RandomAccessFile(tmpFile, "rw");) {
+			String uploadDirPath = param.getPath();
 			long chunkSize =
-					Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
+			        Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
 			// 写入该分片数据
-			long offset = chunkSize * param.getChunk();
+			long offset = chunkSize * param.getChunkIndex();
 			byte[] fileData = param.getFile().getBytes();
-			mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, offset, fileData.length);
+			mappedByteBuffer = tempRaf.getChannel().map(FileChannel.MapMode.READ_WRITE, offset, fileData.length);
 			mappedByteBuffer.put(fileData);
-			boolean isOk = super.checkAndSetUploadProgress(param, uploadDirPath);
-			return isOk;
+			return super.checkAndSetUploadProgress(param, uploadDirPath);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 		} finally {
-			FileUtil.freedMappedByteBuffer(mappedByteBuffer);
-			FileUtil.close(fileChannel);
-			FileUtil.close(tempRaf);
+			mappedByteBuffer.clear();
 		}
 		return false;
 	}

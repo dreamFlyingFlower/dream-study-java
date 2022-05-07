@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.wy.model.FileUploadRequest;
@@ -21,9 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RandomAccessUploadStrategy extends SliceUploadTemplate {
 
-	@Autowired
-	private FilePathUtil filePathUtil;
-
 	@Value("${upload.chunkSize}")
 	private long defaultChunkSize;
 
@@ -31,11 +27,11 @@ public class RandomAccessUploadStrategy extends SliceUploadTemplate {
 	public boolean upload(FileUploadRequest param) {
 		File tmpFile = super.createTmpFile(param);
 		try (RandomAccessFile accessTmpFile = new RandomAccessFile(tmpFile, "rw");) {
-			String uploadDirPath = filePathUtil.getPath(param);
+			String uploadDirPath = param.getPath();
 			// 这个必须与前端设定的值一致
 			long chunkSize =
-					Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
-			long offset = chunkSize * param.getChunk();
+			        Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
+			long offset = chunkSize * param.getChunkIndex();
 			// 定位到该分片的偏移量
 			accessTmpFile.seek(offset);
 			// 写入该分片数据

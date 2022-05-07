@@ -22,7 +22,7 @@ public class FileUploadRequest {
 
 	private Long chunkSize;
 
-	private Integer chunk;
+	private Integer chunkIndex;
 
 	private Integer chunks;
 

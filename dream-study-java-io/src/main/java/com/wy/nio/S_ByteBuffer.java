@@ -7,12 +7,15 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.ShortBuffer;
 import java.nio.channels.Channels;
 
 /**
  * NIO缓冲区,主要类有{@link Buffer},{@link ByteBuffer},{@link Channels},{@link CharBuffer},
  * {@link ShortBuffer},{@link IntBuffer},{@link LongBuffer},{@link FloatBuffer},{@link DoubleBuffer}
+ * 
+ * {@link MappedByteBuffer}:使用直接内存,即堆外内存.基本类型Buffer底层大部分使用#DirectByteBuffer,MappedByteBuffer等,使用完要释放
  * 
  * 缓冲区的核心方法有2个:put()->写入数据,get()->读数据
  * 
@@ -45,5 +48,7 @@ public class S_ByteBuffer {
 			// 获取缓冲区中可以操作的数量
 			System.out.println(buf.remaining());
 		}
+		// 释放资源
+		buf.clear();
 	}
 }

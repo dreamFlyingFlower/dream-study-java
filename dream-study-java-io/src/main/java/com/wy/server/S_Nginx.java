@@ -1,12 +1,13 @@
 package com.wy.server;
 
 /**
- * @apiNote nginx学习使用,安装使用见文档.
- * @apiNote nginx在处理静态页面的效率和高并发上要比tomcat好,
- *          所以一般是nginx+tomcat来运行前后端程序
- * @instruction 实现负载均衡:可以再配置文件中添加upstream,多server,多日志配置,shell对日志分割
- * @author ParadiseWY
- * @date 2019年5月29日 下午5:05:49
+ * Nginx
+ * 
+ * 实现负载均衡:可以再配置文件中添加upstream,多server,多日志配置,shell对日志分割
+ * 
+ * @author 飞花梦影
+ * @date 2022-05-07 16:37:28
+ * @git {@link https://github.com/mygodness100}
  */
 public class S_Nginx {
 

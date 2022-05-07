@@ -7,13 +7,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
-
+import com.wy.digest.DigestTool;
+import com.wy.enums.DateEnum;
 import com.wy.io.file.FileNameTool;
+import com.wy.io.file.FileTool;
 import com.wy.model.FileUpload;
 import com.wy.model.FileUploadRequest;
+import com.wy.util.DateTimeTool;
 
-import ch.qos.logback.core.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -24,15 +25,20 @@ import lombok.extern.slf4j.Slf4j;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Slf4j
-public abstract class SliceUploadTemplate {
+public abstract class SliceUploadTemplate implements SliceFileTemplate {
 
 	public abstract boolean upload(FileUploadRequest param);
 
+	protected String generateUploadPath(FileUploadRequest param) {
+		String concatFileName = FileNameTool.concatFileName(param.getFile().getOriginalFilename(), DigestTool.uuid());
+		return "/app/tmp/file/" + DateTimeTool.formatDate(DateEnum.DATE_NONE.getPattern()) + File.separator
+		        + concatFileName;
+	}
+
 	protected File createTmpFile(FileUploadRequest param) {
-		FilePathUtil filePathUtil = SpringContextHolder.getBean(FilePathUtil.class);
-		param.setPath(FileUtil.withoutHeadAndTailDiagonal(param.getPath()));
+		param.setPath(generateUploadPath(param));
 		String fileName = param.getFile().getOriginalFilename();
-		String uploadDirPath = filePathUtil.getPath(param);
+		String uploadDirPath = param.getPath();
 		String tempFileName = fileName + "_tmp";
 		File tmpDir = new File(uploadDirPath);
 		File tmpFile = new File(uploadDirPath, tempFileName);
@@ -50,10 +56,15 @@ public abstract class SliceUploadTemplate {
 			FileUpload fileUploadDTO = this.saveAndFileUploadDTO(param.getFile().getOriginalFilename(), tmpFile);
 			return fileUploadDTO;
 		}
-		String md5 = FileMD5Util.getFileMD5(param.getFile());
-		Map<Integer, String> map = new HashMap<>();
-		map.put(param.getChunk(), md5);
-		return FileUpload.builder().chunkMd5Info(map).build();
+		try {
+			String md5 = FileTool.getFileMd5(param.getFile().getInputStream());
+			Map<Integer, String> map = new HashMap<>();
+			map.put(param.getChunkIndex(), md5);
+			return FileUpload.builder().chunkMd5Info(map).build();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -63,30 +74,23 @@ public abstract class SliceUploadTemplate {
 		String fileName = param.getFile().getOriginalFilename();
 		File confFile = new File(uploadDirPath, fileName + ".conf");
 		byte isComplete = 0;
-		RandomAccessFile accessConfFile = null;
-		try {
-			accessConfFile = new RandomAccessFile(confFile, "rw");
+		try (RandomAccessFile accessConfFile = new RandomAccessFile(confFile, "rw");) {
 			// 把该分段标记为 true 表示完成
-			System.out.println("set part " + param.getChunk() + " complete");
-			// 创建conf文件文件长度为总分片数，每上传一个分块即向conf文件中写入一个127，那么没上传的位置就是默认0,已上传的就是Byte.MAX_VALUE
-			// 127
+			System.out.println("set part " + param.getChunkIndex() + " complete");
+			// 创建conf文件,文件长度为总分片数,每上传一个分块即向conf文件中写入一个127,没上传的位置默认0,已上传的就是Byte.MAX_VALUE
 			accessConfFile.setLength(param.getChunks());
-			accessConfFile.seek(param.getChunk());
+			accessConfFile.seek(param.getChunkIndex());
 			accessConfFile.write(Byte.MAX_VALUE);
-
 			// completeList 检查是否全部完成,如果数组里是否全部都是127(全部分片都成功上传)
-			byte[] completeList = FileUtils.readFileToByteArray(confFile);
+			byte[] completeList = FileTool.readToByte(confFile);
 			isComplete = Byte.MAX_VALUE;
 			for (int i = 0; i < completeList.length && isComplete == Byte.MAX_VALUE; i++) {
 				// 与运算, 如果有部分没有完成则 isComplete 不是 Byte.MAX_VALUE
 				isComplete = (byte) (isComplete & completeList[i]);
 				System.out.println("check part " + i + " complete?:" + completeList[i]);
 			}
-
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
-		} finally {
-			FileUtil.close(accessConfFile);
 		}
 		return setUploadProgress2Redis(param, uploadDirPath, fileName, confFile, isComplete);
 	}
@@ -95,18 +99,18 @@ public abstract class SliceUploadTemplate {
 	 * 把上传进度信息存进redis
 	 */
 	private boolean setUploadProgress2Redis(FileUploadRequest param, String uploadDirPath, String fileName,
-			File confFile, byte isComplete) {
-		RedisUtil redisUtil = SpringContextHolder.getBean(RedisUtil.class);
+	        File confFile, byte isComplete) {
+		RedisUtil redisUtil = SpringContextHolder.getBean(RedisUtils.class);
 		if (isComplete == Byte.MAX_VALUE) {
-			redisUtil.hset(FileConstant.FILE_UPLOAD_STATUS, param.getMd5(), "true");
-			redisUtil.del(FileConstant.FILE_MD5_KEY + param.getMd5());
+			redisUtil.hset(FileConsts.FILE_UPLOAD_STATUS, param.getMd5(), "true");
+			redisUtil.del(FileConsts.FILE_MD5_KEY + param.getMd5());
 			confFile.delete();
 			return true;
 		} else {
-			if (!redisUtil.hHasKey(FileConstant.FILE_UPLOAD_STATUS, param.getMd5())) {
-				redisUtil.hset(FileConstant.FILE_UPLOAD_STATUS, param.getMd5(), "false");
-				redisUtil.set(FileConstant.FILE_MD5_KEY + param.getMd5(),
-						uploadDirPath + FileConstant.FILE_SEPARATORCHAR + fileName + ".conf");
+			if (!redisUtil.hHasKey(FileConsts.FILE_UPLOAD_STATUS, param.getMd5())) {
+				redisUtil.hset(FileConsts.FILE_UPLOAD_STATUS, param.getMd5(), "false");
+				redisUtil.set(FileConsts.FILE_MD5_KEY + param.getMd5(),
+				        uploadDirPath + File.separator + fileName + ".conf");
 			}
 			return false;
 		}
