@@ -1,4 +1,4 @@
-package com.wy.strategy;
+package com.wy.fileslice;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +21,9 @@ import lombok.extern.slf4j.Slf4j;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Slf4j
-public class MappedByteBufferUploadStrategy extends SliceUploadTemplate {
+public class MappedByteBufferUploadStrategy extends AbstractSliceFileTemplate {
 
-	@Value("${upload.chunkSize}")
+	@Value("${upload.chunkSize:10}")
 	private long defaultChunkSize;
 
 	@Override
@@ -33,7 +33,7 @@ public class MappedByteBufferUploadStrategy extends SliceUploadTemplate {
 		try (RandomAccessFile tempRaf = new RandomAccessFile(tmpFile, "rw");) {
 			String uploadDirPath = param.getPath();
 			long chunkSize =
-			        Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
+					Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
 			// 写入该分片数据
 			long offset = chunkSize * param.getChunkIndex();
 			byte[] fileData = param.getFile().getBytes();

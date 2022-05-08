@@ -1,4 +1,4 @@
-package com.wy.strategy;
+package com.wy.fileslice;
 
 /**
  * 

@@ -31,4 +31,6 @@ public class FileUploadRequest {
 	private String md5;
 
 	private String path;
+
+	private String uploadDirectory;
 }

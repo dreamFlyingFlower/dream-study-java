@@ -1,4 +1,4 @@
-package com.wy.strategy;
+package com.wy.fileslice;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2022-05-06 16:53:51
  */
 @Slf4j
-public class RandomAccessUploadStrategy extends SliceUploadTemplate {
+public class RandomAccessUploadStrategy extends AbstractSliceFileTemplate {
 
 	@Value("${upload.chunkSize}")
 	private long defaultChunkSize;
@@ -27,10 +27,10 @@ public class RandomAccessUploadStrategy extends SliceUploadTemplate {
 	public boolean upload(FileUploadRequest param) {
 		File tmpFile = super.createTmpFile(param);
 		try (RandomAccessFile accessTmpFile = new RandomAccessFile(tmpFile, "rw");) {
-			String uploadDirPath = param.getPath();
+			String uploadDirPath = param.getUploadDirectory();
 			// 这个必须与前端设定的值一致
 			long chunkSize =
-			        Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
+					Objects.isNull(param.getChunkSize()) ? defaultChunkSize * 1024 * 1024 : param.getChunkSize();
 			long offset = chunkSize * param.getChunkIndex();
 			// 定位到该分片的偏移量
 			accessTmpFile.seek(offset);

@@ -1,4 +1,4 @@
-package com.wy.strategy;
+package com.wy.fileslice;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,6 +6,8 @@ import java.io.RandomAccessFile;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.wy.digest.DigestTool;
 import com.wy.enums.DateEnum;
@@ -25,35 +27,40 @@ import lombok.extern.slf4j.Slf4j;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Slf4j
-public abstract class SliceUploadTemplate implements SliceFileTemplate {
+public abstract class AbstractSliceFileTemplate implements SliceFileTemplate {
+
+	protected final static Map<String, Object> UPLOAD_FILE_CACHE = new ConcurrentHashMap<>();
 
 	public abstract boolean upload(FileUploadRequest param);
 
-	protected String generateUploadPath(FileUploadRequest param) {
+	protected String generateUploadDirectory(FileUploadRequest param) {
 		String concatFileName = FileNameTool.concatFileName(param.getFile().getOriginalFilename(), DigestTool.uuid());
 		return "/app/tmp/file/" + DateTimeTool.formatDate(DateEnum.DATE_NONE.getPattern()) + File.separator
-		        + concatFileName;
+				+ concatFileName;
 	}
 
+	/**
+	 * 创建临时文件
+	 * 
+	 * @param param
+	 * @return
+	 */
 	protected File createTmpFile(FileUploadRequest param) {
-		param.setPath(generateUploadPath(param));
-		String fileName = param.getFile().getOriginalFilename();
-		String uploadDirPath = param.getPath();
-		String tempFileName = fileName + "_tmp";
+		param.setUploadDirectory(generateUploadDirectory(param));
+		String uploadDirPath = param.getUploadDirectory();
 		File tmpDir = new File(uploadDirPath);
-		File tmpFile = new File(uploadDirPath, tempFileName);
 		if (!tmpDir.exists()) {
 			tmpDir.mkdirs();
 		}
-		return tmpFile;
+		return new File(uploadDirPath, param.getFile().getOriginalFilename() + "_tmp");
 	}
 
 	@Override
-	public FileUpload sliceUpload(FileUploadRequest param) {
+	public FileUpload sliceUploadFile(FileUploadRequest param) {
 		boolean isOk = this.upload(param);
 		if (isOk) {
 			File tmpFile = this.createTmpFile(param);
-			FileUpload fileUploadDTO = this.saveAndFileUploadDTO(param.getFile().getOriginalFilename(), tmpFile);
+			FileUpload fileUploadDTO = this.saveUploadFile(param.getFile().getOriginalFilename(), tmpFile);
 			return fileUploadDTO;
 		}
 		try {
@@ -90,27 +97,27 @@ public abstract class SliceUploadTemplate implements SliceFileTemplate {
 				System.out.println("check part " + i + " complete?:" + completeList[i]);
 			}
 		} catch (IOException e) {
-			log.error(e.getMessage(), e);
+			log.error(e.getMessage());
 		}
-		return setUploadProgress2Redis(param, uploadDirPath, fileName, confFile, isComplete);
+		return saveUploadProgress(param, uploadDirPath, fileName, confFile, isComplete);
 	}
 
 	/**
-	 * 把上传进度信息存进redis
+	 * 存储文件上传进度信息
 	 */
-	private boolean setUploadProgress2Redis(FileUploadRequest param, String uploadDirPath, String fileName,
-	        File confFile, byte isComplete) {
-		RedisUtil redisUtil = SpringContextHolder.getBean(RedisUtils.class);
+	@Override
+	public boolean saveUploadProgress(FileUploadRequest param, String uploadDirPath, String fileName, File confFile,
+			byte isComplete) {
 		if (isComplete == Byte.MAX_VALUE) {
-			redisUtil.hset(FileConsts.FILE_UPLOAD_STATUS, param.getMd5(), "true");
-			redisUtil.del(FileConsts.FILE_MD5_KEY + param.getMd5());
+			UPLOAD_FILE_CACHE.put(FileConsts.FILE_UPLOAD_STATUS + param.getMd5(), true);
+			UPLOAD_FILE_CACHE.remove(FileConsts.FILE_MD5_KEY + param.getMd5());
 			confFile.delete();
 			return true;
 		} else {
-			if (!redisUtil.hHasKey(FileConsts.FILE_UPLOAD_STATUS, param.getMd5())) {
-				redisUtil.hset(FileConsts.FILE_UPLOAD_STATUS, param.getMd5(), "false");
-				redisUtil.set(FileConsts.FILE_MD5_KEY + param.getMd5(),
-				        uploadDirPath + File.separator + fileName + ".conf");
+			if (Objects.isNull(UPLOAD_FILE_CACHE.get(param.getMd5()))) {
+				UPLOAD_FILE_CACHE.put(FileConsts.FILE_UPLOAD_STATUS + param.getMd5(), false);
+				UPLOAD_FILE_CACHE.put(FileConsts.FILE_MD5_KEY + param.getMd5(),
+						uploadDirPath + File.separator + fileName + ".conf");
 			}
 			return false;
 		}
@@ -119,7 +126,8 @@ public abstract class SliceUploadTemplate implements SliceFileTemplate {
 	/**
 	 * 保存文件操作
 	 */
-	public FileUpload saveAndFileUploadDTO(String fileName, File tmpFile) {
+	@Override
+	public FileUpload saveUploadFile(String fileName, File tmpFile) {
 		FileUpload fileUploadDTO = null;
 		try {
 			fileUploadDTO = renameFile(tmpFile, fileName);
@@ -138,29 +146,17 @@ public abstract class SliceUploadTemplate implements SliceFileTemplate {
 	/**
 	 * 文件重命名
 	 * 
-	 * @param toBeRenamed 将要修改名字的文件
-	 * @param toFileNewName 新的名字
+	 * @param sourceFile 源文件
+	 * @param targetFileName 新文件名,不带路径
 	 */
-	private FileUpload renameFile(File toBeRenamed, String toFileNewName) {
-		// 检查要重命名的文件是否存在,是否是文件
-		FileUpload fileUpload = new FileUpload();
-		if (!toBeRenamed.exists() || toBeRenamed.isDirectory()) {
-			log.info("File does not exist: {}", toBeRenamed.getName());
-			fileUpload.setUploadComplete(false);
-			return fileUpload;
-		}
-		String ext = FileNameTool.getExtension(toFileNewName);
-		String p = toBeRenamed.getParent();
-		String filePath = p + File.separator + toFileNewName;
-		File newFile = new File(filePath);
+	private FileUpload renameFile(File sourceFile, String targetFileName) {
+		FileTool.checkFile(sourceFile);
+		String filePath = sourceFile.getParent() + File.separator + targetFileName;
+		File newFile = new File(sourceFile.getParent(), targetFileName);
 		// 修改文件名
-		boolean uploadFlag = toBeRenamed.renameTo(newFile);
-		fileUpload.setUploadTime(new Date());
-		fileUpload.setUploadComplete(uploadFlag);
-		fileUpload.setFilePath(filePath);
-		fileUpload.setFileSize(newFile.length());
-		fileUpload.setFileExtension(ext);
-		fileUpload.setFileId(toFileNewName);
-		return fileUpload;
+		boolean uploadFlag = sourceFile.renameTo(newFile);
+		return FileUpload.builder().uploadTime(new Date()).uploadComplete(uploadFlag).filePath(filePath)
+				.fileSize(newFile.length()).fileExtension(FileNameTool.getExtension(targetFileName))
+				.fileId(targetFileName).build();
 	}
 }
