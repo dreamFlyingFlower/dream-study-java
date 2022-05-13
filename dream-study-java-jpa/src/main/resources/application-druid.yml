@@ -17,6 +17,6 @@ spring:
       testOnReturn: false
       poolPreparedStatements: true
     hikari:
-      jdbc-url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT
+      jdbc-url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT&tinyInt1isBit=false&allowMultiQueries=true
       username: root
       password: 52LDforever

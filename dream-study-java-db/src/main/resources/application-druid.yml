@@ -17,7 +17,7 @@ spring:
       testOnReturn: false
       poolPreparedStatements: true
     hikari:
-      jdbc-url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT
+      jdbc-url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT&tinyInt1isBit=false&allowMultiQueries=true
       username: root
       password: 52LDforever
       # 客户端等待连接池连接的最大毫秒数
