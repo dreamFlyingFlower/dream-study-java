@@ -10,7 +10,7 @@ import org.apache.http.client.methods.HttpGet;
 
 import com.wy.common.Constant;
 import com.wy.factory.CrawlerProxyFactory;
-import com.wy.http.HttpClientUtils;
+import com.wy.http.HttpClientTools;
 import com.wy.proxy.ProxyValidate;
 
 import lombok.extern.log4j.Log4j2;
@@ -45,8 +45,8 @@ public class ProxyIpUtils {
 
 	public static int processRequest(HttpHost proxy) throws IOException {
 		Integer statusCode = 404;
-		HttpClient client = HttpClientUtils.buildHttpClient(true, null, proxy);
-		HttpGet get = HttpClientUtils.buildHttpGet(reqUrl, null, Constant.DEFAULT_CHARSET.displayName());
+		HttpClient client = HttpClientTools.buildClient(true, null, proxy);
+		HttpGet get = HttpClientTools.buildGet(reqUrl, null, Constant.DEFAULT_CHARSET);
 		HttpResponse response = client.execute(get);
 		statusCode = response.getStatusLine().getStatusCode();
 		return statusCode;

@@ -59,10 +59,10 @@ public abstract class AbstractCrawlerPageProcessor extends AbstractProcessFlow i
 		Site site = Site.me().setRetryTimes(getRetryTimes()).setRetrySleepTime(getRetrySleepTime())
 				.setSleepTime(getSleepTime()).setTimeOut(getTimeout());
 		// header 配置
-		Map<String, String> headerMap = getHeaderMap();
+		Map<String, Object> headerMap = getHeaderMap();
 		if (null != headerMap && !headerMap.isEmpty()) {
-			for (Map.Entry<String, String> entry : headerMap.entrySet()) {
-				site.addHeader(entry.getKey(), entry.getValue());
+			for (Map.Entry<String, Object> entry : headerMap.entrySet()) {
+				site.addHeader(entry.getKey(), String.valueOf(entry.getValue()));
 			}
 		}
 

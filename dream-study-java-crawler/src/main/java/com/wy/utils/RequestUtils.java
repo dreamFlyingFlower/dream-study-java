@@ -18,7 +18,7 @@ public class RequestUtils {
 	 * @param headerMap
 	 * @return
 	 */
-	public static Request requestPackage(String url, Map<String, String> headerMap) {
+	public static Request requestPackage(String url, Map<String, Object> headerMap) {
 		Request request = null;
 		if (StringUtils.isNotEmpty(url)) {
 			request = new Request();
@@ -34,10 +34,10 @@ public class RequestUtils {
 	 * @param request
 	 * @param headerMap
 	 */
-	public static void addHeader(Request request, Map<String, String> headerMap) {
+	public static void addHeader(Request request, Map<String, Object> headerMap) {
 		if (null != headerMap && !headerMap.isEmpty()) {
-			for (Map.Entry<String, String> entry : headerMap.entrySet()) {
-				request.addHeader(entry.getKey(), entry.getValue());
+			for (Map.Entry<String, Object> entry : headerMap.entrySet()) {
+				request.addHeader(entry.getKey(), String.valueOf(entry.getValue()));
 			}
 		}
 	}

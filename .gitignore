@@ -1,3 +1,4 @@
+HELP.md
 target
 !.mvn/wrapper/maven-wrapper.jar
 *.class
@@ -39,3 +40,6 @@ logs
 /nbdist/
 /.nb-gradle/
 /node_modules/
+
+### VS Code ###
+.vscode/

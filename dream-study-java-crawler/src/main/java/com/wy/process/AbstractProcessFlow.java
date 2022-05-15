@@ -1,5 +1,6 @@
 package com.wy.process;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ import com.alibaba.fastjson.JSON;
 import com.wy.common.Constant;
 import com.wy.config.CrawlerConfig;
 import com.wy.factory.CrawlerProxyFactory;
-import com.wy.http.HttpClientUtils;
+import com.wy.http.HttpClientTools;
 import com.wy.model.CrawlerCookie;
 import com.wy.model.CrawlerHtml;
 import com.wy.model.ParseItem;
@@ -65,7 +66,8 @@ public abstract class AbstractProcessFlow implements ProcessFlow {
 	/**
 	 * 设置 Accept
 	 * <p>
-	 * Accept 请求头用来告知客户端可以处理的内容类型，这种内容类型用MIME类型来表示。借助内容协商机制, 服务器可以从诸多备选项中选择一项进行应用， 并使用 Content-Type
+	 * Accept 请求头用来告知客户端可以处理的内容类型，这种内容类型用MIME类型来表示。借助内容协商机制, 服务器可以从诸多备选项中选择一项进行应用，
+	 * 并使用 Content-Type
 	 * 应答头通知客户端它的选择。浏览器会基于请求的上下文来为这个请求头设置合适的值，比如获取一个CSS层叠样式表时值与获取图片、视频或脚本文件时的值是不同的。
 	 */
 	private final String Accept[] = {
@@ -86,8 +88,8 @@ public abstract class AbstractProcessFlow implements ProcessFlow {
 	 *
 	 * @return
 	 */
-	public Map<String, String> getHeaderMap() {
-		Map<String, String> headerMap = new HashMap<String, String>();
+	public Map<String, Object> getHeaderMap() {
+		Map<String, Object> headerMap = new HashMap<>();
 		headerMap.put(UserAgentParameterName, getUserAgent());
 		headerMap.put(AcceptParameterName, getAccept());
 		return headerMap;
@@ -100,7 +102,7 @@ public abstract class AbstractProcessFlow implements ProcessFlow {
 	 * @return
 	 */
 	public Request getRequest(String url) {
-		Map<String, String> headerMap = getHeaderMap();
+		Map<String, Object> headerMap = getHeaderMap();
 		Request request = RequestUtils.requestPackage(url, headerMap);
 		return request;
 	}
@@ -165,10 +167,9 @@ public abstract class AbstractProcessFlow implements ProcessFlow {
 	 * @param parameterMap
 	 * @return
 	 */
-	public String getOriginalRequestHtmlData(String url, Map<String, String> parameterMap) {
+	public String getOriginalRequestHtmlData(String url, Map<String, Object> parameterMap) {
 		// 获取代理
 		CrawlerProxy proxy = crawlerProxyProvider.getRandomProxy();
-
 		// 获取Cookie列表
 		List<CrawlerCookie> cookieList = cookieHelper.getCookieEntity(url, proxy);
 		// 通过HttpClient方式来获取数据
@@ -190,7 +191,7 @@ public abstract class AbstractProcessFlow implements ProcessFlow {
 	 * @param crawlerProxy 代理
 	 * @return
 	 */
-	public String getHttpClientRequestData(String url, Map<String, String> parameterMap, List<CrawlerCookie> cookieList,
+	public String getHttpClientRequestData(String url, Map<String, Object> parameterMap, List<CrawlerCookie> cookieList,
 			CrawlerProxy crawlerProxy) {
 		CookieStore cookieStore = getCookieStore(cookieList);
 		String jsonDate = null;
@@ -201,7 +202,8 @@ public abstract class AbstractProcessFlow implements ProcessFlow {
 		long currentTime = System.currentTimeMillis();
 		log.info("HttpClient 请求数据,url:{},parameter:{},cookies:{},proxy:{}", url, parameterMap,
 				JSON.toJSONString(cookieList), proxy);
-		jsonDate = HttpClientUtils.sendGet(url, parameterMap, getHeaderMap(), cookieStore, proxy, "UTF-8");
+		jsonDate =
+				HttpClientTools.sendGet(url, parameterMap, getHeaderMap(), cookieStore, proxy, StandardCharsets.UTF_8);
 		log.info("HttpClient 请求数据完成：url:{},parameter:{},cookies:{},proxy:{},duration:{},result:{}", url, parameterMap,
 				JSON.toJSONString(cookieList), proxy, System.currentTimeMillis() - currentTime, jsonDate);
 		if (Objects.isNull(jsonDate)) {
@@ -218,8 +220,8 @@ public abstract class AbstractProcessFlow implements ProcessFlow {
 	 * @param parameterMap
 	 * @return
 	 */
-	public CrawlerHtml getSeleniumRequestData(String url, Map<String, String> parameterMap, CrawlerProxy proxy) {
-		String buildUrl = HttpClientUtils.buildGetUrl(url, parameterMap, Constant.DEFAULT_CHARSET.displayName());
+	public CrawlerHtml getSeleniumRequestData(String url, Map<String, Object> parameterMap, CrawlerProxy proxy) {
+		String buildUrl = HttpClientTools.buildGet(url, parameterMap, Constant.DEFAULT_CHARSET).getURI().toString();
 		String cookieName = cookieHelper.getCookieName();
 		CrawlerHtml crawlerHtml = seleniumClient.getCrawlerHtml(buildUrl, proxy, cookieName);
 		if (null != crawlerHtml) {

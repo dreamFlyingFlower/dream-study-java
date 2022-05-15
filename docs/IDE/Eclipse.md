@@ -47,6 +47,20 @@
 
 ## Java
 
+
+
+## Appearance
+
+
+
+### Type Filters
+
+
+
+* java.awt.List:不勾选
+
+
+
 ### Code Style
 
 #### Code Templates
@@ -58,6 +72,7 @@
 ```java
 /**
  * 
+ *
  * @author 飞花梦影
  * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
  * @git {@link https://gitee.com/dreamFlyingFlower}
@@ -86,6 +101,7 @@ ${filecomment}
 ${package_declaration}
 /**
  * 
+ *
  * @author 飞花梦影
  * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
  * @git {@link https://gitee.com/dreamFlyingFlower}
@@ -125,82 +141,92 @@ ${type_declaration}
 
 
 
+##### Advanced
+
+
+
+* SWT Ttempalte Proposals:不勾选
+
+
+
 #### Templates
 
-* pfsstr,Java,new a final String
+
+
+* pfsstr,Java,new a final static String
 
 ```java
 private final static ${String} ${NAME} = ${null};${cursor}
 ```
 
-* pfsmap,Java,new a final HashMap
+* pfsmap,Java,new a final static HashMap<String,Object>
 
 ```java
 private final static Map<${String},${Object}> ${HASH_MAP} = new HashMap<>();${cursor}
 ${imp:import(java.util.HashMap,java.util.Map)}
 ```
 
-* pfsconmap,Java,new a final ConcurrentHashMap
+* pfsconmap,Java,new a final static ConcurrentHashMap
 
 ```java
 private final static Map<${String},${Object}> ${CONCURRENT_HASH_MAP} = new ConcurrentHashMap<>();${cursor}
 ${imp:import(java.util.concurrent.ConcurrentHashMap,java.util.Map)}
 ```
 
-* pfslist,Java,new a final ArrayList
+* pfslist,Java,new a final static ArrayList
 
 ```java
 private final static List<${String}> ${ARRAY_LIST} = new ArrayList<>();${cursor}
 ${imp:import(java.util.ArrayList,java.util.List)}
 ```
 
-* pfslistmap,Java,new a final List<Map<String,Object>>
+* pfslistmap,Java,new a final static List<Map<String,Object>>
 
 ```java
 private final static List<Map<${String},${Object}>> ${LIST_MAP} = new ArrayList<>();${cursor}
 ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 ```
 
-* pstr,Java,new a private String
+* pstr,Java,dealare a private String
 
 ```java
 private String ${NAME};${cursor}
 ```
 
-* pint,Java,new a private Integer
+* pint,Java,declare a private Integer
 
 ```java
 private Integer ${NAME};${cursor}
 ```
 
-* plong,Java,new a private Long
+* plong,Java,declare a private Long
 
 ```java
 private Long ${NAME};${cursor}
 ```
 
-* plist,Java,new a private List
+* plist,Java,declare a private List
 
 ```java
 private List<${String}> ${NAME};${cursor}
 ${imp:import(java.util.List)}
 ```
 
-* pmap,Java,new a private Map<String,Object>
+* pmap,Java,declare a private Map<String,Object>
 
 ```java
 private Map<${String},${Object}> ${map};${cursor}
 ${imp:import(java.util.Map)}
 ```
 
-* newHashMap,Java,new a Hashmap
+* newHashMap,Java,new a Hashmap<String,Object>
 
 ```java
 Map<${String},${Object}> ${map} = new HashMap<>();${cursor}
 ${imp:import(java.util.HashMap,java.util.Map)}
 ```
 
-* newConmap,Java,new a ConcurrentHashMap
+* newConmap,Java,new a ConcurrentHashMap<String,Object>
 
 ```java
 Map<${String},${Object}> ${concurrentHashMap} = new ConcurrentHashMap<>();${cursor}
@@ -214,7 +240,7 @@ List<${String}> ${list} = new ArrayList<>()${cursor};
 ${imp:import(java.util.List,java.util.ArrayList)}
 ```
 
-* newListMap,Java,new a List<Map>
+* newListMap,Java,new a List<Map<String,Object>>
 
 ```java
 List<Map<${String},${Object}>> ${listMap} = new ArrayList<>();${cursor}
@@ -234,7 +260,7 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 @Api(tags = "${comment} API")${imp:import(io.swagger.annotations.Api)}
 ```
 
-* apim,Java,add a @ApiModel to a class entity
+* apim,Java,add a @ApiModel to a class po,dto,vo,do
 
 ```java
 /**
@@ -265,27 +291,27 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 @ApiOperation(value = "${comment}")${imp:import(io.swagger.annotations.ApiOperation)}
 ```
 
-* lomAll,Java,add lombok all annotation
+* lomAll,Java,add lombok getter,setter,builder,tostring,noarg,allarg annotation
 
 ```java
 @Getter
 @Setter
+@Builder
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString)}
+@AllArgsConstructor${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString)}
 ```
 
-* lomData,Java,import lombok data builder
+* lomData,Java,add lombok data,builder,noarg,allarg,builder annotation
 
 ```java
 @Data
+@Builder
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.NoArgsConstructor)}
+@AllArgsConstructor${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.Data,lombok.NoArgsConstructor)}
 ```
 
-* lomGetSet,Java,import lombok getter and setter
+* lomGetSet,Java,add lombok getter and setter
 
 ```java
 @Getter
@@ -298,9 +324,9 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 @Getter
 @Setter
 @ToString
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder${imp:import(lombok.AllArgsConstructor,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString,lombok.experimental.SuperBuilder)}
+@AllArgsConstructor${imp:import(lombok.AllArgsConstructor,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString,lombok.experimental.SuperBuilder)}
 ```
 
 

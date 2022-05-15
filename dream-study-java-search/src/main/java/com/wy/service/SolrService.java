@@ -54,7 +54,7 @@ public class SolrService {
 	 */
 	public void addSingle() {
 		SolrInputDocument ds = new SolrInputDocument();
-		ds.addField("id", DigestTool.UUID());
+		ds.addField("id", DigestTool.uuid());
 		ds.addField("username", "测试单个新增");
 		try {
 			solrClient.add(collection, ds);

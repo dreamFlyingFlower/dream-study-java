@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="java" deleted="false" description="add lombok getter,setter,builder,tostring,noarg,allarg annotation" enabled="true" name="lomAll">@Getter&#13;
+@Setter&#13;
+@Builder&#13;
+@ToString&#13;
+@NoArgsConstructor&#13;
+@AllArgsConstructor${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString)}</template><template autoinsert="true" context="java" deleted="false" description="add lombok data,builder,noarg,allarg,builder annotation" enabled="true" name="lomData">@Data&#13;
+@Builder&#13;
+@NoArgsConstructor&#13;
+@AllArgsConstructor${imp:import(lombok.AllArgsConstructor,lombok.Builder,lombok.Data,lombok.NoArgsConstructor)}</template><template autoinsert="true" context="java" deleted="false" description="add lombok getter and setter" enabled="true" name="lomGetSet">@Getter&#13;
+@Setter${imp:import(lombok.Getter,lombok.Setter)}</template><template autoinsert="true" context="java" deleted="false" description="add lombok all annotation with superbuilder" enabled="true" name="lomSuperAll">@Getter&#13;
+@Setter&#13;
+@ToString&#13;
+@SuperBuilder&#13;
+@NoArgsConstructor&#13;
+@AllArgsConstructor${imp:import(lombok.AllArgsConstructor,lombok.Getter,lombok.NoArgsConstructor,lombok.Setter,lombok.ToString,lombok.experimental.SuperBuilder)}</template><template autoinsert="true" context="java" deleted="false" description="new a ArrayList" enabled="true" name="newArrayList">List&lt;${String}&gt; ${list} = new ArrayList&lt;&gt;()${cursor};&#13;
+${imp:import(java.util.List,java.util.ArrayList)}</template><template autoinsert="true" context="java" deleted="false" description="new a ConcurrentHashMap&lt;String,Object&gt;" enabled="true" name="newConmap">Map&lt;${String},${Object}&gt; ${concurrentHashMap} = new ConcurrentHashMap&lt;&gt;();${cursor}&#13;
+${imp:import(java.util.concurrent.ConcurrentHashMap,java.util.Map)}</template><template autoinsert="true" context="java" deleted="false" description="new a Hashmap&lt;String,Object&gt;" enabled="true" name="newHashMap">Map&lt;${String},${Object}&gt; ${map} = new HashMap&lt;&gt;();${cursor}&#13;
+${imp:import(java.util.HashMap,java.util.Map)}</template><template autoinsert="true" context="java" deleted="false" description="new a List&lt;Map&lt;String,Object&gt;&gt;" enabled="true" name="newListMap">List&lt;Map&lt;${String},${Object}&gt;&gt; ${listMap} = new ArrayList&lt;&gt;();${cursor}&#13;
+${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}</template><template autoinsert="true" context="java" deleted="false" description="new a final static ConcurrentHashMap" enabled="true" name="pfsconmap">private final static Map&lt;${String},${Object}&gt; ${CONCURRENT_HASH_MAP} = new ConcurrentHashMap&lt;&gt;();${cursor}&#13;
+${imp:import(java.util.concurrent.ConcurrentHashMap,java.util.Map)}</template><template autoinsert="true" context="java" deleted="false" description="new a final static ArrayList" enabled="true" name="pfslist">private final static List&lt;${String}&gt; ${ARRAY_LIST} = new ArrayList&lt;&gt;();${cursor}&#13;
+${imp:import(java.util.ArrayList,java.util.List)}</template><template autoinsert="true" context="java" deleted="false" description="new a final static List&lt;Map&lt;String,Object&gt;&gt;" enabled="true" name="pfslistmap">private final static List&lt;Map&lt;${String},${Object}&gt;&gt; ${LIST_MAP} = new ArrayList&lt;&gt;();${cursor}&#13;
+${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}</template><template autoinsert="true" context="java" deleted="false" description="new a final static HashMap&lt;String,Object&gt;" enabled="true" name="pfsmap">private final static Map&lt;${String},${Object}&gt; ${HASH_MAP} = new HashMap&lt;&gt;();${cursor}&#13;
+${imp:import(java.util.HashMap,java.util.Map)}</template><template autoinsert="true" context="java" deleted="false" description="new a final static String" enabled="true" name="pfsstr">private final static ${String} ${NAME} = ${null};${cursor}</template><template autoinsert="true" context="java" deleted="false" description="declare a private Integer" enabled="true" name="pint">private Integer ${NAME};${cursor}</template><template autoinsert="true" context="java" deleted="false" description="declare a private List" enabled="true" name="plist">private List&lt;${String}&gt; ${NAME};${cursor}&#13;
+${imp:import(java.util.List)}</template><template autoinsert="true" context="java" deleted="false" description="declare a private Long" enabled="true" name="plong">private Long ${NAME};${cursor}</template><template autoinsert="true" context="java" deleted="false" description="declare a private Map&lt;String,Object&gt;" enabled="true" name="pmap">private Map&lt;${String},${Object}&gt; ${map};${cursor}&#13;
+${imp:import(java.util.Map)}</template><template autoinsert="true" context="java" deleted="false" description="dealare a private String" enabled="true" name="pstr">private String ${NAME};${cursor}</template></templates>

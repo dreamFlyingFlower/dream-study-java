@@ -9,16 +9,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.wy.callback.DataValidateCallBack;
+import com.wy.collection.ListTool;
 import com.wy.enums.CrawlerEnum;
+import com.wy.lang.StrTool;
 import com.wy.model.CrawlerConfigProperty;
 import com.wy.model.ParseRule;
 import com.wy.properties.ConfigProperties;
 import com.wy.proxy.CrawlerProxyProvider;
 import com.wy.utils.CookieHelper;
 import com.wy.utils.CrawlerHelper;
-import com.wy.utils.ListUtils;
 import com.wy.utils.SeleniumClient;
-import com.wy.utils.StrUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,7 +40,7 @@ public class CrawlerConfig {
 
 	public List<String> getInitCrawlerUrlList() {
 		List<String> initCrawlerUrlList = new ArrayList<>();
-		if (ListUtils.isNotBlank(config.getCrawler().getUrlSuffix())) {
+		if (ListTool.isNotEmpty(config.getCrawler().getUrlSuffix())) {
 			for (String string : config.getCrawler().getUrlSuffix()) {
 				if (!string.toLowerCase().startsWith("http")) {
 					initCrawlerUrlList.add(config.getCrawler().getUrlPrefix() + string);
@@ -77,7 +77,7 @@ public class CrawlerConfig {
 			@Override
 			public boolean validate(String content) {
 				boolean flag = true;
-				if (StrUtils.isBlank(content)) {
+				if (StrTool.isBlank(content)) {
 					flag = false;
 				} else {
 					boolean isContains_acw_sc_v2 = content.contains("acw_sc__v2");
@@ -123,7 +123,8 @@ public class CrawlerConfig {
 	/**
 	 * 初始化抓取的Xpath
 	 */
-	private String initCrawlerXpath = "//ul[@class='feedlist_mod']/li[@class='clearfix']/div[@class='list_con']/dl[@class='list_userbar']/dd[@class='name']/a";
+	private String initCrawlerXpath =
+			"//ul[@class='feedlist_mod']/li[@class='clearfix']/div[@class='list_con']/dl[@class='list_userbar']/dd[@class='name']/a";
 
 	/**
 	 * 帮助页面抓取Xpath
