@@ -1,4 +1,4 @@
-﻿﻿﻿# IDEA
+﻿﻿# IDEA
 
 
 
@@ -41,8 +41,8 @@
 # Editor->General
 
 * Change font size(Zoom) with Ctrl+Mouse Wheel:鼠标滚轮控制字体大小
-
 * Remove trailing blank lines at the end of saved files:删除文件末尾空白
+* Editor Tabs:Mark modifyied tabs with asterisk勾选,被修改的文件会以*号标识出来
 
 
 

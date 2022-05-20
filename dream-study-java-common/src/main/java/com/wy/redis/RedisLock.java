@@ -1,6 +1,8 @@
 package com.wy.redis;
 
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.redisson.api.RLock;
@@ -84,12 +86,7 @@ public class RedisLock {
 	/**
 	 * 直接使用redis做分布式锁
 	 * 
-	 * 该方式的2个问题
-	 * 
-	 * <pre>
-	 * 1.当线程A拿到锁,但是执行超时时,B也可以拿到锁,此时还需要考虑锁续期问题.此方法未解决
-	 * 2.在集群模式下,若线程A从Master中拿到锁,但是还未同步到slave或sentinel,若Master挂了,线程B也能拿到锁.此方法未解决
-	 * </pre>
+	 * 该方式的问题:在集群模式下,线程A从Master中拿到锁,但是还未同步到slave或sentinel,若Master挂了,线程B也能拿到锁.此方法未解决
 	 * 
 	 * @throws InterruptedException
 	 */
@@ -97,23 +94,54 @@ public class RedisLock {
 		// 生成的随机uuid,避免删除锁时删除其他线程的锁
 		String uuid = DigestTool.uuid();
 		// 分布式锁占坑,设置过期时间,必须和加锁一起作为原子性操作
-		Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.SECONDS);
+		Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.MILLISECONDS);
 		if (lock) {
 			try {
 				// 加锁成功执行业务
 				// do something
+				// 续期,会带来性能问题
+				extendExpireTime("lock", uuid, 300);
 			} finally {
 				// 利用redis的脚本功能执行删除的操作,删除自己的锁,需要原子环境,否则可能锁刚过期,删除的是别人的锁
-				String script =
-						"if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
 				// 该操作可以返回操作是否成功,1成功,0失败
-				stringRedisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class), Arrays.asList("lock"),
-						uuid);
+				stringRedisTemplate.execute(new DefaultRedisScript<Long>(RedisScripts.SCRIPT_DELETE, Long.class),
+				        Arrays.asList("lock"), uuid);
 			}
 		} else {
 			// 加锁失败,自旋,必须要休眠一定时间,否则对cpu消耗极大,且容易抛异常
 			TimeUnit.MILLISECONDS.sleep(100);
 			redisLock();
 		}
+	}
+
+	/**
+	 * 租期续约任务,在当前线程还运行的情况下,延长过期时间
+	 *
+	 * @param key key
+	 * @param value key的值
+	 * @param expireTime 过期时间,单位毫秒
+	 */
+	public void extendExpireTime(String key, String value, long expireTime) {
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				try {
+					Long result = stringRedisTemplate.execute(
+					        new DefaultRedisScript<Long>(RedisScripts.SCRIPT_EXTEND_EXPIRE_TIME, Long.class),
+					        Arrays.asList(key), value, expireTime);
+					if (result == 0) {
+						timer.cancel();
+					}
+				} catch (Exception exp) {
+					timer.cancel();
+				} finally {
+					if (timer != null) {
+						timer.cancel();
+					}
+				}
+			}
+		}, 0, expireTime * 3 / 4);
 	}
 }
