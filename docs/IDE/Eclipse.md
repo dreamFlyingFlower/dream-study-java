@@ -2,7 +2,7 @@
 
 
 
-# 配置(自用)
+# 配置
 
 
 
@@ -49,7 +49,7 @@
 
 
 
-## Appearance
+### Appearance
 
 
 
@@ -63,9 +63,17 @@
 
 ### Code Style
 
+
+
 #### Code Templates
 
+
+
 ##### Comments
+
+
+
+* 直接导入eclipse_java_codestyle_codetemplates.xml或按照下方设置
 
 * Files
 
@@ -87,6 +95,14 @@
  * @author 飞花梦影
  * @date ${currentDate:date('yyyy-MM-dd HH:mm:ss')}
  * @git {@link https://gitee.com/dreamFlyingFlower}
+ */
+```
+
+* Overriding methods
+
+```java
+/**
+ * ${tags}
  */
 ```
 
@@ -115,6 +131,22 @@ ${type_declaration}
 #### Formatter
 
 * eclipse_formatter.xml
+
+
+
+### Compiler
+
+
+
+#### Errors/Warnings
+
+
+
+##### Annotations
+
+
+
+* Missing @Override annotation:将Ignore改成Warning
 
 
 

@@ -35,8 +35,8 @@ import lombok.extern.slf4j.Slf4j;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Slf4j
-public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Serializable>
-		extends ServiceImpl<M, T> implements BaseService<T, ID> {
+public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Serializable> extends ServiceImpl<M, T>
+		implements BaseService<T, ID> {
 
 	/** 存储反射过程中使用的类和字段 */
 	private Map<Class<?>, List<Field>> CACHE_FIELDS = new ConcurrentHashMap<>(128);
@@ -336,6 +336,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 * @param t 实体数据
 	 * @return 删除结果.默认返回boolean,true->删除成功,false->删除失败
 	 */
+	@Override
 	public Object delete(T t) {
 		return super.remove(new QueryWrapper<T>(t));
 	}

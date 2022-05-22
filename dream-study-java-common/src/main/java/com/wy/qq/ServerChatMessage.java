@@ -42,6 +42,7 @@ public class ServerChatMessage extends Message {
 		this.rawMessageBytes = rawMessageBytes;
 	}
 
+	@Override
 	public int getMessageType() {
 		return SERVER_TO_CLIENT_CHAT;
 	}

@@ -351,8 +351,54 @@ location /{ # 请求URI
 
 
 * 上传或下载 keepalived.tar.gz到 /app/software/目录
-* 解压安装,之后编译:`./configure --prefix=/app/software/keepalived;make && make install`
+
+* 解压安装,之后编译
+
+  ```shell
+  ./configure --prefix=/app/software/keepalived
+  make && make install
+  ```
+
 * 将 keepalived 安装成 Linux 系统服务
+
+  ```shell
+  # 拷贝执行文件
+  cp /usr/software/keepalived/sbin/keepalived /usr/sbin/
+  
+  # 将init.d文件拷贝到etc下,加入开机启动项
+  cp /usr/software/keepalived/etc/rc.d/init.d/keepalived /etc/init.d/keepalived
+  
+  # 将keepalived文件拷贝到etc下，加入网卡配置
+  cp /usr/software/keepalived/etc/sysconfig/keepalived /etc/sysconfig/ 
+  
+  # 创建keepalived文件夹
+  mkdir -p /etc/keepalived
+  
+  # 将keepalived配置文件拷贝到etc下
+  cp /usr/software/keepalived/etc/keepalived/keepalived.conf /etc/keepalived/keepalived.conf
+  
+  # 添加可执行权限
+  chmod +x /etc/init.d/keepalived
+  ```
+
+* 加入开机启动
+
+  ```shell
+  # 必须保证/etc/init.d/keepalived存在
+  chkconfig --add keepalived	
+  chkconfig keepalived on
+  
+  # 添加完可查询系统服务是否存在
+  chkconfig --list
+  ```
+
+* 服务启动/停止/重启
+
+  ```shell
+  service keepalived start/stop/restart
+  ```
+
+  
 
 
 

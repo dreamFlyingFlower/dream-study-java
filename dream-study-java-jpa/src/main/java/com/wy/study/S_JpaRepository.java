@@ -24,9 +24,11 @@ import com.wy.model.User;
  * 如果直接就是findBy…,返回的就是定义Respository时指定的实体类对象集合
  * 
  * JPQL中也定义了丰富的关键字:and,or,Between等等,如:<br>
- * And:findByLastnameAndFirstname -> where x.lastname = ?1 and x.firstname = ?2<br>
+ * And:findByLastnameAndFirstname -> where x.lastname = ?1 and x.firstname =
+ * ?2<br>
  * Or:findByLastnameOrFirstname -> where x.lastname = ?1 or x.firstname = ?2<br>
- * Is,Equals:findByFirstnameIs,findByFirstnameEquals -> where x.firstname = ?1<br>
+ * Is,Equals:findByFirstnameIs,findByFirstnameEquals -> where x.firstname =
+ * ?1<br>
  * Between:findByStartDateBetween -> where x.startDate between ?1 and ?2<br>
  * LessThan:findByAgeLessThan -> where x.age < ?1<br>
  * LessThanEqual:findByAgeLessThanEqual -> where x.age <= ?1<br>
@@ -38,16 +40,21 @@ import com.wy.model.User;
  * IsNotNull,NotNull:findByAge(Is)NotNull -> where x.age is not null<br>
  * Like:findByFirstnameLike -> where x.firstname like ?1<br>
  * NotLike:findByFirstnameNotLike -> where x.firstname not like ?1<br>
- * StartingWith:findByFirstnameStartingWith -> where x.firstname like ?1;%会加在参数结尾<br>
- * EndingWith:findByFirstnameEndingWith -> where x.firstname like ?1;%会加在参数前面<br>
- * Containing:findByFirstnameContaining -> where x.firstname like ?1;参数前后都会加上%<br>
- * OrderBy:findByAgeOrderByLastnameDesc -> where x.age = ?1 order by x.lastname desc<br>
+ * StartingWith:findByFirstnameStartingWith -> where x.firstname like
+ * ?1;%会加在参数结尾<br>
+ * EndingWith:findByFirstnameEndingWith -> where x.firstname like
+ * ?1;%会加在参数前面<br>
+ * Containing:findByFirstnameContaining -> where x.firstname like
+ * ?1;参数前后都会加上%<br>
+ * OrderBy:findByAgeOrderByLastnameDesc -> where x.age = ?1 order by x.lastname
+ * desc<br>
  * Not:findByLastnameNot -> where x.lastname <> ?1<br>
  * In:findByAgeIn(Collection ages) -> where x.age in ?1<br>
  * NotIn:findByAgeNotIn(Collection age) -> where x.age not in ?1<br>
  * TRUE:findByActiveTrue() -> where x.active = true<br>
  * FALSE:findByActiveFalse() -> where x.active = false<br>
- * IgnoreCase:findByFirstnameIgnoreCase -> where UPPER(x.firstame) = UPPER(?1)<br>
+ * IgnoreCase:findByFirstnameIgnoreCase -> where UPPER(x.firstame) =
+ * UPPER(?1)<br>
  * 
  * {@link JpaRepository}:该接口的泛型参数,第一个是实体类,第二个是实体类中的主键类型
  * 
@@ -84,7 +91,8 @@ public interface S_JpaRepository extends JpaRepository<User, Long>, JpaSpecifica
 	 * @param username
 	 * @return
 	 */
-	// @Query(nativeQuery = true, value = "select * from ti_user where username=:username and age
+	// @Query(nativeQuery = true, value = "select * from ti_user where
+	// username=:username and age
 	// >:age")
 	@Query(nativeQuery = true, value = "select * from ti_user where username=? and age > ?")
 	User findByUsername(@Param("username") String username, int age);
@@ -122,6 +130,7 @@ public interface S_JpaRepository extends JpaRepository<User, Long>, JpaSpecifica
 	/**
 	 * 对结果进行分页查询,若有多个参数,pageable放最后,该类型的实现类为{@link PageRequest}
 	 */
+	@Override
 	Page<User> findAll(Pageable page);
 
 	Page<User> findByUsername(String username, Pageable page);

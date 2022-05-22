@@ -125,6 +125,7 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	 * @param abstractPager 参数
 	 * @return 分页数据
 	 */
+	@Override
 	public Result<List<T>> getEntitys(AbstractPager page) {
 		Sort sort = null;
 		if (StringUtils.hasText(page.getPageOrder())) {
@@ -254,9 +255,9 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 
 	/**
 	 * 该方法根据上级编号查询本级数据或下级数据.为统一前端树形结构,需要将标识符,
-	 * 如id全部转为treeId,显示的名称都改为treeName.,同时每次查询都需要将下级的数量查询出来,放入childNum字段中 {@link select b.dic_id
-	 * treeId,b.dic_name treeName,b.dic_code dicCode, (select count(*) from td_dic a where a.pid =
-	 * b.dic_Id) childNum from td_dic b}
+	 * 如id全部转为treeId,显示的名称都改为treeName.,同时每次查询都需要将下级的数量查询出来,放入childNum字段中
+	 * {@link select b.dic_id treeId,b.dic_name treeName,b.dic_code dicCode, (select
+	 * count(*) from td_dic a where a.pid = b.dic_Id) childNum from td_dic b}
 	 * 
 	 * @param id 条件编号
 	 * @param parent 是否为上级菜单编号,true是,false否
@@ -329,6 +330,7 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	 * @param ts 实体类参数列表
 	 * @return 回显数据
 	 */
+	@Override
 	public List<T> saveOrUpdates(List<T> ts) {
 		return baseRepository.saveAll(ts);
 	}
@@ -339,6 +341,7 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	 * @param model 需要更新的实体类参数
 	 * @return 结果集,int或其他类型
 	 */
+	@Override
 	public Object update(T model) {
 		return null;
 	}

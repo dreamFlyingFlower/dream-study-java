@@ -5,6 +5,7 @@ package com.wy.qq;
  */
 public class ServerRefreshFriendListMessage extends Message {
 
+	@Override
 	public int getMessageType() {
 		return SERVER_TO_CLIENT_REFRESHFRIENDLIST;
 	}

@@ -2,6 +2,7 @@ package com.wy.interpreter;
 
 public class MinusInterpreter implements Interpreter {
 
+	@Override
 	public void interpret(ContextInterpreter context) {
 		System.out.println("自动递减");
 		String input = context.getInput();

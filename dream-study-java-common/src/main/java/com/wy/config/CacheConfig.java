@@ -28,8 +28,10 @@ public class CacheConfig extends CachingConfigurerSupport {
 	 * 自定义存入到缓存中的key值
 	 */
 	@Bean
+	@Override
 	public KeyGenerator keyGenerator() {
 		return new KeyGenerator() {
+
 			@Override
 			public Object generate(Object target, Method method, Object... params) {
 				List<String> key = new ArrayList<>();
@@ -42,7 +44,7 @@ public class CacheConfig extends CachingConfigurerSupport {
 			}
 		};
 	}
-	
+
 	/**
 	 * 定义缓存到那种缓存技术中
 	 */

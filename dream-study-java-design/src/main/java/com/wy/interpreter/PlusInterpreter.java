@@ -2,6 +2,7 @@ package com.wy.interpreter;
 
 public class PlusInterpreter implements Interpreter {
 
+	@Override
 	public void interpret(ContextInterpreter context) {
 		System.out.println("自动递增");
 		String input = context.getInput();

@@ -35,6 +35,7 @@ public class StudentUI extends JFrame {
 
 		this.addWindowListener(new WindowAdapter() {
 
+			@Override
 			public void windowClosing(WindowEvent e) {
 				System.exit(-1);
 			}

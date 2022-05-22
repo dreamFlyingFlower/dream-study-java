@@ -13,7 +13,8 @@ public class ISon implements IParent {
 	public static void name() {
 		System.out.println("ison static func");
 	}
-	
+
+	@Override
 	public void name1() {
 		System.out.println("ison default name1");
 	}

@@ -6,6 +6,7 @@ public class MediatorWoman extends MediatorPerson {
 		super(name, condition, mediator);
 	}
 
+	@Override
 	public void getPartner(MediatorPerson person) {
 		this.getMediator().setWoman(this);
 		this.getMediator().getPartner(person);

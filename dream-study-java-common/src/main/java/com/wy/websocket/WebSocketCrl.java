@@ -16,7 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
  * 
  * @author 飞花梦影
  * @date 2021-01-12 11:15:31
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Controller
 @RequestMapping("/api/websocket")
@@ -35,7 +35,7 @@ public class WebSocketCrl {
 	public Map<String, Object> pushToWeb(@PathVariable String cid, String message) {
 		Map<String, Object> result = new HashMap<>();
 		try {
-			WebSocketService.sendInfo(message, cid);
+			WebSocketServer.sendInfo(message, cid);
 			result.put("code", cid);
 			result.put("msg", message);
 		} catch (IOException e) {

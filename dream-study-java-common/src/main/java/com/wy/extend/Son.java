@@ -9,13 +9,14 @@ package com.wy.extend;
 public class Son extends Parent {
 
 	public int richer = 500;
-	
+
 	public static int boy = 1;
 
+	@Override
 	public void name() {
 		System.out.println("son");
 	}
-	
+
 	public static void name1() {
 		System.out.println("son1");
 	}

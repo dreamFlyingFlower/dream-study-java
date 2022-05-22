@@ -34,6 +34,7 @@ public class ReceiverThread extends Thread {
 		}
 	}
 
+	@Override
 	public void run() {
 		try {
 			// 数据缓冲区

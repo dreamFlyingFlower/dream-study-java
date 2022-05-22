@@ -18,25 +18,33 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * websocket业务
+ * WebSocket服务器
  *
+ * <pre>
  * {@link EnableWebSocket}:使用WebSocket功能必须开启该注解
- * {@link ServerEndpoint}:将当前类定义成一个websocket服务器端,注解的值将被用于监听用户连接的终端访问URL地址
+ * {@link ServerEndpoint}:将当前类定义成一个websocket服务器端,注解的值将被用于监听用户连接的终端访问URL地址.参数需要连接在URL后
+ * {@link PathParam}:获取URL中申明的参数
+ * {@link OnOpen}:被该注解标识的方法将在建立连接口时调用
+ * 		{@link Session}:客户端与服务端建立的长连接通道
+ * {@link OnClose}:被该注解标识的方法将在连接关闭时调用
+ * {@link OnMessage}:被该注解标识的方法用于接收客户端发来的消息
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2021-01-12 11:10:15
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-@ServerEndpoint("api/websocket")
+@EnableWebSocket
+@ServerEndpoint("api/websocket/{sid}")
 @Service
 @Slf4j
-public class WebSocketService {
+public class WebSocketServer {
 
 	// 静态变量,用来记录当前在线连接数
 	private static AtomicInteger onlineCount = new AtomicInteger(0);
 
 	// concurrent包的线程安全Set,用来存放每个客户端对应的MyWebSocket对象
-	private static CopyOnWriteArraySet<WebSocketService> webSocketSet = new CopyOnWriteArraySet<>();
+	private static CopyOnWriteArraySet<WebSocketServer> webSocketSet = new CopyOnWriteArraySet<>();
 
 	// 与某个客户端的连接会话,需要通过它来给客户端发送数据
 	private Session session;
@@ -46,6 +54,9 @@ public class WebSocketService {
 
 	/**
 	 * 连接建立成功调用的方法
+	 * 
+	 * @param session 连接会话
+	 * @param sid 从URL中拿到的参数,参数传递格式:URL/{sid}
 	 */
 	@OnOpen
 	public void onOpen(Session session, @PathParam("sid") String sid) {
@@ -76,13 +87,16 @@ public class WebSocketService {
 	}
 
 	/**
-	 * 收到客户端消息后调用的方法 @ Param message 客户端发送过来的消息
+	 * 收到客户端消息后调用的方法
+	 * 
+	 * @param message 客户端发送过来的消息
+	 * @param session 客户端与服务端建立的长连接通道
 	 */
 	@OnMessage
 	public void onMessage(String message, Session session) {
 		log.info("收到来自窗口" + sid + "的信息:" + message);
 		// 群发消息
-		for (WebSocketService item : webSocketSet) {
+		for (WebSocketServer item : webSocketSet) {
 			try {
 				item.sendMessage(message);
 			} catch (IOException e) {
@@ -101,7 +115,10 @@ public class WebSocketService {
 	}
 
 	/**
-	 * 实现服务器主动推送
+	 * 服务器主动推送消息给客户端
+	 * 
+	 * @param message 需要发送到客户端的消息
+	 * @throws IOException
 	 */
 	public void sendMessage(String message) throws IOException {
 		this.session.getBasicRemote().sendText(message);
@@ -113,7 +130,7 @@ public class WebSocketService {
 	public static void sendInfo(String message, @PathParam("sid") String sid) throws IOException {
 		log.info("推送消息到窗口" + sid + "，推送内容:" + message);
 
-		for (WebSocketService item : webSocketSet) {
+		for (WebSocketServer item : webSocketSet) {
 			try {
 				// 这里可以设定只推送给这个sid的,为null则全部推送
 				if (sid == null) {
@@ -132,14 +149,14 @@ public class WebSocketService {
 	}
 
 	public static synchronized void addOnlineCount() {
-		WebSocketService.onlineCount.getAndIncrement();
+		WebSocketServer.onlineCount.getAndIncrement();
 	}
 
 	public static synchronized void subOnlineCount() {
-		WebSocketService.onlineCount.getAndDecrement();
+		WebSocketServer.onlineCount.getAndDecrement();
 	}
 
-	public static CopyOnWriteArraySet<WebSocketService> getWebSocketSet() {
+	public static CopyOnWriteArraySet<WebSocketServer> getWebSocketSet() {
 		return webSocketSet;
 	}
 }

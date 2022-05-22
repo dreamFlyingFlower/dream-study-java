@@ -16,12 +16,14 @@ import com.wy.service.MyAsyncService01;
 public class MyAsyncServiceImpl01 implements MyAsyncService01 {
 
 	@Async
+	@Override
 	public void test1() {
 		System.out.println(Thread.currentThread().getName());
 		System.out.println(11111);
 	}
 
 	@Async("defaultAsyncPool")
+	@Override
 	public void test2() {
 		System.out.println(Thread.currentThread().getName());
 		System.out.println(22222);

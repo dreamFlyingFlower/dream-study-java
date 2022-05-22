@@ -22,6 +22,7 @@ public class ServerChatsMessage extends Message {
 
 	private byte[] rawMessage;
 
+	@Override
 	public int getMessageType() {
 		return SERVER_TO_CLIENT_CHATS;
 	}
