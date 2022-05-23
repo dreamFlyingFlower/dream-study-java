@@ -1,0 +1,117 @@
+{
+  "main": {
+    "id": "d4dc2e1f47b70ae6",
+    "type": "split",
+    "children": [
+      {
+        "id": "de54a6a453346094",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Nginx/Nginx.md",
+            "mode": "source",
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "a386f41c66469bce",
+    "type": "split",
+    "children": [
+      {
+        "id": "f6e432ac46e62151",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "57d84e3b6431e03e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "184e81d06fa0440b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "d43347d3ff8c4f0f",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Nginx/Nginx.md"
+              }
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "horizontal",
+    "width": 280
+  },
+  "right": {
+    "id": "e7cb22e7d96294a0",
+    "type": "split",
+    "children": [
+      {
+        "id": "5d13c5666490f75e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "78cc2a64eb619f26",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Nginx/Nginx.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "32e771550b7d8855",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Nginx/Nginx.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "de54a6a453346094",
+  "lastOpenFiles": [
+    "Nginx/Nginx.md",
+    "Crawler.md",
+    "教育邮箱申请资料.png"
+  ]
+}

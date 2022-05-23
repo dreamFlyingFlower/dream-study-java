@@ -19,7 +19,7 @@ import com.alipay.api.request.AlipayFundTransUniTransferRequest;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
-import com.wy.Constant;
+import com.wy.ConstLang;
 import com.wy.lang.NumberTool;
 import com.wy.lang.StrTool;
 import com.wy.model.AlipayTransfer;
@@ -41,8 +41,7 @@ public class Alipayment implements Payment, ApplicationContextAware {
 
 	private static ApplicationContext applicationContext = null;
 
-	private Alipayment() {
-	}
+	private Alipayment() {}
 
 	static class Inner {
 
@@ -114,7 +113,7 @@ public class Alipayment implements Payment, ApplicationContextAware {
 		AlipayTransfer bizContent = new AlipayTransfer();
 		bizContent.setOut_biz_no(transferMoney.getOutBizNo());
 		bizContent.setTrans_amount(
-				new BigDecimal(NumberTool.round(Math.abs(Integer.parseInt(transferMoney.getAmount())), 2)));
+		        new BigDecimal(NumberTool.round(Math.abs(Integer.parseInt(transferMoney.getAmount())), 2)));
 		bizContent.setProduct_code("TRANS_ACCOUNT_NO_PWD");
 		bizContent.setBiz_scene("DIRECT_TRANSFER");
 		bizContent.setOrder_title(title);
@@ -122,7 +121,7 @@ public class Alipayment implements Payment, ApplicationContextAware {
 		participant.setIdentity(transferMoney.getPayeeAccount());
 		participant.setIdentityType(transferMoney.getPayeeType());
 		participant.setName((StrTool.isNotBlank(transferMoney.getPayeeRealName()) ? transferMoney.getPayeeRealName()
-				: Constant.Langes.STR_EMPTY));
+		        : ConstLang.STR_EMPTY));
 		bizContent.setPayee_info(participant);
 		bizContent.setRemark(title);
 		request.setBizContent(JSON.toJSONString(bizContent));

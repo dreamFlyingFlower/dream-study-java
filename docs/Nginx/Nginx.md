@@ -175,8 +175,18 @@
 * keepalive_timeout:保持连接的最大时间
 * gzip:是否开启数据压缩
 * server_tokens off:隐藏nginx版本号
-
-
+* limit_req_zone:限流,定义在http块中
+	* zone:定义IP状态及URL访问频率的共享内存区域.zone=keyword标识区域的名字,以及冒号后面跟区域大小.16000个IP地址的状态信息约1MB,所以示例中区域可以存储160000个IP地址
+	* rate:定义最大请求速率.示例中速率不能超过每秒100个请求
+	```nginx
+	# 定义限流.:$binary_remote_addr表示保存客户端IP地址的二进制形式
+	limit_req_zone $binary_remote_addr zone=mylimit:10m rate=100r/s
+	
+	# 在location中设置限流.burst排队大小,nodelay不限制单个请求间的时间
+	localtion / {
+		limit_req zone=mylit burst=20 nodelay;
+	}
+	```
 
 ## server
 
@@ -308,6 +318,39 @@ location /{ # 请求URI
   
 * allow:允许某个IP访问.如果是网段,用/隔开.如127.0.0.1/64
 
+* expires:缓存
+
+  ```nginx
+  # 浏览器缓存,静态资源存用expires
+  location ~ .*\.(?:jpg|jpeg|png|gif|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm)${
+      expires 7d;
+  }
+  location ~ .*\.(?:js|css)${
+      expires 7d;
+  }
+  # 代理层缓存
+  proxy_cache_path /data/cache/nginx/ levels=1:2 keys_zone=cache:512m inactive=1d max_size=8g;
+  location / {
+      location ~ \.(htm|html)?$ {
+          proxy_cache cache;
+          // 以此变量值为HASH作为KEY
+          proxy_cache_key $uri$is_args$args;
+          add_header X-Cache $upstream_cache_status;
+          proxy_cache_valid 200 10m;
+          proxy_cache_valid any 1m;
+          proxy_pass http://ip:port;
+          proxy_redirect off;
+      }
+      location ~ .*\.(jpg|jpeg|png|gif|ico|txt|js|css)${
+          root /data/html;
+          expires 3d;
+          add_header Static Nginx-Proxy;
+      }
+  }
+  ```
+
+  
+
 
 
 ## upstream
@@ -335,6 +378,50 @@ location /{ # 请求URI
   * ip_hash:根据请求的ip进行hash之后转发到其他服务器
   * fair:按后端服务器的响应时间来分配请求,响应时间短的优先分配
   * hash:按访问url的hash结果来分配请求,使每个url定向到同一个后端服务器,后端服务器为缓存时比较有效.在upstream中加入hash语句,server语句中不能写入weight等其他的参数,hash_method是使用的hash算法
+
+
+
+## 白名单
+
+
+
+### 不限流白名单
+
+
+
+```nginx
+geo $limit {
+    # IP网段
+    122.16.11.0/24 0;
+}
+
+map $limit $imit_key {
+    1 $binary_remote_addr;
+    0 "";
+}
+limit_reg_zone $limit_key zone=mylimit:10m rate=1r/s;
+
+location / {
+    limit_req zone=mylimit burst=1 nodelay;
+    proxy_pass http://service3Custer
+}
+```
+
+
+
+### 黑名单
+
+
+
+```nginx
+location / {
+	deny 10.52.119.21;
+	deny 122.12.1.0/24;
+	allow 10.1.1.0/16;
+	aLlow 1001:0db8::/32;
+	deny all
+}
+```
 
 
 
