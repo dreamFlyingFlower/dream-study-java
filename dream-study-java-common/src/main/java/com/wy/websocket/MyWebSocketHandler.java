@@ -8,7 +8,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 /**
- * Websocket处理类,可以直接实现{@link WebSocketHandler},也可以继承该接口的实现类
+ * Websocket+Spring,可以直接实现{@link WebSocketHandler},也可以继承该接口的实现类
  *
  * @author 飞花梦影
  * @date 2021-06-02 15:33:35
@@ -25,6 +25,8 @@ public class MyWebSocketHandler extends AbstractWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		System.out.println("建立链接");
+		// 在拦截器中加入attributes的属性可以在此处取出
+		session.getAttributes().get("userId");
 	}
 
 	@Override
