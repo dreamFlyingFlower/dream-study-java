@@ -33,7 +33,6 @@ public class CrawlerPageProcessorManager {
 	/**
 	 * 初始化注入接口顺序的方法
 	 */
-
 	@PostConstruct
 	public void initProcessingFlow() {
 		if (abstractCrawlerPageProcessorList != null && !abstractCrawlerPageProcessorList.isEmpty()) {

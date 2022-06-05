@@ -361,6 +361,8 @@ client.indices.putMapping({
 
 ## Elasticsearch head
 
+
+
 * ES集群可视化操作,可在Web上管理ES集群
 * [下载插件](https://github.com/mobz/elasticsearch-head),elasticsearch-head-master.zip
 * nodejs[官网](https://nodejs.org/dist/)下载安装包
@@ -392,10 +394,10 @@ npm install -g grunt-cli
 ```javascript
 # 文件93行添加hostname:'0.0.0.0'
 options: {
-hostname:'0.0.0.0',
-port: 9100,
-base: '.',
-keepalive: true
+    hostname:'0.0.0.0',
+    port: 9100,
+    base: '.',
+    keepalive: true
 }
 ```
 

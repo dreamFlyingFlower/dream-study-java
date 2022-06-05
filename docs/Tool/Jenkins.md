@@ -87,4 +87,6 @@ source /etc/profile
 
 * 构建一个maven项目
 * 点击源码管理,将git仓库的地址填入其中,根据实际情况添加密钥验证
-* build的Root Pom需要根据实际情况选择pom.xml文件.Goals只需要写maven后的命令
+* build的Root Pom需要根据实际情况选择pom.xml文件,一般直接写pom.xml即可.Goals and Options填写需要执行的maven命令,如maven clean package
+* post steps:可选择execute shell,添加一些脚本,如重新构建之后重启的脚本等
+* 如需通过git进行自动构建,则需要通过git的webhook功能,填入Jenkins项目地址即可
