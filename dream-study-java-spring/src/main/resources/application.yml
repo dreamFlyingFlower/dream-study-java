@@ -28,7 +28,7 @@ management:  endpoints:    web:      exposure:        include:
 info:
   test: test
   version: 0.0.1
-
+  
 server: 
   port: 5510
   max-http-header-size: 10000000

@@ -1,4 +1,6 @@
 server:
+  # 优雅停机,接收命令后将不再接收新的请求,默认是immediate.kill -9不会触发优雅停机,需使用kill -2
+  shutdown: graceful
   servlet:
     # 指定url后缀,若不指定访问接口时直接就是ip:port/api,该参数加上则是ip:port/study/api
     context-path: study
@@ -9,6 +11,9 @@ spring:
     servlet:
       # 指定API后缀,加上后访问api为ip:port/study/api.html,这个是利于搜索的
       path: "*.html"
+  # 优雅停机时设置最大等待时间,超过该时间立刻停机
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
       
 management:
   endpoints:
