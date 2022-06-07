@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Shiro授权自定义实现类
+ * Shiro授权自定义实现类,从实现中获取用户,角色,权限等资源
  *
  * @author 飞花梦影
  * @date 2021-04-17 17:37:38
@@ -34,7 +34,7 @@ public class AuthRealm extends AuthorizingRealm {
 	private UserService userService;
 
 	/**
-	 * 授权
+	 * 授权,查询数据库获取用户的所有角色和权限信息
 	 *
 	 * @param principals 用户信息
 	 * @return 授权信息

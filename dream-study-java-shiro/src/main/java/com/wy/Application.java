@@ -1,16 +1,5 @@
 package com.wy;
 
-import org.apache.shiro.web.filter.PathMatchingFilter;
-import org.apache.shiro.web.servlet.AbstractFilter;
-import org.apache.shiro.web.servlet.AbstractShiroFilter;
-import org.apache.shiro.web.servlet.AdviceFilter;
-import org.apache.shiro.web.servlet.NameableFilter;
-import org.apache.shiro.web.servlet.OncePerRequestFilter;
-import org.apache.shiro.web.servlet.ShiroFilter;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.apache.shiro.web.filter.AccessControlFilter;
-import org.apache.shiro.web.servlet.ProxiedFilterChain;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -19,7 +8,23 @@ import org.apache.shiro.authz.annotation.RequiresGuest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.authz.annotation.RequiresUser;
+import org.apache.shiro.authz.aop.AuthenticatedAnnotationMethodInterceptor;
+import org.apache.shiro.authz.aop.GuestAnnotationMethodInterceptor;
+import org.apache.shiro.authz.aop.PermissionAnnotationMethodInterceptor;
+import org.apache.shiro.authz.aop.RoleAnnotationMethodInterceptor;
+import org.apache.shiro.authz.aop.UserAnnotationMethodInterceptor;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.filter.AccessControlFilter;
+import org.apache.shiro.web.filter.PathMatchingFilter;
+import org.apache.shiro.web.servlet.AbstractFilter;
+import org.apache.shiro.web.servlet.AbstractShiroFilter;
+import org.apache.shiro.web.servlet.AdviceFilter;
+import org.apache.shiro.web.servlet.NameableFilter;
+import org.apache.shiro.web.servlet.OncePerRequestFilter;
+import org.apache.shiro.web.servlet.ProxiedFilterChain;
+import org.apache.shiro.web.servlet.ShiroFilter;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Shiro权限拦截
@@ -51,11 +56,16 @@ import org.apache.shiro.subject.Subject;
  * 相关注解:
  * 
  * <pre>
- * {@link RequiresAuthentication}:Subject必须已经在当前的session中被验证通过
- * {@link RequiresGuest}:Subject是一个guest,即必须是在之前的session中没有被验证或被记住才能被访问或调用
- * {@link RequiresPermissions}:Subject含有指定一个或多个权限才能访问
- * {@link RequiresRoles}:Subject必须拥有所指定的角色.如果没有,抛出{@link AuthorizationException}异常
- * {@link RequiresUser}:Subject是指定用户,或在当前session中通过验证被确认,或在之前 session 中的RememberMe服务被记住
+ * {@link RequiresAuthentication}:Subject必须已经在当前的session中被验证通过.
+ * 		被 {@link AuthenticatedAnnotationMethodInterceptor}拦截
+ * {@link RequiresGuest}:Subject是一个guest,即必须是在之前的session中没有被验证或被记住才能被访问或调用.
+ * 		被 {@link GuestAnnotationMethodInterceptor}拦截 
+ * {@link RequiresPermissions}:Subject含有指定一个或多个权限才能访问.
+ * 		被 {@link PermissionAnnotationMethodInterceptor}拦截
+ * {@link RequiresRoles}:Subject必须拥有所指定的角色.如果没有,抛出{@link AuthorizationException}异常.
+ * 		被 {@link RoleAnnotationMethodInterceptor}拦截
+ * {@link RequiresUser}:Subject是指定用户,或在当前session中通过验证被确认,或在之前 session 中的RememberMe服务被记住.
+ * 		被 {@link UserAnnotationMethodInterceptor}拦截
  * </pre>
  *
  * @author 飞花梦影
