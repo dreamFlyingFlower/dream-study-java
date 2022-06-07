@@ -29,6 +29,7 @@ public class ShiroConfig {
 			shiroFilterFactoryBean(@Qualifier("securityManager") SecurityManager securityManager) {
 		ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 		factoryBean.setSecurityManager(securityManager);
+		// 配置登录页面
 		factoryBean.setLoginUrl("/user/login");
 		// 登录成功的url
 		factoryBean.setSuccessUrl("/user/index");
@@ -36,7 +37,7 @@ public class ShiroConfig {
 		// 拦截请求的各种方式
 		LinkedHashMap<String, String> map = new LinkedHashMap<>();
 		// 拦截的请求和方式,方式可见
-		// authc:必须登录验证
+		// authc:必须登录验证,authcBasic:表示httpBasic认证,ssl:安全的URL请求,协议为https,port[8080]:当请求的URL端口不是8080时,跳转到8080
 		map.put("/user/index", "authc");
 		// anon:不需要任何校验
 		map.put("/user/login", "anon");
@@ -46,22 +47,36 @@ public class ShiroConfig {
 		map.put("/admin", "roles[admin]");
 		// 需要指定权限的访问路径,固定写法:perms固定,数组中为需要的权限,多个用逗号隔开
 		map.put("/role/assign", "perms[save]");
+		// rest[user]:根据请求的方法,相当于perms[user:method],其中method为post,get,delete等
+		map.put("/user/add", "rest[user:post]");
 		factoryBean.setFilterChainDefinitionMap(map);
 		return factoryBean;
 	}
 
-	@Bean
-	public SecurityManager securityManager(@Qualifier("authRealm") AuthRealm authRealm) {
-		DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
-		defaultWebSecurityManager.setRealm(authRealm);
-		return defaultWebSecurityManager;
-	}
-
+	/**
+	 * 创建realm
+	 * 
+	 * @param credentialsMatcher 密码管理
+	 * @return 自定义realm
+	 */
 	@Bean
 	public AuthRealm authRealm(@Qualifier("credentialMatcher") CredentialMatcher credentialsMatcher) {
 		AuthRealm authRealm = new AuthRealm();
 		authRealm.setCredentialsMatcher(credentialsMatcher);
 		return authRealm;
+	}
+
+	/**
+	 * 创建安全管理器,使用默认安全管理器
+	 * 
+	 * @param authRealm 自定义realm
+	 * @return 安全管理器
+	 */
+	@Bean
+	public SecurityManager securityManager(@Qualifier("authRealm") AuthRealm authRealm) {
+		DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
+		defaultWebSecurityManager.setRealm(authRealm);
+		return defaultWebSecurityManager;
 	}
 
 	@Bean("credentialMatcher")
