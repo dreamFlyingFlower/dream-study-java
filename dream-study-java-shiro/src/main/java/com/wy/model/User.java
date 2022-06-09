@@ -63,5 +63,7 @@ public class User implements Serializable {
 
 	private Role role;
 
+	private String token;
+
 	private List<Role> roles;
 }
