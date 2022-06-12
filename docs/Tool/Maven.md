@@ -1,5 +1,7 @@
 # Maven
 
+
+
 # 配置文件
 
 
@@ -68,13 +70,92 @@
 
 
 
-* 写在pom.xml每个dependency的scope中
+## Scope
+
+
+
 * 假设A为主项目,B依赖A项目
-* compile:默认,A,B都可以使用,可以向下传递.参与编译打包部署
+* compile:默认,A,B都可以使用,main程序和测试程序可以使用,可以向下传递,参与编译打包部署
 * test:A可用,B不可用,不能向下传递,不参与打包编译部署
-* provided:A可用,B不可用,不能向下传递,参与编译,不参与打包部署
+* provided:A可用,B不可用,不能向下传递,参与A的编译,不参与A的打包部署,不参与B的编译打包部署
 * runtime:编译时不依赖,运行打包时需要依赖
 * 同一个jar包被多次引用时,引用先声明的dependency中的
+
+
+
+## Optional
+
+
+
+* 可选依赖
+* 若A依赖B,B依赖了C,当B中依赖的C的Optional为true时,A看不到B依赖了C,即A不依赖C
+
+
+
+# 插件生命周期
+
+
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+                <execution>
+                    <!-- 指定生命周期阶段生效 -->
+                    <phase>package</phase>
+                    <goals>
+                        <goal>jar-no-fork</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
+
+## Goal
+
+
+
+* aggregate:集合所有module在一个项目中进行打包
+* jar:对主程序(main包)进行打包
+* test-jar:对测试程序进行打包
+* jar-no-fork:类似于jar,但是不分支构建生命周期
+* test-jar-no-fork:类似于jar-no-fork,对test生效
+
+
+
+## Phase
+
+* validate:校验项目是否正确并且所有必要的信息可以完成项目的构建过程
+* initialize:初始化构建状态,比如设置属性值
+* generate-sources:生成包含在编译阶段中的任何源代码
+* process-sources:处理源代码,比如过滤任意值
+* generate-resources:生成将会包含在项目包中的资源文件
+* process-resources:复制和处理资源到目标目录,为打包阶段最好准备
+* compile:编译项目的源代码
+* process-classes:处理编译生成的文件,比如对Java class文件做字节码改善优化
+* generate-test-sources:生成包含在编译阶段中的任何测试源代码
+* process-test-sources:处理测试源代码,比如过滤任意值
+* generate-test-resources:为测试创建资源文件
+* process-test-resources:复制和处理测试资源到目标目录
+* test-compile:编译测试源代码到测试目标目录
+* process-test-classes:处理测试源码编译生成的文件
+* test:使用合适的单元测试框架运行测试,Juint是其中之一
+* prepare-package:在实际打包之前,执行任何的必要的操作为打包做准备
+* package:将编译后的代码打包成可分发格式的文件,比如JAR,WAR或者EAR文件
+* pre-integration-test:在执行集成测试前进行必要的动作,比如搭建需要的环境
+* integration-test:处理和部署项目到可以运行集成测试环境中
+* post-integration-test:在执行集成测试完成后进行必要的动作,比如清理集成测试环境
+* verify:运行任意的检查来验证项目包有效且达到质量标准
+* install:安装项目包到本地仓库,这样项目包可以用作其他本地项目的依赖
+* deploy:将最终的项目包复制到远程仓库中与其他开发者和项目共享
 
 
 

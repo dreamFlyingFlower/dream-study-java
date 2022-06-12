@@ -9,13 +9,15 @@
 * 流程引擎
 * [官网](http://activiti.org),7以下版本中包含大部分已经打好的WAR源码
 
+![](000.png)
+
 
 
 # 安装
 
 
 
-* 从Activiti网站下载activit-6.0.0.zip的压缩文件后,加压后可直接将wars文件夹中的war复制到tomcat/webapps下
+* 从Activiti网站下载activit-6.0.0.zip,解压后直接将wars文件夹中的war复制到tomcat/webapps下
 
 - 执行tomcat的bin目录下的startup.bat或startup.sh启动服务器
 - tomcat启动后,打开浏览器访问相应地址:
@@ -24,6 +26,7 @@
   - http://localhost:8080/activit-rest,默认admin/test登录,这不是一个网页,是API
 - activiti-app默认使用H2内存数据库,可修改WEB-INF下相关数据库文件地址 
 - activiti-app是流程引擎的用户控制台,使用它来启动新流程,分配任务,查看并认领任务等.这个工具也可以用来管理Activiti引擎
+- activiti-app的Kickstart App是制作新流程图的页面,Task App是测试流程的页面,Identity management是用户管理界面
 - Activiti App演示实例只是一种简单快速展示Activiti的功能的方式,但是并不是说只能使用这种方式使用Activiti
 - Activiti只是一个jar,可以内嵌到任何Java环境中:swing或者Tomcat, JBoss, WebSphere等.也可以把Activiti作为一个典型的单独运行的BPM服务器运行,只要java可以做的,Activiti也可以
 
@@ -280,12 +283,9 @@ ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneInMemPr
 ```properties
 log4j.appender.consoleAppender.layout.ConversionPattern =ProcessDefinitionId=%X{mdcProcessDefinitionID}
 executionId=%X{mdcExecutionId} mdcProcessInstanceID=%X{mdcProcessInstanceID} mdcBusinessKey=%X{mdcBusinessKey} %m%n"
-
 ```
 
 * 当系统进行高风险任务,日志必须严格检查时,这个功能就非常有用,比如要使用日志分析的情况
-
-
 
 
 
@@ -411,6 +411,8 @@ FormService formService = processEngine.getFormService();
 
 
 ### 发布流程
+
+
 
 * 任何与静态资源有关的数据都可以通过**RepositoryService**访问
 * 创建一个新的xml文件 `Test.bpmn20.xml`
@@ -600,6 +602,8 @@ long count = taskService.createNativeTaskQuery()
 
 ## 表达式
 
+
+
 * Activiti使用UEL处理表达式
 * UEL即*统一表达式语言*,它是EE6规范的一部分([EE6规范](http://docs.oracle.com/javaee/6/tutorial/doc/gjddd.html)).为了在所有运行环境都支持最新UEL的所有共嫩个,我们使用了一个JUEL的修改版本
 * 表达式可以用在很多场景下,比如[Java服务任务](http://www.mossle.com/docs/Activiti/#bpmnJavaServiceTaskXML),[执行监听器](http://www.mossle.com/docs/Activiti/#executionListeners),[任务监听器](http://www.mossle.com/docs/Activiti/#taskListeners)和[条件流](http://www.mossle.com/docs/Activiti/#conditionalSequenceFlowXml).虽然有两重表达式,值表达式和方法表达式,Activiti进行了抽象,所以两者可以同样使用在需要`表达式`的场景中
@@ -618,6 +622,8 @@ long count = taskService.createNativeTaskQuery()
 
 
 ## 单元测试
+
+
 
 * 业务流程是软件项目的一部分,它也应该和普通的业务流程一样进行测试:使用单元测试. 因为Activiti是一个嵌入式的java引擎, 为业务流程编写单元测试和写普通单元测试完全一样
 * Activiti支持JUnit 3和4进行单元测试.使用JUnit 3时, 必须集成`ActivitiTestCase`. 它通过保护的成员变量提供ProcessEngine和服务,在测试的`setup()`中, 默认会使用classpath下的`Activiti.cfg.xml`初始化流程引擎.想使用不同的配置文件,可以重写*getConfigurationResource()*方法. 如果配置文件相同的话,对应的流程引擎会被静态缓存, 就可以用于多个单元测试
@@ -666,6 +672,8 @@ public class MyBusinessProcessTest {
 
 ## Web应用中的流程引擎
 
+
+
 * `ProcessEngine`是线程安全的,可以在多线程下共享.在web应用中, 意味着可以在容器启动时创建流程引擎, 在容器关闭时关闭流程引擎
 
 ```java
@@ -691,6 +699,8 @@ public class ProcessEnginesServletContextListener implements ServletContextListe
 
 ## 业务文档
 
+
+
 * 为了部署流程,它们不得不包装在一个业务文档中
 * 一个业务文档是Activiti引擎部署的单元,相当与一个压缩文件,它包含BPMN2.0流程,任务表单,规则和其他任意类型的文件.大体上,业务文档是包含命名资源的容器
 * 当一个业务文档被部署,它将会自动扫描`.bpmn20.xml` 或者`.bpmn`结尾的BPMN文件,每个文件都将会被解析并且可能会包含多个流程定义
@@ -699,6 +709,8 @@ public class ProcessEnginesServletContextListener implements ServletContextListe
 
 
 ### 编程式部署
+
+
 
 * 通过一个压缩文件(支持Zip和Bar)部署业务归档
 
@@ -716,6 +728,8 @@ repositoryService.createDeployment()
 
 
 ### Activiti War部署
+
+
 
 * activit-admin,activiti-app允许通过Web界面的用户接口上传一个bar格式的压缩文件(或`bpmn20.xml`格式的文件),选择*Management* *标签* 和 点击 *Deployment*
 
@@ -750,11 +764,15 @@ repositoryService.createDeployment()
 
 ### 创建独立应用
 
+
+
 可以把Activiti rest web应用加入到自己的web应用之中,仅仅只需要配置一个 `ProcessEngine`,从而不用确保所有的流程引擎的所有委托类在类路径下面并且是否使用正确的spring配置
 
 
 
 ## 流程定义的版本
+
+
 
 * BPMN中并没有版本的概念,没有版本也是不错的,因为可执行的BPMN流程作为你开发项目的一部分存在版本控制系统的知识库中
 * 在Activiti中,流程定义的版本是在部署时创建的.在部署时,流程定义被存储到数据库之前,Activiti将会自动给 `流程定义` 分配一个版本号
@@ -767,6 +785,8 @@ repositoryService.createDeployment()
 
 
 ### 一个例子
+
+
 
 ```xml
 <definitions id="myDefinitions" >
@@ -812,6 +832,8 @@ repositoryService.createDeployment()
 
 ## 提供流程图片
 
+
+
 * 流程定义的流程图可以被添加到部署中,该流程图将会持久化到数据库中并且可以通过API进行访问.该流程图也可以被用来在Activiti Explorer控制台中的流程中进行显示
 
 * 如果在我们的类路径下面有一个流程,`org/Activiti/expenseProcess.bpmn20.xml`,该流程定义有一个流程key expense. 以下遵循流程定义图片的命名规范
@@ -842,6 +864,8 @@ InputStream imageStream = repositoryService
 
 ## 自动生成流程图片
 
+
+
 * 部署没有提供图片时,如果流程定义中包含必要的图像交换信息时,Activiti流程引擎竟会自动生成一个图像
 * 该资源可以按照部署时提供流程图片完全相同的方式获取
 * 如果部署时,并不需要生成流程定义图片,那么就需要在流程引擎配置`isCreateDiagramOnDeploy`
@@ -853,6 +877,8 @@ InputStream imageStream = repositoryService
 
 
 ## 类别
+
+
 
 * 部署和流程定义都是用户定义的类别.流程定义类别在BPMN文件中属性的初始化的值`<definitions ... targetNamespace="yourCategory" ...` 
 
@@ -982,6 +1008,8 @@ public class UserBean {
 
 ## 表达式
 
+
+
 * 当使用ProcessEngineFactoryBean时,默认情况下,在BPMN流程中的所有[表达式](http://www.mossle.com/docs/Activiti/#apiExpressions)都将会看见所有的Spring beans.它可以限制你在表达式中暴露出的beans或者甚至可以在你的配置中使用一个Map不暴露任何beans
 * 下面的例子暴露了一个单例bean(printer),可以把printer当作关键字使用
 * 想要不暴露任何beans,仅仅只需要在SpringProcessEngineConfiguration中传递一个空的list作为beans的属性
@@ -1027,6 +1055,8 @@ public class UserBean {
 
 ## 资源的自动部署
 
+
+
 * Spring的集成也有一个专门用于对资源部署的特性
 * 在流程引擎的配置中,可以指定一组资源,当流程引擎被创建时,所有在这里的资源都将会被自动扫描与部署
 * 自动部署有过滤以防止资源重新部署的功能,只有当这个资源真正发生改变的时候,它才会向Activiti使用的数据库创建新的部署
@@ -1045,6 +1075,8 @@ public class UserBean {
 
 
 ## 单元测试
+
+
 
 * 当集成Spring时,使用标准的[Activiti测试工具类](http://www.mossle.com/docs/Activiti/#apiUnitTesting)是非常容易的对业务流程进行测试
 
@@ -1085,9 +1117,9 @@ public class MyBusinessProcessTest {
 
 
 
-
-
 # 表单
+
+
 
 * Activiti7之后无表单模块
 * Activiti提供了一种方便而且灵活的方式在业务流程中以手工方式添加表单
@@ -1096,6 +1128,8 @@ public class MyBusinessProcessTest {
 
 
 ## 表单属性
+
+
 
 * 业务流程相关联的所有信息要么是包含自身的流程变量,要么是通过流程变量的引用.Activiti支持存储复杂的Java对象作为流程变量,如`序列化`对象,Jpa实体对象或者整个XML文档作为`字符串`
 * 用户是在启动一个流程和完成用户任务时,与流程进行交互的.表单需要某个UI技术渲染之后才能够与用户进行交互.为了能够使用不同UI技术变得容易,流程定义包含一个对流程变量中复杂的Java类型对象到一个properties的`Map<String,String>`类型的转换逻辑
@@ -1216,6 +1250,8 @@ public interface FormProperty {
 
 ## 外置表单的渲染
 
+
+
 * 该API同样也允许你执行Activiti流程引擎之外的方式渲染你自己的任务表单.这些步骤说明你可以用你自己的方式对任务表单进行渲染
 * 本质上,所有需要渲染的表单属性都是通过2个服务方法中的一个进行装配的:
   * `StartFormData FormService.getStartFormData(processDefinitionId)` 
@@ -1229,6 +1265,8 @@ public interface FormProperty {
 
 
 # 监听流程解析
+
+
 
 * bpmn2.0 xml文件需要被解析为Activiti内部模型,然后才能在Activiti引擎中运行.解析过程发生在发布流程或在内存中找不到对应流程的时候,这时会从数据库查询对应的xml
 * 对于每个流程,`BpmnParser`类都会创建一个新的`BpmnParse`实例.该实例会作为解析过程中的容器来使用
@@ -1257,6 +1295,8 @@ public interface FormProperty {
 
 
 ## BpmnParseHandler
+
+
 
 ```java
 public interface BpmnParseHandler {
@@ -1312,6 +1352,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 支持高并发的UUID生成器
 
+
+
 * 在一些高并发的场景,默认的id生成器可能因为无法很快的获取新id区域而导致异常
 * 所有流程引擎都有一个id生成器,默认的id生成器会在数据库划取一块id范围,这样其他引擎就不能使用相同范围的id.在引擎运行期间,当默认的id生成器发现已经越过id范围时,就会启动一个新事务来获得新范围.在非常极限的情况下,这会在非常高负载的情况下导致问题
 * 对于大部分情况,默认id生成就足够了.默认的`DbIdGenerator` 也有一个`idBlockSize`属性,可以配置获取id范围的大小,这样可以改变获取id的行为
@@ -1339,6 +1381,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 启用安全的BPMN 2.0 xml
 
+
+
 * 大多数情况下,BPMN 2.0流程发布到Activiti引擎是在严格的控制下的,但是某些时候也可能需要把比较随意的BPMN 2.0 xml上传到引擎.这种情况,要考虑恶意用户会攻击服务器
 * 为了避免上面链接描述的攻击, 可以在引擎配置中设置:*enableSafeBpmnXml*:
 
@@ -1353,7 +1397,10 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 # Eclipse Designer
 
+
+
 * Eclipse的Activiti插件,安装略过
+* Perferences->Activiti->勾选Create process definitaion image when saving the diagram
 * 支持开始没有事件,启动错误事件,定时器启动事件,最后没有一个错误事件
 * 支持事件,结束序列流,并行网关,网关,网关,独家包容事件网关
 * 支持嵌入式子流程,事件子流程,调用活动,游泳池,车道
@@ -1365,6 +1412,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 改变任务类型
 
+
+
 * 改变一个任务的类型,只需鼠标悬停在该元素上,然后选择新的任务类型
 
 ![](072.png)
@@ -1372,6 +1421,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 ## 添加新元素
+
+
 
 * 添加一个新元素,只需鼠标悬停某个元素上,然后选择一个新的元素类型
 
@@ -1381,6 +1432,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 支持Java服务
 
+
+
 * 支持对Java 服务任务的Java 类,表达式以及代理表达式的配置.此外,也可以配置字段扩展
 
 ![](074.png)
@@ -1388,6 +1441,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 ## Pools和Lanes
+
+
 
 * 支持pools和lanes,Activiti能根据不同的流程定义读取不同的存储池,这使仅用一个POOL意义重大
 * 如果使用多个池,要注意储存池的图序列流动,它可能会在部署AD引擎的过程中发生问题.当然,只要愿意,仍可以添加尽可能多的POOLS,LANES
@@ -1398,6 +1453,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 添加标签
 
+
+
 * 可以通过填写名称属性添加标签序列流,可以自己定位标签的位置保存为BPMN 2 XML DI部分信息
 
 ![](076.png)
@@ -1405,6 +1462,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 ## 子流程
+
+
 
 * 支持子流程事件
 
@@ -1414,6 +1473,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 嵌入式子流程
 
+
+
 * 支持扩嵌入式子流程
 
 ![](078.png)
@@ -1421,6 +1482,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 ## 边界事件
+
+
 
 * 支持任务和嵌入子过程上的定时器边界事件.定时器边界事件最大的意义在于可以在用户任务或嵌入子过程上使用
 
@@ -1430,6 +1493,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 扩展
 
+
+
 * 支持附加的Activiti的扩展,如邮件任务,用户任务候选者配置以及脚本任务的配置
 
 ![](080.png)
@@ -1438,6 +1503,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 ## 监听
 
+
+
 * 支持Activiti 执行监听和任务监听,可以给执行监听添加字段扩展
 
 ![](081.png)
@@ -1445,6 +1512,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 ## 顺序流条件
+
+
 
 * 支持顺序流上的条件
 
@@ -1455,6 +1524,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 # Activiti Admin
+
+
 
 * Activiti Admin,也称之为Activiti控制台
 * Activiti控制台是一个web应用程序,当我们从Activiti的官方网站下载Activiti的压缩zip文件时候,Activiti控制台在${Activiti_home}/wars文件夹下面
@@ -1472,6 +1543,8 @@ public class CustomUserTaskBpmnParseHandler extends ServiceTaskParseHandler {
 
 
 ## 流程图
+
+
 
 * 控制台包含的功能,使用JS框架自动生成一张流程图.当流程定义XML包含BPMN注入信息时,该流程图才能生成.当流程定义XML中并没有BPMN注入信息但部署时包含一张流程图,该图片也将会被显示
 
@@ -1499,6 +1572,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 任务
 
+
+
 ![](085.png)
 
 - **Inbox:**显示登录用户需要办理的所有任务列表
@@ -1511,6 +1586,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 启动流程实例
 
+
+
 * 在**流程定义**选项卡,允许你查看Activiti流程引擎部署的所有流程定义.可以使用页面顶部右边的按钮启动一个新的流程实例.如果该流程定义有一个启动[表单](http://www.mossle.com/docs/activiti/#forms),那么在启动流程实例之前就先显示表单
 
 ![](086.png)
@@ -1519,6 +1596,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 我的流程实例
 
+
+
 * 在**我的流程** 选项卡,显示当前登录用户未完成的用户任务的所有流程实例
 
 ![](087.png)
@@ -1526,6 +1605,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 
 ## 管理
+
+
 
 * 该功能只有当登录用户是权限组*admin*中的成员时才会显示.点击 *Manage* 图标,提供以下选项列表 
 * **数据库**:在数据库中显示Activiti有关内容.当开发流程或者排除故障等问题的时候是非常有用的
@@ -1552,6 +1633,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 报表
 
+
+
 * 控制台附带了一些报表例子且能很轻松的在系统中添加新的报表.报表功能是位于主功能中的**报表**按钮
 
 ![](093.png)
@@ -1573,6 +1656,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 
 ### 报告数据JSON
+
+
 
 * 报表流程必须生成一个变量*reportData*,这是一个要展现给用户的JSON数据. 这个json看起来像这样:
 
@@ -1608,6 +1693,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 
 ### 实例流程
+
+
 
 * 下面的例子演示了一个流程实例总览报表.流程本身只包含一个脚本任务使用js生成json数据集.虽然所有Explorer中的例子都使用js,但也可以使用java服务任务.执行流程最后的结果就是*reportData*变量保存着数据
 * 下面的例子只能运行在JDK 7+环境中,因为使用了JS引擎
@@ -1703,6 +1790,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ### 报告开始表单
 
+
+
 * 因为报表是使用普通流程来生成的,所以表单功能也可以使用.直接在开始事件里加一个开始表单,Explorer就会在生成报表之前 把它展示给用户
 
 ```xml
@@ -1731,6 +1820,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ### 流程例子
 
+
+
 对于默认的,控制台包含4个报表例子:
 
 - **Employee productivity**:员工的工作效率.报表演示使用折线图和开始表单,报表的脚本也比其他例子要复杂,因为数据会在脚本中先进行解释,再保存到报表数据中
@@ -1742,11 +1833,15 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 修改数据库
 
+
+
 * 如果修改控制台例子所用的数据库,改变属性文件`apps/apache-tomcat-8.x/webapps/activiti-explorer/WEB-INF/classes/db.properties`.同样,在类路径下放上合适的数据库驱动(Tomcat 共享类库或者在 `apps/apache-tomcat-8.x/webapps/activiti-explorer/WEB-INF/lib/`中
 
 
 
 # Activiti Modeler
+
+
 
 * Activiti Modeler是一个BPMN web建模组件,它是Activiti Explorer应用的一部分
 * 当运行Activiti Explorer使用默认配置时,模型工作台中会有一个示例流程
@@ -1757,6 +1852,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 编辑模型
 
+
+
 * 点击模型工作区的编辑按钮,会打开Modeler.屏幕左侧是BPMN元素工具面板,也可以使用Activiti的扩展组件,可以在需要时把新元素拖拽到画布中,屏幕右侧是选中额元素的和苏醒
 * 例子中选中了一个用户任务,可以填写用户任务的属性,比如分配,表单属性和持续时间.点击屏幕右上方的关闭按钮就可以返回Activiti Exporer
 
@@ -1766,6 +1863,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 导入模型
 
+
+
 * 也可以把模型导入到模型工作台中,然后就可以在Activiti Modeler中进行编辑.点击导入按钮,选择.bpmn或.bpmn20.xml文件,BPMN XML文件必须包含BPMN DI(坐标)信息
 
 ![](098.png)
@@ -1773,6 +1872,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 
 ## 流程定义转成可编辑模型
+
+
 
 * 发布的流程定义可以转换成模型,然后就可以在Activiti Modeler中编辑了,注意流程定义必须包含BPMN DI(坐标)信息
 
@@ -1782,6 +1883,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 模型导出
 
+
+
 * 模型工作区中的模型可以导出成BPMN XML文件.选择模型操作选项中的导出选项
 
 ![](100.png)
@@ -1790,6 +1893,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 模型部署到Activiti
 
+
+
 * 在模型设置好所有运行所需的属性之后,它就可以发布到Activiti引擎里. 选择模型操作选项中的发布选项
 
 ![](101.png)
@@ -1797,6 +1902,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 
 # 集成CDI
+
+
 
 * Activiti-cdi模块提供Activiti的可配置型和cdi扩展,需要手动添加依赖,7以上版本已废弃
 
@@ -1824,6 +1931,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ### 查找流程引擎
 
+
+
 * cdi需要访问ProcessEngine,为实现此功能,使用`org.activiti.cdi.spi.ProcessEngineLookup`在运行期进行查找
 * cdi模块使用默认的名为`org.activiti.cdi.impl.LocalProcessEngineLookup`的实现,它使用`ProcessEngines`这个工具类来查找ProcessEngine
 * 默认配置下,使用`ProcessEngines#NAME_DEFAULT`来查找ProcessEngine.这个类可能是使用了自定义名称的子类.需要把activiti.cfg.xml`放在classpath下
@@ -1833,6 +1942,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 
 ### 配置ProcessEngine
+
+
 
 * 实际的配置依赖于选用的ProcessEngineLookup策略.主要结合LocalProcessEngineLookup讨论可用的配置, 这需要在classpath下提供一个spring的activiti.cfg.xml
 * Activiti提供了不同的ProcessEngineConfiguration实现,主要是依赖实际使用的事务管理策略
@@ -1900,6 +2011,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ### 发布流程
 
+
+
 * 可以使用标准的activiti-api发布流程(`RepositoryService`).另外,activiti-cdi提供自动发布 classpath下`processes.xml`中列出的流程的方式.下面是一个processes.xml文件的例子:
 
 ```xml
@@ -1915,12 +2028,16 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 ## 基于CDI环境的流程执行
 
+
+
 * BPMN业务流程通常是一个长时间运行的操作,包含了用户和系统任务的操作. 运行过程中,流程会分成多个单独的工作单元,由用户和应用逻辑执行
 * 在activiti-cdi中,流程实例可以分配到cdi环境中,关联展现成一个工作单元.如果工作单元太复杂,比如如果实现的用户任务是不同形式的复杂顺序,可以在这个操作中保持non-process-scoped状态. 默认配置下,流程实例分配到broadest激活环境,就会启动交互,如果交互环境没有激活,就会返回到请求中
 
 
 
 ### 与流程实例进行关联交互
+
+
 
 * 处理@BusinessProcessScoped,或注入流程变量时,我们实现了激活的cdi环境与流程实例的关联.activiti-cdi提供了`org.Activiti.cdi.BusinessProcess`来控制关联,特别是:
   * `startProcessBy*(...)`:对应Activiti的`RuntimeService`中的相关方法,允许启动和随后向关联的业务流程
@@ -1940,6 +2057,8 @@ http://localhost:8080/activiti-explorer/diagram-viewer/index.html?processDefinit
 
 
 ### 声明式流程控制
+
+
 
 * activiti-cdi允许通过注解声明启动流程实例和完成任务
 * `org.activiti.cdi.annotation.StartProcess`注解允许通过key或name启动流程实例.流程实例会在注解的方法返回*之后*启动.比如:
@@ -1968,6 +2087,8 @@ public String authorizeBusinessTrip() {
 
 
 ### 在流程中引用bean
+
+
 
 * activiti-cdi使用自定义解析器把CDI bean暴露到Activiti El中.这就可以在流程中引用这些bean:
 
@@ -1998,6 +2119,8 @@ public Employee authorizingManager() {
 
 ### BusinessProcessScoped
 
+
+
 * 使用activiti-cdi,bean的生命周期可以绑定到流程实例上
 * 为了扩展,可以提供一个自定义的环境实现,命名为BusinessProcessContext.BusinessProcessScoped bean的实例会作为流程变量保存到当前流程实例中
 * *BusinessProcessScoped bean需要是**PassivationCapable**(比如序列化).* 下面是例子:
@@ -2020,6 +2143,8 @@ public class BusinessTripRequest implements Serializable {
 
 
 ### 注入流程变量
+
+
 
 * 流程变量可以实现用于注入,activiti-CDI支持以下方式:
   * `@BusinessProcessScoped`使用`@Inject属性名`实现类型安全的注入
@@ -2092,6 +2217,8 @@ public void onShipmentSuceeded(@Observes(during=TransactionPhase.AFTER_SUCCESS) 
 
 ### 更多功能
 
+
+
 - 流程引擎和服务都可以注入:`@Inject ProcessEngine, RepositoryService, TaskService`, ... 
 - 当前流程实例和任务可以注入:`@Inject ProcessInstance, Task`
 - 当前业务标识可以注入:`@Inject @BusinessKey String businessKey`
@@ -2101,12 +2228,16 @@ public void onShipmentSuceeded(@Observes(during=TransactionPhase.AFTER_SUCCESS) 
 
 # 集成LDAP
 
+
+
 * Activit7以下版本中才会该功能,非重点
 * LDAP是一种轻量级目录访问协议,主要用来保存描述性的,基于属性的详细信息,主要用于统一认证服务
 
 
 
 ## 用法
+
+
 
 * 添加依赖
 
@@ -2122,6 +2253,8 @@ public void onShipmentSuceeded(@Observes(during=TransactionPhase.AFTER_SUCCESS) 
 
 ## 用例
 
+
+
 * 集成LDAP目前有两大用例:
   * 通过IdentityService进行认证.比如使用Activiti Explorer通过LDAP登录
   * 获得用户的组.这在查询用户可以看到哪些任务时非常重要(比如任务分配给一个候选组)
@@ -2129,6 +2262,8 @@ public void onShipmentSuceeded(@Observes(during=TransactionPhase.AFTER_SUCCESS) 
 
 
 ## 配置
+
+
 
 * 集成LDAP需要通过向流程引擎中的`configurators`注入`org.Activiti.ldap.LDAPConfigurator`的实例来实现.这个类是高度可扩展的:如果默认的实现不符合用例的话,可以很容易的重写方法,很多依赖的bean都是可插拔的
 * 一个实例配置
@@ -2165,6 +2300,8 @@ public void onShipmentSuceeded(@Observes(during=TransactionPhase.AFTER_SUCCESS) 
 
 ## 属性
 
+
+
 * `org.Activiti.ldap.LDAPConfigurator`可以配置的属性:
   * server:LDAP服务器地址,如ldap://localhost:33389
   * port:LDAP运行的端口
@@ -2199,6 +2336,8 @@ public void onShipmentSuceeded(@Observes(during=TransactionPhase.AFTER_SUCCESS) 
 
 
 ## Explorer集成LDAP
+
+
 
 - 将上面的LDAP配置添加到`Activiti-standalone-context.xml`中
 - 把Activiti-ldap jar放到WEB-INF/lib目录下

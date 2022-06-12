@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.wy.Constant;
+import com.wy.ConstPager;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -84,7 +84,7 @@ public abstract class AbstractPager implements Serializable {
 			return false;
 		}
 		if (pageSize == null || pageSize <= 0) {
-			pageSize = Constant.Pager.PAGE_SIZE_NUM;
+			pageSize = ConstPager.PAGE_SIZE_NUM;
 		}
 		return true;
 	}

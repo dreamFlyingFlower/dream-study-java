@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
 	 * @param username 用户名
 	 * @return User
 	 */
+	@Override
 	public User getByUsername(String username) {
 		System.out.println(username);
 		// 创建securityManager工厂,通过ini配置文件创建securityManager工厂

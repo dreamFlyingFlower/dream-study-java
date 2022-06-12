@@ -85,7 +85,7 @@ public class ShiroConfig {
 	}
 
 	/**
-	 * 建立Spring和Shiro之间的关系,用Shiro替代原来的Spring Security
+	 * 配置Shiro注解支持
 	 *
 	 * @param securityManager SecurityManager
 	 * @return 认证拦截

@@ -1,7 +1,9 @@
 package com.wy.activity;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.ReceiveTask;
@@ -65,6 +67,7 @@ import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.activiti.spring.boot.ActivitiProperties;
 import org.activiti.spring.boot.ProcessEngineAutoConfiguration;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.wy.collection.MapTool;
 
@@ -262,11 +265,11 @@ import com.wy.collection.MapTool;
  */
 public class S_Activiti {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// 创建流程引擎
 		ProcessEngine processEngine = createProcessEngine();
 		// 部署流程定义文件
-		ProcessDefinition definition = createProcessDefinition(processEngine);
+		ProcessDefinition definition = createProcessDefinition(processEngine, null);
 		// 流程管理
 		createManagement(processEngine);
 		// 启动运行程序
@@ -319,21 +322,28 @@ public class S_Activiti {
 	 * 流程部署相关
 	 * 
 	 * <pre>
-	 * 每次流程图有修改以后,我们都需要重新部署,流程引擎才能用到新的流程
-	 * 以前旧的流程都是存储在数据库中,新的流程也要存在数据库中
+	 * 每次流程图有修改以后,都需要重新部署,流程引擎才能用到新的流程
+	 * 以前旧的流程都是存储在数据库中,新的流程也要存在数据库中,多个相同流程默认会使用最新版本
 	 * 每次部署都会保存一个新的流程定义act_re_procdef
-	 * 同一个流程多次部署相当于只是版本叠加
 	 * 流程定义的key是用来识别版本是否叠加的
 	 * </pre>
 	 * 
 	 * @param processEngine 流程引擎
 	 * @return
+	 * @throws IOException
 	 */
-	public static ProcessDefinition createProcessDefinition(ProcessEngine processEngine) {
+	public static ProcessDefinition createProcessDefinition(ProcessEngine processEngine, MultipartFile multipartFile)
+			throws IOException {
 		RepositoryService repositoryService = processEngine.getRepositoryService();
 		DeploymentBuilder deploymentBuilder = repositoryService.createDeployment();
 		deploymentBuilder.addClasspathResource("流程图的xml文件地址").addClasspathResource("可同时部署多个,文件放在resource目录下");
+		// 由上传的文件流程bpmn文件进行部署:文件名,流程文件数据
+		deploymentBuilder.addBytes(multipartFile.getOriginalFilename(), multipartFile.getBytes());
+		// 由上传的zip文件部署
+		ZipInputStream zipInputStream = new ZipInputStream(multipartFile.getInputStream());
+		deploymentBuilder.addZipInputStream(zipInputStream);
 		deploymentBuilder.name("设备流程图的名称,也可不设置");
+		// deploymentBuilder.tenantId("租户ID,相当于一个标识符");
 		// 部署
 		Deployment deploy = deploymentBuilder.deploy();
 		// 获得部署的流程定义的ID
@@ -354,6 +364,16 @@ public class S_Activiti {
 		// 流程定义对象
 		ProcessDefinition definition =
 				repositoryService.createProcessDefinitionQuery().deploymentId(deployId).singleResult();
+		// 获得流程定义和流程定义图片
+		repositoryService.getResourceAsStream(deployId, definition.getDiagramResourceName());
+		repositoryService.getResourceAsStream(deployId, definition.getResourceName());
+		// 判断流程是否挂起
+		System.out.println(definition.isSuspended());
+		// 流程挂起,该流程定义下所有流程实例都将挂起
+		// repositoryService.suspendProcessDefinitionById(definition.getId());
+		// 流程激活
+		// repositoryService.activateProcessDefinitionById(definition.getId());
+		// 查询所有的流程定义
 		List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
 		for (ProcessDefinition processDefinition : list) {
 			System.out.println("流程id,流程框架生成的:" + processDefinition.getId());
@@ -370,9 +390,12 @@ public class S_Activiti {
 	public static ProcessInstance createProcessInstance(ProcessEngine processEngine, ProcessDefinition definition) {
 		// 流程启动
 		RuntimeService runtimeService = processEngine.getRuntimeService();
+		// 流程启动时的参数
 		Map<String, Object> variables = MapTool.builder("test", "test").build();
 		// 启动流程引擎时设置参数,用流程定义的id或key或message启动,推荐使用key,因为唯一,id每次部署都会改变
 		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("key", variables);
+		// businessKey通常可以是数据库中某个表的主键或唯一值,用于关联流程信息和业务信息
+		// runtimeService.startProcessInstanceByKey("key","businessKey");
 		System.out.println(processInstance.getActivityId());
 		// ProcessInstance processInstance =
 		// runtimeService.startProcessInstanceById(definition.getId());
@@ -384,6 +407,8 @@ public class S_Activiti {
 		runtimeService.addEventListener(new MyActivitiListener());
 		// 设置事件监听的类型
 		runtimeService.dispatchEvent(new ActivitiEventImpl(ActivitiEventType.CUSTOM));
+		// 挂起单个的流程实例
+		runtimeService.suspendProcessInstanceById(processInstance.getId());
 		// 获得所有的流程引擎执行对象,即processInstance执行对象
 		List<Execution> executions = runtimeService.createExecutionQuery().list();
 		for (Execution execution : executions) {
@@ -423,7 +448,7 @@ public class S_Activiti {
 		taskService.claim(task.getId(), "userid");
 		// 指定任务的待办人,可重复指定,但要慎用,避免多次重复指定不同待办人,最好指定之前查询是否指定待办人
 		taskService.setAssignee(task.getId(), "userid");
-		// 指定任务的候选人
+		// 指定任务的候选人,可多次添加
 		taskService.addCandidateUser(task.getId(), "userId");
 		// 指定任务的候选组
 		taskService.addCandidateGroup(task.getId(), "groupId");

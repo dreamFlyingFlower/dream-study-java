@@ -75,6 +75,7 @@ public class ApplyServiceImpl extends AbstractService<Apply, String> implements 
 	 * 
 	 * @param name
 	 */
+	@Override
 	@Transactional(readOnly = true)
 	public Apply findApply(String id) {
 		List<Apply> applies = this.lambdaQuery().eq(Apply::getCustomerId, id).list();
