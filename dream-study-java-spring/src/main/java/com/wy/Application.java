@@ -266,7 +266,8 @@ import org.springframework.web.servlet.DispatcherServlet;
  * ->{@link InstantiationAwareBeanPostProcessor}:BeanPostProcessor 子接口,该接口在实例化之前添加回调,
  * 		并在实例化之后但在set或 Autowired 注入之前添加回调
  * -->{@link AutowiredAnnotationBeanPostProcessor}:BeanPostProcessor 实现类,加载由{@link Autowired}和{@link Value}
- * 		修饰的变量,构造等,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化
+ * 		修饰的变量,构造等,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化,
+ * 		{@link AutowiredAnnotationBeanPostProcessor#postProcessMergedBeanDefinition()}主要是该方法完成注入
  * -->{@link AnnotationConfigApplicationContext},{@link AnnotationConfigWebApplicationContext}:
  * 		根据环境不同启动加载{@link Configuration}
  * -->{@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,
