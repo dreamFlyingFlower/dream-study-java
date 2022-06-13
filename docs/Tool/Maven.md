@@ -48,6 +48,142 @@
 
 
 
+# POM.xml
+
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>dream.flying.flower</groupId>
+        <artifactId>dream-study-microservice</artifactId>
+        <version>0.0.1</version>
+    </parent>
+    <artifactId>dream-study-microservice-common</artifactId>
+    <name>dream-study-microservice-common</name>
+    <description>basic dependency</description>
+
+    <!-- 自定义属性 -->
+    <properties>
+        <!-- 因为日志框架漏洞的关系,log4j-api和log4j-core要升级到2.17以上 -->
+        <log4j2.version>2.17.1</log4j2.version>
+        <logback.version>1.2.9</logback.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <!-- 配置资源文件对应的信息,在资源目录下的properties文件可以使用property中的自定义属性 -->
+        <resources>
+            <resource>
+                <!-- 当前目录下的resources下的资源进行过滤 -->
+                <directory>${project.basedir}/src/main/resources</directory>
+                <!-- 开启对配置文件的资源加载过滤 -->
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <!-- 多环境配置 -->
+    <profiles>
+        <!-- 定义具体的环境:开发环境 -->
+        <profile>
+            <!-- 定义环境对应的唯一标识 -->
+            <id>dev</id>
+            <!-- 定义环境中使用的自定义属性,该属性不可同全局的properties中的属性同名 -->
+            <properties>
+                <jdbc.url>jdbc:mysql://localhost:3306/test</jdbc.url>
+            </properties>
+            <!-- 不指定使用那个配置时,默认启动配置 -->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <!-- 定义具体的环境:生产环境 -->
+        <profile>
+            <!-- 定义环境对应的唯一标识 -->
+            <id>prod</id>
+            <!-- 定义环境中使用的自定义属性,该属性不可同全局的properties中的属性同名 -->
+            <properties>
+                <jdbc.url>jdbc:mysql://localhost:3306/test</jdbc.url>
+            </properties>
+        </profile>
+    </profiles>
+
+    <!-- 发布项目到私服,使用mvn deploy发布 -->
+    <distributionManagement>
+        <!-- 发布release版本 -->
+        <repository>
+            <!-- 唯一标识,会从本地maven的settings.xml的servers中查看id相同的配置,主要是用户名和密码 -->
+            <id>release</id>
+            <url>将项目发布到指定的地址</url>
+        </repository>
+        <!-- 发布snapshot版本 -->
+        <snapshotRepository>
+            <id>snapshot</id>
+            <url></url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>
+```
+
+
+
+## 内置属性
+
+
+
+* `${project.basedir}`:当前目录地址
+
+
+
+## Java系统属性
+
+
+
+* 即java.system的属性,如${user.home}等
+* `mvn help:system`:查看系统属性和环境变量属性,第一个部分是系统属性
+
+
+
+## 环境变量属性
+
+
+
+* 属于maven配置文件settings.xml中的标签属性,用于动态配置
+* `mvn help:system`:查看系统属性和环境变量属性,第二个部分是系统属性
+* 使用:`${env.JAVA_HOME}`,其中env是固定写法
+
+
+
+## 多环境配置
+
+
+
+* 使用profile标签,在install或package时需要指定使用的环境
+* mvn clean install -P dev:安装开发环境的配置
+* mvn clean package -P prod:安装生产环境的配置
+
+
+
 # 常用命令
 
 
@@ -59,7 +195,7 @@
 * mvn package:接受编译好的代码,将代码打包成war或jar
 * mvn clean package -Dmaven.test.skip=ture:清理打包时跳过测试
 * mvn install:将项目安装到本地的maven仓库中,可以让其他项目进行依赖
-* mvn deploy:将最终的包复制到远程仓库,让其他开发人员与项目共享
+* mvn deploy:将项目发布到远程仓库,让其他开发人员与项目共享
 * mvn site:生成项目的站点文档
 * mvn versions:set -DnewVersion=0.0.2:设置父子模块的新版本号,修改后父子模块都会改版本号
 * mvn versions:update-child-modules:根据父模块版本号更新子模块版本号
