@@ -1,6 +1,7 @@
 package com.wy.crl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,5 +32,11 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@PostMapping("resetPwd")
 	public Result<?> resetPwd(@RequestBody User user) {
 		return Result.ok(userService.resetPwd(user));
+	}
+	
+	@GetMapping("test")
+	public Result<?> test(){
+		userService.test1();
+		return Result.ok();
 	}
 }

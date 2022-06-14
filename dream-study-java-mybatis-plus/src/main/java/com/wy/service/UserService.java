@@ -13,4 +13,8 @@ import com.wy.model.User;
 public interface UserService extends BaseService<User, Long> {
 
 	Object resetPwd(User user);
+	
+	void test1();
+	
+	void test2();
 }

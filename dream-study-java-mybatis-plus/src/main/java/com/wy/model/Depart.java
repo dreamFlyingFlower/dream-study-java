@@ -6,6 +6,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.wy.valid.ValidEdit;
 
 import io.swagger.annotations.ApiModel;
@@ -31,7 +34,8 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Depart implements Serializable  {
+@TableName("ts_depart")
+public class Depart implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,6 +44,7 @@ public class Depart implements Serializable  {
 	 */
 	@ApiModelProperty("部门编号")
 	@NotNull(groups = ValidEdit.class)
+	@TableId(value = "user_id", type = IdType.AUTO)
 	private Long departId;
 
 	/**

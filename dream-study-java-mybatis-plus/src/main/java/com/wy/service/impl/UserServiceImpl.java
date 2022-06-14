@@ -1,7 +1,9 @@
 package com.wy.service.impl;
 
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -9,7 +11,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wy.base.AbstractService;
+import com.wy.mapper.DepartMapper;
 import com.wy.mapper.UserMapper;
+import com.wy.model.Depart;
 import com.wy.model.User;
 import com.wy.service.UserService;
 
@@ -43,6 +47,9 @@ public class UserServiceImpl extends AbstractService<UserMapper, User, Long> imp
 
 	@Autowired
 	private UserMapper userMapper;
+
+	@Autowired
+	private DepartMapper departMapper;
 
 	/**
 	 * 分页,需要先配置{@link PaginationInnerInterceptor}
@@ -83,5 +90,19 @@ public class UserServiceImpl extends AbstractService<UserMapper, User, Long> imp
 		System.out.println(detail.getPassword());
 		userMapper.selectList(new LambdaQueryWrapper<User>().eq(User::getAddress, "哪里是哪里"));
 		return null;
+	}
+
+	@Override
+	public void test1() {
+		updateById(User.builder().userId(11l).sex("男").build());
+		UserService service = (UserService)AopContext.currentProxy();
+		service.test2();
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void test2() {
+		departMapper.insert(Depart.builder().pid(0l).departName("test_depart01").pname("根目录").build());
+//		int i = 1/0;
 	}
 }
