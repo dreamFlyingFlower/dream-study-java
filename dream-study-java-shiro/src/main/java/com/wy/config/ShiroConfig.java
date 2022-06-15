@@ -26,7 +26,7 @@ public class ShiroConfig {
 
 	@Bean
 	public ShiroFilterFactoryBean
-			shiroFilterFactoryBean(@Qualifier("securityManager") SecurityManager securityManager) {
+	        shiroFilterFactoryBean(@Qualifier("securityManager") SecurityManager securityManager) {
 		ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 		factoryBean.setSecurityManager(securityManager);
 		// 配置登录页面
@@ -85,23 +85,28 @@ public class ShiroConfig {
 	}
 
 	/**
-	 * 配置Shiro注解支持
-	 *
-	 * @param securityManager SecurityManager
-	 * @return 认证拦截
+	 * 配置Spring进行AOP注解拦截
+	 * 
+	 * @return 拦截
 	 */
-	@Bean
-	public AuthorizationAttributeSourceAdvisor
-			authorizationAttributeSourceAdvisor(@Qualifier("securityManager") SecurityManager securityManager) {
-		AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
-		advisor.setSecurityManager(securityManager);
-		return advisor;
-	}
-
 	@Bean
 	public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
 		DefaultAdvisorAutoProxyCreator proxyCreator = new DefaultAdvisorAutoProxyCreator();
 		proxyCreator.setProxyTargetClass(true);
 		return proxyCreator;
+	}
+
+	/**
+	 * 配置Shiro注解支持,通过该切面会拦截Shiro的注解
+	 *
+	 * @param securityManager SecurityManager
+	 * @return 注解支持
+	 */
+	@Bean
+	public AuthorizationAttributeSourceAdvisor
+	        authorizationAttributeSourceAdvisor(@Qualifier("securityManager") SecurityManager securityManager) {
+		AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
+		advisor.setSecurityManager(securityManager);
+		return advisor;
 	}
 }
