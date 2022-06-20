@@ -31,6 +31,6 @@ public class MyImportSelector implements ImportSelector {
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		importingClassMetadata.getAnnotationAttributes(S_AutoConfig.class.getName());
-		return new String[] { "com.wy.entity.User", Role.class.getName() };
+		return new String[] { "com.wy.model.User", Role.class.getName() };
 	}
 }
