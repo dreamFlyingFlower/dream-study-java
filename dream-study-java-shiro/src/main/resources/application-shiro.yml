@@ -35,8 +35,8 @@ shiro:
       remove-abandoned-timeout: 60000
       log-abandoned: true
       filters: mergeStat
-      type-aliases-package: com.itheima.shiro.pojo
-      mapper-locations: classpath*:shiro/sqlmap*/*.xml
+      type-aliases-package: com.wy.shiro.entity
+      mapper-locations: classpath*:mapper/*.xml
 
 spring:
   jta:

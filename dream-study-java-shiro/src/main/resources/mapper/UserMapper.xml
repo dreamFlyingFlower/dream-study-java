@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.shiro.mapper.UserMapper">
+
+	<resultMap id="BaseResultMap" type="com.wy.shiro.entity.User">
+		<id column="ID" jdbcType="VARCHAR" property="id" />
+		<result column="LOGIN_NAME" jdbcType="VARCHAR" property="loginName" />
+		<result column="REAL_NAME" jdbcType="VARCHAR" property="realName" />
+		<result column="NICK_NAME" jdbcType="VARCHAR" property="nickName" />
+		<result column="PASS_WORD" jdbcType="VARCHAR" property="passWord" />
+		<result column="SALT" jdbcType="VARCHAR" property="salt" />
+		<result column="SEX" jdbcType="INTEGER" property="sex" />
+		<result column="ZIPCODE" jdbcType="VARCHAR" property="zipcode" />
+		<result column="ADDRESS" jdbcType="VARCHAR" property="address" />
+		<result column="TEL" jdbcType="VARCHAR" property="tel" />
+		<result column="MOBIL" jdbcType="VARCHAR" property="mobil" />
+		<result column="EMAIL" jdbcType="VARCHAR" property="email" />
+		<result column="DUTIES" jdbcType="VARCHAR" property="duties" />
+		<result column="SORT_NO" jdbcType="INTEGER" property="sortNo" />
+		<result column="ENABLE_FLAG" jdbcType="VARCHAR" property="enableFlag" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		ID, LOGIN_NAME, REAL_NAME, NICK_NAME, PASS_WORD, SALT, SEX, ZIPCODE, ADDRESS, TEL,
+		MOBIL, EMAIL, DUTIES,
+		SORT_NO,
+		ENABLE_FLAG
+	</sql>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into sh_user (ID, LOGIN_NAME, REAL_NAME, NICK_NAME, PASS_WORD, SALT, SEX, ZIPCODE, ADDRESS, TEL, MOBIL, EMAIL,
+		DUTIES, SORT_NO, ENABLE_FLAG) values
+		<foreach collection="list" item="entity" index="index" separator=",">
+			(#{entity.id}, #{entity.loginName},
+			#{entity.realName}, #{entity.nickName},
+			#{entity.passWord}, #{entity.salt}, #{entity.sex},
+			#{entity.zipcode},
+			#{entity.address}, #{entity.tel},
+			#{entity.mobil}, #{entity.email}, #{entity.duties},
+			#{entity.sortNo},
+			#{entity.enableFlag})
+		</foreach>
+	</insert>
+</mapper>

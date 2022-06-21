@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.shiro.mapper.RoleResourceMapper">
+
+	<resultMap id="BaseResultMap" type="com.wy.shiro.entity.RoleResource">
+		<id column="ID" jdbcType="VARCHAR" property="id" />
+		<result column="ENABLE_FLAG" jdbcType="VARCHAR" property="enableFlag" />
+		<result column="ROLE_ID" jdbcType="VARCHAR" property="roleId" />
+		<result column="RESOURCE_ID" jdbcType="VARCHAR" property="resourceId" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		ID, ENABLE_FLAG, ROLE_ID, RESOURCE_ID
+	</sql>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into sh_role_resource (ID, ENABLE_FLAG, ROLE_ID, RESOURCE_ID) values
+		<foreach collection="list" item="entity" index="index" separator=",">
+			(#{entity.id}, #{entity.enableFlag},
+			#{entity.roleId}, #{entity.resourceId})
+		</foreach>
+	</insert>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.shiro.mapper.RoleMapper">
+
+	<resultMap id="BaseResultMap" type="com.wy.shiro.entity.Role">
+		<id column="ID" jdbcType="VARCHAR" property="id" />
+		<result column="ROLE_NAME" jdbcType="VARCHAR" property="roleName" />
+		<result column="LABEL" jdbcType="VARCHAR" property="label" />
+		<result column="DESCRIPTION" jdbcType="VARCHAR" property="description" />
+		<result column="SORT_NO" jdbcType="INTEGER" property="sortNo" />
+		<result column="ENABLE_FLAG" jdbcType="VARCHAR" property="enableFlag" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		ID, ROLE_NAME, LABEL, DESCRIPTION, SORT_NO, ENABLE_FLAG
+	</sql>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into sh_role (ID, ROLE_NAME, LABEL, DESCRIPTION, SORT_NO, ENABLE_FLAG) values
+		<foreach collection="list" item="entity" index="index" separator=",">
+			(#{entity.id}, #{entity.roleName},
+			#{entity.label}, #{entity.description},
+			#{entity.sortNo}, #{entity.enableFlag})
+		</foreach>
+	</insert>
+</mapper>

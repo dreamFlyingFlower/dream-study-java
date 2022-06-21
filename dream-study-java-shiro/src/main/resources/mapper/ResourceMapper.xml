@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.shiro.mapper.ResourceMapper">
+
+	<resultMap id="BaseResultMap" type="com.wy.shiro.entity.Resource">
+		<id column="ID" jdbcType="VARCHAR" property="id" />
+		<result column="PARENT_ID" jdbcType="VARCHAR" property="parentId" />
+		<result column="RESOURCE_NAME" jdbcType="VARCHAR" property="resourceName" />
+		<result column="REQUEST_PATH" jdbcType="VARCHAR" property="requestPath" />
+		<result column="LABEL" jdbcType="VARCHAR" property="label" />
+		<result column="ICON" jdbcType="VARCHAR" property="icon" />
+		<result column="IS_LEAF" jdbcType="VARCHAR" property="isLeaf" />
+		<result column="RESOURCE_TYPE" jdbcType="VARCHAR" property="resourceType" />
+		<result column="SORT_NO" jdbcType="INTEGER" property="sortNo" />
+		<result column="DESCRIPTION" jdbcType="VARCHAR" property="description" />
+		<result column="SYSTEM_CODE" jdbcType="VARCHAR" property="systemCode" />
+		<result column="IS_SYSTEM_ROOT" jdbcType="VARCHAR" property="isSystemRoot" />
+		<result column="ENABLE_FLAG" jdbcType="VARCHAR" property="enableFlag" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		ID, PARENT_ID, RESOURCE_NAME, REQUEST_PATH, LABEL, ICON, IS_LEAF,
+		RESOURCE_TYPE,
+		SORT_NO, DESCRIPTION,
+		SYSTEM_CODE,
+		IS_SYSTEM_ROOT,
+		ENABLE_FLAG
+	</sql>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into sh_resource (ID, PARENT_ID, RESOURCE_NAME, REQUEST_PATH,
+		LABEL, ICON, IS_LEAF, RESOURCE_TYPE, SORT_NO,
+		DESCRIPTION,
+		SYSTEM_CODE, IS_SYSTEM_ROOT, ENABLE_FLAG) values
+		<foreach collection="list" item="entity" index="index" separator=",">
+			(#{entity.id}, #{entity.parentId},
+			#{entity.resourceName},
+			#{entity.requestPath},
+			#{entity.label}, #{entity.icon},
+			#{entity.isLeaf},
+			#{entity.resourceType}, #{entity.sortNo},
+			#{entity.description},
+			#{entity.systemCode}, #{entity.isSystemRoot},
+			#{entity.enableFlag})
+		</foreach>
+	</insert>
+</mapper>
