@@ -95,7 +95,7 @@ public class ShiroRedisConfig {
 		filterRuleMap.put("/generator/**", "anon");
 		filterRuleMap.put("/v1/api-docs", "anon");
 		filterRuleMap.put("/websocket/**", "anon");
-        filterRuleMap.put("/**", "oauth2");
+		filterRuleMap.put("/**", "oauth2");
 		filterRuleMap.put("/login/login", "anon");
 		filterRuleMap.put("/login/logout", "anon");
 		filterRuleMap.put("/login/verifyCode", "anon");

@@ -1,10 +1,9 @@
 package com.wy.config;
 
-import com.wy.collection.ListTool;
-import com.wy.model.Permission;
-import com.wy.model.Role;
-import com.wy.model.User;
-import com.wy.service.UserService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -17,9 +16,11 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import com.wy.collection.ListTool;
+import com.wy.model.Permission;
+import com.wy.model.Role;
+import com.wy.model.User;
+import com.wy.service.UserService;
 
 /**
  * Shiro授权自定义实现类,从实现中获取用户,角色,权限等资源
@@ -82,7 +83,7 @@ public class AuthRealm extends AuthorizingRealm {
 			// this.getClass().getName());
 			// 加盐
 			return new SimpleAuthenticationInfo(user, user.getPassword(), ByteSource.Util.bytes(user.getSalt()),
-					this.getName());
+			        this.getName());
 		}
 		return null;
 	}
