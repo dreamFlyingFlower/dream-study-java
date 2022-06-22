@@ -23,14 +23,11 @@ import com.wy.shiro.entity.vo.LoginVo;
 import com.wy.shiro.service.LoginService;
 import com.wy.shiro.service.UserService;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- * 登陆
- */
 @Controller
 @RequestMapping(value = "/login")
-@Log4j2
+@Slf4j
 public class LoginAction {
 
 	@Autowired
@@ -40,7 +37,8 @@ public class LoginAction {
 	private LoginService loginService;
 
 	/**
-	 * @Description 首页
+	 * 首页
+	 * 
 	 * @param
 	 * @return
 	 */
@@ -50,7 +48,8 @@ public class LoginAction {
 	}
 
 	/**
-	 * @Description 登录操作
+	 * 登录操作
+	 * 
 	 * @param loginVo 登录对象
 	 * @return
 	 */
@@ -95,7 +94,8 @@ public class LoginAction {
 	}
 
 	/**
-	 * @Description jwt的json登录方式
+	 * jwt的json登录方式
+	 * 
 	 * @param loginVo
 	 * @return
 	 */
@@ -106,7 +106,7 @@ public class LoginAction {
 	}
 
 	/**
-	 * @Description 退出系统
+	 * 退出系统
 	 */
 	@RequestMapping(value = "/usersLongout")
 	public String usersLongout() {
@@ -118,7 +118,7 @@ public class LoginAction {
 	}
 
 	/**
-	 * @Description 编辑密码
+	 * 编辑密码
 	 */
 	@RequestMapping(value = "/editorpassword")
 	public ModelAndView editorPassword() {
@@ -126,12 +126,12 @@ public class LoginAction {
 	}
 
 	/**
-	 * @Description 保存新密码
+	 * 保存新密码
 	 */
 	@RequestMapping(value = "/saveNewPassword")
 	@ResponseBody
 	public Boolean saveNewPassword(String oldPassword, String plainPassword)
-			throws InvocationTargetException, IllegalAccessException {
+	        throws InvocationTargetException, IllegalAccessException {
 		return userService.saveNewPassword(oldPassword, plainPassword);
 	}
 }

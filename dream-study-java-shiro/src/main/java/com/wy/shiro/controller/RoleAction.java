@@ -85,12 +85,12 @@ public class RoleAction {
 	 * 角色保存
 	 * 
 	 * @param roleVo 角色对象
-	 * @return true：保存成功，false:保存失败
+	 * @return true：保存成功,false:保存失败
 	 */
 	@RequestMapping(value = "save")
 	@ResponseBody
 	public boolean save(@ModelAttribute("role") RoleVo roleVo)
-			throws IllegalAccessException, InvocationTargetException {
+	        throws IllegalAccessException, InvocationTargetException {
 		return roleService.saveOrUpdateRole(roleVo);
 	}
 
@@ -143,7 +143,7 @@ public class RoleAction {
 	 * 
 	 * @param label 当前输入框的值
 	 * @param oldLabel 原始值
-	 * @return pass:不重复，noPass：重复
+	 * @return pass:不重复,noPass：重复
 	 * @throws
 	 */
 	@RequestMapping(value = "/checkLabel")

@@ -1,4 +1,4 @@
-package com.wy.shiro.core.impl;
+package com.wy.shiro.core.service.impl;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,18 +9,22 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
-import com.wy.shiro.core.SimpleCacheService;
-import com.wy.shiro.utils.ShiroRedissionSerialize;
+import com.wy.shiro.core.ShiroRedissionSerialize;
+import com.wy.shiro.core.service.SimpleCacheService;
 import com.wy.shiro.utils.ShiroUtil;
 
 /**
  * 实现缓存管理服务
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 17:05:10
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Component
 public class SimpleCacheServiceImpl implements SimpleCacheService {
 
 	@Resource(name = "redissonClientForShiro")
-	RedissonClient redissonClient;
+	private RedissonClient redissonClient;
 
 	@Override
 	public void creatCache(String cacheName, Cache<Object, Object> cache) {

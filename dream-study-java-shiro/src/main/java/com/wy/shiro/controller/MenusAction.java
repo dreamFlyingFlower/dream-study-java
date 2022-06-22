@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.wy.shiro.core.base.ShiroUser;
+import com.wy.shiro.core.ShiroUser;
 import com.wy.shiro.entity.Resource;
 import com.wy.shiro.entity.vo.MenuVo;
 import com.wy.shiro.service.MenusService;

@@ -10,10 +10,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.wy.lang.StrTool;
 import com.wy.result.Result;
 import com.wy.shiro.constant.ShiroConstant;
-import com.wy.shiro.core.impl.JwtTokenManager;
+import com.wy.shiro.jwt.JwtTokenManager;
 
 /**
- * 自定义登录验证过滤器
+ * 使用JWT进行登录验证,拒绝时如果header上携带JwtToken,则返回对应json
  *
  * @author 飞花梦影
  * @date 2022-06-21 23:19:19
@@ -28,7 +28,7 @@ public class JwtAuthcFilter extends FormAuthenticationFilter {
 	}
 
 	/**
-	 * @Description 是否允许访问
+	 * 是否允许访问
 	 */
 	@Override
 	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
@@ -43,12 +43,12 @@ public class JwtAuthcFilter extends FormAuthenticationFilter {
 				return false;
 			}
 		}
-		// 没有没有：走原始校验
+		// 没有没有,走原始校验
 		return super.isAccessAllowed(request, response, mappedValue);
 	}
 
 	/**
-	 * @Description 访问拒绝时调用
+	 * 访问拒绝时调用
 	 */
 	@Override
 	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
@@ -59,7 +59,7 @@ public class JwtAuthcFilter extends FormAuthenticationFilter {
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType("application/json; charset=utf-8");
 			response.getWriter().write(
-					JSONObject.toJSONString(Result.error(ShiroConstant.NO_LOGIN_CODE, ShiroConstant.NO_LOGIN_MESSAGE)));
+			        JSONObject.toJSONString(Result.error(ShiroConstant.NO_LOGIN_CODE, ShiroConstant.NO_LOGIN_MESSAGE)));
 			return false;
 		}
 		// 如果没有,走原始方式

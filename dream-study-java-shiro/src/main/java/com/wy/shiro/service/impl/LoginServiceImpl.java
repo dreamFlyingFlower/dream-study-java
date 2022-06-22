@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONObject;
 import com.wy.result.Result;
 import com.wy.shiro.constant.ShiroConstant;
-import com.wy.shiro.core.base.ShiroUser;
-import com.wy.shiro.core.base.SimpleToken;
-import com.wy.shiro.core.bridge.UserBridgeService;
-import com.wy.shiro.core.impl.JwtTokenManager;
+import com.wy.shiro.core.ShiroUser;
+import com.wy.shiro.core.SimpleToken;
+import com.wy.shiro.core.service.UserBridgeService;
 import com.wy.shiro.entity.vo.LoginVo;
+import com.wy.shiro.jwt.JwtTokenManager;
 import com.wy.shiro.service.LoginService;
 import com.wy.shiro.utils.ShiroUserUtil;
 import com.wy.shiro.utils.ShiroUtil;
@@ -79,7 +79,6 @@ public class LoginServiceImpl implements LoginService {
 
 	@Override
 	public Result<?> routeForJwt(LoginVo loginVo) throws UnknownAccountException, IncorrectCredentialsException {
-		// 实现登录
 		String jwtToken = null;
 		try {
 			SimpleToken simpleToken = new SimpleToken(null, loginVo.getLoginName(), loginVo.getPassWord());

@@ -1,4 +1,4 @@
-package com.wy.shiro.properties;
+package com.wy.shiro.utils;
 
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -48,7 +48,7 @@ public class LinkProperties extends Properties {
 	}
 
 	/**
-	 * 重写put方法,按照property的存入顺序保存key到keyList,遇到重复的后者将覆盖前者。
+	 * 重写put方法,按照property的存入顺序保存key到keyList,遇到重复的后者将覆盖前者
 	 */
 	@Override
 	public synchronized Object put(Object key, Object value) {

@@ -31,7 +31,7 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 	// configurer.enable();
 	// }
 
-	// 如果不加，则静态资源会被拦截，导致访问不到静态资源
+	// 如果不加,则静态资源会被拦截,导致访问不到静态资源
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");

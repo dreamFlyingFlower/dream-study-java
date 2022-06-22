@@ -49,8 +49,8 @@ public class InitializConstant implements ServletContextAware {
 				e.printStackTrace();
 			}
 			servletContext.setAttribute(classTag.getSimpleName() + "_" + fieldName, object);
-			log.info(classTag.getSimpleName() + ":---key：{}，---value：{}", classTag.getSimpleName() + "_" + fieldName,
-					object);
+			log.info(classTag.getSimpleName() + ":---key：{},---value：{}", classTag.getSimpleName() + "_" + fieldName,
+			        object);
 		}
 		log.info("------------------------初始化{}结束", classTag.getName());
 	}

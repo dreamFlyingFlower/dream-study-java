@@ -9,7 +9,11 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import com.wy.shiro.constant.SuperConstant;
 
 /**
- * 摘要
+ * Shiro散列算法工具类.Shiro支持的散列算法:Md2Hash、Md5Hash、Sha1Hash、Sha256Hash、Sha384Hash、Sha512Hash
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 09:40:42
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class DigestsUtil {
 

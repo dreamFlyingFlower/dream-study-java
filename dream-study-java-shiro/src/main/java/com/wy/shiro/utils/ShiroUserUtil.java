@@ -8,7 +8,7 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 
 import com.wy.shiro.constant.SuperConstant;
-import com.wy.shiro.core.base.ShiroUser;
+import com.wy.shiro.core.ShiroUser;
 
 /**
  * shiroUser工具类

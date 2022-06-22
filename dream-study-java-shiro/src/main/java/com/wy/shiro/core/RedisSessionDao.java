@@ -1,4 +1,4 @@
-package com.wy.shiro.core.impl;
+package com.wy.shiro.core;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -14,20 +14,24 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 
 import com.wy.shiro.constant.CacheConstant;
-import com.wy.shiro.utils.ShiroRedissionSerialize;
 
 /**
- * 自定义统一sessiondao实现
+ * 自定义统一sessiondao实现,重写会话的创建,读取,修改等操作,全部缓存与redis中
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 16:09:14
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class RedisSessionDao extends AbstractSessionDAO {
 
 	@Resource(name = "redissonClientForShiro")
-	RedissonClient redissonClient;
+	private RedissonClient redissonClient;
 
 	private long globalSessionTimeout;
 
 	/**
-	 * @Description 创建session
+	 * 创建session
+	 * 
 	 * @param session 会话对象
 	 * @return
 	 */
@@ -45,7 +49,8 @@ public class RedisSessionDao extends AbstractSessionDAO {
 	}
 
 	/**
-	 * @Description 读取sessio
+	 * 读取session
+	 * 
 	 * @param sessionId 唯一标识
 	 * @return
 	 */
@@ -57,7 +62,8 @@ public class RedisSessionDao extends AbstractSessionDAO {
 	}
 
 	/**
-	 * @Description 更新session
+	 * 更新session
+	 * 
 	 * @param session 对象
 	 * @return
 	 */
@@ -69,7 +75,8 @@ public class RedisSessionDao extends AbstractSessionDAO {
 	}
 
 	/**
-	 * @Description 删除session
+	 * 删除session
+	 * 
 	 * @param
 	 * @return
 	 */
@@ -81,8 +88,8 @@ public class RedisSessionDao extends AbstractSessionDAO {
 	}
 
 	/**
-	 * @Description 统计当前活跃用户数(后续扩展)
-	 * @param
+	 * 统计当前活跃用户数(后续扩展)
+	 * 
 	 * @return
 	 */
 	@Override

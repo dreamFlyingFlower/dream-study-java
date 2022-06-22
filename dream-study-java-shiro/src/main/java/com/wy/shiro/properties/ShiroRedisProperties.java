@@ -1,4 +1,4 @@
-package com.wy.shiro.config;
+package com.wy.shiro.properties;
 
 import java.io.Serializable;
 
@@ -8,6 +8,10 @@ import lombok.Data;
 
 /**
  * redis配置文件
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 16:57:58
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Data
 @ConfigurationProperties(prefix = "shiro.framework.shiro.redis")
@@ -44,5 +48,4 @@ public class ShiroRedisProperties implements Serializable {
 	 * 全局超时时间
 	 */
 	private long globalSessionTimeout;
-
 }

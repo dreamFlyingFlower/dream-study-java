@@ -1,39 +1,44 @@
-package com.wy.shiro.core;
+package com.wy.shiro.core.service;
 
 import org.apache.shiro.cache.Cache;
 
 /**
  * 实现缓存管理服务
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 17:03:12
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public interface SimpleCacheService {
 
 	/**
-	 * @Description 创建缓存
+	 * 创建缓存
+	 * 
 	 * @param cacheName 缓存名称
 	 * @param cache 缓存对象
-	 * @return
 	 */
 	void creatCache(String cacheName, Cache<Object, Object> cache);
 
 	/**
-	 * @Description 获得缓存
+	 * 获得缓存
+	 * 
 	 * @param cacheName 缓存名称
 	 * @return 缓存对象
 	 */
 	Cache<Object, Object> getCache(String cacheName);
 
 	/**
-	 * @Description 删除缓存
+	 * 删除缓存
+	 * 
 	 * @param cacheName 缓存名称
-	 * @return
 	 */
 	void removeCache(String cacheName);
 
 	/**
-	 * @Description 更新缓存
+	 * 更新缓存
+	 * 
 	 * @param cacheName 缓存名称
 	 * @param cache 新的缓存对象
-	 * @return
 	 */
 	void updateCache(String cacheName, Cache<Object, Object> cache);
 }

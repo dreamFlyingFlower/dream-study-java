@@ -1,4 +1,4 @@
-package com.wy.shiro.core.impl;
+package com.wy.shiro.core;
 
 import java.util.Objects;
 
@@ -18,11 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wy.shiro.constant.CacheConstant;
 import com.wy.shiro.constant.SuperConstant;
-import com.wy.shiro.core.ShiroDbRealm;
-import com.wy.shiro.core.SimpleCacheService;
-import com.wy.shiro.core.base.ShiroUser;
-import com.wy.shiro.core.base.SimpleToken;
-import com.wy.shiro.core.bridge.UserBridgeService;
+import com.wy.shiro.core.service.SimpleCacheService;
+import com.wy.shiro.core.service.UserBridgeService;
 import com.wy.shiro.entity.User;
 import com.wy.shiro.utils.ShiroUtil;
 
@@ -36,14 +33,17 @@ import com.wy.shiro.utils.ShiroUtil;
 public class SelfShiroRealm extends ShiroDbRealm {
 
 	@Autowired
-	UserBridgeService userBridgeService;
+	private UserBridgeService userBridgeService;
 
 	@Autowired
-	SimpleCacheService simpleCacheService;
+	private SimpleCacheService simpleCacheService;
 
 	@Resource(name = "redissonClientForShiro")
 	private RedissonClient redissonClient;
 
+	/**
+	 * 认证方法
+	 */
 	@Override
 	public AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		// token令牌信息
@@ -59,10 +59,16 @@ public class SelfShiroRealm extends ShiroDbRealm {
 		shiroUser.setResourceIds(userBridgeService.findResourcesIds(shiroUser.getId()));
 		String slat = shiroUser.getSalt();
 		String password = shiroUser.getPassWord();
-		// 构建认证信息对象:1、令牌对象 2、密文密码 3、加密因子 4、当前realm的名称
+		// 构建认证信息对象:1-令牌对象;2-密文密码;3-加密因子;4-当前realm的名称
 		return new SimpleAuthenticationInfo(shiroUser, password, ByteSource.Util.bytes(slat), getName());
 	}
 
+	/**
+	 * 授权方法
+	 * 
+	 * @param principals doGetAuthenticationInfo()返回值SimpleAuthenticationInfo的第一个参数
+	 * @return 授权对象
+	 */
 	@Override
 	public AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		ShiroUser shiroUser = (ShiroUser) principals.getPrimaryPrincipal();
@@ -92,8 +98,8 @@ public class SelfShiroRealm extends ShiroDbRealm {
 		// HashedCredentialsMatcher(SuperConstant.HASH_ALGORITHM);
 		// 指定密码算法,密码重试限制
 		RetryLimitCredentialsMatcher hashedCredentialsMatcher =
-				new RetryLimitCredentialsMatcher(SuperConstant.HASH_ALGORITHM, redissonClient);
-		// 指定迭代次数
+		        new RetryLimitCredentialsMatcher(SuperConstant.HASH_ALGORITHM, redissonClient);
+		// 指定密码迭代次数
 		hashedCredentialsMatcher.setHashIterations(SuperConstant.HASH_INTERATIONS);
 		// 使用父类方法使密码比较器生效
 		setCredentialsMatcher(hashedCredentialsMatcher);

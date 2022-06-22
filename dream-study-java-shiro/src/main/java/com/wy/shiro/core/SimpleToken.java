@@ -1,24 +1,27 @@
-package com.wy.shiro.core.base;
+package com.wy.shiro.core;
 
 import org.apache.shiro.authc.UsernamePasswordToken;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
- * 自定义tooken
+ * 自定义token
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 16:25:34
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
+@Getter
+@Setter
 public class SimpleToken extends UsernamePasswordToken {
 
-	/** serialVersionUID */
 	private static final long serialVersionUID = -4849823851197352099L;
 
 	private String tokenType;
 
 	private String quickPassword;
 
-	/**
-	 * Constructor for SimpleToken
-	 * 
-	 * @param tokenType
-	 */
 	public SimpleToken(String tokenType, String username, String password) {
 		super(username, password);
 		this.tokenType = tokenType;
@@ -27,22 +30,6 @@ public class SimpleToken extends UsernamePasswordToken {
 	public SimpleToken(String tokenType, String username, String password, String quickPassword) {
 		super(username, password);
 		this.tokenType = tokenType;
-		this.quickPassword = quickPassword;
-	}
-
-	public String getTokenType() {
-		return tokenType;
-	}
-
-	public void setTokenType(String tokenType) {
-		this.tokenType = tokenType;
-	}
-
-	public String getQuickPassword() {
-		return quickPassword;
-	}
-
-	public void setQuickPassword(String quickPassword) {
 		this.quickPassword = quickPassword;
 	}
 }

@@ -24,17 +24,18 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
+import com.wy.shiro.core.RedisSessionDao;
+import com.wy.shiro.core.SelfShiroRealm;
 import com.wy.shiro.core.ShiroDbRealm;
-import com.wy.shiro.core.impl.JwtTokenManager;
-import com.wy.shiro.core.impl.RedisSessionDao;
-import com.wy.shiro.core.impl.SelfShiroRealm;
-import com.wy.shiro.core.impl.ShiroSessionManager;
 import com.wy.shiro.filter.JwtAuthcFilter;
 import com.wy.shiro.filter.JwtPermsFilter;
 import com.wy.shiro.filter.JwtRolesFilter;
 import com.wy.shiro.filter.KickedOutAuthorizationFilter;
 import com.wy.shiro.filter.RolesOrAuthorizationFilter;
-import com.wy.shiro.properties.PropertiesUtil;
+import com.wy.shiro.jwt.JwtShiroSessionManager;
+import com.wy.shiro.jwt.JwtTokenManager;
+import com.wy.shiro.properties.ShiroRedisProperties;
+import com.wy.shiro.utils.PropertiesUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author 飞花梦影
  * @date 2022-06-21 16:46:39
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Configuration
 @ComponentScan(basePackages = "com.wy.retry.core")
@@ -60,24 +62,24 @@ public class ShiroConfig {
 	public RedissonClient redissonClient() {
 		// 获取当前redis节点信息
 		String[] nodes = shiroRedisProperties.getNodes().split(",");
-		// 创建配置信息：1、单机redis配置 2、集群redis配置
+		// 创建配置信息:1-单机redis配置;2-集群redis配置
 		Config config = new Config();
 		if (nodes.length == 1) {
 			// 单机redis配置
 			config.useSingleServer().setAddress(nodes[0]).setConnectTimeout(shiroRedisProperties.getConnectTimeout())
-					.setConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
-					.setConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
-					.setTimeout(shiroRedisProperties.getTimeout());
+			        .setConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
+			        .setConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
+			        .setTimeout(shiroRedisProperties.getTimeout());
 		} else if (nodes.length > 1) {
 			// 集群redis配置
 			config.useClusterServers().addNodeAddress(nodes).setConnectTimeout(shiroRedisProperties.getConnectTimeout())
-					.setMasterConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
-					.setMasterConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
-					.setTimeout(shiroRedisProperties.getTimeout());
+			        .setMasterConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
+			        .setMasterConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
+			        .setTimeout(shiroRedisProperties.getTimeout());
 		} else {
 			return null;
 		}
-		// 创建redission的客户端，交于spring管理
+		// 创建redission的客户端,交于spring管理
 		RedissonClient client = Redisson.create(config);
 		return client;
 	}
@@ -94,9 +96,6 @@ public class ShiroConfig {
 
 	/**
 	 * 权限管理器
-	 * 
-	 * @param
-	 * @return
 	 */
 	@Bean(name = "securityManager")
 	public DefaultWebSecurityManager defaultWebSecurityManager() {
@@ -117,6 +116,9 @@ public class ShiroConfig {
 		return new SelfShiroRealm();
 	}
 
+	/**
+	 * 自定义session会话存储的实现类,使用Redis来存储共享session,达到分布式部署目的
+	 */
 	@Bean("redisSessionDao")
 	public RedisSessionDao redisSessionDao() {
 		RedisSessionDao redisSessionDao = new RedisSessionDao();
@@ -130,7 +132,7 @@ public class ShiroConfig {
 	@Bean(name = "sessionManager")
 	public DefaultWebSessionManager shiroSessionManager() {
 		// DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-		ShiroSessionManager sessionManager = new ShiroSessionManager();
+		JwtShiroSessionManager sessionManager = new JwtShiroSessionManager();
 		sessionManager.setSessionDAO(redisSessionDao());
 		// 关闭会话更新
 		sessionManager.setSessionValidationSchedulerEnabled(false);
@@ -181,7 +183,7 @@ public class ShiroConfig {
 		for (Object object : list) {
 			String key = object.toString();
 			String value = PropertiesUtil.getShiroValue(key);
-			log.info("读取防止盗链控制：---key{},---value:{}", key, value);
+			log.info("读取防止盗链控制:---key{},---value:{}", key, value);
 			map.put(key, value);
 		}
 		return map;
@@ -194,7 +196,7 @@ public class ShiroConfig {
 		Map<String, Filter> map = new HashMap<String, Filter>();
 		map.put("role-or", new RolesOrAuthorizationFilter());
 		map.put("kicked-out",
-				new KickedOutAuthorizationFilter(redissonClient(), redisSessionDao(), shiroSessionManager()));
+		        new KickedOutAuthorizationFilter(redissonClient(), redisSessionDao(), shiroSessionManager()));
 		map.put("jwt-authc", new JwtAuthcFilter(jwtTokenManager));
 		map.put("jwt-perms", new JwtPermsFilter());
 		map.put("jwt-roles", new JwtRolesFilter());

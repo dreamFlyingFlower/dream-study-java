@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.wy.shiro.interceptor.ModifyArgsValueInterceptor;
+import com.wy.shiro.properties.ShiroDataSourceProperties;
 import com.wy.shiro.utils.IpAddrUtil;
 import com.wy.shiro.utils.SeqGenerator;
 
@@ -66,7 +67,7 @@ public class MybatisConfigShiro {
 		atomikosDataSourceBean.setBorrowConnectionTimeout(dataSourceProperties.getMaxWait());
 		// 最大获取数据时间(默认：5分钟)
 		atomikosDataSourceBean.setReapTimeout(20);
-		// 最大闲置时间，超过最小连接池连接的连接将将关闭
+		// 最大闲置时间,超过最小连接池连接的连接将将关闭
 		atomikosDataSourceBean.setMaxIdleTime(60);
 		// 连接回收时间
 		atomikosDataSourceBean.setMaintenanceInterval(60);

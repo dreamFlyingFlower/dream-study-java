@@ -18,8 +18,12 @@ import com.wy.shiro.mapper.UserMapper;
 
 /**
  * 后台登陆用户适配器接口实现
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 11:27:13
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-@Component("userAdapter")
+@Component
 public class UserAdapterImpl implements UserAdapter {
 
 	@Autowired

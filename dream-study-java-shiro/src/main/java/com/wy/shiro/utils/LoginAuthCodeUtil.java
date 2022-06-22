@@ -19,7 +19,7 @@ public class LoginAuthCodeUtil {
 	 * 随机数字字母
 	 */
 	private static char mapTable[] = { 'a', 'b', 'c', 'd', 'e', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u',
-			'v', 'w', 'x', 'y', 'z', '0', '2', '3', '4', '5', '6', '7', '8', '9' };
+	        'v', 'w', 'x', 'y', 'z', '0', '2', '3', '4', '5', '6', '7', '8', '9' };
 
 	/**
 	 * 验证码图片
@@ -44,12 +44,12 @@ public class LoginAuthCodeUtil {
 		// g.drawRect(0, 0, width-1, height-1);
 		// 随机产生的验证码
 		String strEnsure = "";
-		// 4代表4位验证码，如果要生成等多位的验证码 ，则加大数值
+		// 4代表4位验证码,如果要生成等多位的验证码 ,则加大数值
 
 		for (int i = 0; i < 4; i++) {
 			strEnsure += mapTable[(int) (mapTable.length * Math.random())];
 		}
-		// 将验证码显示在图像中，如果要生成更多位的验证码，增加drawString语句
+		// 将验证码显示在图像中,如果要生成更多位的验证码,增加drawString语句
 		g.setColor(new Color(0x003399));
 		g.setFont(new Font("Atlantic Inline", Font.PLAIN, 18));
 		String str = strEnsure.substring(0, 1);

@@ -16,6 +16,7 @@ import org.apache.shiro.authz.aop.UserAnnotationMethodInterceptor;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.filter.PathMatchingFilter;
+import org.apache.shiro.web.filter.mgt.DefaultFilter;
 import org.apache.shiro.web.servlet.AbstractFilter;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.apache.shiro.web.servlet.AdviceFilter;
@@ -53,7 +54,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 		Credentials:凭证,常见有密码,数字证书等等
  * </pre>
  * 
- * 相关注解:
+ * 相关注解鉴权:
  * 
  * <pre>
  * {@link RequiresAuthentication}:Subject必须已经在当前的session中被验证通过.
@@ -67,6 +68,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@link RequiresUser}:Subject是指定用户,或在当前session中通过验证被确认,或在之前 session 中的RememberMe服务被记住.
  * 		被 {@link UserAnnotationMethodInterceptor}拦截
  * </pre>
+ * 
+ * 登录:
+ * 
+ * <pre>
+ * SecurityUtils.getSubject():获得Subject,调用{@link Subject#login()}进行登录验证
+ * ->调用AuthRealm中的方法进行登录,并存储相关信息
+ * </pre>
+ * 
+ * URL过滤器,参考{@link DefaultFilter}
  *
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40

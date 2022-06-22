@@ -14,7 +14,7 @@ import com.wy.result.Result;
 import com.wy.shiro.constant.ShiroConstant;
 
 /**
- * 自定义jwt的资源校验
+ * 自定义JWT的资源校验,拒绝时如果header上携带JwtToken,则返回对应json
  *
  * @author 飞花梦影
  * @date 2022-06-21 23:19:33
@@ -34,7 +34,7 @@ public class JwtPermsFilter extends PermissionsAuthorizationFilter {
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType("application/json; charset=utf-8");
 			response.getWriter().write(
-					JSONObject.toJSONString(Result.error(ShiroConstant.NO_AUTH_CODE, ShiroConstant.NO_AUTH_MESSAGE)));
+			        JSONObject.toJSONString(Result.error(ShiroConstant.NO_AUTH_CODE, ShiroConstant.NO_AUTH_MESSAGE)));
 			return false;
 		}
 		// 如果没有,走原始方式

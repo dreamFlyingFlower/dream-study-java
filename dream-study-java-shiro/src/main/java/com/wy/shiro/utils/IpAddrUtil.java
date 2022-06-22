@@ -47,7 +47,7 @@ public class IpAddrUtil {
 				}
 			}
 		}
-		// 对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
+		// 对于通过多个代理的情况,第一个IP为客户端真实IP,多个IP按照','分割
 		if (ipAddress != null && ipAddress.length() > 15) { // "***.***.***.***".length() = 15
 			if (ipAddress.indexOf(",") > 0) {
 				ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
@@ -58,13 +58,13 @@ public class IpAddrUtil {
 	}
 
 	/**
-	 * 获取请求主机IP地址,如果通过代理进来，则透过防火墙获取真实IP地址;
+	 * 获取请求主机IP地址,如果通过代理进来,则透过防火墙获取真实IP地址;
 	 *
 	 * @param request
 	 * @return
 	 */
 	public final static String getIpAddress(HttpServletRequest request) {
-		// 获取请求主机IP地址,如果通过代理进来，则透过防火墙获取真实IP地址
+		// 获取请求主机IP地址,如果通过代理进来,则透过防火墙获取真实IP地址
 		String ip = request.getHeader("X-Forwarded-For");
 		if (log.isInfoEnabled()) {
 			log.info("getIpAddress(HttpServletRequest) - X-Forwarded-For - String ip=" + ip);

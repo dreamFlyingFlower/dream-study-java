@@ -9,15 +9,20 @@ import javax.servlet.ServletResponse;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.CollectionUtils;
 import org.apache.shiro.web.filter.authz.AuthorizationFilter;
+import org.apache.shiro.web.filter.authz.RolesAuthorizationFilter;
 
 /**
- * 角色或关系
+ * 角色或 过滤器,Shiro默认的是和,见 {@link RolesAuthorizationFilter}
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 16:38:22
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class RolesOrAuthorizationFilter extends AuthorizationFilter {
 
 	@Override
 	public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue)
-			throws IOException {
+	        throws IOException {
 
 		Subject subject = getSubject(request, response);
 		String[] rolesArray = (String[]) mappedValue;

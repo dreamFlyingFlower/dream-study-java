@@ -1,4 +1,4 @@
-package com.wy.shiro.core.base;
+package com.wy.shiro.core;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -10,15 +10,19 @@ import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import org.apache.shiro.util.CollectionUtils;
 
+/**
+ * 缓存实现类,实现序列 接口方便对象存储于第三方容器(Map存放键值对)
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 16:58:55
+ * @git {@link https://github.com/dreamFlyingFlower }
+ */
 public class SimpleMapCache implements Cache<Object, Object>, Serializable {
 
 	private static final long serialVersionUID = 8285971053995600221L;
 
 	private final Map<Object, Object> map;
 
-	/**
-	 * The name of this cache.
-	 */
 	private final String name;
 
 	public SimpleMapCache(String name, Map<Object, Object> backingMap) {

@@ -42,7 +42,7 @@ public class SeqGenerator {
 		super();
 		if (workerId > maxWorkerId || workerId < 0) {
 			throw new IllegalArgumentException(
-					String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
+			        String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
 		}
 		this.workerId = workerId;
 	}
@@ -69,19 +69,19 @@ public class SeqGenerator {
 	public synchronized long nextId() {
 		long timestamp = this.timeGen();
 		if (timestamp < this.lastTimestamp) {
-			// 服务器时间比上次倒退，时间不准
+			// 服务器时间比上次倒退,时间不准
 			try {
 				throw new Exception(String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds",
-						this.lastTimestamp - timestamp));
+				        this.lastTimestamp - timestamp));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		// 毫秒数在变化时，保证序列值也一直变，累计最大值后重新0开始
+		// 毫秒数在变化时,保证序列值也一直变,累计最大值后重新0开始
 		this.sequence = (this.sequence + 1) & sequenceMask;
 		this.lastTimestamp = timestamp;
 		long nextId =
-				((timestamp - twepoch << timestampLeftShift)) | (this.workerId << workerIdShift) | (this.sequence);
+		        ((timestamp - twepoch << timestampLeftShift)) | (this.workerId << workerIdShift) | (this.sequence);
 		return nextId;
 	}
 

@@ -1,4 +1,4 @@
-package com.wy.shiro.config;
+package com.wy.shiro.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

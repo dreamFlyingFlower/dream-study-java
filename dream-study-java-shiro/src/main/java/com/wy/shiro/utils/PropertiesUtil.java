@@ -1,4 +1,4 @@
-package com.wy.shiro.properties;
+package com.wy.shiro.utils;
 
 import com.wy.lang.StrTool;
 

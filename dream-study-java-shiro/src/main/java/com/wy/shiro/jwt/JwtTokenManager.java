@@ -1,19 +1,19 @@
-package com.wy.shiro.core.impl;
+package com.wy.shiro.jwt;
 
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.wy.collection.MapTool;
-import com.wy.shiro.config.JwtProperties;
-import com.wy.shiro.utils.EncodesUtil;
+import com.wy.shiro.properties.JwtProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -22,13 +22,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * 自定义jwtkoken管理者
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 13:36:47
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-@Service("jwtTokenManager")
+@Component
 @EnableConfigurationProperties({ JwtProperties.class })
 public class JwtTokenManager {
 
 	@Autowired
-	JwtProperties jwtProperties;
+	private JwtProperties jwtProperties;
 
 	/**
 	 * 签发令牌 1、头部型 密码签名 加密算法 2、payload 签发的时间 唯一标识 签发者 过期时间
@@ -45,17 +49,25 @@ public class JwtTokenManager {
 		// 获取当前时间
 		long nowMillis = System.currentTimeMillis();
 		// 获取加密签名
-		String base64EncodedSecretKey = EncodesUtil.encodeBase64(jwtProperties.getBase64EncodedSecretKey().getBytes());
+		String base64EncodedSecretKey =
+		        Base64.getEncoder().encodeToString(jwtProperties.getBase64EncodedSecretKey().getBytes());
 		// 构建令牌
-		JwtBuilder builder = Jwts.builder().setClaims(claims)// 构建非隐私信息
-				.setId(sessionId)// 构建唯一标识，此时使用shiro生成的唯一id
-				.setIssuedAt(new Date(nowMillis))// 构建签发时间
-				.setSubject(iss)// 签发者
-				.signWith(SignatureAlgorithm.HS256, base64EncodedSecretKey);// 指定算法和秘钥
+		JwtBuilder builder = Jwts.builder()
+		        // 构建非隐私信息
+		        .setClaims(claims)
+		        // 构建唯一标识,此时使用shiro生成的唯一id
+		        .setId(sessionId)
+		        // 构建签发时间
+		        .setIssuedAt(new Date(nowMillis))
+		        // 签发人,即JWT是给谁用的,一般是username
+		        .setSubject(iss)
+		        // 指定算法和秘钥
+		        .signWith(SignatureAlgorithm.HS256, base64EncodedSecretKey);
 		if (ttlMillis > 0) {
 			long expMillis = nowMillis + ttlMillis;
 			Date expData = new Date(expMillis);
-			builder.setExpiration(expData);// 指定过期时间
+			// 指定过期时间
+			builder.setExpiration(expData);
 		}
 		return builder.compact();
 	}
@@ -68,7 +80,8 @@ public class JwtTokenManager {
 	 */
 	public Claims decodeToken(String jwtToken) {
 		// 获取加密签名
-		String base64EncodedSecretKey = EncodesUtil.encodeBase64(jwtProperties.getBase64EncodedSecretKey().getBytes());
+		String base64EncodedSecretKey =
+		        Base64.getEncoder().encodeToString(jwtProperties.getBase64EncodedSecretKey().getBytes());
 		// 带着密码去解析字符串
 		return Jwts.parser().setSigningKey(base64EncodedSecretKey).parseClaimsJws(jwtToken).getBody();
 	}
@@ -83,7 +96,7 @@ public class JwtTokenManager {
 		// 带着签名构建校验对象
 		Algorithm algorithm = Algorithm.HMAC256(jwtProperties.getBase64EncodedSecretKey().getBytes());
 		JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-		// 校验:如果校验1、头部信息和荷载信息是否被篡改 2、校验令牌是否过期 不通过则会抛出异常
+		// 校验:1-头部信息和荷载信息是否被篡改;2-校验令牌是否过期;不通过则会抛出异常
 		jwtVerifier.verify(jwtToken);
 		return true;
 	}

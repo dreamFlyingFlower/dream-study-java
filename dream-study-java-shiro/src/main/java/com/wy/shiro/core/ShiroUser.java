@@ -1,4 +1,4 @@
-package com.wy.shiro.core.base;
+package com.wy.shiro.core;
 
 import java.util.List;
 
@@ -8,12 +8,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 自定义Authentication对象，使得Subject除了携带用户的登录名外还可以携带更多信息
+ * 自定义Authentication对象,使得Subject除了携带用户的登录名外还可以携带更多信息
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 16:26:37
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ShiroUser {
 
 	/**

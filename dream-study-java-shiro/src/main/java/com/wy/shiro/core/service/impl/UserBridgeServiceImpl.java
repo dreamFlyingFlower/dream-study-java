@@ -1,4 +1,4 @@
-package com.wy.shiro.core.bridge.impl;
+package com.wy.shiro.core.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,20 +14,24 @@ import org.springframework.stereotype.Component;
 
 import com.wy.collection.ListTool;
 import com.wy.shiro.constant.CacheConstant;
-import com.wy.shiro.core.SimpleCacheService;
+import com.wy.shiro.core.ShiroUser;
+import com.wy.shiro.core.SimpleMapCache;
 import com.wy.shiro.core.adapter.UserAdapter;
-import com.wy.shiro.core.base.ShiroUser;
-import com.wy.shiro.core.base.SimpleMapCache;
-import com.wy.shiro.core.bridge.UserBridgeService;
+import com.wy.shiro.core.service.SimpleCacheService;
+import com.wy.shiro.core.service.UserBridgeService;
 import com.wy.shiro.entity.Resource;
 import com.wy.shiro.entity.Role;
 import com.wy.shiro.entity.User;
 import com.wy.shiro.utils.ShiroUtil;
 
 /**
- * 用户信息桥接（后期会做缓存）
+ * 用户信息桥接
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-22 16:27:54
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-@Component("userBridgeService")
+@Component
 public class UserBridgeServiceImpl implements UserBridgeService {
 
 	@Autowired
