@@ -48,6 +48,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -57,6 +58,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
@@ -298,6 +300,13 @@ import org.springframework.web.servlet.DispatcherServlet;
  * Main-Class: 指定{@link JarLauncher}加载用户自定义类以及扩展引用JAR包
  * Spring-Boot-Classes:指定用户class目录,默认BOOT-INF/classes/
  * Spring-Boot-Lib:指定引用JAR包目录,默认BOOT-INF/lib/
+ * </pre>
+ * 
+ * 可以参考用来写自定义注入,扫包,扫注解等方法事例
+ * 
+ * <pre>
+ * {@link ClassPathScanningCandidateComponentProvider}:可以对指定包进行扫描并注入,见{@link EurekaServerAutoConfiguration#jerseyApplication}
+ * {@link AnnotationTypeFilter}:扫描时指定扫描拦截器,见{@link FeignClientsRegistrar#registerFeignClients}
  * </pre>
  * 
  * @author 飞花梦影
