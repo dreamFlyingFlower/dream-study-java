@@ -20,13 +20,17 @@ import org.apache.ibatis.plugin.Signature;
 import com.wy.lang.StrTool;
 import com.wy.shiro.utils.SeqGenerator;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 修改参数值
+ * 
+ * @author 飞花梦影
+ * @date 2022-06-24 17:04:43
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
-@Log4j2
 @Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }) })
+@Slf4j
 public class ModifyArgsValueInterceptor implements Interceptor {
 
 	private SeqGenerator seqGenerator;

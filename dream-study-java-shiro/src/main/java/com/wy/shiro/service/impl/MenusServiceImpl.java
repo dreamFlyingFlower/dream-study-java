@@ -15,7 +15,7 @@ import com.wy.shiro.constant.ResourceConstant;
 import com.wy.shiro.constant.SuperConstant;
 import com.wy.shiro.entity.Resource;
 import com.wy.shiro.entity.vo.MenuVo;
-import com.wy.shiro.mapper.MenusServiceMapper;
+import com.wy.shiro.mapper.MenusMapper;
 import com.wy.shiro.service.MenusService;
 import com.wy.shiro.utils.CnCalendarUtil;
 import com.wy.shiro.utils.ShiroUserUtil;
@@ -34,7 +34,7 @@ public class MenusServiceImpl implements MenusService {
 	private String systemCode;
 
 	@Autowired
-	private MenusServiceMapper menusServiceMapper;
+	private MenusMapper menusServiceMapper;
 
 	@Override
 	public List<Resource> findTopLevel() {

@@ -23,8 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@MapperScan(basePackages = { "com.itheima.shiro.mapper", "com.itheima.shiro.mappercustom" },
-        sqlSessionFactoryRef = "sqlSessionFactoryBeanShiro")
+@MapperScan(basePackages = { "com.wy.shiro.mapper" }, sqlSessionFactoryRef = "sqlSessionFactoryBeanShiro")
 @EnableConfigurationProperties({ ShiroDataSourceProperties.class })
 public class MybatisConfigShiro {
 

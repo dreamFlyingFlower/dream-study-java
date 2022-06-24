@@ -31,7 +31,8 @@
 		insert into sh_resource (ID, PARENT_ID, RESOURCE_NAME, REQUEST_PATH,
 		LABEL, ICON, IS_LEAF, RESOURCE_TYPE, SORT_NO,
 		DESCRIPTION,
-		SYSTEM_CODE, IS_SYSTEM_ROOT, ENABLE_FLAG) values
+		SYSTEM_CODE,
+		IS_SYSTEM_ROOT, ENABLE_FLAG) values
 		<foreach collection="list" item="entity" index="index" separator=",">
 			(#{entity.id}, #{entity.parentId},
 			#{entity.resourceName},
@@ -44,4 +45,15 @@
 			#{entity.enableFlag})
 		</foreach>
 	</insert>
+
+	<select id="findResourceTreeVoByParentId" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select t.* from sh_resource t
+		where t.enable_flag
+		=#{enableFlag}
+		and (t.is_system_root =#{isSystemRoot} or t.parent_id in(select rh.id from
+		sh_resource rh where rh.is_system_root
+		=#{isSystemRoot} and
+		rh.enable_flag=#{enableFlag}))
+		order by t.sort_no asc
+	</select>
 </mapper>

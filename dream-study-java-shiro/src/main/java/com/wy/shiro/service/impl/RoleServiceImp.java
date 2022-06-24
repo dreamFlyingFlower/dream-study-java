@@ -12,17 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wy.lang.StrTool;
 import com.wy.shiro.constant.SuperConstant;
 import com.wy.shiro.entity.Role;
-import com.wy.shiro.entity.RoleExample;
 import com.wy.shiro.entity.RoleResource;
-import com.wy.shiro.entity.RoleResourceExample;
 import com.wy.shiro.entity.vo.ComboboxVo;
 import com.wy.shiro.entity.vo.RoleVo;
 import com.wy.shiro.mapper.RoleMapper;
 import com.wy.shiro.mapper.RoleResourceMapper;
-import com.wy.shiro.mapper.RoleServiceMapper;
 import com.wy.shiro.service.RoleService;
 import com.wy.shiro.utils.ExceptionsUtil;
 
@@ -37,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class RoleServiceImp implements RoleService {
+public class RoleServiceImp extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
 	@Autowired
 	private RoleMapper roleMapper;
@@ -45,41 +46,29 @@ public class RoleServiceImp implements RoleService {
 	@Autowired
 	private RoleResourceMapper roleResourceMapper;
 
-	@Autowired
-	private RoleServiceMapper roleServiceMapper;
-
 	@Override
-	public List<Role> findRoleList(RoleVo roleVo, Integer rows, Integer page) {
-		RoleExample roleExample = this.roleListExample(roleVo);
-		roleExample.setPage(page);
-		roleExample.setRow(rows);
-		roleExample.setOrderByClause(" SORT_NO ASC");
-		return roleMapper.selectByExample(roleExample);
+	public List<Role> findRoleList(RoleVo roleVo, Integer rows, Integer pageIndex) {
+		LambdaQueryChainWrapper<Role> chainWrapper = generateCondition(roleVo);
+		Page<Role> page = chainWrapper.orderByAsc(Role::getSortNo).page(new Page<Role>(pageIndex, rows));
+		return page.getRecords();
 	}
 
 	@Override
 	public long countRoleList(RoleVo roleVo) {
-		RoleExample roleExample = this.roleListExample(roleVo);
-		return roleMapper.countByExample(roleExample);
+		LambdaQueryChainWrapper<Role> chainWrapper = generateCondition(roleVo);
+		return count(chainWrapper);
 	}
 
-	private RoleExample roleListExample(RoleVo roleVo) {
-		RoleExample roleExample = new RoleExample();
-		RoleExample.Criteria criteria = roleExample.createCriteria();
-		if (StrTool.isNotBlank(roleVo.getRoleName())) {
-			criteria.andRoleNameLike(roleVo.getRoleName());
-		}
-
-		if (StrTool.isNotBlank(roleVo.getLabel())) {
-			criteria.andLabelEqualTo(roleVo.getLabel());
-		}
-		return roleExample;
+	private LambdaQueryChainWrapper<Role> generateCondition(RoleVo roleVo) {
+		return this.lambdaQuery()
+		        .like(StrTool.isNotBlank(roleVo.getRoleName()), Role::getRoleName, roleVo.getRoleName())
+		        .eq(StrTool.isNotBlank(roleVo.getLabel()), Role::getLabel, roleVo.getLabel());
 	}
 
 	@Override
 	public RoleVo getRoleById(String id) {
 		RoleVo roleVo = new RoleVo();
-		BeanUtils.copyProperties(roleMapper.selectByPrimaryKey(id, null), roleVo);
+		BeanUtils.copyProperties(getById(id), roleVo);
 		return roleVo;
 	}
 
@@ -95,10 +84,9 @@ public class RoleServiceImp implements RoleService {
 				roleMapper.insert(role);
 				roleVo.setId(role.getId());
 			} else {
-				roleMapper.updateByPrimaryKey(role);
-				RoleResourceExample roleResourceExample = new RoleResourceExample();
-				roleResourceExample.createCriteria().andRoleIdEqualTo(role.getId());
-				roleResourceMapper.deleteByExample(roleResourceExample);
+				roleMapper.updateById(role);
+				roleResourceMapper
+				        .delete(new QueryWrapper<RoleResource>().lambda().eq(RoleResource::getRoleId, role.getId()));
 			}
 			bachRoleResource(roleVo);
 		} catch (Exception e) {
@@ -129,24 +117,12 @@ public class RoleServiceImp implements RoleService {
 	@Override
 	@Transactional
 	public Boolean updateByIds(List<String> list, String enableFlag) {
-		RoleExample roleExample = new RoleExample();
-		roleExample.createCriteria().andIdIn(list);
-		Role role = new Role();
-		role.setEnableFlag(enableFlag);
-		int row = roleMapper.updateByExampleSelective(role, roleExample);
-		if (row > 0) {
-			return true;
-		}
-		return false;
+		return this.lambdaUpdate().set(Role::getEnableFlag, enableFlag).in(Role::getId, list).update();
 	}
 
 	@Override
-	public Role findRoleByLable(String Label) {
-		RoleExample roleExample = new RoleExample();
-		if (StrTool.isNotBlank(Label)) {
-			roleExample.createCriteria().andLabelEqualTo(Label);
-		}
-		List<Role> list = roleMapper.selectByExample(roleExample);
+	public Role findRoleByLable(String label) {
+		List<Role> list = this.lambdaQuery().eq(StrTool.isNotBlank(label), Role::getLabel, label).list();
 		if (list.size() == 1) {
 			return list.get(0);
 		}
@@ -155,9 +131,7 @@ public class RoleServiceImp implements RoleService {
 
 	@Override
 	public List<ComboboxVo> findRoleComboboxVo(String roleIds) {
-		RoleExample roleExample = new RoleExample();
-		roleExample.createCriteria().andEnableFlagEqualTo(SuperConstant.YES);
-		List<Role> roleList = roleMapper.selectByExample(roleExample);
+		List<Role> roleList = this.lambdaQuery().eq(Role::getEnableFlag, SuperConstant.YES).list();
 		List<ComboboxVo> list = new ArrayList<>();
 		for (Role role : roleList) {
 			ComboboxVo comboboxVo = new ComboboxVo();
@@ -185,6 +159,6 @@ public class RoleServiceImp implements RoleService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("enableFlag", SuperConstant.YES);
 		map.put("id", id);
-		return roleServiceMapper.findRoleHasResourceIds(map);
+		return roleMapper.findRoleHasResourceIds(map);
 	}
 }

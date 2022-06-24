@@ -26,7 +26,6 @@ import org.springframework.context.annotation.DependsOn;
 
 import com.wy.shiro.core.RedisSessionDao;
 import com.wy.shiro.core.SelfShiroRealm;
-import com.wy.shiro.core.ShiroDbRealm;
 import com.wy.shiro.filter.JwtAuthcFilter;
 import com.wy.shiro.filter.JwtPermsFilter;
 import com.wy.shiro.filter.JwtRolesFilter;
@@ -102,7 +101,7 @@ public class ShiroConfig {
 		// 默认权限管理器
 		DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
 		// 设置自定义的校验
-		securityManager.setRealm(shiroDbRealm());
+		securityManager.setRealm(selfShiroRealm());
 		// 管理会话
 		securityManager.setSessionManager(shiroSessionManager());
 		return securityManager;
@@ -111,8 +110,8 @@ public class ShiroConfig {
 	/**
 	 * 自定义RealmImpl
 	 */
-	@Bean(name = "shiroDbRealm")
-	public ShiroDbRealm shiroDbRealm() {
+	@Bean(name = "selfShiroRealm")
+	public SelfShiroRealm selfShiroRealm() {
 		return new SelfShiroRealm();
 	}
 

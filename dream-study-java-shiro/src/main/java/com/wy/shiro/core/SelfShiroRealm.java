@@ -2,6 +2,7 @@ package com.wy.shiro.core;
 
 import java.util.Objects;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.shiro.authc.AuthenticationException;
@@ -10,6 +11,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.redisson.api.RedissonClient;
@@ -30,7 +32,7 @@ import com.wy.shiro.utils.ShiroUtil;
  * @date 2022-06-21 17:44:18
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class SelfShiroRealm extends ShiroDbRealm {
+public class SelfShiroRealm extends AuthorizingRealm {
 
 	@Autowired
 	private UserBridgeService userBridgeService;
@@ -91,7 +93,10 @@ public class SelfShiroRealm extends ShiroDbRealm {
 		super.doClearCache(principals);
 	}
 
-	@Override
+	/**
+	 * 密码匹配器
+	 */
+	@PostConstruct
 	public void initCredentialsMatcher() {
 		// 指定密码算法
 		// HashedCredentialsMatcher hashedCredentialsMatcher = new

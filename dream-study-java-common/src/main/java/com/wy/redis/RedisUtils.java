@@ -47,7 +47,7 @@ public class RedisUtils {
 
 	/** 使用LUA语法比较redis中的值,并删除当前key,原子性,支持高并发集群 */
 	public static final String SCRIPT_COMPARE_AND_DELETE =
-			"if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+	        "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
@@ -75,9 +75,9 @@ public class RedisUtils {
 	 * @param successCallback 成功回调
 	 */
 	public void atomicCompareAndDelete(Object key, Object value, Consumer<RedisTemplate<Object, Object>> failCallback,
-			Consumer<RedisTemplate<Object, Object>> successCallback) {
+	        Consumer<RedisTemplate<Object, Object>> successCallback) {
 		Long result = redisTemplate.execute(new DefaultRedisScript<Long>(SCRIPT_COMPARE_AND_DELETE, Long.class),
-				Arrays.asList(key), value);
+		        Arrays.asList(key), value);
 		if (result == 0L) {
 			// 失败
 			if (Objects.nonNull(failCallback)) {
@@ -267,7 +267,7 @@ public class RedisUtils {
 	 */
 	public <T extends Number> T getNum(String key, Class<T> clazz) {
 		return NumberUtils.parseNumber(stringRedisTemplate.opsForValue().get(RedisKey.REDIS_KEY_NUM.getKey(key)),
-				clazz);
+		        clazz);
 	}
 
 	/**
@@ -331,14 +331,14 @@ public class RedisUtils {
 		String uuid = DigestTool.uuid();
 		// 分布式锁占坑,设置过期时间,必须和加锁一起作为原子性操作
 		Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent(RedisKey.REDIS_KEY_LOCK.getKey(key), uuid,
-				timeout <= 0 ? 100 : timeout, TimeUnit.MILLISECONDS);
+		        timeout <= 0 ? 100 : timeout, TimeUnit.MILLISECONDS);
 		if (lock) {
 			try {
 				return function.apply(t);
 			} finally {
 				// 利用redis的脚本功能执行删除的操作,需要原子环境,防止锁刚过期,删除到其他人的锁.0删除失败,1删除成功
 				stringRedisTemplate.execute(new DefaultRedisScript<Long>(SCRIPT_COMPARE_AND_DELETE, Long.class),
-						Arrays.asList(RedisKey.REDIS_KEY_LOCK.getKey(key)), uuid);
+				        Arrays.asList(RedisKey.REDIS_KEY_LOCK.getKey(key)), uuid);
 			}
 		} else {
 			try {
@@ -382,6 +382,27 @@ public class RedisUtils {
 	}
 
 	/**
+	 * 数据自增,原子操作
+	 * 
+	 * @param key 存储key
+	 * @return 自增1之后的值
+	 */
+	public Long incr(Object key) {
+		return redisTemplate.opsForValue().increment(key);
+	}
+
+	/**
+	 * 数据自增,原子操作
+	 * 
+	 * @param key 存储key
+	 * @param delta 自增的值
+	 * @return 自增delta之后的值
+	 */
+	public Long incr(Object key, Long delta) {
+		return redisTemplate.opsForValue().increment(key, delta);
+	}
+
+	/**
 	 * 有序集合获取排名
 	 *
 	 * @param key
@@ -421,17 +442,58 @@ public class RedisUtils {
 	}
 
 	/**
-	 * 直接将传入的key-value值缓存到redis中,不超时
+	 * 将传入的key-value值缓存到redis中,不超时
+	 * 
+	 * @param key 存储key
+	 * @param value 存储value
 	 */
 	public void set(Object key, Object value) {
 		redisTemplate.opsForValue().set(key, value);
 	}
 
 	/**
+	 * 将传入的key-value值缓存到redis中,并设置超时时间
+	 * 
+	 * @param key 存储key
+	 * @param value 存储value
+	 * @param duration 超时时间
+	 */
+	public void set(Object key, Object value, Duration duration) {
+		redisTemplate.opsForValue().set(key, value, duration);
+	}
+
+	/**
+	 * 将传入的key-value值缓存到redis中,并设置超时时间
+	 * 
+	 * @param key 存储key
+	 * @param value 存储value
+	 * @param timeout 超时时间,默认单位为分钟
+	 */
+	public void set(Object key, Object value, long timeout) {
+		redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.MINUTES);
+	}
+
+	/**
+	 * 将传入的key-value值缓存到redis中,并设置超时时间
+	 * 
+	 * @param key 存储key
+	 * @param value 存储value
+	 * @param timeout 超时时间
+	 * @param timeUnit 超时时间单位
+	 */
+	public void set(Object key, Object value, long timeout, TimeUnit timeUnit) {
+		redisTemplate.opsForValue().set(key, value, timeout, timeUnit);
+	}
+
+	/**
 	 * 将数据存入到一个list集合中,该集合中泛型不确定,可存入任何类型
 	 * 注意:使用该方法前必须先调用leftPushAll方法或者rightPushAll方法,让redis中有该key,否则报错
+	 * 
+	 * @param key 存储key
+	 * @param value 存储value
+	 * @param index 存储到List的起始索引
 	 */
-	public void setList(Object key, Long index, Object value) {
+	public void setList(Object key, Object value, Long index) {
 		if (redisTemplate.opsForList().size(key) == null) {
 			log.error("#####ERRER:redis缓存中没有key值为{}的list集合", key);
 			return;

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -17,10 +18,8 @@ import com.wy.lang.StrTool;
 import com.wy.shiro.constant.SuperConstant;
 import com.wy.shiro.entity.Resource;
 import com.wy.shiro.entity.RoleResource;
-import com.wy.shiro.entity.RoleResourceExample;
 import com.wy.shiro.entity.vo.TreeVo;
 import com.wy.shiro.mapper.ResourceMapper;
-import com.wy.shiro.mapper.ResourceServiceMapper;
 import com.wy.shiro.mapper.RoleResourceMapper;
 import com.wy.shiro.service.ResourceService;
 
@@ -36,9 +35,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
 	@Autowired
 	private ResourceMapper resourceMapper;
-
-	@Autowired
-	private ResourceServiceMapper resourceServiceMapper;
 
 	@Autowired
 	private RoleResourceMapper roleResourceMapper;
@@ -57,14 +53,14 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
 	private LambdaQueryChainWrapper<Resource> generateCondition(Resource resource) {
 		return this.lambdaQuery()
-				.eq(StrTool.isNotBlank(resource.getParentId()), Resource::getParentId, resource.getParentId())
-				.eq(Resource::getEnableFlag, SuperConstant.YES).ne(Resource::getParentId, "-1")
-				.like(StrTool.isNotBlank(resource.getResourceName()), Resource::getResourceName,
-						resource.getResourceName())
-				.like(StrTool.isNotBlank(resource.getLabel()), Resource::getLabel, resource.getLabel())
-				.like(StrTool.isNotBlank(resource.getRequestPath()), Resource::getRequestPath,
-						resource.getRequestPath())
-				.orderByAsc(Arrays.asList(Resource::getParentId, Resource::getSortNo));
+		        .eq(StrTool.isNotBlank(resource.getParentId()), Resource::getParentId, resource.getParentId())
+		        .eq(Resource::getEnableFlag, SuperConstant.YES).ne(Resource::getParentId, "-1")
+		        .like(StrTool.isNotBlank(resource.getResourceName()), Resource::getResourceName,
+		                resource.getResourceName())
+		        .like(StrTool.isNotBlank(resource.getLabel()), Resource::getLabel, resource.getLabel())
+		        .like(StrTool.isNotBlank(resource.getRequestPath()), Resource::getRequestPath,
+		                resource.getRequestPath())
+		        .orderByAsc(Arrays.asList(Resource::getParentId, Resource::getSortNo));
 	}
 
 	@Override
@@ -104,7 +100,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 	@Override
 	public String findByLabel(String label) {
 		List<Resource> list =
-				this.lambdaQuery().eq(Resource::getEnableFlag, SuperConstant.YES).eq(Resource::getLabel, label).list();
+		        this.lambdaQuery().eq(Resource::getEnableFlag, SuperConstant.YES).eq(Resource::getLabel, label).list();
 		if (list.size() == 1) {
 			return list.get(0).getLabel();
 		}
@@ -114,7 +110,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 	@Override
 	public List<TreeVo> findAllOrderBySortNoAsc() {
 		List<Resource> list = this.lambdaQuery().eq(Resource::getEnableFlag, SuperConstant.YES)
-				.orderByAsc(Resource::getSortNo).list();
+		        .orderByAsc(Resource::getSortNo).list();
 		List<TreeVo> listHandle = new ArrayList<>();
 		for (Resource resource : list) {
 			TreeVo treeVo = new TreeVo();
@@ -149,10 +145,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 		if (SuperConstant.ROOT_PARENT_ID.equals(parentId)) {
 			map.put("isSystemRoot", SuperConstant.YES);
 			map.put("enableFlag", SuperConstant.YES);
-			list.addAll(resourceServiceMapper.findResourceTreeVoByParentId(map));
+			list.addAll(resourceMapper.findResourceTreeVoByParentId(map));
 		} else {
 			list.addAll(this.lambdaQuery().eq(Resource::getEnableFlag, SuperConstant.YES)
-					.eq(Resource::getParentId, parentId).orderByAsc(Resource::getSortNo).list());
+			        .eq(Resource::getParentId, parentId).orderByAsc(Resource::getSortNo).list());
 		}
 		List<TreeVo> treeVoList = new ArrayList<TreeVo>();
 		for (Resource resources : list) {
@@ -166,9 +162,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 	}
 
 	public List<String> findRoleHasResourceIds(List<String> roleIds) {
-		RoleResourceExample roleResourceExample = new RoleResourceExample();
-		roleResourceExample.createCriteria().andRoleIdIn(roleIds).andEnableFlagEqualTo(SuperConstant.YES);
-		List<RoleResource> roleResourceList = roleResourceMapper.selectByExample(roleResourceExample);
+		List<RoleResource> roleResourceList = roleResourceMapper.selectList(new QueryWrapper<RoleResource>().lambda()
+		        .in(RoleResource::getRoleId, roleIds).eq(RoleResource::getEnableFlag, SuperConstant.YES));
 		List<String> list = new ArrayList<>();
 		roleResourceList.forEach(n -> list.add(n.getResourceId()));
 		return list;

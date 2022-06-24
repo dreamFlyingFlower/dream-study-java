@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wy.lang.StrTool;
 import com.wy.shiro.constant.SuperConstant;
 import com.wy.shiro.core.adapter.UserAdapter;
 import com.wy.shiro.entity.User;
-import com.wy.shiro.entity.UserExample;
 import com.wy.shiro.entity.UserRole;
 import com.wy.shiro.entity.UserRoleExample;
 import com.wy.shiro.entity.vo.UserVo;
@@ -38,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
 	@Autowired
 	private UserMapper userMapper;
@@ -50,39 +52,28 @@ public class UserServiceImpl implements UserService {
 	UserAdapter userAdapter;
 
 	@Override
-	public List<User> findUserList(UserVo userVo, Integer rows, Integer page) {
-		UserExample userExample = this.userListExample(userVo);
-		userExample.setOrderByClause("sort_no asc ");
-		userExample.setPage(page);
-		userExample.setRow(rows);
-		return userMapper.selectByExample(userExample);
+	public List<User> findUserList(UserVo userVo, Integer size, Integer pageIndex) {
+		LambdaQueryChainWrapper<User> chainWrapper = this.generateCondition(userVo);
+		Page<User> page = chainWrapper.orderByAsc(User::getSortNo).page(new Page<User>(pageIndex, size));
+		return page.getRecords();
 	}
 
 	@Override
 	public long countUserList(UserVo userVo) {
-		UserExample userExample = this.userListExample(userVo);
-		return userMapper.countByExample(userExample);
+		return super.count(generateCondition(userVo));
 	}
 
-	private UserExample userListExample(UserVo userVo) {
-		UserExample userExample = new UserExample();
-		UserExample.Criteria criteria = userExample.createCriteria();
-		if (StrTool.isNotBlank(userVo.getLoginName())) {
-			criteria.andLoginNameEqualTo(userVo.getLoginName());
-		}
-		if (StrTool.isNotBlank(userVo.getRealName())) {
-			criteria.andRealNameLike(userVo.getRealName());
-		}
-		if (StrTool.isNotBlank(userVo.getEmail())) {
-			criteria.andEmailEqualTo(userVo.getEmail());
-		}
-		return userExample;
+	private LambdaQueryChainWrapper<User> generateCondition(UserVo userVo) {
+		return this.lambdaQuery()
+		        .eq(StrTool.isNotBlank(userVo.getLoginName()), User::getLoginName, userVo.getLoginName())
+		        .eq(StrTool.isNotBlank(userVo.getEmail()), User::getEmail, userVo.getEmail())
+		        .like(StrTool.isNotBlank(userVo.getRealName()), User::getRealName, userVo.getRealName());
 	}
 
 	@Override
 	public UserVo getUserById(String id) {
 		UserVo userVo = new UserVo();
-		BeanUtils.copyProperties(userMapper.selectByPrimaryKey(id, null), userVo);
+		BeanUtils.copyProperties(super.getById(id), userVo);
 		return userVo;
 	}
 
@@ -102,7 +93,7 @@ public class UserServiceImpl implements UserService {
 				userVo.setId(user.getId());
 
 			} else {
-				userMapper.updateByPrimaryKey(user);
+				userMapper.updateById(user);
 				UserRoleExample userRoleExample = new UserRoleExample();
 				userRoleExample.createCriteria().andUserIdEqualTo(user.getId());
 				userRoleMapper.deleteByExample(userRoleExample);
@@ -138,14 +129,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User getUserIdByLoginNameOrMobilOrEmail(String loginName) {
-		UserExample userExample = new UserExample();
-		UserExample.Criteria criteria0 = userExample.createCriteria().andLoginNameEqualTo(loginName);
-		UserExample.Criteria criteria1 = userExample.createCriteria().andMobilEqualTo(loginName);
-		UserExample.Criteria criteria2 = userExample.createCriteria().andEmailEqualTo(loginName);
-		userExample.or(criteria0);
-		userExample.or(criteria1);
-		userExample.or(criteria2);
-		List<User> list = userMapper.selectByExample(userExample);
+		List<User> list = this.lambdaQuery().or(t -> t.eq(User::getLoginName, loginName))
+		        .or(t -> t.eq(User::getMobil, loginName)).or(t -> t.eq(User::getEmail, loginName)).list();
 		if (list.size() == 1) {
 			return list.get(0);
 		}
@@ -154,15 +139,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Boolean updateByIds(List<String> list, String enableFlag) {
-		UserExample userExample = new UserExample();
-		userExample.createCriteria().andIdIn(list);
-		User userHandler = new User();
-		userHandler.setEnableFlag(enableFlag);
-		int flag = userMapper.updateByExampleSelective(userHandler, userExample);
-		if (flag > 0) {
-			return true;
-		}
-		return false;
+		return this.lambdaUpdate().set(User::getEnableFlag, enableFlag).in(User::getId, list).update();
 	}
 
 	@Override
@@ -184,9 +161,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Boolean saveNewPassword(String oldPassword, String plainPassword)
-			throws IllegalAccessException, InvocationTargetException {
+	        throws IllegalAccessException, InvocationTargetException {
 		// user对象
-		User user = userMapper.selectByPrimaryKey(ShiroUserUtil.getShiroUserId(), null);
+		User user = super.getById(ShiroUserUtil.getShiroUserId());
 		UserVo userVo = new UserVo();
 		BeanUtils.copyProperties(userVo, user);
 		// 对user中的salt进行散列
@@ -199,7 +176,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			user.setPassWord(userVo.getPassWord());
 			user.setSalt(userVo.getSalt());
-			userMapper.updateByPrimaryKey(user);
+			userMapper.updateById(user);
 			return true;
 		} catch (Exception e) {
 			log.error("更新用户密码失败：{}", ExceptionsUtil.getStackTraceAsString(e));

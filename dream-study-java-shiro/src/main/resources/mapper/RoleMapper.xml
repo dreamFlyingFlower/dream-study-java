@@ -23,4 +23,22 @@
 			#{entity.sortNo}, #{entity.enableFlag})
 		</foreach>
 	</insert>
+
+	<select id="findRoleHasResourceIds" parameterType="java.util.Map" resultType="String">
+		select srr.resource_id from
+		sh_role_resource srr
+		left join sh_role
+		sr on srr.role_id =sr.id
+		where srr.enable_flag=#{enableFlag}
+		and sr.id=#{id}
+	</select>
+
+	<select id="findRoleDetailByLenderId" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		sr.role_name,sr.label,sr.description from sh_user_role sur
+		left join sh_role sr on sur.role_id= sr.id
+		left join
+		sh_lender su on sur.user_id = su.id
+		where su.id=#{lenderId}
+	</select>
 </mapper>

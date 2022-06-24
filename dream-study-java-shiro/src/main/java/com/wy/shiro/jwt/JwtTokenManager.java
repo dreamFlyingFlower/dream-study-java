@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -48,9 +51,6 @@ public class JwtTokenManager {
 		}
 		// 获取当前时间
 		long nowMillis = System.currentTimeMillis();
-		// 获取加密签名
-		String base64EncodedSecretKey =
-		        Base64.getEncoder().encodeToString(jwtProperties.getBase64EncodedSecretKey().getBytes());
 		// 构建令牌
 		JwtBuilder builder = Jwts.builder()
 		        // 构建非隐私信息
@@ -59,10 +59,10 @@ public class JwtTokenManager {
 		        .setId(sessionId)
 		        // 构建签发时间
 		        .setIssuedAt(new Date(nowMillis))
-		        // 签发人,即JWT是给谁用的,一般是username
+		        // 签发人,即JWT是给谁用的,一般是username,userId
 		        .setSubject(iss)
 		        // 指定算法和秘钥
-		        .signWith(SignatureAlgorithm.HS256, base64EncodedSecretKey);
+		        .signWith(generateKey(), SignatureAlgorithm.HS256);
 		if (ttlMillis > 0) {
 			long expMillis = nowMillis + ttlMillis;
 			Date expData = new Date(expMillis);
@@ -79,11 +79,8 @@ public class JwtTokenManager {
 	 * @return
 	 */
 	public Claims decodeToken(String jwtToken) {
-		// 获取加密签名
-		String base64EncodedSecretKey =
-		        Base64.getEncoder().encodeToString(jwtProperties.getBase64EncodedSecretKey().getBytes());
 		// 带着密码去解析字符串
-		return Jwts.parser().setSigningKey(base64EncodedSecretKey).parseClaimsJws(jwtToken).getBody();
+		return Jwts.parserBuilder().setSigningKey(generateKey()).build().parseClaimsJws(jwtToken).getBody();
 	}
 
 	/**
@@ -99,5 +96,13 @@ public class JwtTokenManager {
 		// 校验:1-头部信息和荷载信息是否被篡改;2-校验令牌是否过期;不通过则会抛出异常
 		jwtVerifier.verify(jwtToken);
 		return true;
+	}
+
+	private SecretKey generateKey() {
+		String stringKey = jwtProperties.getBase64EncodedSecretKey();
+		// 本地的密码解码
+		byte[] encodedKey = Base64.getDecoder().decode(stringKey);
+		// 根据给定的字节数组使用AES加密算法构造一个密钥
+		return new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
 	}
 }
