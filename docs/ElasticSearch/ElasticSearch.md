@@ -351,7 +351,49 @@ client.indices.putMapping({
   * hard nproc 4096
   ```
 
-  
+
+
+
+# 配置
+
+
+
+## elasticserch.yml
+
+
+
+* 配置文件为es/conf/elasticsearch.yml
+* cluster.name:集群名称,如果要配置集群,需要两个以上的elasticsearch节点配置的cluster.name相同,都启动可以自动组成集群,cluster.name默认是elasticsearch
+* node.name:当前es节点的名称,集群内部可重复
+* network.host:绑定地址,若是0.0.0.0,任何ip都可以访问es
+* http.port:http访问端口
+* http.cors.enabled:true,是否允许跨域访问
+* http.cors.allow-origin:/.*/,允许跨域访问的请求头
+* transport.tcp.port:es内部交互接口,用于集群内部通讯,选举等
+* node.master:true/false,集群中该节点是否能被选举为master节点,默认为true
+* node.data:true/false,指定节点是否存储索引数据,默认为true
+* discovery.zen.ping.unicast.hosts:["ip1:port1","ip2:port2"],设置集群中master节点的初始列表
+* discovery.zen.ping.timeout:3s,es自动发现节点连接超时时间,默认为3s
+* discovery.zen.minimum_master_nodes:2,最小主节点个数,此值的公式为:(master_eligible_nodes/2)+1
+* discovery.seed_hosts:设置集群中的master节点的出事列表ip端口地址,逗号分隔
+* cluster.initial_master_nodes:新集群初始时的候选主节点
+* node.max_local_storage_nodes:2,单机允许的最大存储节点数
+* node.ingest:true/false,是否允许成为协调节点
+* bootstrap.memeory_lock:true/false,设置true可以锁住es使用的内存,避免内存与swap分区交换数据
+* path.data:数据存储目录.默认是es根目录下的data文件夹,可以设置多个存储路径,用逗号隔开
+* path.logs:日志存储目录.默认是es根目录下的logs文件夹
+* path.conf:设置配置文件的存储路径,tar或zip默认在es根目录下的config,rpm默认在/etc/elasticsearch
+* path.plugins:设置插件的存放路径,默认是es根目录下的plugins文件夹
+* xpack.ml.enabled:boolean,是否启用机器学习,在windows上不支持,要设置为false
+
+
+
+## jvm.options
+
+
+
+* 主要设置xms和xmx
+* 两个值设置为相等,最大值不超过物理内存的一半
 
 
 
@@ -432,24 +474,26 @@ http.cors.allow-origin: "*"
 
 ## IK分词器
 
+
+
 * 默认是使用官方的标准分词器,但是对中文支持不友好,需要使用IK分词器
 
 * IK分词器:对中文友好的分词器,不会像标准分词器一样将每个词都拆开,[官网](https://github.com/medcl/elasticsearch-analysis-ik/releases)
 
 * 下载压缩包解压到ES的plugins目录里中即可完成安装,重启ES和Kibana
-  
+
 * 分析使用,在Kibana中的请求地址为:_analyze,post请求
-  
+
   ```json
   {
   	"analyzer":"ik_max_word",
       "text":"我是中国人"
   }
   ```
-  
+
   * ik_max_word:最大粒度的对中文词汇进行拆分
   * ik_smart:最粗粒度的对中文进行拆分,智能拆分
-  
+
 * 自定义分词:需要修改IK分词器目录下的config/IKAnalyzer.cfg.xml
 
   * ext_dict:本地分词文件地址,在值的位置配置自定义分词的文件名称.文件的每行只能定义一个词,最好是将文件的后缀定义为dic,同时该文件的编码模式选择UTF8,配置好后重启ES即可
@@ -459,32 +503,9 @@ http.cors.allow-origin: "*"
 
 ## Logstash
 
+
+
 * 将mysql中的数据同步到ES中
-
-
-
-# 配置
-
-* 配置文件为es/conf/elasticsearch.yml
-* cluster.name:集群名称,如果要配置集群需要两个节点以上的elasticsearch配置的cluster.name相同,都启动可以自动组成集群,cluster.name默认是cluster.name=my-application
-* node.name:当前es节点的名称,集群内部可重复
-* network.host:绑定地址,若是0.0.0.0,如何ip都可以访问es
-* http.port:http访问端口
-* transport.tcp.port:es内部交互接口,用于集群内部通讯,选举等
-* node.master:true/false,集群中该节点是否能被选举为master节点,默认为true
-* node.data:true/false,指定节点是否存储索引数据,默认为true
-* discovery.zen.ping.unicast.hosts:["ip1:port1","ip2:port2"],集群节点ip:端口
-* discovery.zen.ping.timeout:3s,es自动发现节点连接超时时间,默认为3s
-* discovery.zen.minimum_master_nodes:2,最小主节点个数
-* discovery.seed_hosts:设置集群中的master节点的出事列表ip端口地址,逗号分隔
-* cluster.initial_master_nodes:新集群初始时的候选主节点
-* node.max_local_storage_nodes:2,单机允许的最大存储节点数
-* node.ingest:true/false,是否允许成为协调节点
-* bootstrap.memeory_lock:true/false,设置true可以锁住es使用的内存,避免内存与swap分区交换数据
-* path.data:数据存储目录
-* path.logs:日志存储目录
-* http.cors.enabled:true,是否允许跨域访问
-* http.cors.allow-origin:/.*/,允许跨域访问的请求头
 
 
 
@@ -497,6 +518,8 @@ http.cors.allow-origin: "*"
 
 
 ## 内置API
+
+
 
 * esip:port/_cat/nodes:get,查看所有节点
 
@@ -677,6 +700,8 @@ http.cors.allow-origin: "*"
 
 ## Aggregations
 
+
+
 * 聚合,主要对查询提供分组和提取数据的能力,类似于数据库中的max,avg,group by等函数
 
 ```json
@@ -724,6 +749,8 @@ http.cors.allow-origin: "*"
 
 ## Springboot
 
+
+
 * Springboot2直接利用JPA整合了Elasticsearch进行操作,repository直接继承ElasticsearchRepository即可
 * Java High Level Rest Client调用,官方推荐使用
 * DSL:以json格式定义关键字来搜索关键字,调用API查询
@@ -748,6 +775,8 @@ http.cors.allow-origin: "*"
 
 
 ## Java原生API
+
+
 
 * 所有代码见**paradise-study-java/paradise-study-search/com.wy.service.ElasticSearchService**
 
@@ -918,6 +947,8 @@ http.cors.allow-origin: "*"
 
 
 # ELK
+
+
 
 * ELK主要是用来做日志分析,由es,logstash,kibana组成
 * Logstash:日志收集工具,可以从本地磁盘,网络服务,消息队列中收集各种日志,然后进行过滤分析,并将日志输出到Elasticsearch中,类似于大数据中的Flume

@@ -24,7 +24,7 @@ import com.wy.shiro.service.UserService;
  */
 @Controller
 @RequestMapping(value = "/user")
-public class UserAction {
+public class UserController {
 
 	@Autowired
 	private UserService userService;

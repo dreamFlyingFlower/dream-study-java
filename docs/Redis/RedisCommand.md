@@ -917,7 +917,9 @@ redis> GETRANGE ts 4 7
 
 ## BLPOP
 
-* blpop key [key ...] timeout:BLPOP 是列表的阻塞式(blocking)弹出原语.
+
+
+* blpop key [key ...] timeout:BLPOP 是列表的阻塞式(blocking)弹出原语
   * 它是 LPOP 命令的阻塞版本,当指定列表内没有任何元素可供弹出的时候,连接将被BLPOP 命令阻塞,直到等待超时或发现可弹出元素为止
   * 当指定多个 key 参数时,按参数 key 的先后顺序依次检查各个列表,弹出第一个非空列表的头元素
 * 时间复杂度:O(1)

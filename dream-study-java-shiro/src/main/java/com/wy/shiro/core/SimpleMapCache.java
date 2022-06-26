@@ -36,26 +36,32 @@ public class SimpleMapCache implements Cache<Object, Object>, Serializable {
 		this.map = backingMap;
 	}
 
+	@Override
 	public Object get(Object key) throws CacheException {
 		return map.get(key);
 	}
 
+	@Override
 	public Object put(Object key, Object value) throws CacheException {
 		return map.put(key, value);
 	}
 
+	@Override
 	public Object remove(Object key) throws CacheException {
 		return map.remove(key);
 	}
 
+	@Override
 	public void clear() throws CacheException {
 		map.clear();
 	}
 
+	@Override
 	public int size() {
 		return map.size();
 	}
 
+	@Override
 	public Set<Object> keys() {
 		Set<Object> keys = map.keySet();
 		if (!keys.isEmpty()) {
@@ -64,6 +70,7 @@ public class SimpleMapCache implements Cache<Object, Object>, Serializable {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public Collection<Object> values() {
 		Collection<Object> values = map.values();
 		if (!CollectionUtils.isEmpty(values)) {

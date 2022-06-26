@@ -22,7 +22,7 @@ import com.wy.shiro.utils.ShiroUserUtil;
  */
 @Controller
 @RequestMapping(value = "/menus")
-public class MenusAction {
+public class MenusController {
 
 	@Autowired
 	private MenusService menusService;

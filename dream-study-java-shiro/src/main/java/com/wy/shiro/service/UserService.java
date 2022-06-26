@@ -3,6 +3,8 @@ package com.wy.shiro.service;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import com.wy.shiro.entity.Resource;
+import com.wy.shiro.entity.Role;
 import com.wy.shiro.entity.User;
 import com.wy.shiro.entity.vo.UserVo;
 
@@ -10,6 +12,27 @@ import com.wy.shiro.entity.vo.UserVo;
  * 用户服务层
  */
 public interface UserService {
+
+	/**
+	 * 按用户名查找用户
+	 * 
+	 * @param loginName 登录名
+	 */
+	User findUserByLoginName(String loginName);
+
+	/**
+	 * 查找用户所有角色
+	 * 
+	 * @param userId 用户Id
+	 */
+	List<Role> findRoleByUserId(String userId);
+
+	/**
+	 * 查询用户有那些资源
+	 * 
+	 * @param userId 用户Id
+	 */
+	List<Resource> findResourceByUserId(String userId);
 
 	/**
 	 * 分页查询

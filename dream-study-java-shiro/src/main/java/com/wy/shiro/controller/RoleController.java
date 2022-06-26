@@ -27,7 +27,7 @@ import com.wy.shiro.service.RoleService;
  */
 @Controller
 @RequestMapping(value = "/role")
-public class RoleAction {
+public class RoleController {
 
 	@Autowired
 	private RoleService roleService;

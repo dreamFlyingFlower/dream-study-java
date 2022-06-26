@@ -12,16 +12,18 @@ import org.apache.shiro.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.wy.collection.ListTool;
 import com.wy.shiro.constant.CacheConstant;
 import com.wy.shiro.core.ShiroUser;
 import com.wy.shiro.core.SimpleMapCache;
-import com.wy.shiro.core.adapter.UserAdapter;
 import com.wy.shiro.core.service.SimpleCacheService;
 import com.wy.shiro.core.service.UserBridgeService;
 import com.wy.shiro.entity.Resource;
 import com.wy.shiro.entity.Role;
 import com.wy.shiro.entity.User;
+import com.wy.shiro.service.UserService;
 import com.wy.shiro.utils.ShiroUtil;
 
 /**
@@ -35,7 +37,7 @@ import com.wy.shiro.utils.ShiroUtil;
 public class UserBridgeServiceImpl implements UserBridgeService {
 
 	@Autowired
-	UserAdapter userAdapter;
+	private UserService userService;
 
 	@Autowired
 	SimpleCacheService simpleCacheService;
@@ -50,7 +52,7 @@ public class UserBridgeServiceImpl implements UserBridgeService {
 			return (User) cache.get(key);
 		}
 		// 缓存不存在
-		User user = userAdapter.findUserByLoginName(loginName);
+		User user = userService.findUserByLoginName(loginName);
 		if (Objects.nonNull(user)) {
 			Map<Object, Object> map = new HashMap<>();
 			map.put(key, user);
@@ -69,17 +71,17 @@ public class UserBridgeServiceImpl implements UserBridgeService {
 		Cache<Object, Object> cache = simpleCacheService.getCache(key);
 		// 缓存存在
 		if (Objects.nonNull(cache)) {
-			resources = (List<Resource>) cache.get(key);
+			resources = JSON.parseObject(JSON.toJSONString(cache.get(key)), new TypeReference<List<Resource>>() {
+			});
 		} else {
 			// 缓存不存在
-			resources = userAdapter.findResourceByUserId(userId);
+			resources = userService.findResourceByUserId(userId);
 			if (ListTool.isNotEmpty(resources)) {
 				Map<Object, Object> map = new HashMap<>();
 				map.put(key, resources);
 				SimpleMapCache simpleMapCache = new SimpleMapCache(key, map);
 				simpleCacheService.creatCache(key, simpleMapCache);
 			}
-
 		}
 
 		List<String> ids = new ArrayList<>();
@@ -112,10 +114,11 @@ public class UserBridgeServiceImpl implements UserBridgeService {
 		Cache<Object, Object> cache = simpleCacheService.getCache(key);
 		// 缓存存在
 		if (Objects.nonNull(cache)) {
-			roles = (List<Role>) cache.get(key);
+			roles = JSON.parseObject(JSON.toJSONString(cache.get(key)), new TypeReference<List<Role>>() {
+			});
 		} else {
 			// 缓存不存在
-			roles = userAdapter.findRoleByUserId(userId);
+			roles = userService.findRoleByUserId(userId);
 			if (ListTool.isNotEmpty(roles)) {
 				Map<Object, Object> map = new HashMap<>();
 				map.put(key, roles);
@@ -138,10 +141,11 @@ public class UserBridgeServiceImpl implements UserBridgeService {
 		Cache<Object, Object> cache = simpleCacheService.getCache(key);
 		// 缓存存在
 		if (Objects.nonNull(cache)) {
-			resources = (List<Resource>) cache.get(key);
+			resources = JSON.parseObject(JSON.toJSONString(cache.get(key)), new TypeReference<List<Resource>>() {
+			});
 		} else {
 			// 缓存不存在
-			resources = userAdapter.findResourceByUserId(userId);
+			resources = userService.findResourceByUserId(userId);
 			if (ListTool.isNotEmpty(resources)) {
 				Map<Object, Object> map = new HashMap<>();
 				map.put(key, resources);
@@ -163,7 +167,9 @@ public class UserBridgeServiceImpl implements UserBridgeService {
 		String resourcesKey = CacheConstant.RESOURCES_KEY + sessionId;
 		// 查询用户对应的角色标识
 		List<String> roleList = this.findRoleList(roleKey, shiroUser.getId());
+		System.out.println(roleList);
 		// 查询用户对于的资源标识
 		List<String> resourcesList = this.findResourcesList(resourcesKey, shiroUser.getId());
+		System.out.println(resourcesList);
 	}
 }

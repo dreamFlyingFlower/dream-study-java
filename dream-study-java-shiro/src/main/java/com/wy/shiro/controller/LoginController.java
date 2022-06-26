@@ -11,9 +11,10 @@ import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequestMapping(value = "/login")
 @Slf4j
-public class LoginAction {
+public class LoginController {
 
 	@Autowired
 	private UserService userService;
@@ -38,11 +39,8 @@ public class LoginAction {
 
 	/**
 	 * 首页
-	 * 
-	 * @param
-	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@GetMapping
 	public ModelAndView login() {
 		return new ModelAndView("/account/login");
 	}
@@ -53,7 +51,7 @@ public class LoginAction {
 	 * @param loginVo 登录对象
 	 * @return
 	 */
-	@RequestMapping(value = "/usersLongin", method = RequestMethod.POST)
+	@PostMapping(value = "/usersLongin")
 	public ModelAndView usersLongin(LoginVo loginVo) {
 		ModelAndView modelAndView = new ModelAndView("/account/login");
 		String shiroLoginFailure = null;
@@ -131,7 +129,7 @@ public class LoginAction {
 	@RequestMapping(value = "/saveNewPassword")
 	@ResponseBody
 	public Boolean saveNewPassword(String oldPassword, String plainPassword)
-	        throws InvocationTargetException, IllegalAccessException {
+			throws InvocationTargetException, IllegalAccessException {
 		return userService.saveNewPassword(oldPassword, plainPassword);
 	}
 }

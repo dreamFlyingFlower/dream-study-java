@@ -5,13 +5,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Resource;
-
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wy.shiro.constant.CacheConstant;
 
@@ -24,7 +23,7 @@ import com.wy.shiro.constant.CacheConstant;
  */
 public class RedisSessionDao extends AbstractSessionDAO {
 
-	@Resource(name = "redissonClientForShiro")
+	@Autowired
 	private RedissonClient redissonClient;
 
 	private long globalSessionTimeout;
@@ -78,7 +77,6 @@ public class RedisSessionDao extends AbstractSessionDAO {
 	 * 删除session
 	 * 
 	 * @param
-	 * @return
 	 */
 	@Override
 	public void delete(Session session) {

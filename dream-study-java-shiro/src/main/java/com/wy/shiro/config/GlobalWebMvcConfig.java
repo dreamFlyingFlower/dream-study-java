@@ -1,7 +1,6 @@
 package com.wy.shiro.config;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -10,11 +9,10 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "com.itheima.shiro.web")
-public class SpringMvcConfig implements WebMvcConfigurer {
+public class GlobalWebMvcConfig implements WebMvcConfigurer {
 
 	/**
-	 * @Description 配置资源解析路径和后缀名
+	 * 配置资源解析路径和后缀名
 	 */
 	@Bean
 	public InternalResourceViewResolver viewResolver() {
@@ -36,5 +34,4 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
 	}
-
 }

@@ -20,7 +20,6 @@ import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreato
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
@@ -46,7 +45,6 @@ import lombok.extern.slf4j.Slf4j;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Configuration
-@ComponentScan(basePackages = "com.wy.retry.core")
 @EnableConfigurationProperties({ ShiroRedisProperties.class })
 @Slf4j
 public class ShiroConfig {
@@ -66,15 +64,15 @@ public class ShiroConfig {
 		if (nodes.length == 1) {
 			// 单机redis配置
 			config.useSingleServer().setAddress(nodes[0]).setConnectTimeout(shiroRedisProperties.getConnectTimeout())
-			        .setConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
-			        .setConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
-			        .setTimeout(shiroRedisProperties.getTimeout());
+					.setConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
+					.setConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
+					.setTimeout(shiroRedisProperties.getTimeout());
 		} else if (nodes.length > 1) {
 			// 集群redis配置
 			config.useClusterServers().addNodeAddress(nodes).setConnectTimeout(shiroRedisProperties.getConnectTimeout())
-			        .setMasterConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
-			        .setMasterConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
-			        .setTimeout(shiroRedisProperties.getTimeout());
+					.setMasterConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumidleSize())
+					.setMasterConnectionPoolSize(shiroRedisProperties.getConnectPoolSize())
+					.setTimeout(shiroRedisProperties.getTimeout());
 		} else {
 			return null;
 		}
@@ -195,7 +193,7 @@ public class ShiroConfig {
 		Map<String, Filter> map = new HashMap<String, Filter>();
 		map.put("role-or", new RolesOrAuthorizationFilter());
 		map.put("kicked-out",
-		        new KickedOutAuthorizationFilter(redissonClient(), redisSessionDao(), shiroSessionManager()));
+				new KickedOutAuthorizationFilter(redissonClient(), redisSessionDao(), shiroSessionManager()));
 		map.put("jwt-authc", new JwtAuthcFilter(jwtTokenManager));
 		map.put("jwt-perms", new JwtPermsFilter());
 		map.put("jwt-roles", new JwtRolesFilter());

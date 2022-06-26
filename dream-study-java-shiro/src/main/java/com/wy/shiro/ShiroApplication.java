@@ -11,14 +11,14 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
- * 限制用户登录重试次数:16的代码
+ * Shiro完整代码
  * 
  * @author 飞花梦影
  * @date 2022-06-21 16:47:31
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-@SpringBootApplication(scanBasePackages = { "com.wy.retry.interceptor", "com.wy.retry.service", "com.wy.retry.config",
-		"com.wy.retry.intialize" })
+@SpringBootApplication(scanBasePackages = { "com.wy.shiro.interceptor", "com.wy.shiro.service", "com.wy.shiro.config",
+		"com.wy.shiro.intialize" })
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
 public class ShiroApplication extends SpringBootServletInitializer {

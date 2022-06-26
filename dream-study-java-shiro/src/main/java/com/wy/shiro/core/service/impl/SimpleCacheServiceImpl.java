@@ -2,13 +2,14 @@ package com.wy.shiro.core.service.impl;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Resource;
-
 import org.apache.shiro.cache.Cache;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.wy.shiro.core.ShiroRedissionSerialize;
 import com.wy.shiro.core.service.SimpleCacheService;
 import com.wy.shiro.utils.ShiroUtil;
@@ -23,20 +24,22 @@ import com.wy.shiro.utils.ShiroUtil;
 @Component
 public class SimpleCacheServiceImpl implements SimpleCacheService {
 
-	@Resource(name = "redissonClientForShiro")
+	@Autowired
 	private RedissonClient redissonClient;
 
 	@Override
 	public void creatCache(String cacheName, Cache<Object, Object> cache) {
 		RBucket<String> bucket = redissonClient.getBucket(cacheName);
 		bucket.trySet(ShiroRedissionSerialize.serialize(cache), ShiroUtil.getShiroSession().getTimeout() / 1000,
-		        TimeUnit.SECONDS);
+				TimeUnit.SECONDS);
 	}
 
 	@Override
 	public Cache<Object, Object> getCache(String cacheName) {
 		RBucket<String> bucket = redissonClient.getBucket(cacheName);
-		return (Cache<Object, Object>) ShiroRedissionSerialize.deserialize(bucket.get());
+		return JSON.parseObject(JSON.toJSONString(ShiroRedissionSerialize.deserialize(bucket.get())),
+				new TypeReference<Cache<Object, Object>>() {
+				});
 	}
 
 	@Override
@@ -49,6 +52,6 @@ public class SimpleCacheServiceImpl implements SimpleCacheService {
 	public void updateCache(String cacheName, Cache<Object, Object> cache) {
 		RBucket<String> bucket = redissonClient.getBucket(cacheName);
 		bucket.set(ShiroRedissionSerialize.serialize(cache), ShiroUtil.getShiroSession().getTimeout() / 1000,
-		        TimeUnit.SECONDS);
+				TimeUnit.SECONDS);
 	}
 }

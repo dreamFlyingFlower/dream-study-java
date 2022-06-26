@@ -3,6 +3,7 @@ package com.wy.shiro.service.impl;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,15 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wy.lang.StrTool;
 import com.wy.shiro.constant.SuperConstant;
-import com.wy.shiro.core.adapter.UserAdapter;
+import com.wy.shiro.entity.Resource;
+import com.wy.shiro.entity.Role;
 import com.wy.shiro.entity.User;
 import com.wy.shiro.entity.UserRole;
-import com.wy.shiro.entity.UserRoleExample;
 import com.wy.shiro.entity.vo.UserVo;
 import com.wy.shiro.mapper.UserMapper;
 import com.wy.shiro.mapper.UserRoleMapper;
@@ -48,8 +51,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	@Autowired
 	private UserRoleMapper userRoleMapper;
 
-	@Autowired
-	UserAdapter userAdapter;
+	@Override
+	public User findUserByLoginName(String loginName) {
+		List<User> userList =
+				this.lambdaQuery().eq(User::getEnableFlag, SuperConstant.YES).eq(User::getLoginName, loginName).list();
+		if (userList.size() == 1) {
+			return userList.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public List<Role> findRoleByUserId(String userId) {
+		Map<String, Object> values = new HashMap<String, Object>();
+		values.put("userId", userId);
+		values.put("enableFlag", SuperConstant.YES);
+		List<Role> list = userMapper.findRoleByUserId(values);
+		return list;
+	}
+
+	@Override
+	public List<Resource> findResourceByUserId(String userId) {
+		Map<String, Object> values = new HashMap<String, Object>();
+		values.put("userId", userId);
+		values.put("enableFlag", SuperConstant.YES);
+		List<Resource> list = userMapper.findResourceByUserId(values);
+		return list;
+	}
 
 	@Override
 	public List<User> findUserList(UserVo userVo, Integer size, Integer pageIndex) {
@@ -65,9 +94,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 	private LambdaQueryChainWrapper<User> generateCondition(UserVo userVo) {
 		return this.lambdaQuery()
-		        .eq(StrTool.isNotBlank(userVo.getLoginName()), User::getLoginName, userVo.getLoginName())
-		        .eq(StrTool.isNotBlank(userVo.getEmail()), User::getEmail, userVo.getEmail())
-		        .like(StrTool.isNotBlank(userVo.getRealName()), User::getRealName, userVo.getRealName());
+				.eq(StrTool.isNotBlank(userVo.getLoginName()), User::getLoginName, userVo.getLoginName())
+				.eq(StrTool.isNotBlank(userVo.getEmail()), User::getEmail, userVo.getEmail())
+				.like(StrTool.isNotBlank(userVo.getRealName()), User::getRealName, userVo.getRealName());
 	}
 
 	@Override
@@ -94,9 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 			} else {
 				userMapper.updateById(user);
-				UserRoleExample userRoleExample = new UserRoleExample();
-				userRoleExample.createCriteria().andUserIdEqualTo(user.getId());
-				userRoleMapper.deleteByExample(userRoleExample);
+				userRoleMapper.delete(new QueryWrapper<UserRole>().lambda().eq(UserRole::getUserId, user.getId()));
 			}
 			bachUserRole(userVo);
 		} catch (Exception e) {
@@ -130,7 +157,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	@Override
 	public User getUserIdByLoginNameOrMobilOrEmail(String loginName) {
 		List<User> list = this.lambdaQuery().or(t -> t.eq(User::getLoginName, loginName))
-		        .or(t -> t.eq(User::getMobil, loginName)).or(t -> t.eq(User::getEmail, loginName)).list();
+				.or(t -> t.eq(User::getMobil, loginName)).or(t -> t.eq(User::getEmail, loginName)).list();
 		if (list.size() == 1) {
 			return list.get(0);
 		}
@@ -151,9 +178,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 	@Override
 	public List<String> findUserHasRoleIds(String id) {
-		UserRoleExample userRoleExample = new UserRoleExample();
-		userRoleExample.createCriteria().andUserIdEqualTo(id).andEnableFlagEqualTo(SuperConstant.YES);
-		List<UserRole> userRoleList = userRoleMapper.selectByExample(userRoleExample);
+		List<UserRole> userRoleList = userRoleMapper.selectList(new LambdaQueryWrapper<UserRole>()
+				.eq(UserRole::getUserId, id).eq(UserRole::getEnableFlag, SuperConstant.YES));
 		List<String> list = new ArrayList<>();
 		userRoleList.forEach(n -> list.add(n.getRoleId()));
 		return list;
@@ -161,7 +187,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 	@Override
 	public Boolean saveNewPassword(String oldPassword, String plainPassword)
-	        throws IllegalAccessException, InvocationTargetException {
+			throws IllegalAccessException, InvocationTargetException {
 		// user对象
 		User user = super.getById(ShiroUserUtil.getShiroUserId());
 		UserVo userVo = new UserVo();

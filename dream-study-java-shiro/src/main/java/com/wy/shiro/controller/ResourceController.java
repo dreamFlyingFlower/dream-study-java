@@ -30,7 +30,7 @@ import lombok.extern.log4j.Log4j2;
 @Controller
 @RequestMapping(value = "/resource")
 @Log4j2
-public class ResourceAction {
+public class ResourceController {
 
 	@Autowired
 	private ResourceService resourceService;
@@ -49,8 +49,7 @@ public class ResourceAction {
 	}
 
 	/**
-	 * @description: 分页列表
-	 * @return
+	 * 分页列表
 	 */
 	@RequestMapping(value = "/list")
 	@ResponseBody
@@ -64,7 +63,7 @@ public class ResourceAction {
 	}
 
 	/**
-	 * @description: 新增页面
+	 * 新增页面
 	 */
 	@RequestMapping(value = "/input")
 	public ModelAndView input(Resource resource) {
@@ -86,7 +85,7 @@ public class ResourceAction {
 	}
 
 	/**
-	 * @description: 新增修改
+	 * 新增修改
 	 */
 	@RequestMapping(value = "/save")
 	@ResponseBody
@@ -102,7 +101,7 @@ public class ResourceAction {
 	}
 
 	/**
-	 * @description: 删除资源
+	 * 删除资源
 	 */
 	@RequestMapping(value = "/delete")
 	@ResponseBody
