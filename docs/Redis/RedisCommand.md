@@ -1,10 +1,6 @@
 # Redis命令
 
-
-
 # Key(键)
-
-
 
 ## DEL
 
@@ -13,8 +9,6 @@
 * 删除单个字符串类型的key,时间复杂度为O(1)
 * 删除单个列表,集合,有序集合或哈希表类型的 key,时间复杂度为O(N),N为数据结构内的元素数量
 * 返回值:被删除 key 的数量,删除失败返回0
-
-
 
 ## KEYS
 
@@ -26,15 +20,11 @@
 * 时间复杂度:O(N), N 为数据库中 key 的数量
 * 返回值:符合指定模式的 key 列表
 
-
-
 ## RANDOMKEY
 
 * randomkey:当前数据库中随机返回(不删除)一个 key
 * 时间复杂度:O(1)
 * 返回值:当数据库不为空时,返回一个 key;当数据库为空时,返回 nil
-
-
 
 ## TTL
 
@@ -42,15 +32,11 @@
 * 时间复杂度:O(1)
 * 返回值:key不存在时,返回-2;key为永久存在时,返回-1;否则,以秒为单位返回剩余过期时间
 
-
-
 ## PTTL
 
 * pttl key:类似于 TTL,但它以毫秒为单位返回 key 的剩余生存时间
 * 时间复杂度:O(1)
 * 返回值:key不存在时,返回-2;key为永久存在时,返回-1;否则,以毫秒为单位返回剩余过期时间
-
-
 
 ## EXISTS
 
@@ -58,15 +44,11 @@
 * 时间复杂度:O(1)
 * 返回值:若 key 存在,返回 1 ,否则返回 0
 
-
-
 ## MOVE
 
 * move key db:将当前数据库的key移动到指定的数据库db中.若当前数据库和指定数据库有同名key,或key不存在于当前数据库时,MOVE无效.可以利用这一特性,将MOVE当作锁(locking)原语(primitive)
 * 时间复杂度:O(1)
 * 返回值:移动成功返回 1 ,失败则返回 0
-
-
 
 ## RENAME
 
@@ -74,23 +56,17 @@
 * 时间复杂度:O(1)
 * 返回值:改名成功时提示 OK ,失败时候返回一个错误
 
-
-
 ## RENAMENX
 
 * renamenx key newkey:只有当newkey不存在时,将key改名为newkey.当key不存在时,返回错误
 * 时间复杂度:O(1)
 * 返回值:修改成功时,返回 1;如果 newkey 已经存在,返回 0
 
-
-
 ## TYPE
 
 * type key:返回 key 所储存的值的类型
 * 时间复杂度:O(1)
 * 返回值:none (key 不存在);string (字符串);list (列表);set (集合);zset (有序集);hash (哈希表)
-
-
 
 ## EXPIRE
 
@@ -104,28 +80,20 @@
 * 时间复杂度:O(1)
 * 返回值:设置成功返回 1;当key不存在或不能为key设置生存时间时,返回0
 
-
-
 ### 更新生存时间
 
 * 可以对一个已经带有生存时间的 key 执行 EXPIRE 命令,新指定的生存时间会取代旧的生存时间
-
-
 
 ### 过期时间的精确度
 
 * 就算 key 已经过期,但它还是可能在过期之后1MS之内被访问到
 
-
-
 ### 应用场景
-
-
 
 #### 导航会话
 
 * 假设有一项服务打算根据用户最近访问的N个页面来进行物品推荐,并且假设用户停止阅览超过60秒,那么就清空阅览记录(为了减少物品推荐的计算量,并且保持推荐物品的新鲜度).这些最近访问的页面记录,称之为导航会话(Navigation session),可以用INCR和RPUSH在Redis中实现:每当用户阅览一个网页的时候,执行以下代码
-
+  
   ```shell
   MULTI
   RPUSH pagewviews.user:<userid> http://.....
@@ -135,15 +103,11 @@
 
 * 如果用户停止阅览超过 60 秒,那么它的导航会话就会被清空,当用户重新开始阅览的时候,系统又会重新记录导航会话,继续进行物品推荐
 
-
-
 ## PEXPIRE
 
 * pexpire key milliseconds:和EXPIRE作用类似,但是它以毫秒为单位设置 key 的生存时间
 * 时间复杂度:O(1)
 * 返回值:设置成功,返回 1;key 不存在或设置失败,返回 0
-
-
 
 ## EXPIREAT
 
@@ -151,23 +115,17 @@
 * 时间复杂度:O(1)
 * 返回值:如果生存时间设置成功,返回 1;当 key 不存在或没办法设置生存时间,返回 0
 
-
-
 ## PEXPIREAT
 
 * pexpireat key milliseconds:和EXPIREAT类似,但它以毫秒为单位设置 key 的过期 unix 时间戳
 * 时间复杂度:O(1)
 * 返回值:如果生存时间设置成功,返回 1;当 key 不存在或没办法设置生存时间时,返回 0
 
-
-
 ## PERSIST
 
 * persist key:将指定key转换为一个不带生存时间,永不过期的 key
 * 时间复杂度:O(1)
 * 返回值:当生存时间移除成功时,返回 1;如果 key 不存在或 key 没有设置生存时间,返回 0
-
-
 
 ## SORT
 
@@ -183,33 +141,27 @@
 * 时间复杂度:O(N+M*log(M)),N为要排序的列表或集合内的元素数量,M为要返回的元素数量.如果只是使用 SORT 命令的 GET 选项获取数据而没有进行排序,时间复杂度 O(N)
 * 返回值:没有使用 STORE 参数,返回列表形式的排序结果;使用 STORE 参数,返回排序结果的元素数量
 
-
-
 ### 使用外部 key 进行排序
 
 * 如按level从大到小排序user_id:`SORT user_id BY user_level_* DESC`
+
 * 获得排序后的用户名:`SORT user_id BY user_level_* DESC GET user_name_*`
 
 * 可以多次有序地使用GET操作来获取更多外部 key:
+  
   * 获取用户名和密码:`SORT user_id BY user_level_* DESC GET user_name_* GET user_password_*`
   * GET 操作是有序的,`GET user_name_* GET user_password_*`和`GET
     user_password_* GET user_name_*`返回的结果位置不同
   * `GET #`:用于获取被排序对象(user_id )的当前元素
-
-
 
 ### 只获取对象不排序
 
 * BY修饰符可以将一个不存在的key当作权重,让SORT 跳过排序操作
 * 该方法用于希望获取外部对象而又不希望引起排序开销时使用
 
-
-
 ### 保存排序结果
 
 * 默认情况下,SORT只是简单地返回排序结果,如果希望保存排序结果,可以给STORE指定一个key作为参数,排序结果将以列表的形式被保存到这个key中(若key已存在,则覆盖)
-
-
 
 ### 在GET和BY中使用哈希表
 
@@ -230,9 +182,6 @@ redis> SORT user_id BY *->serial
 4) "1"
 ```
 
-
-
-
 ## OBJECT
 
 * object subcommand [arguments [arguments]]:从内部察看指定key的对象类型.通常用在除错或了解为了节省空间而对 key 使用特殊编码的情况,当将Redis用作缓存时,也可以通过OBJECT中的信息,决定 key 的驱逐策略(eviction policies)
@@ -250,8 +199,6 @@ redis> SORT user_id BY *->serial
 * 时间复杂度:O(1)
 * 返回值:REFCOUNT 和 IDLETIME 返回数字;ENCODING 返回相应的编码类型
 
-
-
 ## MIGRATE
 
 * migrate host port key destination-db timeout:将key原子性地从当前实例传送到目标实例的数据库上,一旦传送成功, key保证会出现在目标实例上,而当前实例上的 key 会被删除
@@ -267,8 +214,6 @@ redis> SORT user_id BY *->serial
 * 时间复杂度:该命令在源实例上执行DUMP和DEL,在目标实例执行RESTORE,查看相应命令可以看到复杂度说明.key 数据在两个实例之间传输的复杂度为 O(N)
 * 返回值:迁移成功时返回 OK ,否则返回相应的错误
 
-
-
 ## DUMP
 
 * dump key:序列化key,并返回被序列化的值,RESTORE可以将该值反序列化.序列化值有以下几个特点:
@@ -278,8 +223,6 @@ redis> SORT user_id BY *->serial
   * 序列化的值不包括任何生存时间信息
 * 时间复杂度:查找指定键的复杂度为O(1),对键进行序列化的复杂度为O(N*M),其中N是构成key的Redis对象的数量,M是这些对象的平均大小.如果序列化的对象是比较小的字符串,则复杂度为O(1)
 * 返回值:如果 key 不存在,那么返回 nil;否则,返回序列化之后的值
-
-
 
 ## RESTORE
 
@@ -292,11 +235,7 @@ redis> SORT user_id BY *->serial
   * 如果反序列化的对象是比较小的字符串,那么复杂度为 O(1)
 * 返回值:如果反序列化成功那么返回 OK ,否则返回一个错误
 
-
-
 # String(字符串)
-
-
 
 ## SET
 
@@ -304,19 +243,13 @@ redis> SORT user_id BY *->serial
 * 时间复杂度:O(1)
 * 返回值:总是返回 OK ,因为 SET 不可能失败
 
-
-
 ## SETNX
 
 * setnx key value:将 key 的值设为 value ,当且仅当 key 不存在;若指定的 key 已经存在,则 SETNX 不做任何动作.SETNX 是`SET if Not eXists`(如果不存在,则 SET)的简写
 * 时间复杂度:O(1)
 * 返回值:设置成功,返回 1;设置失败,返回 0
 
-
-
 ### 应用场景
-
-
 
 #### 加锁(locking)
 
@@ -324,8 +257,6 @@ redis> SORT user_id BY *->serial
 * `SETNX lock.foo <current Unix time + lock timeout + 1>`:
   * 返回1,说明获得了锁,unix时间指定锁失效的时间.可以通过 DEL lock.foo释放锁
   * 返回0,说明key已经被其他客户端上锁了.如果锁是非阻塞的,可以选择返回调用,或者循环重试
-
-
 
 #### 处理死锁(deadlock)
 
@@ -342,23 +273,17 @@ redis> SORT user_id BY *->serial
     * 即便 C4 的 GETSET 操作对 key 进行了修改,这对未来也没什么影响
   * 为了让这个加锁算法更健壮,获得锁的客户端应该常常检查过期时间以免锁因诸如DEL等命令的执行而被意外解开,因为客户端失败的情况非常复杂,不仅仅是崩溃这么简单,还可能是客户端因为某些操作被阻塞了相当长时间,紧接着 DEL 命令被尝试执行(但这时锁却在另外的客户端手上)
 
-
-
 ## SETEX
 
 * setex key seconds value:将值 value 关联到 key ,并设置生存时间(秒).如果key已经存在,将覆写旧值.这是一个原子性操作,可以代替`SET key value`和`EXPIRE key seconds`
 * 时间复杂度:O(1)
 * 返回值:设置成功时返回 OK;当 seconds 参数不合法时,返回一个错误
 
-
-
 ## PSETEX
 
 * psetex key milliseconds value:和 SETEX相似,但它以毫秒为单位设置 key 的生存时间
 * 时间复杂度:O(1)
 * 返回值:设置成功时返回 OK
-
-
 
 ## SETRANGE
 
@@ -371,17 +296,11 @@ redis> SORT user_id BY *->serial
 * 时间复杂度:对小(small)的字符串,平摊复杂度 O(1);否则为 O(M), M 为 value 参数的长度
 * 返回值:被 SETRANGE 修改之后,字符串的长度
 
-
-
 ### 应用场景
-
-
 
 #### 线性数组
 
 * 因为有了 SETRANGE 和 GETRANGE,可以将 Redis 字符串用作具有 O(1)随机访问时间的线性数组,这在很多真实用例中都是非常快速且高效的储存方式,具体可参考APPEND 命令的时间序列
-
-
 
 ## MSET
 
@@ -392,8 +311,6 @@ redis> SORT user_id BY *->serial
 * 时间复杂度:O(N), N 为要设置的 key 数量
 * 返回值:总是返回 OK (因为 MSET 不可能失败)
 
-
-
 ## MSETNX
 
 * msetnx key value [key value ...]:同时设置一个或多个 key-value 对,仅当所有指定 key 都不存在.即使只有一个指定 key 已存在, MSETNX 也会拒绝执行所有指定 key 的设置操作
@@ -401,19 +318,13 @@ redis> SORT user_id BY *->serial
 * 时间复杂度:O(N), N 为要设置的 key 的数量
 * 返回值:所有key都成功设置,返回 1;如果所有指定key都设置失败(至少有一个key已经存在),返回0
 
-
-
 ## APPEND
 
 * append key value:如果 key 已经存在并且是一个字符串, APPEND 命令将 value 追加到 key 原来的值的末尾.如果 key 不存在, APPEND 就简单地将指定 key 设为 value ,就像执行 SET key value 一样
 * 时间复杂度:平摊 O(1)
 * 返回值:追加 value 之后, key 中字符串的长度
 
-
-
 ### 应用场景
-
-
 
 #### 时间序列(Time series)
 
@@ -436,23 +347,17 @@ redis> GETRANGE ts 4 7
 "0035"
 ```
 
-
-
 ## GET
 
 * get key:返回 key存储的字符串值.如果 key 不存在返回nil;如果key储存的值不是字符串,返回错误
 * 时间复杂度:O(1)
 * 返回值:key不存在时返回 nil;否则返回 key 的值;如果 key 不是字符串,那么返回错误
 
-
-
 ## MGET
 
 * mget key [key ...]:返回所有key的值.如果某个key不存在,只有该key返回nil,其他正常返回
 * 时间复杂度:O(N) , N 为指定 key 的数量
 * 返回值:一个包含所有指定 key 的值的列表
-
-
 
 ## GETRANGE
 
@@ -461,19 +366,13 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为要返回的字符串的长度.复杂度最终由字符串的返回值长度决定,但因为从已有字符串中取出子字符串的操作非常廉价,所以对于长度不大的字符串,该操作的复杂度也可看作 O(1)
 * 返回值:截取得出的子字符串
 
-
-
 ## GETSET
 
 * getset key value:将key的值设为 value ,并返回 key 的旧值.当key存在但不是字符串时,返回错误
 * 时间复杂度:O(1)
 * 返回值:返回指定 key 的旧值;当 key 没有旧值时,也即是, key 不存在时,返回 nil
 
-
-
 ### 应用场景
-
-
 
 #### 计数器
 
@@ -482,7 +381,7 @@ redis> GETRANGE ts 4 7
 * EX:每次当某个事件发生时,进程可能对一个名为 mycount 的 key 调用 INCR操作,还要在一个原子时间内同时完成获得计数器的值和将计数器值复位为 0 两个操作
 
 * 可以用命令 GETSET mycounter 0 来实现这一目标
-
+  
   ```shell
   redis> INCR mycount
   (integer) 11
@@ -494,15 +393,11 @@ redis> GETRANGE ts 4 7
   "0"
   ```
 
-
-
 ## STRLEN
 
 * strlen key:返回 key 所储存的字符串值的长度.当 key 储存的不是字符串值时,返回错误
 * 事件复杂度:O(1)
 * 返回值:字符串值的长度;当 key 不存在时,返回 0
-
-
 
 ## DECR
 
@@ -513,8 +408,6 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:执行 DECR 命令之后 key 的值
 
-
-
 ## DECRBY
 
 * decrby key decrement:将 key 所储存的值减去减量 decrement
@@ -523,8 +416,6 @@ redis> GETRANGE ts 4 7
   * 本操作的值限制在 64 位(bit)有符号数字表示之内
 * 时间复杂度:O(1)
 * 返回值:减去 decrement 之后, key 的值
-
-
 
 ## INCR
 
@@ -536,11 +427,7 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:执行 INCR 命令之后 key 的值
 
-
-
 ### 应用场景
-
-
 
 #### 计数器
 
@@ -552,14 +439,12 @@ redis> GETRANGE ts 4 7
   * 客户端可以通过使用 GETSET 命令原子性地获取计数器的当前值并将计数器清零
   * 使用其他自增/自减操作,比如 DECR 和 INCRBY ,用户可以通过执行不同的操作增加或减少计数器的值,比如在游戏中的记分器就可能用到这些命令
 
-
-
 #### 限速器
 
 * 限速器是特殊化的计算器,它用于限制一个操作可以被执行的速率(rate)
 
 * 限速器的典型用法是限制公开 API 的请求次数,以下是一个限速器实现示例,它将 API的最大请求数限制在每个 IP 地址每秒钟十个之内:
-
+  
   ```shell
   FUNCTION LIMIT_API_CALL(ip)
   ts = CURRENT_UNIX_TIME()
@@ -584,7 +469,7 @@ redis> GETRANGE ts 4 7
 * 使用事务打包执行 INCR 命令和 EXPIRE 命令,避免引入竞争条件,保证每次调用 API 时都可以正确地对计数器进行自增操作并设置生存时间
 
 * 另一个限速器实现:
-
+  
   ```shell
   FUNCTION LIMIT_API_CALL(ip):
   current = GET(ip)
@@ -604,7 +489,7 @@ redis> GETRANGE ts 4 7
 * 这个新的限速器在INCR和EXPIRE之间存在着一个竞争条件,假如客户端在执行INCR之后,因为某些原因而忘记设置 EXPIRE 的话,那么这个计数器就会一直存在下去,造成每个用户只能访问 10 次
 
 * 要消灭这个实现中的竞争条件,可以将它转化为一个 Lua 脚本,并放到 Redis 中运行:
-
+  
   ```lua
   local current
   current = redis.call("incr",KEYS[1])
@@ -616,7 +501,7 @@ redis> GETRANGE ts 4 7
 * 通过将计数器作为脚本放到 Redis 上运行,保证了 INCR 和 EXPIRE的原子性,现在这个脚本实现不会引入竞争条件,它可以运作的很好
 
 * 另一种消灭竞争条件的方法,就是使用Redis的列表结构来代替 INCR 命令,这个方法无须脚本支持
-
+  
   ```shell
   FUNCTION LIMIT_API_CALL(ip)
   current = LLEN(ip)
@@ -637,8 +522,6 @@ redis> GETRANGE ts 4 7
 
 * 新的限速器使用列表作为容器, LLEN 用于对访问次数进行检查,一个事务包裹 RPUSH 和 EXPIRE 两个命令,用于在第一次执行计数时创建列表,并正确设置地设置过期时间,最后, RPUSHX 在后续的计数操作中进行增加操作
 
-
-
 ## INCRBY
 
 * incrby key increment:将 key 所储存的值加上增量 increment
@@ -647,8 +530,6 @@ redis> GETRANGE ts 4 7
   * 本操作的值限制在 64 位(bit)有符号数字表示之内
 * 时间复杂度:O(1)
 * 返回值:加上 increment 之后, key 的值
-
-
 
 ## INCRBYFLOAT
 
@@ -662,7 +543,6 @@ redis> GETRANGE ts 4 7
     * key 当前的值或者指定的增量 increment 不能解释为双精度浮点数
 * 时间复杂度:O(1)
 * 返回值:执行命令之后 key 的值
-  
 
 ## SETBIT
 
@@ -674,15 +554,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:指定偏移量原来储存的位
 
-
-
 ## GETBIT
 
 * getbit key offset:对 key 所储存的字符串值,获取指定偏移量上的位.当 offset 比字符串值的长度大,或者 key 不存在时,返回 0
 * 时间复杂度:O(1)
 * 返回值:字符串值指定偏移量上的位(bit)
-
-
 
 ## BITOP
 
@@ -697,8 +573,6 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N).当处理大型矩阵(matrix)或者进行大数据量的统计时,最好将任务指派到附属节点(slave)进行,避免阻塞主节点
 * 返回值:保存到 destkey 的字符串的长度,和输入 key 中最长的字符串长度相等
 
-
-
 ## BITCOUNT
 
 * bitcount key [start] [end]:计算指定字符串中,被设置为 1 的比特位的数量
@@ -708,11 +582,7 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N)
 * 返回值:被设置为 1 的位的数量
 
-
-
 ### 应用场景
-
-
 
 #### 用户上线次数统计
 
@@ -725,11 +595,7 @@ redis> GETRANGE ts 4 7
   * 将一个大的 bitmap 分散到不同的 key 中,作为小的 bitmap 来处理。使用 Lua脚本可以很方便地完成这一工作
   * 使用 BITCOUNT 的 start 和 end 参数,每次只对所需的部分位进行计算,将位的累积工作放到客户端进行,并且对结果进行缓存
 
-
-
 # Hash(哈希表)
-
-
 
 ## HSET
 
@@ -739,8 +605,6 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:如果 field是一个新建域,并且值设置成功,返回 1;如果field已经存在且旧值已被新值覆盖,返回 0
 
-
-
 ## HSETNX
 
 * hsetnx key field value:将哈希表 key 中的域 field 的值设置为 value ,当且仅当域 field 不存在
@@ -748,8 +612,6 @@ redis> GETRANGE ts 4 7
   * 如果 key 不存在,一个新哈希表被创建并执行 HSETNX 命令
 * 时间复杂度:O(1)
 * 返回值:设置成功,返回 1;如果指定域已经存在且没有操作被执行,返回 0
-
-
 
 ## HMSET
 
@@ -759,15 +621,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为 field-value 对的数量
 * 返回值:如果命令执行成功,返回 OK;当 key 不是哈希表(hash)类型时,返回一个错误
 
-
-
 ## HGET
 
 * hget key field:返回哈希表 key 中指定域 field 的值
 * 时间复杂度:O(1)
 * 返回值:指定域的值;当指定域不存在或是指定 key 不存在时,返回 nil
-
-
 
 ## HMGET
 
@@ -776,7 +634,6 @@ redis> GETRANGE ts 4 7
   * 因为不存在的 key 被当作一个空哈希表来处理,所以对一个不存在的 key 进行 HMGET操作将返回一个只带有 nil 值的表
 * 时间复杂度:O(N), N 为指定域的数量
 * 返回值:一个包含多个指定域的关联值的表,表值的排列顺序和指定域参数的请求顺序一样
-  
 
 ## HGETALL
 
@@ -784,15 +641,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为哈希表的大小
 * 返回值:以列表形式返回哈希表的域和域的值;若 key 不存在,返回空列表
 
-
-
 ## HDEL
 
 * hdel key field [field ...]:删除哈希表 key 中的一个或多个指定域,不存在的域将被忽略
 * 时间复杂度:O(N), N 为要删除的域的数量
 * 返回值:被成功移除的域的数量,不包括被忽略的域
-
-
 
 ## HLEN
 
@@ -800,15 +653,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:哈希表中域的数量;当 key 不存在时,返回 0
 
-
-
 ## HEXISTS
 
 * hexists key field:查看哈希表 key 中,指定域 field 是否存在
 * 时间复杂度:O(1)
 * 返回值:如果哈希表含有指定域,返回 1;如果哈希表不含有指定域,或 key 不存在,返回 0
-
-
 
 ## HINCRBY
 
@@ -820,8 +669,6 @@ redis> GETRANGE ts 4 7
   * 本操作的值被限制在 64 位(bit)有符号数字表示之内
 * 时间复杂度:O(1)
 * 返回值:执行 HINCRBY 命令之后,哈希表 key 中域 field 的值
-
-
 
 ## HINCRBYFLOAT
 
@@ -835,15 +682,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:执行加法操作之后 field 域的值
 
-
-
 ## HKEYS
 
 * hkeys key:返回哈希表 key 中的所有域
 * 时间复杂度:O(N), N 为哈希表的大小
 * 返回值:一个包含哈希表中所有域的表;当 key 不存在时,返回一个空表
-
-
 
 ## HVALS
 
@@ -851,11 +694,7 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为哈希表的大小
 * 返回值:一个包含哈希表中所有值的表;当 key 不存在时,返回一个空表
 
-
-
 # List(列表)
-
-
 
 ## LPUSH
 
@@ -867,16 +706,12 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:执行 LPUSH 命令后,列表的长度
 
-
-
 ## LPUSHX
 
 * lpushx key value:将值 value 插入到列表 key 的表头,当且仅当 key 存在并且是一个列表.和 LPUSH 命令相反,当 key 不存在时, LPUSHX 命令什么也不做
 * 时间复杂度:O(1)
 * 返回值:LPUSHX 命令执行之后,表的长度
   示例代码:
-
-
 
 ## RPUSH
 
@@ -888,16 +723,13 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:执行 RPUSH 操作后,表的长度
 
-
-
 ## RPUSHX
 
 * rpushx key value:将值 value 插入到列表 key 的表尾,当且仅当 key 存在并且是一个列表.和 RPUSH 命令相反,当 key 不存在时, RPUSHX 命令什么也不做
 
 * 时间复杂度:O(1)
+
 * 返回值:RPUSHX 命令执行之后,表的长度
-
-
 
 ## LPOP
 
@@ -905,27 +737,19 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:列表的头元素;当 key 不存在时,返回 nil
 
-
-
 ## RPOP
 
 * rpop key:移除并返回列表 key 的尾元素
 * 时间复杂度:O(1)
 * 返回值:列表的尾元素;当 key 不存在时,返回 nil
 
-
-
 ## BLPOP
-
-
 
 * blpop key [key ...] timeout:BLPOP 是列表的阻塞式(blocking)弹出原语
   * 它是 LPOP 命令的阻塞版本,当指定列表内没有任何元素可供弹出的时候,连接将被BLPOP 命令阻塞,直到等待超时或发现可弹出元素为止
   * 当指定多个 key 参数时,按参数 key 的先后顺序依次检查各个列表,弹出第一个非空列表的头元素
 * 时间复杂度:O(1)
 * 返回值:如果列表为空,返回一个 nil;否则,返回一个含有两个元素的列表,第一个元素是被弹出元素所属的 key ,第二个元素是被弹出元素的值
-
-
 
 ### 非阻塞行为
 
@@ -934,39 +758,29 @@ redis> GETRANGE ts 4 7
 * 假设有 job 、 command 和 request 三个列表,其中 job 不存在, command 和request 都持有非空列表,考虑以下命令:`BLPOP job command request 0`
 * BLPOP 保证返回的元素来自 command,因为它是按查找 job -> 查找 command -> 查找 request这样的顺序,第一个找到的非空列表
 
-
-
 ### 阻塞行为
 
 * 如果所有指定 key 都不存在或包含空列表,那么 BLPOP 命令将阻塞连接,直到等待超时,或有另一个客户端对指定 key 的任意一个执行 LPUSH 或 RPUSH 命令为止
 * 超时参数 timeout 接受一个以秒为单位的数字作为值。超时参数设为 0 表示阻塞时间可以无限期延长
-
-
 
 ### 相同key被多个客户端同时阻塞
 
 * 相同的 key 可以被多个客户端同时阻塞
 * 不同的客户端被放进一个队列中,按先阻塞先服务的顺序为 key 执行 BLPOP 命令
 
-
-
 ### 在 MULTI/EXEC 事务中的 BLPOP
 
 * BLPOP 可以用于流水线(pipline,批量地发送多个命令并读入多个回复),但把它用在MULTI / EXEC 块当中没有意义。因为这要求整个服务器被阻塞以保证块执行时的原子性,该行为阻止了其他客户端执行 LPUSH 或 RPUSH 命令
 * 因此,一个被包裹在 MULTI / EXEC 块内的 BLPOP 命令,行为表现得就像 LPOP 一样,对空列表返回 nil ,对非空列表弹出列表元素,不进行任何阻塞操作
 
-
-
 ### 应用场景
-
-
 
 #### 事件提醒
 
 * 有时候,为了等待一个新元素到达数据中,需要使用轮询的方式对数据进行探查.另一种更好的方式是,使用系统提供的阻塞原语,在新元素到达时立即进行处理,而新元素还没到达时,就一直阻塞住,避免轮询占用资源
 
 * 对于 Redis ,似乎需要一个阻塞版的 SPOP 命令,但实际上,使用BLPOP或BRPOP就能解决这个问题
-
+  
   ```shell
   # 使用元素的客户端(消费者)可以执行类似以下的代码
   LOOP forever
@@ -982,19 +796,17 @@ redis> GETRANGE ts 4 7
   EXEC
   ```
 
-  
-
 ### BRPOP
 
 * brpop key [key ...] timeout:BRPOP 是列表的阻塞式(blocking)弹出原语
+  
   * 它是 RPOP 命令的阻塞版本,当指定列表内没有任何元素可供弹出的时候,连接将被BRPOP 命令阻塞,直到等待超时或发现可弹出元素为止
   * 当指定多个 key时,按参数 key 的先后顺序依次检查各个列表,弹出第一个非空列表的尾部元素
   * BRPOP除了弹出元素的位置和 BLPOP不同之外,其他表现一致
 
 * 时间复杂度:O(1)
+
 * 返回值:假如在指定时间内没有任何元素被弹出,则返回一个 nil 和等待时长;反之,返回一个含有两个元素的列表,第一个元素是被弹出元素所属的 key ,第二个元素是被弹出元素的值
-
-
 
 ## LLEN
 
@@ -1003,8 +815,6 @@ redis> GETRANGE ts 4 7
   * 如果 key 不是列表类型,返回一个错误
 * 时间复杂度:O(1)
 * 返回值:列表 key 的长度
-
-
 
 ## LRANGE
 
@@ -1017,8 +827,6 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(S+N), S 为偏移量 start , N 为指定区间内元素的数量
 * 返回值:一个列表,包含指定区间内的元素
 
-
-
 ## LREM
 
 * lrem key count value:根据参数 count 的值,移除列表中与参数 value 相等的元素.count 的值可以是以下几种:
@@ -1028,16 +836,12 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为列表的长度
 * 返回值:被移除元素的数量;因为不存在的 key 被视作空表,所以当 key 不存在时,LREM命令总是返回 0
 
-
-
 ## LSET
 
 * lset key index value:将列表 key 下标为 index 的元素的值设置为 value
   * 当 index 参数超出范围,或对一个空列表( key 不存在)进行 LSET 时,返回一个错误
 * 时间复杂度:对头元素或尾元素进行 LSET 操作,复杂度为 O(1);其他情况下,为 O(N), N 为列表的长度
 * 返回值:操作成功返回 ok ,否则返回错误信息
-
-
 
 ## LTRIM
 
@@ -1053,8 +857,6 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为被移除的元素的数量
 * 返回值:命令执行成功时,返回 ok 
 
-
-
 ## LINDEX
 
 * lindex key index:返回列表 key 中,下标为 index 的元素
@@ -1064,23 +866,22 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为到达下标 index 过程中经过的元素数量;因此,对列表的头元素和尾元素执行 LINDEX 命令,复杂度为 O(1)
 * 返回值:列表中下标为 index 的元素;如果 index 参数的值不在列表的区间范围内,返回 nil
 
-
-
 ## LINSERT
 
 * linsert key BEFORE|AFTER pivot value:将值 value 插入到列表 key 当中,位于值 pivot 之前或之后
+  
   * 当 pivot 不存在于列表 key 时,不执行任何操作
   * 当 key 不存在时, key 被视为空列表,不执行任何操作
   * 如果 key 不是列表类型,返回一个错误
 
 * 时间复杂度:O(N), N 为寻找 pivot 过程中经过的元素数量
+
 * 返回值:如果成功,返回列表长度;如果没有找到pivot,返回-1;如果key不存在或为空列表,返回0
-
-
 
 ## RPOPLPUSH
 
 * rpoplpush source destination:命令 RPOPLPUSH 在一个原子时间内,执行以下两个动作:
+  
   * 将列表 source 中的最后一个元素(尾元素)弹出,并返回给客户端
   * 将 source 弹出的元素插入到列表 destination ,作为 destination 列表的的头元素
   * 有两个列表 source 和 destination , source 列表有元素 a, b, c ,destination 列表有元素 x, y, z ,执行 RPOPLPUSH source destination 之后, source列表包含元素 a, b , destination 列表包含元素 c, x, y, z ,并且元素 c 会被返回给客户端
@@ -1088,13 +889,10 @@ redis> GETRANGE ts 4 7
     * 如果 source 和 destination 相同,则列表中的表尾元素被移动到表头,并返回该元素,可以把这种特殊情况视作列表的旋转(rotation)操作
 
 * 时间复杂度:O(1)
+
 * 返回值:被弹出的元素
 
-
-
 ### 应用场景
-
-
 
 #### 安全队列
 
@@ -1103,8 +901,6 @@ redis> GETRANGE ts 4 7
 * 上面的队列方法是不安全的,因为在这个过程中,一个客户端可能在取出一个消息之后崩溃,而未处理完的消息也就因此丢失
 * 使用 RPOPLPUSH(或BRPOPLPUSH)可以解决这个问题:因为它不仅返回一个消息,同时还将这个消息添加到另一个备份列表当中,如果一切正常的话,当一个客户端完成某个消息的处理之后,可以用LREM命令将这个消息从备份表删除
 * 还可以添加一个客户端专门用于监视备份表,它自动地将超过一定处理时限的消息重新放入队列中去(负责处理该消息的客户端可能已经崩溃),这样就不会丢失任何消息了
-
-
 
 #### 循环列表
 
@@ -1115,8 +911,6 @@ redis> GETRANGE ts 4 7
 * 这个模式可以很容易实现这样一类系统:有 N 个客户端,需要连续不断地对一些元素进行处理,而且处理的过程必须尽可能地快。一个典型的例子就是服务器的监控程序:它们需要在尽可能短的时间内,并行地检查一组网站,确保它们的可访问性
 * 使用这个模式的客户端是易于扩展且安全的,因为就算接收到元素的客户端失败,元素还是保存在列表里面,不会丢失,等到下个迭代来临的时候,别的客户端又可以继续处理这些元素了
 
-
-
 ## BRPOPLPUSH
 
 * brpoplpush source destination timeout:BRPOPLPUSH 是 RPOPLPUSH 的阻塞版本,当指定列表 source 不为空时, BRPOPLPUSH的表现和 RPOPLPUSH 一样
@@ -1125,27 +919,17 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:假如在指定时间内没有任何元素被弹出,则返回一个 nil 和等待时长;反之,返回一个含有两个元素的列表,第一个元素是被弹出元素的值,第二个元素是等待时长
 
-
-
 ### 应用场景
-
-
 
 #### 安全队列
 
 * 同RPOPLPUSH
 
-
-
 #### 循环列表
 
 * 同RPOPLPUSH
 
-
-
 # Set(集合)
-
-
 
 ## SADD
 
@@ -1155,15 +939,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 是被添加的元素的数量
 * 返回值:被添加到集合中的新元素的数量,不包括被忽略的元素
 
-
-
 ## SREM
 
-*  srem key member [member ...]:移除集合 key 中的一个或多个 member 元素,不存在的 member 元素会被忽略.当 key 不是集合类型,返回一个错误
+* srem key member [member ...]:移除集合 key 中的一个或多个 member 元素,不存在的 member 元素会被忽略.当 key 不是集合类型,返回一个错误
 * 时间复杂度:O(N), N 为指定 member 元素的数量
 * 返回值:被成功移除的元素的数量,不包括被忽略的元素
-
-
 
 ## SMEMBERS
 
@@ -1171,23 +951,17 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 为集合的基数
 * 返回值:集合中的所有成员
 
-
-
 ## SISMEMBER
 
 * sismember key member:判断 member 元素是否集合 key 的成员
 * 时间复杂度:O(1)
 * 返回值:如果member是集合的成员,返回 1;如果 member不是集合的成员,或 key 不存在,返回0
 
-
-
 ## SCARD
 
 * scard key:返回集合 key 的基数(集合中元素的数量)
 * 时间复杂度:O(1)
 * 返回值:集合的基数;当 key 不存在时,返回 0
-
-
 
 ## SMOVE
 
@@ -1199,15 +973,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:如果 member 元素被成功移除,返回1;如果 member 元素不是 source 集合的成员,并且没有任何操作对 destination 集合执行,那么返回 0
 
-
-
 ## SPOP
 
 * spop key:移除并返回集合中的一个随机元素.如果只想获取一个随机元素,但不想该元素从集合中被移除的话,可以使用SRANDMEMBER
 * 时间复杂度:O(1)
 * 返回值:被移除的随机元素;当 key 不存在或 key 是空集时,返回 nil
-
-
 
 ## SRANDMEMBER
 
@@ -1218,8 +988,6 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:只提供 key 参数时为 O(1);如果提供了 count 参数,那么为 O(N) ,N 为返回数组的元素个数
 * 返回值:只提供 key 参数时,返回一个元素；如果集合为空,返回 nil;如果提供了 count 参数,那么返回一个数组；如果集合为空,返回空数组
 
-
-
 ## SINTER
 
 * sinter key [key ...]:返回一个集合的全部成员,该集合是所有指定集合的交集
@@ -1227,8 +995,6 @@ redis> GETRANGE ts 4 7
   * 当指定集合当中有一个空集时,结果也为空集(根据集合运算定律)
 * 时间复杂度:O(N * M), N 为指定集合当中基数最小的集合, M 为指定集合的个数
 * 返回值:交集成员的列表
-
-
 
 ## SINTERSTORE
 
@@ -1238,15 +1004,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N * M), N 为指定集合当中基数最小的集合, M 为指定集合的个数
 * 返回值:结果集中的成员数量
 
-
-
 ## SUNION
 
 * sunion key [key ...]:返回一个集合的全部成员,该集合是所有指定集合的并集,不存在的key被视为空集
 * 时间复杂度:O(N), N 是所有指定集合的成员数量之和
 * 返回值:并集成员的列表
-
-
 
 ## SUNIONSTORE
 
@@ -1256,15 +1018,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 是所有指定集合的成员数量之和
 * 返回值:结果集中的元素数量
 
-
-
 ## SDIFF
 
 * sdiff key [key ...]:返回一个集合的全部成员,该集合是所有指定集合的差集,不存在的 key 被视为空集
 * 时间复杂度:O(N), N 是所有指定集合的成员数量之和
 * 返回值:交集成员的列表
-
-
 
 ## SDIFFSTORE
 
@@ -1274,11 +1032,7 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(N), N 是所有指定集合的成员数量之和
 * 返回值:结果集中的元素数量
 
-
-
 # Sorted Set(有序集)
-
-
 
 ## ZADD
 
@@ -1290,15 +1044,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(M*log(N)), N 是有序集的基数, M 为成功添加的新成员的数量
 * 返回值:被成功添加的新成员的数量,不包括那些被更新的,已经存在的成员
 
-
-
 ## ZREM
 
 * zrem key member [member ...]:移除有序集 key 中的一个或多个成员,不存在的成员将被忽略.当 key 存在但不是有序集类型时,返回一个错误
 * 时间复杂度:O(M*log(N)), N 为有序集的基数, M 为被成功移除的成员的数量
 * 返回值:被成功移除的成员的数量,不包括被忽略的成员
-
-
 
 ## ZCARD
 
@@ -1306,15 +1056,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(1)
 * 返回值:当 key 存在且是有序集类型时,返回有序集的基数;当 key 不存在时,返回 0
 
-
-
 ## ZCOUNT
 
 * zcount key min max:返回有序集 key 中, score 值在 min 和 max 之间(默认包括 score 值等于 min 或max )的成员的数量
 * 时间复杂度:O(log(N)+M), N 为有序集的基数, M 为值在 min 和 max 之间的元素的数量
 * 返回值:score 值在 min 和 max 之间的成员的数量
-
-
 
 ## ZSCORE
 
@@ -1322,8 +1068,6 @@ redis> GETRANGE ts 4 7
   * 如果 member 元素不是有序集 key 的成员,或 key 不存在,返回 nil
 * 时间复杂度:O(1)
 * 返回值:member 成员的 score 值,以字符串形式表示
-
-
 
 ## ZINCRBY
 
@@ -1335,11 +1079,10 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(log(N))
 * 返回值:member 成员的新 score 值,以字符串形式表示
 
-
-
 ## ZRANGE
 
 * zrange key start stop [WITHSCORES]:返回有序集 key 中,指定区间内的成员
+  
   * 成员的位置按 score 值递增(从小到大)来排序
   * 具有相同 score 值的成员按字典序(lexicographical order )来排列
   * 如果需要成员按 score 值递减(从大到小)来排列,可使用 ZREVRANGE
@@ -1351,37 +1094,37 @@ redis> GETRANGE ts 4 7
   * 客户端库可能会返回一些更复杂的数据类型,比如数组,元组等
 
 * 时间复杂度:O(log(N)+M), N 为有序集的基数,而 M 为结果集的基数
+
 * 返回值:指定区间内,带有 score 值(可选)的有序集成员的列表
-  
 
 ## ZREVRANGE
 
 * zrevrange key start stop [WITHSCORES]:返回有序集 key 中,指定区间内的成员
+  
   * 其中成员的位置按 score 值递减(从大到小)来排列
   * 具有相同 score 值的成员按字典序的逆序(reverse lexicographical order)排列
   * 除了成员按 score 值递减的次序排列这外, ZREVRANGE的其他方面和ZRANGE 命令一样
 
 * 时间复杂度:O(log(N)+M), N 为有序集的基数,而 M 为结果集的基数
+
 * 返回值:指定区间内,带有 score 值(可选)的有序集成员的列表
-
-
 
 ## ZRANGEBYSCORE
 
 * zrangebyscore key min max [WITHSCORES] [LIMIT offset count]:返回key中所有 score介于 min 和 max 之间(包括等于min或max )的成员.有序集成员按 score 值递增(从小到大)次序排列
-
+  
   * 具有相同 score 值的成员按字典序(lexicographical order)来排列
-
+  
   * LIMIT 参数指定返回结果的数量及区间(就像SQL中的SELECT LIMIT offset,count ),当 offset 很大时,定位 offset 的操作可能需要遍历整个有序集,此过程最坏复杂度为 O(N) 时间
-
+  
   * WITHSCORES决定结果集是单单返回有序集的成员,还是将有序集成员及其score 值一起返回
-
+  
   * 区间及无限
-
+    
     * min 和 max 可以是 -inf 和 +inf ,这样一来,你就可以在不知道有序集的最低和最高 score 值的情况下,使用 ZRANGEBYSCORE 这类命令
-
+    
     * 默认情况下,区间的取值使用闭区间 (小于等于或大于等于),你也可以通过给参数前增加 ( 符号来使用可选的开区间 (小于或大于)
-
+      
       ```shell
       ZRANGEBYSCORE zset (1 5
       # 返回所有符合条件 1 < score <= 5 的成员
@@ -1390,21 +1133,20 @@ redis> GETRANGE ts 4 7
       ```
 
 * 时间复杂度:O(log(N)+M), N 为有序集的基数, M 为被结果集的基数
+
 * 返回值:指定区间内,带有 score 值(可选)的有序集成员的列表
-
-
 
 ## ZREVRANGEBYSCORE
 
 * zrevrangebyscore key max min [WITHSCORES] [LIMIT offset count]:返回key中score 值介于 max 和 min 之间(默认包括等于 max 或 min )的所有的成员.有序集成员按 score 值递减(从大到小)的次序排列
+  
   * 具有相同 score 值的成员按字典序的逆序(reverse lexicographical order )排列
   * 除了成员按 score 值递减的次序排列这一点外, 其他方面和 ZRANGEBYSCORE 命令一样
 
 * 时间复杂度:O(log(N)+M), N 为有序集的基数, M 为结果集的基数
+
 * 返回值:指定区间内,带有 score 值(可选)的有序集成员的列表
   示例代码:
-
-
 
 ## ZRANK
 
@@ -1414,8 +1156,6 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(log(N))
 * 返回值:如果 member 是key 的成员,返回 member排名;如果member不是key的成员,返回 nil
 
-
-
 ## ZREVRANK
 
 * zrevrank key member:返回key 中member 的排名,其中有序集成员按 score 值递减排序
@@ -1423,8 +1163,6 @@ redis> GETRANGE ts 4 7
   * 使用 ZRANK 命令可以获得成员按 score 值递增(从小到大)排列的排名
 * 时间复杂度:O(log(N))
 * 返回值:如果 member 是key 的成员,返回 member 的排名;如果 member 不是key 的成员,返回 nil
-
-
 
 ## ZREMRANGEBYRANK
 
@@ -1435,15 +1173,11 @@ redis> GETRANGE ts 4 7
 * 时间复杂度:O(log(N)+M), N 为有序集的基数,而 M 为被移除成员的数量
 * 返回值:被移除成员的数量
 
-
-
 ## ZREMRANGEBYSCORE
 
 * zremrangebyscore key min max:移除有序集 key 中,所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员
 * 时间复杂度:O(log(N)+M), N 为有序集的基数,而 M 为被移除成员的数量
 * 返回值:被移除成员的数量
-
-
 
 ## ZINTERSTORE
 
@@ -1451,9 +1185,8 @@ redis> GETRANGE ts 4 7
   \[AGGREGATE SUM|MIN|MAX\]:计算指定的一个或多个有序集的交集,其中指定 key 的数量必须以 numkeys 参数指定,并将该交集(结果集)储存到 destination.默认情况下,结果集中某个成员的 score 值是所有指定集下该成员 score 值之和
 
 * 时间复杂度:O(N\*K)+O(M\*log(M)),N为指定 key 中基数最小的有序集,K为指定有序集的数量,M 为结果集的基数
+
 * 返回值:保存到 destination 的结果集的基数
-
-
 
 ## ZUNIONSTORE
 
@@ -1469,11 +1202,140 @@ redis> GETRANGE ts 4 7
 
 
 
+# Bitmaps(位图)
+
+
+
+## getbit
+
+
+
+* getbit key offset:获取指定key对应偏移量上的bit值
+
+
+
+## setbit
+
+
+
+* setbit key offset value:设置指定key对应偏移量上的bit值,value只能是1或0
+
+
+
+## bitop
+
+
+
+* bitop op destKey key1 [key2...]:对指定key按位进行交、并、非、异或操作,并将结果保存到destKey中
+  * and:交
+  * or:并
+  * not:非
+  * xor:异或
+
+
+
+## bitcount
+
+
+
+* bitcount key [start end]:统计指定key中1的数量
+
+
+
+# HyperLogLog(基数)
+
+
+
+## PFADD
+
+
+
+* PFADD key element [element ...]:将任意数量的元素添加到指定的 HyperLogLog 里面.命令可能会对HyperLogLog 进行修改,以便反映新的基数估算值,如果 HyperLogLog 的基数估算值在命令执行之后出现了变化,那么命令返回 1 ,否则返回 0
+* 命令的复杂度为 O(N) ,N 为被添加元素的数量
+* 返回值:基数估算值在命令执行之后出现了变化,则返回 1 ,否则返回 0
+
+
+
+## PFCOUNT
+
+
+
+* PFCOUNT key [key ...]:当只给定一个 HyperLogLog 时,命令返回给定 HyperLogLog 的基数估算值.当给定多个 HyperLogLog 时,命令会先对给定的 HyperLogLog 进行并集计算,得出一个合并后的HyperLogLog,然后返回这个合并 HyperLogLog 的基数估算值作为命令的结果.合并得出的HyperLogLog 不会被储存,使用之后就会被删掉
+* 作用于单个 HyperLogLog 时, 复杂度为 O(1) , 并且具有非常低的平均常数时间
+* 作用于多个 HyperLogLog 时,复杂度为 O(N) ,并且常数时间也比处理单个 HyperLogLog 时要大得多
+
+
+
+## PFMERGE
+
+
+
+* PFMERGE destkey sourcekey [sourcekey ...]
+  将多个 HyperLogLog 合并为一个 HyperLogLog ，合并后的 HyperLogLog 的基数估算值是通过对所有
+  给定 HyperLogLog 进行并集计算得出的。
+  命令的复杂度为 O(N) ， 其中 N 为被合并的 HyperLogLog 数量， 不过这个命令的常数复杂度比较高
+
+
+
+# GEO(地理位置)
+
+
+
+## geoadd
+
+
+
+* geoadd key longitude latitude member [longitude latitude member ...]:添加坐标点
+
+
+
+## geopos
+
+
+
+* geopos key member [member ...]:获取坐标点
+
+
+
+## geodist
+
+
+
+* geodist key member1 member2 [unit]:计算坐标点距离
+
+
+
+## georadius
+
+
+
+* georadius key longitude latitude radius m|km|ft|mi [withcoord] [withdist] [withhash] [count count]:添加坐标点
+
+
+
+## georadiusbymember
+
+
+
+* georadiusbymember key member radius m|km|ft|mi [withcoord] [withdist] [withhash] [count count]:获取坐标点
+
+
+
+## geohash
+
+
+
+* geohash key member [member ...]:计算经纬度
+
+
+
 # Pub/Sub(发布/订阅)
 
 
 
 ## PUBLISH
+
+
 
 * publish channel message:将信息 message 发送到指定的频道 channel
 * 时间复杂度:O(N+M),其中 N 是频道 channel 的订阅者数量,而 M 则是使用模式订阅的客户端的数量
@@ -1483,6 +1345,8 @@ redis> GETRANGE ts 4 7
 
 ## SUBSCRIBE
 
+
+
 * SUBSCRIBE channel [channel ...]:订阅指定的一个或多个频道的信息
 * 时间复杂度:O(N),其中 N 是订阅的频道的数量
 * 返回值:接收到的信息(请参见下面的代码说明)
@@ -1490,6 +1354,8 @@ redis> GETRANGE ts 4 7
 
 
 ## PSUBSCRIBE
+
+
 
 * psubscribe pattern [pattern ...]:订阅一个或多个符合指定模式的频道
   * 每个模式以 * 作为匹配符,比如 it* 匹配所有以 it 开头的频道( it.news,it.blog等), news.* 匹配所有以 news. 开头的频道( news.it ,news.global.today 等等),诸如此类
@@ -1500,6 +1366,8 @@ redis> GETRANGE ts 4 7
 
 ## UNSUBSCRIBE
 
+
+
 * unsubscribe [channel [channel ...]]:指示客户端退订指定的频道
   * 如果没有频道被指定,一个无参的 UNSUBSCRIBE被执行,那么客户端使用 SUBSCRIBE 命令订阅的所有频道都会被退订.在这种情况下,命令会返回一个信息,告知客户端所有被退订的频道
 * 时间复杂度:O(N) , N 是客户端已订阅的频道的数量
@@ -1508,6 +1376,8 @@ redis> GETRANGE ts 4 7
 
 
 ## PUNSUBSCRIBE
+
+
 
 * punsubscribe [pattern [pattern ...]]:指示客户端退订所有指定模式
   * 如果没有模式被指定,一个无参的 PUNSUBSCRIBE被执行,那么客户端使用 PSUBSCRIBE 命令订阅的所有模式都会被退订.在这种情况下,命令会返回一个信息,告知客户端所有被退订的模式
@@ -1522,25 +1392,34 @@ redis> GETRANGE ts 4 7
 
 ## WATCH
 
+
+
 * WATCH key [key ...]:监视一个key,如果在事务执行之前这个key被其他命令所改动,那么事务将被打断
 
 * 时间复杂度:O(1)
+
 * 返回值:总是返回 OK
 
 
 
 ## UNWATCH
 
+
+
 * 取消 WATCH 命令对所有 key 的监视
+  
   * 如果在执行 WATCH 命令之后, EXEC 命令或 DISCARD 命令先被执行了的话,那么就不需要再执行 UNWATCH 了
   * EXEC 命令会执行事务,因此 WATCH 命令的效果已经产生了;而 DISCARD 命令在取消事务的同时也会取消所有对 key 的监视,因此这两个命令执行之后,就没有必要执行UNWATCH 了
 
 * 时间复杂度:O(1)
+
 * 返回值:总是 OK
 
 
 
 ## MULTI
+
+
 
 * 标记一个事务块的开始.事务块内的多条命令会按照先后顺序被放进一个队列当中,最后由 EXEC 命令原子性(atomic)地执行
 * 时间复杂度:O(1)
@@ -1550,6 +1429,8 @@ redis> GETRANGE ts 4 7
 
 ## DISCARD
 
+
+
 * 取消事务,放弃执行事务块内的所有命令.如果正在使用 WATCH 命令监视某个(或某些) key,那么取消所有监视,等同于执行命令 UNWATCH
 * 时间复杂度:O(1)
 * 返回值:总是返回 OK
@@ -1558,11 +1439,14 @@ redis> GETRANGE ts 4 7
 
 ## EXEC
 
+
+
 * 执行所有事务块内的命令
   * 假如某个(或某些)key正处于 WATCH的监视下,且事务块中有和这个key 相关的命令,那么 EXEC 只在这个key没有被其他命令所改动的情况下执行并生效,否则该事务被打断
 * 时间复杂度:事务块内所有命令的时间复杂度的总和
 * 返回值:事务块内所有命令的返回值,按命令执行的先后顺序排列;当操作被打断时,返回空值 nil
-  
+
+
 
 # Script(脚本)
 
@@ -1593,8 +1477,6 @@ second
   * 这两个函数的唯一区别在于处理执行命令所产生错误的方式不同,它们的参数可以是任何格式良好的Redis 命令:`eval "return redis.call('set',KEYS[1],'bar')" 1 foo`
 * 要求使用正确的形式来传递键(key)是有原因的,因为不仅仅是 EVAL 这个命令,所有的 Redis 命令,在执行之前都会被分析,籍此来确定命令会对哪些键进行操作.因此,对于 EVAL 命令来说,必须使用正确的形式来传递键,才能确保分析工作正确地执行
 * 使用正确的形式来传递键还有很多其他好处,它的一个特别重要的用途就是确保 Redis 集群可以将你的请求发送到正确的集群节点(对 Redis 集群的工作还在进行当中,但是脚本功能被设计成可以与集群功能保持兼容).不过,这条规矩并不是强制性的,从而使得用户有机会滥用(abuse) Redis 单实例配置(single instance configuration),代价是这样写出的脚本不能被 Redis 集群所兼容
-
-
 
 ### Lua和Redis数据类型转换
 
@@ -1632,8 +1514,6 @@ second
 
 * 在上面的三个代码示例里,前两个演示了如何将 Lua 值转换成 Redis 值,最后一个例子更复杂一些,它演示了一个将 Redis 值转换成 Lua 值,然后再将 Lua 值转换成 Redis值的类型转过程
 
-
-
 ### 脚本的原子性
 
 * Redis 使用单个 Lua 解释器去运行所有脚本,并且, Redis 也保证脚本会以原子性(atomic)的方式执行:当某个脚本正在运行的时候,不会有其他脚本或 Redis 命令被执行
@@ -1641,14 +1521,10 @@ second
 * 在其他别的客户端看来,脚本的效果要么是不可见的,要么就是已完成的
 * 执行一个运行缓慢的脚本并不是一个好主意,写一个跑得很快很顺溜的脚本并不难,因为脚本的运行开销非常少,但是当不得不使用一些跑得比较慢的脚本时,其他客户端会因为服务器正忙而无法执行命令
 
-
-
 ### 错误处理
 
 * redis.call() 在执行命令的过程中发生错误时,脚本会停止执行,并返回一个脚本错误,错误的输出信息会说明错误造成的原因
 * redis.pcall() 出错时并不引发(raise)错误,而是返回一个带 err 域的 Lua 表(table),用于表示错误
-
-
 
 ### 带宽和 EVALSHA
 
@@ -1660,16 +1536,12 @@ second
 * 客户端库的底层实现可以一直乐观地使用 EVALSHA 来代替 EVAL ,并期望着要使用的脚本已经保存在服务器上了,只有当 NOSCRIPT 错误发生时,才使用 EVAL 命令重新发送脚本,这样就可以最大限度地节省带宽
 * 这也说明了执行 EVAL 命令时,使用正确的格式来传递键名参数和附加参数的重要性:因为如果将参数硬写在脚本中,那么每次当参数改变的时候,都要重新发送脚本,即使脚本的主体并没有改变,相反,通过使用正确的格式来传递键名参数和附加参数,就可以在脚本主体不变的情况下,直接使用 EVALSHA 命令对脚本进行复用,免去了无谓的带宽消耗
 
-
-
 ### 脚本缓存
 
 * Redis 保证所有被运行过的脚本都会被永久保存在脚本缓存当中,这意味着,当 EVAL命令在一个 Redis 实例上成功执行某个脚本之后,随后针对这个脚本的所有 EVALSHA 命令都会成功执行
 * 刷新脚本缓存的唯一办法是显式地调用 SCRIPT FLUSH,这个命令会清空运行过的所有脚本的缓存.通常只有在云计算环境中, Redis 实例被改作其他客户或者别的应用程序的实例时,才会执行这个命令
 * 缓存可以长时间储存而不产生内存问题的原因是,它们的体积非常小,而且数量也非常少,即使脚本在概念上类似于实现一个新命令,即使在一个大规模的程序里有成百上千的脚本,即使这些脚本会经常修改,即便如此,储存这些脚本的内存仍然是微不足道的
 * Redis不移除缓存中的脚本实际上是一个好主意.比如说,对于一个和 Redis 保持持久化链接的程序来说,执行过一次的脚本会一直保留在内存当中,因此它可以在流水线中使用 EVALSHA 命令而不必担心因为找不到所需的脚本而产生错误
-
-
 
 ### SCRIPT 命令
 
@@ -1678,8 +1550,6 @@ second
   * SCRIPT EXISTS:根据指定的脚本校验和,检查指定的脚本是否存在于脚本缓存
   * SCRIPT LOAD:将一个脚本装入脚本缓存,但并不立即运行它
   * SCRIPT KILL :杀死当前正在运行的脚本
-
-
 
 ### 纯函数脚本
 
@@ -1693,8 +1563,6 @@ second
   * 尽管有那么多的限制,但用户还是可以用一个简单的技巧写出带随机行为的脚本
   * Redis 实现保证 math.random 和 math.randomseed 的输出和运行 Redis 的系统架构无关,无论是 32 位还是 64 位系统,无论是小端还是大端系统,这两个函数的输出总是相同的
 
-
-
 ### 全局变量保护
 
 * 为了防止不必要的数据泄漏进 Lua 环境, Redis 脚本不允许创建全局变量
@@ -1703,8 +1571,6 @@ second
 * Lua 的 debug 工具或其他设施,比如meta table ,都可以用于实现全局变量保护
 * 一旦用户在脚本中混入了Lua 全局状态,那么 AOF 持久化和复制都会无法保证
 * 将脚本中用到的所有变量都使用 local 关键字定义为局部变量可避免引入全局变量
-
-
 
 ### 库
 
@@ -1719,8 +1585,6 @@ second
 * cjson 库可以让 Lua 以非常快的速度处理 JSON 数据,除此之外,其他别的都是Lua 的标准库
 * 每个 Redis 实例都保证会加载上面列举的库,从而确保每个 Redis 脚本的运行环境都是相同的
 
-
-
 ### 使用脚本散发 Redis 日志
 
 * 在 Lua 脚本中,可以通过调用 redis.log 函数来写 Redis 日志(log):redis.log(loglevel, message)
@@ -1730,8 +1594,6 @@ second
   * redis.LOG_NOTICE
   * redis.LOG_WARNING
 * 上面的这些等级(level)和标准 Redis 日志的等级相对应,对于脚本散发的日志,只有那些和当前 Redis 实例所设置的日志等级相同或更高级的日志才会被散发
-
-
 
 ### 沙箱和最大执行时间
 
@@ -1745,8 +1607,6 @@ second
   * 可以使用 SCRIPT KILL 命令将一个仅执行只读命令的脚本杀死,因为只读命令并不修改数据,因此杀死这个脚本并不破坏数据的完整性
   * 如果脚本已经执行过写命令,那么唯一允许执行的操作就是 SHUTDOWN NOSAVE ,它通过停止服务器来阻止当前数据集写入磁盘
 
-
-
 ### pipeline context中的 EVALSHA
 
 * 在pipeline请求的上下文中使用 EVALSHA 命令时,要特别小心,因为在流水线中,必须保证命令的执行顺序
@@ -1755,16 +1615,15 @@ second
   * 总是在流水线中使用 EVAL 命令
   * 检查流水线中要用到的所有命令,找到其中的 EVAL 命令,并使用 SCRIPT EXISTS命令检查要用到的脚本是不是全都已经保存在缓存里面了.如果所需的全部脚本都可以在缓存里找到,那么就可以放心地将所有 EVAL 命令改成 EVALSHA 命令,否则的话,就要在流水线的顶端(top)将缺少的脚本用 SCRIPT LOAD 命令加上去
 
-
-
 ## EVALSHA
 
 * evalsha sha1 numkeys key [key ...] arg [arg ...]:根据指定的 sha1 校验码,对缓存在服务器中的脚本进行求值
+  
   * 将脚本缓存到服务器的操作可以通过 SCRIPT LOAD 命令进行
   * 这个命令的其他地方,比如参数的传入方式,都和 EVAL 命令一样
 
 * 时间复杂度:根据脚本的复杂度而定
-
+  
   ```shell
   redis> SCRIPT LOAD "return 'hello moto'"
   "232fd51614574cf0867b83d384a5e898cfd24e5a"
@@ -1772,11 +1631,10 @@ second
   "hello moto"
   ```
 
-  
-
 ## SCRIPT LOAD
 
 * script load script:将脚本 script 添加到脚本缓存中,但并不立即执行这个脚本
+  
   * EVAL 命令也会将脚本添加到脚本缓存中,但是它会立即对输入的脚本进行求值
   * 如果指定的脚本已经在缓存里面了,那么不做动作
   * 在脚本被加入到缓存之后,通过 EVALSHA 命令,可以使用脚本的 SHA1 校验和来调用这个脚本
@@ -1785,15 +1643,13 @@ second
 * 时间复杂度:O(N) , N 为脚本的长度(以字节为单位)
 
 * 返回值:指定 script 的 SHA1 校验和
-
+  
   ```shell
   redis> SCRIPT LOAD "return 'hello moto'"
   "232fd51614574cf0867b83d384a5e898cfd24e5a"
   redis> EVALSHA 232fd51614574cf0867b83d384a5e898cfd24e5a 0
   "hello moto"
   ```
-
-  
 
 ## SCRIPT EXISTS
 
@@ -1802,7 +1658,7 @@ second
 * 时间复杂度:O(N) , N 为指定的 SHA1 校验和的数量
 
 * 返回值:一个列表,包含 0 和 1 ,前者表示脚本不存在于缓存,后者表示脚本已经在缓存里面了;列表中的元素和指定的 SHA1 校验和保持对应关系,比如列表的第三个元素的值就表示第三个 SHA1 校验和所指定的脚本在缓存中的状态
-
+  
   ```shell
   redis> SCRIPT LOAD "return 'hello moto'" # 载入一个脚本
   "232fd51614574cf0867b83d384a5e898cfd24e5a"
@@ -1813,8 +1669,6 @@ second
   redis> SCRIPT EXISTS 232fd51614574cf0867b83d384a5e898cfd24e5a
   \1) (integer) 0
   ```
-
-  
 
 ## SCRIPT KILL
 
@@ -1829,7 +1683,7 @@ second
 * 时间复杂度:O(1)
 
 * 返回值:执行成功返回 OK ,否则返回一个错误
-
+  
   ```shell
   # 没有脚本在执行时
   redis> SCRIPT KILL
@@ -1852,19 +1706,13 @@ second
   (5.00s)
   ```
 
-  
-
 ## SCRIPT FLUSH
 
 * 清除所有 Lua 脚本缓存
 * 时间复杂度:O(N) , N 为缓存中脚本的数量
 * 返回值:总是返回 OK
 
-
-
 # Connection(连接)
-
-
 
 ## AUTH
 
@@ -1877,8 +1725,6 @@ second
 * 时间复杂度:O(1)
 * 返回值:密码匹配时返回 OK ,否则返回一个错误
 
-
-
 ## PING
 
 * 使用客户端向 Redis 服务器发送一个 PING ,如果服务器运作正常的话,会返回一个PONG
@@ -1886,15 +1732,11 @@ second
 * 时间复杂度:O(1)
 * 返回值:如果连接正常就返回一个 PONG ,否则返回一个连接错误
 
-
-
 ## SELECT
 
 * select index:切换到指定的数据库,数据库索引号 index 用数字值指定,以 0 作为起始索引值
 * 时间复杂度:O(1)
 * 返回值:OK
-
-
 
 ## ECHO
 
@@ -1902,19 +1744,13 @@ second
 * 时间复杂度:O(1)
 * 返回值:message 自身
 
-
-
 ## QUIT
 
 * 关闭与当前客户端的连接,一旦所有等待中的回复(如果有的话)顺利写入到客户端,连接就会被关闭
 * 时间复杂度:O(1)
 * 返回值:总是返回 OK (但是不会被打印显示,因为当时 Redis-cli 已经退出)
 
-
-
 # Server(服务器)
-
-
 
 ## TIME
 
@@ -1922,15 +1758,11 @@ second
 * 时间复杂度:O(1)
 * 返回值:一个包含两个字符串的列表: 第一个字符串是当前时间(以 UNIX 时间戳格式表示),而第二个字符串是当前这一秒钟已经逝去的微秒数
 
-
-
 ## DBSIZE
 
 * 返回当前数据库的 key 的数量
 * 时间复杂度:O(1)
 * 返回值:当前数据库的 key 的数量
-
-
 
 ## BGREWRITEAOF
 
@@ -1944,8 +1776,6 @@ second
 * 时间复杂度:O(N), N 为要追加到 AOF 文件中的数据数量
 * 返回值:反馈信息
 
-
-
 ## BGSAVE
 
 * 在后台异步(Asynchronously)保存当前数据库的数据到磁盘
@@ -1955,8 +1785,6 @@ second
 * 返回值:反馈信息
   示例代码:
 
-
-
 ## SAVE
 
 * 执行一个同步保存操作,将当前 Redis 实例的所有数据快照(snapshot)以RDB 文件的形式保存到硬盘
@@ -1964,15 +1792,11 @@ second
 * 时间复杂度:O(N), N 为要保存到数据库中的 key 的数量
 * 返回值:保存成功时返回 OK 
 
-
-
 ## LASTSAVE
 
 * 返回最近一次 Redis 成功将数据保存到磁盘上的时间,以 UNIX 时间戳格式表示
 * 时间复杂度:O(1)
 * 返回值:一个 UNIX 时间戳
-
-
 
 ## SLAVEOF
 
@@ -1984,23 +1808,17 @@ second
 * 时间复杂度:SLAVEOF host port , O(N), N 为要同步的数据数量;SLAVEOF NO ONE , O(1)
 * 返回值:总是返回 OK
 
-
-
 ## FLUSHALL
 
 * 清空整个 Redis 服务器的数据(删除所有数据库的所有 key ).此命令从不失败
 * 时间复杂度:尚未明确
 * 返回值:总是返回 OK
 
-
-
 ## FLUSHDB
 
 * 清空当前数据库中的所有 key,此命令从不失败
 * 时间复杂度:O(1)
 * 返回值:总是返回 OK
-
-
 
 ## SHUTDOWN
 
@@ -2015,8 +1833,6 @@ second
 * 时间复杂度:不明确
 * 返回值:执行失败时返回错误;执行成功时不返回任何信息,服务器和客户端的连接断开,客户端自动退出
 
-
-
 ## SLOWLOG
 
 * slowlog subcommand [argument]:记录查询执行时间的日志系统
@@ -2025,14 +1841,12 @@ second
 * 时间复杂度:O(1)
 * 返回值:取决于不同命令,返回不同的值
 
-
-
 ### 设置
 
 * 可以通过改写redis.conf 文件或者用 CONFIG GET 和 CONFIG SET 命令对它们动态地进行修改
 
 * slowlog-log-slower-than:决定要对执行时间大于多少微秒的查询进行记录
-
+  
   ```shell
   # 让 slow log 记录所有查询时间大于等于 100 微秒的查询
   CONFIG SET slowlog-log-slower-than 100
@@ -2041,7 +1855,7 @@ second
   ```
 
 * slowlog-max-len:决定 slow log 最多能保存多少条日志, slow log本身是一个 FIFO 队列,当队列大小超过 slowlog-max-len 时,最旧的一条日志将被删除,而最新的一条日志加入到 slow log ,以此类推
-
+  
   ```shell
   # 以下命令让 slow log 最多保存 1000 条日志
   CONFIG SET slowlog-max-len 1000
@@ -2054,14 +1868,12 @@ second
   2) "1000"
   ```
 
-
-
 ### 查看
 
 * 使用 SLOWLOG GET 或者 SLOWLOG GET number 命令,前者打印所有 slow log ,最大长度取决于 slowlog-max-len 选项的值,而 SLOWLOG GET number则只打印指定数量的日志
 
 * 最新的日志会最先被打印
-
+  
   ```shell
   redis> SLOWLOG GET
   1) (integer) 12 # 唯一性(unique)的日志标识符
@@ -2084,12 +1896,11 @@ second
   3) "slowlog-log-slower-than"
   ```
 
-  
-
 * 日志的唯一 id 只有在 Redis 服务器重启的时候才会重置,这样可以避免对日志的重复处理
+
 * SLOWLOG LEN:查看当前日志的数量,和 slower-max-len不同的是,一个是当前日志的数量,一个是允许记录的最大日志的数量
+
 * SLOWLOG RESET:清空slow log
-  
 
 ## INFO
 
@@ -2142,8 +1953,6 @@ second
   * 当不带参数直接调用 INFO 命令时,使用 default 作为默认参数
 * 时间复杂度:O(1)
 
-
-
 ## CONFIG GET
 
 * CONFIG GET parameter:取得运行中的 Redis 服务器的配置参数
@@ -2155,15 +1964,11 @@ second
 * 时间复杂度:不明确
 * 返回值:指定配置参数的值
 
-
-
 ## CONFIG SET
 
 * CONFIG SET parameter value:动态地调整 Redis 服务器的配置而无须重启
 * 时间复杂度:不明确
 * 返回值:当设置成功时返回 OK ,否则返回一个错误
-
-
 
 ## CONFIG RESETSTAT
 
@@ -2179,15 +1984,11 @@ second
 * 时间复杂度:O(1)
 * 返回值:总是返回 OK
 
-
-
 ## DEBUG OBJECT
 
 * debug object key:一个调试命令,它不应被客户端所使用,可查看 OBJECT
 * 时间复杂度:O(1)
 * 返回值:当 key 存在时,返回有关信息;当 key 不存在时,返回一个错误
-
-
 
 ## DEBUG SEGFAULT
 
@@ -2195,23 +1996,17 @@ second
 * 时间复杂度:不明确
 * 返回值:无
 
-
-
 ## MONITOR
 
 * 实时打印出 Redis 服务器接收到的命令,调试用
 * 时间复杂度:不明确
 * 返回值:总是返回 OK
 
-
-
 ## SYNC
 
 * 用于复制功能(replication)的内部命令
 * 时间复杂度:不明确
 * 返回值:不明确
-
-
 
 ## CLIENT LIST
 
@@ -2253,8 +2048,6 @@ second
     * w : 客户端套接字(在事件 loop 中)是可写的
   * 为了 debug 的需要,经常会对域进行添加和删除,一个安全的 Redis 客户端应该可以对 CLIENT LIST 的输出进行相应的处理,比如忽略不存在的域,跳过未知域,诸如此类
 
-
-
 ## CLIENT KILL
 
 * client kill ip:port:关闭地址为 ip:port 的客户端
@@ -2263,8 +2056,6 @@ second
   * 如果要被断开连接的客户端正在执行命令,那么当这个命令执行之后,在发送下一个命令的时候,它就会收到一个网络错误,告知它自身的连接已被关闭
 * 时间复杂度:O(N) , N 为已连接的客户端数量
 * 返回值:当指定的客户端存在,且被成功关闭时,返回 OK
-
-
 
 ## CLIENT SETNAME
 
@@ -2278,8 +2069,6 @@ second
   * 在 Redis 应用程序发生连接泄漏时,为连接设置名字是一种很好的 debug 手段
 * 时间复杂度:O(1)
 * 返回值:设置成功时返回 OK
-
-
 
 ## CLIENT GETNAME
 
