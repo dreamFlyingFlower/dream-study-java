@@ -1,0 +1,16 @@
+{
+  "userIgnoreFilters": [
+    "target",
+    ".settings",
+    "/target/",
+    "/dream-study-.*/",
+    "/target.*/",
+    "/(.*)/target/",
+    "/(.*)target(.*)/"
+  ],
+  "legacyEditor": false,
+  "newFileLocation": "current",
+  "showUnsupportedFiles": false,
+  "useMarkdownLinks": false,
+  "promptDelete": false
+}

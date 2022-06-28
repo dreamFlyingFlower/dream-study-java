@@ -1,0 +1,144 @@
+{
+  "main": {
+    "id": "8c123f700a419663",
+    "type": "split",
+    "children": [
+      {
+        "id": "8f3e6d381e6d3137",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "docs/Redis/Redis.md",
+            "mode": "source",
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "714a757f771dd7e5",
+    "type": "split",
+    "children": [
+      {
+        "id": "0be9c396abe9921c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ffa24cd8daafac1e",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/Redis/Redis.md"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "48f7a168b79825b1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6060631d895dc8ff",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "80421ff40e3195ab",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "7cd8a6be427756b6",
+    "type": "split",
+    "children": [
+      {
+        "id": "2968d6b12586fd11",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2fe3bd90ffd898d3",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/Redis/Redis.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "f6c4761be41ce8fd",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/Redis/Redis.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "99005c3b95b15f94",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "d0b2938b0a25af5f",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/Redis/Redis.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "8f3e6d381e6d3137",
+  "lastOpenFiles": [
+    "docs/Redis/Redis.md",
+    "docs/Redis/().md"
+  ]
+}
