@@ -1,4 +1,4 @@
-﻿﻿# IDEA
+# IDEA
 
 
 
@@ -574,6 +574,14 @@
 
 * 从dao跳到Mybatis的xml文件
 * 没有Eclipse的好用,只能从dao层条,service中不能跳
+
+
+
+## Alibaba Java Coding Guidelines
+
+
+
+* 阿里代码规范检测
 
 
 
