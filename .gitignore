@@ -43,3 +43,6 @@ logs
 
 ### VS Code ###
 .vscode/
+
+### obsidian ###
+.obsidian
