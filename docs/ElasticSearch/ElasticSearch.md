@@ -535,7 +535,9 @@ http.cors.allow-origin: "*"
   * _type:相当于数据库中的表,类型名
   * _id:相当于数据库中的唯一标识.若不带id会自动生成一个随机uuid作为id;若带id,则es中没有该id数据时,created,若存在,则是updated
 
-* esip:port/\_index/\_type/\[_id]:get,在es中根据id进行搜索,得到json数据,下划线开头的统称为元数据,\_source中数据为查看到的真实数据,若没有,则为null
+* `esip:port/_index/_type/_id/_create`:put,强制创建,若存在相同_id的值,不会更新,会报错
+
+* `esip:port/_index/_type/[_id]`:get,在es中根据id进行搜索,得到json数据,下划线开头的统称为元数据,\_source中数据为查看到的真实数据,若没有,则为null
 
   ```json
   {
@@ -552,7 +554,9 @@ http.cors.allow-origin: "*"
   }
   ```
 
-* esip:port/\_index/\_type/\_id/\_update:post,专用更新数据.该方式和不带_update更新方式不同,只能用来更新,不能用来新增.且两种方式的参数格式也不一样,对数据的影响也不一样
+* `esip:port/_index/_type/_id?_source_includes=column1...`:只查询指定column1的值,_source_includes为固定写法
+
+* `esip:port/{index}/_update/{id}`:post,专用更新数据.该方式和不带`_update`更新方式不同,只能用来更新,不能用来新增.且两种方式的参数格式也不一样,对数据的影响也不一样.将`_update`放在末尾的方式已经废除
 
   ```json
   // 带_udpate的更新数据传递格式,doc为固定写法

@@ -22,7 +22,11 @@ public class MybatisPlusAutoFill implements MetaObjectHandler {
 	@Override
 	public void insertFill(MetaObject metaObject) {
 		// 第2个参数填写实体类中的属性名
-		strictFillStrategy(metaObject, "createtime", LocalDateTime::now);
+		this.strictFillStrategy(metaObject, "createtime", LocalDateTime::now);
+		// 判断是否有指定字段
+		metaObject.hasSetter("updatetime");
+		// 从元数据中获得参数值
+		this.getFieldValByName("username", metaObject);
 	}
 
 	/**
