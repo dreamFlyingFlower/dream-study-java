@@ -15,8 +15,16 @@
 	<!-- %msg:日志消息 -->
 	<!-- %n:平台的换行符 -->
 	<property name="log.path" value="logs" />
-	<property name="log.pattern"
-		value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n" />
+	<property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n" />
+
+	<!-- 带颜色的输出,只对控制台有效 -->
+	<!-- magenta:洋红 -->
+    <!-- boldMagenta:粗红-->
+    <!-- cyan:青色 -->
+    <!-- white:白色 -->
+    <!-- magenta:洋红 -->
+    <!-- highlight:高亮 -->
+	<property name="log.pattern" value="%yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) [%thread] %-5level %logger{50} - %highlight(%msg%n)" />
 
 	<!-- 日志过滤器: -->
 	<!-- ThresholdFilter:临界值过滤器.当日志级别等于或高于临界值时,过滤器返回NEUTRAL;低于临界值时,日志会被拒绝 -->
@@ -175,8 +183,8 @@
 	<!-- level:设置打印级别,不能设置为INHERITED或NULL.默认DEBUG.可以包含零个或多个appender -->
 
 	<!-- 不同环境配置不同的日志级别 -->
-	<!-- 开发环境日志级别 -->
-	<springProfile name="dev">
+	<!-- 开发,测试环境日志级别 -->
+	<springProfile name="dev,test">
 		<!-- 基本策略:默认日志级别 -->
 		<root level="INFO">
 			<appender-ref ref="CONSOLE" />
@@ -186,20 +194,6 @@
 			<appender-ref ref="ERROR_FILE" />
 		</root>
 		<!-- 定制化日志级别 -->
-		<logger name="com.wy" level="DEBUG" />
-		<logger name="mapper" level="DEBUG" />
-		<logger name="org.springframework" level="INFO" />
-	</springProfile>
-
-	<!-- 测试环境日志级别 -->
-	<springProfile name="test">
-		<root level="DEBUG">
-			<appender-ref ref="CONSOLE" />
-			<appender-ref ref="DEBUG_FILE" />
-			<appender-ref ref="INFO_FILE" />
-			<appender-ref ref="WARN_FILE" />
-			<appender-ref ref="ERROR_FILE" />
-		</root>
 		<logger name="com.wy" level="DEBUG" />
 		<logger name="mapper" level="DEBUG" />
 		<logger name="org.springframework" level="INFO" />

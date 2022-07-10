@@ -6,17 +6,25 @@ import javax.validation.ConstraintViolationException;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.ConversionNotSupportedException;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.wy.enums.TipFormatEnum;
@@ -36,7 +44,8 @@ public class ExceptionFilter {
 	/**
 	 * 必传参数为空异常
 	 */
-	@ExceptionHandler(MissingServletRequestParameterException.class)
+	@ExceptionHandler({ MissingPathVariableException.class, MissingServletRequestParameterException.class,
+			MissingServletRequestPartException.class, ServletRequestBindingException.class, })
 	public Result<?> missingServletRequestParameterException(MissingServletRequestParameterException e) {
 		return Result.error(-500, TipFormatEnum.TIP_PARAM_EMPTY.getMsg(e.getParameterName()));
 	}
@@ -44,7 +53,7 @@ public class ExceptionFilter {
 	@ExceptionHandler(value = BindException.class)
 	public Result<?> bindException(BindException e) {
 		StringBuilder sb = new StringBuilder();
-		// 解析原错误信息，封装后返回，此处返回非法的字段名称，原始值，错误信息
+		// 解析原错误信息,封装后返回,此处返回非法的字段名称,原始值,错误信息
 		for (FieldError error : e.getFieldErrors()) {
 			sb.append(error.getDefaultMessage() + ";");
 		}
@@ -57,7 +66,7 @@ public class ExceptionFilter {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public Result<?> methodArgumentNotValidHandler(MethodArgumentNotValidException e) {
 		StringBuilder sb = new StringBuilder();
-		// 解析原错误信息,封装后返回,此处返回非法的字段名称，原始值，错误信息
+		// 解析原错误信息,封装后返回,此处返回非法的字段名称,原始值,错误信息
 		for (FieldError error : e.getBindingResult().getFieldErrors()) {
 			sb.append("字段：" + error.getField() + "-" + error.getRejectedValue() + ";");
 		}
@@ -67,7 +76,9 @@ public class ExceptionFilter {
 	/**
 	 * 无法解析参数异常
 	 */
-	@ExceptionHandler(HttpMessageNotReadableException.class)
+	@ExceptionHandler({ TypeMismatchException.class, HttpMessageNotReadableException.class,
+			HttpMessageNotWritableException.class, HttpMediaTypeNotSupportedException.class,
+			ConversionNotSupportedException.class, AsyncRequestTimeoutException.class })
 	public Result<?> httpMessageNotReadableHandler(HttpServletRequest request,
 			HttpMessageNotReadableException exception) {
 		return Result.error(-500, "参数无法正常解析");

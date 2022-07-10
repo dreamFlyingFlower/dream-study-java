@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 
 /**
@@ -29,5 +30,13 @@ public class MyBatisPlusConfig {
 		interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
 		// FIXME 动态表名解析器,不同版本不同
 		return interceptor;
+	}
+
+	/**
+	 * 乐观锁插件
+	 */
+	@Bean
+	public OptimisticLockerInnerInterceptor optimisticLockerInterceptor() {
+		return new OptimisticLockerInnerInterceptor();
 	}
 }
