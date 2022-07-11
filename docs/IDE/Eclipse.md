@@ -401,6 +401,33 @@ ${imp:import(java.util.ArrayList,java.util.List,java.util.Map)}
 
 
 
+##### Templates
+
+
+
+* foreachList,for mybatis foreach,All XML
+
+  ```xml
+  <if test="query.${ids} != null and query.${ids}.size() > 0">
+  	AND ${id} IN
+  	<foreach collection="query.${ids}" item="item" open="(" separator="," close=")">
+  		#{item}
+  	</foreach>
+  </if>
+  ```
+
+* ifStr,for mybatis if tag,All XML
+
+  ```xml
+  <if test="query.${idStr} != null and query.${idStr} != '' ">
+  	AND ${id} = #{query.${idStr}}
+  </if>
+  ```
+
+  
+
+
+
 # 快捷键
 
 * ctrl+shift+r:打开资源,只能打开自己写的文件,不能打开JAR包内的文件
