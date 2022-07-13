@@ -526,8 +526,23 @@
 
 * 性能指标:Performance
   * latency:redis响应一个请求的时间
+  * instantaneous_ops_per_sec:平均每秒处理请求总数
+  * hit rate(calculated):缓存命中率
   * 06,08,11,13,14
 * 内存指标： Memory
+  * used_memory:已使用内存
+  * mem_fragmentation_ratio:内存碎片率
+  * evicted_keys:由于最大内存限制被移除的key的数量
+  * blocked_clients:由于BLPOP,BRPOP,BRPOPLPPUSH而被阻塞的客户端
+
+* 基本活动指标： Basic activity
+  * connected_cliens:客户端连接数
+  * connected_slaves:Slave数量
+  * master_last_io_seconds_ago:最近一次主从交互之后的秒数
+  * keyspace:数据库中的key值总数
+
+* 持久性指标： Persistence
+* 错误指标： Error
 
 
 
