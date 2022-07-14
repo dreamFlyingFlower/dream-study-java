@@ -88,7 +88,13 @@
 
 
 
+![](002.jpg)
+
+
+
 ## 复制流程
+
+
 
 * 开启主从复制,只需要在当作slave的redis配置文件中添加配置即可
   * replicaof:打开注释,只需要将master的ip和port填进去即可.5.0以前是slaveof
@@ -127,6 +133,8 @@
 
 ## 核心流程
 
+
+
 * slave启动,只保存master的信息,包括host和ip,在slave的redis.conf里的slaveof配置,但是复制流程没开始
 * slave内部有个定时任务,每秒检查是否有新的master要连接和复制,如果发现,就跟master建立socket连接
 * slave发送ping命令给master
@@ -138,11 +146,14 @@
 
 ## 数据同步
 
+
+
 * 指的就是第一次slave连接msater的时候,执行的全量复制
-* offset
-  * master和slave都会在自身不断累加offset
+* offset:一个数字,描述复制缓冲区中的指令字节位置  
   * slave每秒都会上报自己的offset给master,同时master也会保存每个slave的offset
-  * offset不仅用于全量复制,主要是master和slave都要知道各自的offset,才能知道主从的数据不一致的情况
+  * offset不仅用于全量复制,主要是master和slave都要知道各自的offset,才能知道主从数据是否一致
+  * master offset:记录发送给所有slave的指令字节对应的位置,有多个
+  * slave offset:记录slave接收master发送过来的指令字节对应的位置,只有一个
 * backlog
   * master有一个backlog,默认是1MB大小
   * master给slave复制数据时,也会将数据在backlog中同步写一份
@@ -159,6 +170,8 @@
 
 ## 全量复制
 
+
+
 * master执行bgsave,在本地生成一份rdb快照文件
 * master node将rdb快照文件发送给salve node,如果rdb复制时间超过60秒(repl-timeout),那么slave就会认为复制失败,可以适当调节大这个参数
 * 对于千兆网卡的机器,一般每秒传输100MB,6G文件,很可能超过60s
@@ -173,13 +186,29 @@
 
 ## 增量复制
 
+
+
 * 如果全量复制过程中,master-slave网络连接断掉,那么salve重新连接master时,会触发增量复制
 * master直接从自己的backlog中获取部分丢失的数据,发送给slave,默认backlog就是1MB
 * msater就是根据slave发送的psync中的offset来从backlog中获取数据的
 
 
 
+## 复制缓冲区
+
+
+
+* 又名复制积压缓冲区,是一个先进先出(FIFO)的队列,用于存储服务器执行过的命令, 每次传播命令, master都会将传播的命令记录下来, 并存储在复制缓冲区
+* 复制缓冲区默认数据存储空间大小是1M,由于存储空间大小是固定的,当入队元素的数量大于队列长度时,最先入队的元素会被弹出,而新元素会被放入队列
+* 由来:每台服务器启动时,如果开启有AOF或被连接成为master节点, 即创建复制缓冲区
+* 作用:用于保存master收到的所有指令(仅影响数据变更的指令,例如set, select)
+* 数据来源:当master接收到主客户端的指令时,除了将指令执行,会将该指令存储到缓冲区中
+
+
+
 ## heartbeat
+
+
 
 * 主从节点互相都会发送heartbeat信息
 * master默认每隔10秒发送一次heartbeat,salve每隔1秒发送一个heartbeat
@@ -188,11 +217,15 @@
 
 ## 异步复制
 
+
+
 * master每次接收到写命令之后,现在内部写入数据,然后异步发送给slave
 
 
 
 ## 相关命令
+
+
 
 * info replication:查看复制节点的相关信息
 * slaveof ip:port:将当前从Redis的主Redis地址切换成另外一个Redis地址,重新同步数据
@@ -200,7 +233,63 @@
 
 
 
+## 复制问题
+
+
+
+### 频繁的全量复制
+
+
+
+* 伴随着系统的运行, master的数据量会越来越大,一旦master重启, runid将发生变化,会导致全部slave的全量复制操作
+* 优化调整方案:
+  * master内部创建master_replid变量,使用runid相同的策略生成,长度41位,并发送给所有slave
+  * 在master关闭时执行命令 shutdown save,进行RDB持久化,将runid与offset保存到RDB文件中
+    * repl-id repl-offset
+    * 通过redis-check-rdb命令可以查看该信息
+  * master重启后加载RDB文件,将RDB文件中保存的repl-id与repl-offset加载到内存中
+    * master_repl_id = repl master_repl_offset = repl-offset
+    * 通过info命令可以查看该信息
+*  复制缓冲区过小,断网后slave的offset越界,触发全量复制
+  * 修改复制缓冲区大小:repl-backlog-size
+  * 建议设置如下:
+    * 测算从master到slave的重连平均时长second
+    * 获取master平均每秒产生写命令数据总量write_size_per_second
+    * 最优复制缓冲区空间 = 2 * second * write_size_per_second
+
+
+
+### 频繁的网络中断
+
+
+
+* master的CPU占用过高 或 slave频繁断开连接
+* 问题原因:
+  * slave每1秒发送REPLCONF ACK命令到master
+  * 当slave接到了慢查询时( keys * , hgetall等),会大量占用CPU性能
+  * master每1秒调用复制定时函数replicationCron(),比对slave发现长时间没有进行响应
+  * master发送ping指令频度较低
+  * master设定超时时间较短
+  * ping指令在网络中存在丢包
+* 解决方案:
+  * 通过设置理的超时时间,确认是否释放slave:repl-timeout.该参数定义了超时时间的阈值(默认60秒),超过该值,释放slave  
+  * 提高ping指令发送的频度:repl-ping-slave-period.超时时间repl-time的时间至少是ping指令频度的5到10倍,否则slave很容易判定超时
+
+
+
+### 数据不一致
+
+
+
+* 优化主从间的网络环境,通常放置在同一个机房部署,如使用阿里云等云服务器时要注意此现象
+* 监控主从节点延迟(通过offset)判断,如果slave延迟过大,暂时屏蔽程序对该slave的数据访问
+* slave-serve-stale-data yes|no:开启后仅响应info, slaveof等少数命令.慎用,除非对数据一致性要求很高
+
+
+
 # 集群(Cluster)
+
+
 
 * 多个master节点,每个master节点又带多个slave节点.master节点根据算法来分担所有的数据
 * 集群模式下不要做物理的读写分离
@@ -221,6 +310,7 @@
   * cluster-enabled:yes,开启集群模式,打开该配置的注释
   * cluster-config-file:设置当前redis集群的配置文件地址,默认是redis.conf同层的nodes-6379.conf,该文件由redis节点自动生成,非手动修改,只修改地址即可
   * cluster-node-timeout:集群通讯超时时间,默认是15000毫秒,单位是毫秒
+  * cluster-migration-barrier <count>:master连接的slave最小数量
   * daemonize:yes,守护进程运行
   * pidfile:pid文件地址,默认为/var/run/redis_6379.pid,该文件是redis集群节点标志,自动生成
   * dir:数据目录,必须是一个目录,默认redis.conf同级目录
@@ -250,6 +340,8 @@
 
 ## 相关命令
 
+
+
 * cluster info:获取集群的信息
 * cluster slots:查看集群信息
 * cluster nodes:获取集群当前已知的所有节点,以及这些节点的相关信息
@@ -271,6 +363,8 @@
 
 
 ## 核心原理
+
+
 
 1. redis cluster之间采用gossip协议进行通信,即不是将所有的集群元数据(故障,节点信息等)存储在某一个单独的节点上,而是每个master上都会存在.当某个master上的数据发生变更时,会和其他master进行通讯,相互之间传递最新的元数据,保持整个集群所有节点的数据完整性
 
@@ -528,25 +622,46 @@
   * latency:redis响应一个请求的时间
   * instantaneous_ops_per_sec:平均每秒处理请求总数
   * hit rate(calculated):缓存命中率
-  * 06,08,11,13,14
-* 内存指标： Memory
+* 内存指标: Memory
   * used_memory:已使用内存
   * mem_fragmentation_ratio:内存碎片率
   * evicted_keys:由于最大内存限制被移除的key的数量
   * blocked_clients:由于BLPOP,BRPOP,BRPOPLPPUSH而被阻塞的客户端
-
-* 基本活动指标： Basic activity
+* 基本活动指标: Basic activity
   * connected_cliens:客户端连接数
   * connected_slaves:Slave数量
   * master_last_io_seconds_ago:最近一次主从交互之后的秒数
   * keyspace:数据库中的key值总数
+* 持久性指标: Persistence
+  * rdb_last_save_time:最后一次持久化保存到磁盘的时间戳
+  * rdb_changes_since_last_save:自最后一次持久化以来数据库的更改数
 
-* 持久性指标： Persistence
-* 错误指标： Error
+* 错误指标: Error
+  * rejected_connections:由于达到maxclient限制而被拒绝的连接数
+  * keyspace_misses:key值查找失败次数
+  * mater_link_down_since_seconds:主从断开的持续时间,以秒为单位
+
 
 
 
 ## 监控方式
+
+
+
+### 工具
+
+
+
+* Cloud Insigh Redis
+* Prometheus
+* Redis-stat
+* Redis-faina
+* RedisLive
+* zabbix
+
+
+
+### 命令
 
 
 
@@ -563,7 +678,6 @@
   * commandstats:命令执行的统计信息.比如命令执行的次数,命令耗费的 CPU 时间,执行每个命令耗费的平均 CPU 时间等等
   * cluster:集群功能的相关信息
   * keyspace:和数据库键空间有关的信息.比如数据库的键数量,数据库已经被删除的过期键数量等等
-
 * slowlog get:获取慢日志,可以通过配置文件的slowlog-log-slower-than来设置时间限制,默认是10000微秒,slowlog-max-len来限制记录条数.返回的记录包含四个部分
   * 日志的id
   * 该命令执行的unix时间
@@ -572,3 +686,19 @@
 * slowlog len:查看目前已有的慢查询日志数量
 * slowlog reset:删除所有慢查询日志
 * monitor:监控Redis执行的所有命令,这个命令比较耗性能,仅用在开发调试阶段.格式为`时间戳 [数据库号码 IP地址和端口号] 被执行的命令`
+* redis-benchmark []:默认情况检测50个连接,10000次请求对应的性能
+  * -h:指定服务器主机名,默认127.0.0.1
+  * -p:指定服务器端口,默认6379
+  * -s:指定服务器socket
+  * -c:指定并发连接数,默认50
+  * -n:指定请求数,默认10000
+  * -d:以字节的形式指定set/get值的数据大小
+  * -k:1=keep alive,0=reconnet
+  * -r:set/get/incr使用随机key,sadd使用随机值
+  * -P:通过管道传输指定数量的请求
+  * -q:强制退出reids,仅显示query/sec值
+  * --csv:以csv格式输出
+  * -l:生成循环,永久执行测试
+  * -t:仅运行以逗号分隔的测试命令列表
+  * -I:Idle模式,仅打开N个idle连接并等待
+* monitor:打印服务器调试信息

@@ -60,7 +60,11 @@
   exec
   ```
 
+
+
 # 发布订阅
+
+
 
 * Redis的发布订阅模式可以实现进程间的消息传递
 
@@ -74,7 +78,11 @@
 
 * punsubscribe:取消订阅,格式是punsubscribe channel,不指定频道表示取消所有psubscribe命令的订阅.这里匹配模式的时候,是不会将通配符展开的,是严格进行字符串匹配的.比如:`punsubscribe *`是无法退定c1.\*的,必须严格使用punsubscribe c1.*才可以
 
+
+
 # 命令
+
+
 
 * [文档1](http://doc.redisfans.com/),[文档2](http://redisdoc.com/index.html)
 * redis-cli:启动redis的命令行,可在其中操作redis
@@ -111,8 +119,14 @@
 * SLAVE NO ONE:在redis-cli中执行,表示当前机器不再是从redis,而是变成了主redis,将与原来的主redis独立运行,不互相干涉
 * 位图
 * GEO:地理信息位置
+* debug reload:服务器运行中重启
+* shotdown save:关闭服务器时指定保存数据
+
+
 
 ## KEY
+
+
 
 * keys *:查看当前数据库所有的键值,\*可以是?或[],类似正则
 * set key value:设置字符串类的key-value
@@ -125,14 +139,22 @@
 * rename key nkey:将key改名为新key.当key和nkey相同或key不存在时,返回一个错误;当nkey已经存在时,RENAME命令相当于将原key的value覆盖nkey的value
 * renamenx key nkey:当且仅当nkey不存在时,将key改名为nkey.当key不存在时,返回一个错误.如果修改成功,返回1;如果nkey已经存在,返回0
 
+
+
 ## 原子加减
+
+
 
 * INCR key:将key中存储的数字值加1
 * DECR key:将key中存储的数字值减1
 * INCRBY key num:将key存储的数字值加num
 * DECRBY key num:将key存储的数字值减num
 
+
+
 ## HASH
+
+
 
 * hset key field value:设置hash类key-value,field是hash中的key值
 * hmset key field1 value1 field2 value2...:同时设置多个hash的键值对
@@ -146,7 +168,11 @@
 * hvals key:获得指定key所存储的所有键值对的val值
 * hsetnx key:若key存在什么也不做,若不存在则赋值
 
+
+
 ## SET
+
+
 
 * 无序不重复集合
 
@@ -170,7 +196,11 @@
 
 * SDIFF key1 key2...:取多个key1集合的差集,即以第一个集合为基准,只保留其他集合中没有的元素
 
+
+
 ## ZSET
+
+
 
 * 有序不重复集合
 
@@ -185,7 +215,11 @@
   * ZUNIONSTORE destkey numkeys key [key...]:并集计算
   * ZINTERSTORE dest key numkeys key [key...]:交集计算
 
+
+
 ## 持久化
+
+
 
 * expire key num:设置指定key多少秒之后过期
 * expireat key timestamp:设置过期时间,值是一个到秒的时间戳
@@ -195,7 +229,11 @@
 * ttl key:查看某个key还有多少秒过期.返回-1表示永不过期,-2表示已经过期
 * pttl key:同ttl,但是是以毫秒为单位
 
+
+
 # 适用场景
+
+
 
 * 缓存
 * 取最新N个数据的操作:zincrby
@@ -221,38 +259,77 @@
 * 商品标签
 * 商品筛选:sdiff set1 set20->获取差集;sinter set1 set2->获取交集;sunion set1 set2->获取并集
 * 用户关注,推荐模型
+* 应用于抢购,限购类,限量发放优惠卷,激活码等业务的数据存储设计
+* 应用于具有操作先后顺序的数据控制
+* 应用于最新消息展示
+* 应用于同类信息的关联搜索,二度关联搜索,深度关联搜索
+* 应用于基于黑名单与白名单设定的服务控制
+* 应用于计数器组合排序功能对应的排名
+* 应用于即时任务/消息队列执行管理
+
+
 
 ## 微博
 
+
+
 ### 用户账号
+
+
 
 #### 帐号唯一性检查
 
+
+
 * 使用集合存储所有的帐号,新增用户的同时更新缓存和数据库
+
+
 
 #### 用户信息存储
 
+
+
 * 使用Map存储,key为用户唯一标识,value可根据情况尽量少存储信息
+
+
 
 ### 关注和被关注
 
+
+
 * 被关注用户的唯一标识作为key,使用集合存储关注用户的唯一标识
 
+
+
 ### 时间线
+
+
 
 * 每条时间线都是一个有序集合,有序集合的元素 为微博的 ID,分值为微博的发布时间
 * 用户发送新的微博时,程序就会使用 ZADD 命令,将新微博的 ID 以及发布时间添加到有序集合里
 
+
+
 ### 点赞
+
+
 
 * 同关注和被关注,不过key换成被点赞的消息ID
 
+
+
 ## String
+
+
 
 * 主页高频访问信息显示控制,例如新浪微博大V主页显示粉丝数与微博数量
 * 如set `user:id:222111:focus` 123.以表名:主键字段:主键值:表中需要存储字段为key
 
+
+
 ## Hash
+
+
 
 * 电商网站购物车的商品添加,浏览,更改,删除,清空等
   
@@ -289,7 +366,11 @@
   * 将参与抢购的商品数量作为对应的value
   * 抢购时使用降值的方式控制产品数量
 
+
+
 ## List
+
+
 
 * 微信朋友圈点赞,要求按照点赞顺序显示点赞好友信息,如果取消点赞,移除对应好友信息
 * 应用于最新消息展示,如微博中个人用户的关注列表需要按照用户的关注顺序进行展示,粉丝列表需要将最近关注的粉丝列在前面
@@ -297,7 +378,11 @@
   * 使用队列模型解决多路信息汇总合并的问题
   * 使用栈模型解决最新消息的问题
 
+
+
 ## Set
+
+
 
 * 应用于随机推荐类信息检索,例如热点歌单推荐,热点新闻推荐,应用APP推荐,大V推荐等
   * 随机获取集合中指定数量的数据:srandmember key [count]
@@ -335,7 +420,11 @@
   * 黑名单过滤设备信息:应用于限定访问设备的信息源
   * 黑名单过滤用户:应用于基于访问权限的信息源
 
+
+
 ## ZSet
+
+
 
 * 应用于计数器组合排序功能对应的排名
   * 获取数据对应的索引(排名)
@@ -351,7 +440,11 @@
   * 先设定订单类别,后设定订单发起角色类别,整体score长度必须是统一的,不足位补0.第一排序规则首
     位不得是0
 
+
+
 ## 限时按次结算的服务控制
+
+
 
 * 设计计数器,记录调用次数,用于控制业务执行次数.以用户id作为key,使用次数作为value
 * 利用incr操作超过最大值抛出异常的形式替代每次判断是否大于最大值
@@ -361,7 +454,11 @@
 * 遇到异常即+1操作超过上限,视为使用达到上限
 * 为计数器设置生命周期为指定周期,例如1秒/分钟,自动清空周期内使用次数
 
+
+
 ## 基于时间顺序的数据操作
+
+
 
 * 例子:微信消息排序
 * 依赖list的数据具有顺序的特征对消息进行管理,将list结构作为栈使用
@@ -371,13 +468,23 @@
 * 推送消息时先推送置顶会话list,再推送普通会话list,推送完成的list清除所有数据
 * 消息的数量,也就是微信用户对话数量采用计数器的思想另行记录,伴随list操作同步更新
 
+
+
 # 数据结构
+
+
 
 ## 编码数据结构
 
+
+
 * 编码数据结构主要在对象包含的值数量比较少、或者值的体积比较小时使用
 
+
+
 ### 压缩列表(zip list)
+
+
 
 * 类似于数组
 * 压缩列表包含的项都是有序的,列表的两端分 别为表头和表尾
@@ -387,7 +494,11 @@
 * 使用压缩列表来储存值消耗的内存比使用双向链表来储存值消耗的内存要少
 * List,Set,ZSet在数据量小时都可能会使用该数据类型
 
+
+
 ### 整数集合(int set)
+
+
 
 * 集合元素只能是整数(最大为64位),并且集合中不会出 现重复的元素
 * 集合的底层使用有序的整数数组来表示
@@ -395,9 +506,15 @@
 * 数组的类型只会自动增大,但不会减小
 * Set在数据量比较小时可能会使用该数据类型
 
+
+
 ## 普通数据结构
 
+
+
 ### 简单动态字符串
+
+
 
 * SDS, simple dynamic string
 * 可以储存位数组(实现 BITOP 和 HyperLogLog)、字符串、整数和浮点数,其中超过64位的整数和超过 IEEE 754 标准的浮点数使用字符串来表示
@@ -408,7 +525,11 @@
   * 通过预分配和惰性释放两种策略来减少内存重分配的 执行次数
   * 可以储存二进制位
 
+
+
 ### 双向链表
+
+
 
 * 双向、无环、带有表头和表尾指针
 * 一个链表包含多个项,每个项都是一个字符串对象,即一个链表对象可以包含多个字符串对象
@@ -416,7 +537,11 @@
 * 定位特定索引上的项,复杂度为 O(N)
 * 链表带有长度记录属性,获取链表的当前长度的复杂度为 O(1)
 
+
+
 ### 字典
+
+
 
 * 查找、添加、删除键值对的复杂度为 O(1),键和值都是字符串对象
 * 使用散列表(hash table)为底层实现,使用链地址法(separate chaining)来解决键冲突
@@ -424,7 +549,10 @@
 * 在键值对数量大增或者大减的时候会对散列表进行重新散列(rehash),并且rehash 是渐进式、分多次进行的,不会在短时间内耗费大量 CPU 时间,造成服务器阻塞
 
 
+
 ### 跳表
+
+
 
 * 支持平均 O(log N) 最坏 O(N) 复杂度的节点查找操作,并且可以通过执行范围性(range)操作来批量地获取有序的节点
 * 跳表节点除了实现跳表所需的层(level)之外,还具有 score 属性和 obj 属性:
@@ -545,7 +673,11 @@
   * systemd:signal systemd将READY = 1写入$ NOTIFY_SOCKET
   * auto:检测upstart或systemd方法基于 UPSTART_JOB或NOTIFY_SOCKET环境变量
 
+
+
 ## RDB
+
+
 
 * dbfilename:rdb文件名
 * save:保存RDB快照的频率
@@ -558,7 +690,11 @@
   * yes:则每32mb执行fsync一次,增量式,避免一次性大写入导致的延时
   * no:一次性fsync写入到rdb文件
 
+
+
 ## AOF
+
+
 
 * appendonly:是否开启AOF模式,生产环境必然开启
 
@@ -605,11 +741,19 @@
 
 * stream-node-max-entries:stream 的最大项数量
 
+
+
 ## Mixed
+
+
 
 * aof-use-rdb-preamble:AOF前部分用RDB,后面保存缓存时的命令还是用AOF,能够在Redis重启时能更快的恢复之前的数据.yes开启,必须先开启AOF
 
+
+
 ## List
+
+
 
 * list-max-ziplist-size:负值表示节点大小
   
@@ -630,21 +774,37 @@
 
 * list-max-ziplist-value:设置使用ziplist的值的最大长度
 
+
+
 ## Set
+
+
 
 * set-max-intset-entries:当set 的元素数量小于这个值且元素可以用int64范围的整型表示时,使用inset,节约内存大于或者元素无法用int64范围的整型表示时用set表示
 
+
+
 ## ZSet
+
+
 
 * zset-max-ziplist-entries:当sorted set 的元素数量小于这个值时,使用ziplist,大于用zset
 * zset-max-ziplist-value:当sorted set 的元素大小小于这个值时,使用ziplist,大于用zset
 
+
+
 ## Hash
+
+
 
 * hash-max-ziplist-entries:hash中的项数量小于或等于这个值使用ziplist,超过这个值使用hash
 * hash-max-ziplist-value:设置使用ziplist的值的最大长度  
 
+
+
 ## MasterSlave
+
+
 
 * replicaof(slaveof) ip port:主从复制时的主Redis的ip和端口.从redis应该设置一个不同频率的快照持久化的周期,或者为从redis配置一个不同的服务端口
 * masterauth:如果主redis设置了验证密码的话,则在从redis的配置中要使用masterauth来设置校验密码
@@ -667,7 +827,11 @@
 * replica(slave)-read-only:配置从节点数据是否只读,但是配置的修改还是可以的
 * replica(slave)-ignore-maxmemory:从节点是否忽略maxmemory配置,默认yes
 
+
+
 ## Cluster
+
+
 
 * cluster-enabled:开启集群模式
 * cluster-config-file:集群配置文件名
@@ -683,7 +847,11 @@
 * cluster-slave-validity-factor:如果从节点和master距离上一次通信超过 (node-timeout * replica-validity-factor) + repl-ping-replica-period时间,则没有资格失效转移为master
 * cluster-replica(slave)-no-failover:在主节点失效期间,从节点是否允许对master失效转移
 
+
+
 ## Sentinel
+
+
 
 * sentinel monitor <master-name> <ip> <redis-port> <quorum>:sentinel monitor mymaster 127.0.0.1 6379 2,告知sentinel监控这个ip和redis-port端口的redis,当至少达到quorum数量的sentinel同意才认为他客观离线(O_DOWN)
 * sentinel down-after-milliseconds <master-name> <milliseconds>:附属的从节点或者sentinel和他超过milliseconds时间没有达到,则主观离线(S_DOWN)
@@ -713,19 +881,31 @@
 
 # 缓存过期
 
+
+
 ## 过期策略
+
+
 
 * 默认情况下,Redis每100ms随机选取10个key,检查这些key是否过期,如果过期则删除.如果在1S内有25个以上的key过期,立刻再额外随机100个key
 * 当Client主动访问key时,会先对key进行超时判断,过期的key会被删除
 * 当Redis内存最大值时,会执行相应算法,对内存中的key进行不同的过期操作
 * 每次set的时候都会清除key的过期时间
 
+
+
 ## LRU
+
+
 
 * LRU:Least Recently Used,最近最少使用算法,将最近一段时间内,最少使用的一些数据给干掉
 * 默认情况下,当内存中数据太大时,redis就会使用LRU算法清理掉部分数据,然后让新的数据写入缓存
 
+
+
 ## 缓存清理设置
+
+
 
 * maxmemory:设置redis用来存放数据的最大的内存大小,一旦超出该值,就会立即使用LRU算法.若maxmemory设置为0,那么就默认不限制内存的使用,直到耗尽机器中所有的内存为止
 * maxmemory-policy:可以设置内存达到最大值后,采取什么策略来处理
@@ -741,9 +921,81 @@
   * redis接收到写入操作后,检查maxmemory,如果超过就根据对应的policy清理掉部分数据
   * 写入操作完成执行
 
-# 缓存机制
+
+
+## 定时删除
+
+
+
+* 创建一个定时器,当key设置有过期时间,且过期时间到达时,由定时器任务立即执行对键的删除操作
+* 节约内存,到时就删除,快速释放掉不必要的内存占用
+* CPU压力很大,无论CPU此时负载量多高,均占用CPU,会影响redis服务器响应时间和指令吞吐量
+
+
+
+## 惰性删除
+
+
+
+* 数据到达过期时间,不做处理,等下次访问该数据时
+  * 如果未过期,返回数据
+  * 发现已过期,删除,返回不存在
+* 节约CPU性能,发现必须删除的时候才删除
+* 内存压力很大,出现长期占用内存的数据
+
+
+
+## 定期删除
+
+
+
+* Redis启动服务器初始化时,读取配置server.hz的值,默认为10
+* 每秒钟执行server.hz次serverCron()->databasesCron()->activeExpireCycle()
+* activeExpireCycle()对每个expires[*]逐一进行检测,每次执行250ms/server.hz
+* 对某个expires[*]检测时,随机挑选W个key检测
+  * 如果key超时,删除key
+  * 如果一轮中删除的key的数量>W*25%,循环该过程
+  * 如果一轮中删除的key的数量≤W*25%,检查下一个expires[\*],0-15循环
+  * W取值=ACTIVE_EXPIRE_CYCLE_LOOKUPS_PER_LOOP属性值
+* 参数current_db用于记录activeExpireCycle() 进入哪个expires[*] 执行
+* 如果activeExpireCycle()执行时间到期,下次从current_db继续向下执行
+* 周期性轮询redis库中的时效性数据,采用随机抽取的策略,利用过期数据占比的方式控制删除频度
+* CPU性能占用设置有峰值,检测频度可自定义设置
+* 内存压力不是很大,长期占用内存的冷数据会被持续清理
+
+
+
+## 逐出算法
+
+
+
+* Redis使用内存存储数据,在执行每一个命令前,会调用freeMemoryIfNeeded()检测内存是否充足.如果内存不满足新加入数据的最低存储要求,redis要临时删除一些数据为当前指令清理存储空间.清理数据的策略称为逐出算法
+* 逐出数据的过程不是100%能够清理出足够的可使用的内存空间,如果不成功则反复执行.当对所有数据尝试完毕后,如果不能达到内存清理的要求,将抛出异常`(error) OOM command not allowed when used memory >'maxmemory`
+* 相关配置
+  * maxmemory:最大可使用内存.占用物理内存的比例,默认值为0,表示不限制.生产环境中根据需求设定,通常设置在50%以上
+  * maxmemory-samples:每次选取待删除数据的个数.选取数据时并不会全库扫描,导致严重的性能消耗,降低读写性能,因此采用随机获取数据的方式作为待检测删除数据
+  * maxmemory-policy:删除策略.达到最大内存后的,对被挑选出来的数据进行删除的策略
+  * 检测易失数据,可能会过期的数据集server.db[i].expires
+    * volatile-lru:挑选最近最少使用的数据淘汰
+    * volatile-lfu:挑选最近使用次数最少的数据淘汰
+    * volatile-ttl:挑选将要过期的数据淘汰
+    * volatile-random:任意选择数据淘汰
+  * 检测全库数据,所有数据集server.db[i].dict
+    * allkeys-lru:挑选最近最少使用的数据淘汰
+    * allkeys-lfu:挑选最近使用次数最少的数据淘汰
+    * allkeys-random:任意选择数据淘汰
+  * 放弃数据驱逐
+    * no-enviction:禁止驱逐数据,会引发错误OOM
+
+
+
+# 持久化
+
+
 
 ## RDB
+
+
 
 * 默认开启,每隔指定时间将内存中的所有数据生成到一份RDB文件中,性能比较高
 * 配置save检查点
@@ -764,14 +1016,22 @@ save  60  1000
 * 相对于AOF持久化机制来说,直接基于RDB数据文件来重启和恢复redis进程,更加快速
 * redis会单独创建(fork)一个子进程来进行持久化,会先将数据写入到一个临时文件中,当持久化过程都结束时,再用这个临时文件替换上次持久化好的文件.整个过程中,主进程是不进行任何IO操作的,这就确保了极高的性能.如果需要进行大规模数据的恢复,且对数据恢复的完整性不是非常敏感,则RDB比较高效,但是可能丢失最后一次持久化后的数据
 
+
+
 ### BGSAVE机制
+
+
 
 * Redis借助操作系统提供的写时复制技术(Copy-On-Write, COW),在生成快照的同时,依然可以正常处理写命令.即bgsave子进程是由主线程fork生成的,可以共享主线程的所有内存数据
 * bgsave子进程运行后,开始读取主线程的内存数据,并把它们写入RDB文件
 * 如果主线程对这些数据也都是读操作,那么主线程和bgsave子进程相互不影响
 * 如果主线程要修改一块数据,那么这块数据就会被复制一份,生成该数据的副本.然后,bgsave子进程会把这个副本数据写入RDB文件,而在这个过程中,主线程仍然可以直接修改原来的数据  
 
+
+
 ## AOF
+
+
 
 * 生成一份修改记录日志文件(appendonly.aof),每次执行操作都会将命令先写入os cache,然后每隔一定时间再fsync写到AOF文件中
 
@@ -798,7 +1058,11 @@ save  60  1000
 
 * 热启动appendonly,数据恢复时可用,但并没有修改配置文件,仍需手动修改:**config set appendonly yes**
 
+
+
 ## Mixed
+
+
 
 * 混合持久化模式,需要同时开启RDB和AOF
 * 重启Redis时,RDB恢复更快,但是会丢失大量数据.使用AOF重启,性能相对RDB要慢,在Redis实例很大的情况下,启动需要花费很长的时间.Redis 4.0带来了一个新的持久化选项—混合持久化
@@ -810,7 +1074,11 @@ save  60  1000
 
 # 优化
 
+
+
 ## 通用
+
+
 
 * 精简键值名
 
@@ -852,31 +1120,51 @@ save  60  1000
     * 如果要排序的集合非常大,会消耗很长时间,Redis单线程的,长时间的排序操作会阻塞其它client的请求
     * 解决办法是通过主从复制,将数据复制到多个slave上,然后只在slave上做排序操作,并尽可能的对排序结果缓存
 
+
+
 ## fork
+
+
 
 * RDB和AOF时会产生rdb快照,aof的rewrite,消耗io,主进程fork子进程
 * 通常状态下,如果1个G内存数据,fork需要20m左右,一般控制内存在10G以内
 * 从info的stats中的latest_fork_usec可以查看最近一个fork的时长
 
+
+
 ## 阻塞
+
+
 
 * redis将数据写入AOF缓冲区需要单个开个线程做fsync操作,每秒一次
 * redis每个进行fsync操作时,会检查2次fsync之间的时间间隔,若超过了2秒,写请求就会阻塞
 * everysec:最多丢失2秒的数据,若fsync超过2秒,整个redis就会被拖慢
 * 优化写入速度,最好用ssd硬盘
 
+
+
 ## 主从延迟
+
+
 
 * 主从复制可能会超时严重,需要进行良好的监控和报警机制
 * 在info replication中,可以看到master和slave复制的offset,做一个差值就可以看到对应的延迟
 * 如果延迟过多就报警
 
+
+
 ## 主从复制风暴
+
+
 
 * 主从之间,若是slave过多,在进行全量复制时,同样会导致网络带宽被占用,导致延迟
 * 尽量使用合适的slave数,若必须挂多个slave,则采用树状结构,slave下再挂slave
 
+
+
 ## overcommit_memory
+
+
 
 * 修改Linux系统内存参数设置,该值为liunx系统内存设置参数,有3个值
   * 0:检查有没有足够内存,若没有的话申请内存失败
@@ -884,7 +1172,11 @@ save  60  1000
   * 2:内存地址空间不能超过swap+50%
 * cat /proc/sys/vm/overcommit_memory,默认是0
 
+
+
 ## swappiness
+
+
 
 * 查看内核版本:cat /proc/version
 
