@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -52,8 +54,6 @@ public class ElesticSearchService {
 			// 设置连接的集群名称
 			RestHighLevelClient client = new RestHighLevelClient(RestClient
 					.builder(new HttpHost("localhost", 9200, "http"), new HttpHost("localhost", 9201, "http")));
-			// 打印集群名称
-			System.out.println(client.toString());
 
 			// 字符串类型提供document源,创建索引的时候同时创建document数据
 			// 参数为索引名
@@ -75,7 +75,8 @@ public class ElesticSearchService {
 			// 以XContentBuilder形式提供document源,会自动格式化为json格式,创建索引的时候同时创建document数据
 			XContentBuilder builder = XContentFactory.jsonBuilder();
 			builder.startObject();
-			// builder.field("user", "kimchy").timeField("postDate", new Date()).field("message",
+			// builder.field("user", "kimchy").timeField("postDate", new
+			// Date()).field("message",
 			// "trying out Elasticsearch");
 			{
 				builder.field("user", "kimchy");
@@ -142,8 +143,8 @@ public class ElesticSearchService {
 			// 执行查询
 			SearchRequest searchRequest = new SearchRequest("posts");
 			// 全文检索,也可以利用QueryBuilder自定义检索方式
-			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-					.query(QueryBuilders.matchQuery("全文检索字段", "字段中的内容"));
+			SearchSourceBuilder sourceBuilder =
+					new SearchSourceBuilder().query(QueryBuilders.matchQuery("全文检索字段", "字段中的内容"));
 			// 对所有字段分词查询
 			// SearchSourceBuilder sourceBuilder = new
 			// SearchSourceBuilder().query(QueryBuilders.queryStringQuery("全文"));
@@ -195,5 +196,24 @@ public class ElesticSearchService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void testGet() throws IOException {
+		// 设置连接的集群名称
+		RestHighLevelClient client = new RestHighLevelClient(
+				RestClient.builder(new HttpHost("localhost", 9200, "http"), new HttpHost("localhost", 9201, "http")));
+
+		// 构建get请求
+		GetRequest getRequest = new GetRequest("index", "id");
+
+		// 执行请求,获得结果
+		GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
+
+		System.out.println(getResponse);
+		System.out.println(getResponse.getId());
+		// 获得结果
+		System.out.println(getResponse.getSource());
+		// 获得jsonstring数据
+		System.out.println(getResponse.getSourceAsString());
 	}
 }

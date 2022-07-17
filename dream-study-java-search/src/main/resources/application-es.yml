@@ -1,0 +1,11 @@
+spring:
+  data: 
+    elasticsearch: 
+      client:
+        reactive:
+          username: elasticsearch
+          endpoints:
+          # 默认是本地9200
+          - 192.168.0.146:9300
+          connection-timeout: 120S
+          socket-timeout: 120S

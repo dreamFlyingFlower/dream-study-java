@@ -3,21 +3,6 @@ server:
 spring:
   application:
     name: cloud-search
-  data: 
-    solr:
-      host: http://192.168.1.146:8080/solr
-    elasticsearch: 
-      client:
-        reactive:
-          username: elasticsearch
-          endpoints:
-          # 默认是本地9200
-          - 192.168.0.146:9300
-          connection-timeout:
-            seconds: 120
-          socket-timeout:
-            seconds: 120
-        
   devtools:
     restart:
       enabled: true
@@ -28,7 +13,3 @@ spring:
     username: root
     url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&useSSL=false&characterEncoding=UTF8&serverTimezone=GMT
     password: 52LDforever
-    
-solr: 
-  collection: collection1
-  

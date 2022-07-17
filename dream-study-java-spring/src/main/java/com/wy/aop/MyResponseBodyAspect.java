@@ -5,17 +5,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.wy.annotation.MyResponseBodyExclude;
+import com.wy.result.Result;
+
 /**
- * 在Spring将Controller返回结果转成JSON数据之前的操作
+ * 在Spring将Controller返回结果转成JSON数据之前的操作.配合MyResponseBodyExclude进行过滤
  *
  * @author 飞花梦影
  * @date 2022-05-21 15:37:05
  * @git {@link https://gitee.com/dreamFlyingFlower}
  */
-@ControllerAdvice
+@RestControllerAdvice
+// @ControllerAdvice
 public class MyResponseBodyAspect implements ResponseBodyAdvice<Object> {
 
 	/**
@@ -27,7 +31,9 @@ public class MyResponseBodyAspect implements ResponseBodyAdvice<Object> {
 	 */
 	@Override
 	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-		return false;
+		// response是Result类型,或者注释了MyResponseBodyExclude都不进行包装
+		return !(returnType.getParameterType().isAssignableFrom(Result.class)
+				|| returnType.hasMethodAnnotation(MyResponseBodyExclude.class));
 	}
 
 	/**
@@ -45,6 +51,6 @@ public class MyResponseBodyAspect implements ResponseBodyAdvice<Object> {
 	public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
 			Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
 			ServerHttpResponse response) {
-		return null;
+		return Result.result(body);
 	}
 }
