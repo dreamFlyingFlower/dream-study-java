@@ -6,9 +6,11 @@ import java.util.Date;
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
+import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
@@ -61,14 +63,23 @@ public class QuartzUtils {
 		try {
 			// 开启定时任务
 			schedulerFactoryBean.getScheduler().start();
+			// 开启定时任务
+			schedulerFactoryBean.getScheduler().scheduleJob(JobBuilder.newJob(QuartzTask.class).build(),
+					TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.cronSchedule("cron表达式")).build());
 			// 判断定时任务是否存在
 			schedulerFactoryBean.getScheduler().checkExists(getJobKey(jobId, jobGroup));
 			// 移除定时任务
 			schedulerFactoryBean.getScheduler().deleteJob(getJobKey(jobId, jobGroup));
 			// 暂停定时任务
 			schedulerFactoryBean.getScheduler().pauseJob(getJobKey(jobId, jobGroup));
+			// 恢复定时任务
+			schedulerFactoryBean.getScheduler().resumeJob(getJobKey(jobId, jobGroup));
+			// 立即执行定时任务
+			schedulerFactoryBean.getScheduler().triggerJob(getJobKey(jobId, jobGroup));
+			// 重新按照新的规则执行定时任务,相当于更新定时任务
+			schedulerFactoryBean.getScheduler().rescheduleJob(TriggerKey.triggerKey(jobId, jobGroup),
+					TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.cronSchedule("cron表达式")).build());
 		} catch (SchedulerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -78,16 +89,16 @@ public class QuartzUtils {
 	 */
 	public static CronScheduleBuilder handleMisfirePolicy(CronScheduleBuilder cronScheduleBuilder, int policy) {
 		switch (policy) {
-			case CronTrigger.MISFIRE_INSTRUCTION_SMART_POLICY:
-				return cronScheduleBuilder;
-			case CronTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW:
-				return cronScheduleBuilder.withMisfireHandlingInstructionFireAndProceed();
-			case CronTrigger.MISFIRE_INSTRUCTION_DO_NOTHING:
-				return cronScheduleBuilder.withMisfireHandlingInstructionDoNothing();
-			case CronTrigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY:
-				return cronScheduleBuilder.withMisfireHandlingInstructionIgnoreMisfires();
-			default:
-				return cronScheduleBuilder.withMisfireHandlingInstructionFireAndProceed();
+		case CronTrigger.MISFIRE_INSTRUCTION_SMART_POLICY:
+			return cronScheduleBuilder;
+		case CronTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW:
+			return cronScheduleBuilder.withMisfireHandlingInstructionFireAndProceed();
+		case CronTrigger.MISFIRE_INSTRUCTION_DO_NOTHING:
+			return cronScheduleBuilder.withMisfireHandlingInstructionDoNothing();
+		case CronTrigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY:
+			return cronScheduleBuilder.withMisfireHandlingInstructionIgnoreMisfires();
+		default:
+			return cronScheduleBuilder.withMisfireHandlingInstructionFireAndProceed();
 		}
 	}
 

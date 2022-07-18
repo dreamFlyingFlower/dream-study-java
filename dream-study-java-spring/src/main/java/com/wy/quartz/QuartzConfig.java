@@ -26,6 +26,8 @@ public class QuartzConfig {
 		JobDetailFactoryBean factory = new JobDetailFactoryBean();
 		// 关联自己的Job类
 		factory.setJobClass(QuartzTask.class);
+		// 设置jobdetailmap,业务参数
+		factory.setJobDataAsMap(null);
 		return factory;
 	}
 
