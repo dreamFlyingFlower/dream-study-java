@@ -27,6 +27,14 @@
         "type": "tabs",
         "children": [
           {
+            "id": "6060631d895dc8ff",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
             "id": "ffa24cd8daafac1e",
             "type": "leaf",
             "state": {
@@ -34,20 +42,6 @@
               "state": {
                 "file": "docs/Redis/Redis.md"
               }
-            }
-          }
-        ]
-      },
-      {
-        "id": "48f7a168b79825b1",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "6060631d895dc8ff",
-            "type": "leaf",
-            "state": {
-              "type": "file-explorer",
-              "state": {}
             }
           },
           {
