@@ -90,3 +90,14 @@ source /etc/profile
 * build的Root Pom需要根据实际情况选择pom.xml文件,一般直接写pom.xml即可.Goals and Options填写需要执行的maven命令,如maven clean package
 * post steps:可选择execute shell,添加一些脚本,如重新构建之后重启的脚本等
 * 如需通过git进行自动构建,则需要通过git的webhook功能,填入Jenkins项目地址即可
+
+
+
+# 自动构建
+
+
+
+* 需要先在GitLab设置好webhook,参考官网,webhook地址设置为Jenkins执行项目地址
+* 进入新建好的项目,进入配置,选择构建触发器
+* 选择`Build when a change is pushed to GitLab.GitLab webhook URL xxxx`: xxxx为webhook地址
+* 进入Jenkins设置允许匿名访问Jenkins
