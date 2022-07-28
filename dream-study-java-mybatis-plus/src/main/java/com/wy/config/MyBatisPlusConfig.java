@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
@@ -33,7 +34,7 @@ public class MyBatisPlusConfig {
 	}
 
 	/**
-	 * 乐观锁插件
+	 * 乐观锁插件,需要配合在指定字段上添加 {@link Version}
 	 */
 	@Bean
 	public OptimisticLockerInnerInterceptor optimisticLockerInterceptor() {
