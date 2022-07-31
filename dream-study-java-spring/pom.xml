@@ -350,15 +350,6 @@
 						<exclude>**/*.sh</exclude>
 					</excludes>
 				</configuration>
-				<executions>
-					<execution>
-						<id>make-a-jar</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 			<plugin>
