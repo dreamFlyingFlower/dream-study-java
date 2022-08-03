@@ -182,7 +182,7 @@ public class WeixinUtils {
 		}
 		sb.append("key=" + API_KEY);
 		// 算出摘要
-		String mysign = DigestTool.md5Hex(sb.toString(), characterEncoding).toLowerCase();
+		String mysign = DigestTool.MD5Hex(sb.toString(), characterEncoding).toLowerCase();
 		String tenpaySign = ((String) packageParams.get("sign")).toLowerCase();
 		return tenpaySign.equals(mysign);
 	}
@@ -209,7 +209,7 @@ public class WeixinUtils {
 			}
 		}
 		sb.append("key=" + API_KEY);
-		String sign = DigestTool.md5Hex(sb.toString(), characterEncoding).toUpperCase();
+		String sign = DigestTool.MD5Hex(sb.toString(), characterEncoding).toUpperCase();
 		return sign;
 	}
 
