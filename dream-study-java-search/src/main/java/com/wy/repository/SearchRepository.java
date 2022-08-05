@@ -1,6 +1,9 @@
 package com.wy.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import com.wy.model.Search;
@@ -19,6 +22,9 @@ public interface SearchRepository extends ElasticsearchRepository<Search, Long> 
 	 * @param q 关键字
 	 * @return 结果集
 	 */
-	// @Query
 	Page<Search> findDistinctSearchByTitleContainingOrSummaryContainingOrContentContaining(String q);
+
+	@Query("{\n" + "    \"range\": {\n" + "      \"id\": {\n" + "        \"gte\": \"?0\",\n"
+	        + "        \"lte\": \"?1\"\n" + "      }\n" + "    }\n" + "  }")
+	List<Search> findByQuery(Integer id1, Integer id2);
 }

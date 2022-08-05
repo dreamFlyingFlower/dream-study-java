@@ -23,38 +23,34 @@ import com.wy.model.User;
  * ->->By是区分这两个子语句的关键词.By之前的子语句是查询子语句(指明返回要查询的对象),后面的部分是条件子语句.<br>
  * 如果直接就是findBy…,返回的就是定义Respository时指定的实体类对象集合
  * 
- * JPQL中也定义了丰富的关键字:and,or,Between等等,如:<br>
- * And:findByLastnameAndFirstname -> where x.lastname = ?1 and x.firstname =
- * ?2<br>
- * Or:findByLastnameOrFirstname -> where x.lastname = ?1 or x.firstname = ?2<br>
- * Is,Equals:findByFirstnameIs,findByFirstnameEquals -> where x.firstname =
- * ?1<br>
- * Between:findByStartDateBetween -> where x.startDate between ?1 and ?2<br>
- * LessThan:findByAgeLessThan -> where x.age < ?1<br>
- * LessThanEqual:findByAgeLessThanEqual -> where x.age <= ?1<br>
- * GreaterThan:findByAgeGreaterThan -> where x.age > ?1<br>
- * GreaterThanEqual:findByAgeGreaterThanEqual -> where x.age >= ?1<br>
- * After:findByStartDateAfter -> where x.startDate > ?1<br>
- * Before:findByStartDateBefore -> where x.startDate < ?1<br>
- * IsNull:findByAgeIsNull -> where x.age is null<br>
- * IsNotNull,NotNull:findByAge(Is)NotNull -> where x.age is not null<br>
- * Like:findByFirstnameLike -> where x.firstname like ?1<br>
- * NotLike:findByFirstnameNotLike -> where x.firstname not like ?1<br>
- * StartingWith:findByFirstnameStartingWith -> where x.firstname like
- * ?1;%会加在参数结尾<br>
- * EndingWith:findByFirstnameEndingWith -> where x.firstname like
- * ?1;%会加在参数前面<br>
- * Containing:findByFirstnameContaining -> where x.firstname like
- * ?1;参数前后都会加上%<br>
- * OrderBy:findByAgeOrderByLastnameDesc -> where x.age = ?1 order by x.lastname
- * desc<br>
- * Not:findByLastnameNot -> where x.lastname <> ?1<br>
- * In:findByAgeIn(Collection ages) -> where x.age in ?1<br>
- * NotIn:findByAgeNotIn(Collection age) -> where x.age not in ?1<br>
- * TRUE:findByActiveTrue() -> where x.active = true<br>
- * FALSE:findByActiveFalse() -> where x.active = false<br>
- * IgnoreCase:findByFirstnameIgnoreCase -> where UPPER(x.firstame) =
- * UPPER(?1)<br>
+ * JPQL中也定义了丰富的关键字:and,or,Between等等,如:
+ * 
+ * <pre>
+ * And:findByLastnameAndFirstname -> where x.lastname = ?1 and x.firstname = ?2
+ * Or:findByLastnameOrFirstname -> where x.lastname = ?1 or x.firstname = ?2
+ * Is,Equals:findByFirstnameIs,findByFirstnameEquals -> where x.firstname = ?1
+ * Between:findByStartDateBetween -> where x.startDate between ?1 and ?2
+ * LessThan:findByAgeLessThan -> where x.age < ?1
+ * LessThanEqual:findByAgeLessThanEqual -> where x.age <= ?1
+ * GreaterThan:findByAgeGreaterThan -> where x.age > ?1
+ * GreaterThanEqual:findByAgeGreaterThanEqual -> where x.age >= ?1
+ * After:findByStartDateAfter -> where x.startDate > ?1
+ * Before:findByStartDateBefore -> where x.startDate < ?1
+ * IsNull:findByAgeIsNull -> where x.age is null
+ * IsNotNull,NotNull:findByAge(Is)NotNull -> where x.age is not null
+ * Like:findByFirstnameLike -> where x.firstname like ?1
+ * NotLike:findByFirstnameNotLike -> where x.firstname not like ?1
+ * StartingWith:findByFirstnameStartingWith -> where x.firstname like ?1;%会加在参数结尾
+ * EndingWith:findByFirstnameEndingWith -> where x.firstname like ?1;%会加在参数前面
+ * Containing:findByFirstnameContaining -> where x.firstname like ?1;参数前后都会加上%
+ * OrderBy:findByAgeOrderByLastnameDesc -> where x.age = ?1 order by x.lastname desc
+ * Not:findByLastnameNot -> where x.lastname <> ?1
+ * In:findByAgeIn(Collection ages) -> where x.age in ?1
+ * NotIn:findByAgeNotIn(Collection age) -> where x.age not in ?1
+ * TRUE:findByActiveTrue() -> where x.active = true
+ * FALSE:findByActiveFalse() -> where x.active = false
+ * IgnoreCase:findByFirstnameIgnoreCase -> where UPPER(x.firstame) = UPPER(?1)
+ * </pre>
  * 
  * {@link JpaRepository}:该接口的泛型参数,第一个是实体类,第二个是实体类中的主键类型
  * 

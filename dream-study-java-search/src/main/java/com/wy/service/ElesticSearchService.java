@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpHost;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.FuzzyQuery;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.DocWriteResponse.Result;
@@ -45,30 +48,23 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.search.MatchQuery;
+import org.elasticsearch.index.search.MultiMatchQuery;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
-import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.ParsedDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.Avg;
-import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.Max;
-import org.elasticsearch.search.aggregations.metrics.MaxAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.Min;
-import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.Sum;
-import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.data.elasticsearch.core.query.HighlightQuery;
 import org.springframework.stereotype.Service;
 
 /**
@@ -77,7 +73,29 @@ import org.springframework.stereotype.Service;
  * 官方文档:{@link https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-document-index.html#CO16-3}
  * https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.3/java-rest-overview.html
  * 
- * @author ParadiseWY
+ * <pre>
+ * {@link SearchRequest}:主要的查询类,所有个有关查询的设置都需要在这个类里
+ * {@link SearchSourceBuilder}:源字段过滤,设置那些字段显示,那些字段不显示
+ * 		分页采用from,size,和mysql类型,from是从第几条开始,不是从第几页开始
+ * {@link TermQuery}:精准查询,TermQuery不会对需要搜索的关键字进行拆分,而是直接利用关键字搜索
+ * {@link TermQueryBuilder}:构建 {@link TermQuery}
+ * {@link MatchQuery}:全文检索,将搜索的关键字拆分之后进行检索,搜索多个关键字还需要进行占比的计算
+ * {@link MatchQueryBuilder}:构建 {@link MatchQuery}
+ * {@link MultiMatchQuery}:同时可对多个关键字进行搜索,而Term和Match只能对一个关键字进行搜索
+ * {@link BooleanQuery}:多条件查询,可以将Term,Match,Multi结合起来,必须结合must,should,must_not关键字进行关联,类似and,or
+ * {@link HighlightBuilder}:高亮,必须根据关键字来搜索,设置在SearchSourceBuilder中
+ * {@link HighlightQuery}:高亮查询
+ * {@link SortOrder}:排序,可以在一个字段上添加一个或多个排序,支持在keyword,date,number等类型,但不支持text
+ * {@link SearchResponse}:经过ES的搜素之后的结果集,包含源字段以及其他信息
+ * {@link SearchHits}:搜索的匹配结果集,其他相关信息
+ * {@link SearchHit}:只包含在SearchSourceBuilder中设置的源字段信息
+ * {@link WildcardQuery}:通配符查询
+ * 		*:表示多个任意的字符
+ * 		?:表示单个字符
+ * {@link FuzzyQuery}:模糊查询
+ * </pre>
+ * 
+ * @author 飞花梦影
  * @date 2020-12-21 14:02:57
  * @git {@link https://github.com/mygodness100}
  */
@@ -275,11 +293,8 @@ public class ElesticSearchService {
 	 */
 	public void search() {
 		try {
-			// 连接es
-			RestHighLevelClient client = new RestHighLevelClient(RestClient
-			        .builder(new HttpHost("192.168.1.150", 9200, "http"), new HttpHost("192.168.1.150", 9201, "http")));
 			// 执行查询
-			SearchRequest searchRequest = new SearchRequest("posts");
+			SearchRequest searchRequest = new SearchRequest("book");
 			// 全文检索,也可以利用QueryBuilder自定义检索方式
 			SearchSourceBuilder sourceBuilder =
 			        new SearchSourceBuilder().query(QueryBuilders.matchQuery("全文检索字段", "字段中的内容"));
@@ -337,10 +352,6 @@ public class ElesticSearchService {
 	}
 
 	public void testGet() throws IOException {
-		// 设置连接的集群名称
-		RestHighLevelClient client = new RestHighLevelClient(RestClient
-		        .builder(new HttpHost("192.168.1.150", 9200, "http"), new HttpHost("192.168.1.150", 9201, "http")));
-
 		// 构建get请求
 		GetRequest getRequest = new GetRequest("index", "id");
 
@@ -650,401 +661,5 @@ public class ElesticSearchService {
 		OpenIndexResponse open = client.indices().open(request, RequestOptions.DEFAULT);
 		boolean acknowledged = open.isAcknowledged();
 		System.out.println("acknowledged:" + acknowledged);
-	}
-
-	/**
-	 * 按照颜色分组,计算每个颜色卖出的个数
-	 * 
-	 * @throws IOException
-	 */
-	public void testAggs() throws IOException {
-		// GET /tvs/_search
-		// {
-		// "size": 0,
-		// "query": {"match_all": {}},
-		// "aggs": {
-		// "group_by_color": {
-		// "terms": {
-		// "field": "color"
-		// }
-		// }
-		// }
-		// }
-
-		// 构建请求
-		SearchRequest searchRequest = new SearchRequest("tvs");
-		// 请求体
-		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		searchSourceBuilder.size(0);
-		searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
-		TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms("group_by_color").field("color");
-		searchSourceBuilder.aggregation(termsAggregationBuilder);
-
-		// 请求体放入请求头
-		searchRequest.source(searchSourceBuilder);
-		// 执行
-		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-		// 获取结果
-		// "aggregations" : {
-		// "group_by_color" : {
-		// "doc_count_error_upper_bound" : 0,
-		// "sum_other_doc_count" : 0,
-		// "buckets" : [
-		// {
-		// "key" : "红色",
-		// "doc_count" : 4
-		// },
-		// {
-		// "key" : "绿色",
-		// "doc_count" : 2
-		// },
-		// {
-		// "key" : "蓝色",
-		// "doc_count" : 2
-		// }
-		// ]
-		// }
-		Aggregations aggregations = searchResponse.getAggregations();
-		Terms group_by_color = aggregations.get("group_by_color");
-		List<? extends Terms.Bucket> buckets = group_by_color.getBuckets();
-		for (Terms.Bucket bucket : buckets) {
-			String key = bucket.getKeyAsString();
-			System.out.println("key:" + key);
-
-			long docCount = bucket.getDocCount();
-			System.out.println("docCount:" + docCount);
-			System.out.println("=================================");
-		}
-	}
-
-	/**
-	 * 按照颜色分组,计算每个颜色卖出的个数,每个颜色卖出的平均价格
-	 * 
-	 * @throws IOException
-	 */
-	public void testAggsAndAvg() throws IOException {
-		// GET /tvs/_search
-		// {
-		// "size": 0,
-		// "query": {"match_all": {}},
-		// "aggs": {
-		// "group_by_color": {
-		// "terms": {
-		// "field": "color"
-		// },
-		// "aggs": {
-		// "avg_price": {
-		// "avg": {
-		// "field": "price"
-		// }
-		// }
-		// }
-		// }
-		// }
-		// }
-
-		// 构建请求
-		SearchRequest searchRequest = new SearchRequest("tvs");
-
-		// 请求体
-		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		searchSourceBuilder.size(0);
-		searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
-		TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms("group_by_color").field("color");
-
-		// terms聚合下填充一个子聚合
-		AvgAggregationBuilder avgAggregationBuilder = AggregationBuilders.avg("avg_price").field("price");
-		termsAggregationBuilder.subAggregation(avgAggregationBuilder);
-
-		searchSourceBuilder.aggregation(termsAggregationBuilder);
-
-		// 请求体放入请求头
-		searchRequest.source(searchSourceBuilder);
-
-		// 执行
-		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-		// 获取结果
-		// {
-		// "key" : "红色",
-		// "doc_count" : 4,
-		// "avg_price" : {
-		// "value" : 3250.0
-		// }
-		// }
-		Aggregations aggregations = searchResponse.getAggregations();
-		Terms group_by_color = aggregations.get("group_by_color");
-		List<? extends Terms.Bucket> buckets = group_by_color.getBuckets();
-		for (Terms.Bucket bucket : buckets) {
-			String key = bucket.getKeyAsString();
-			System.out.println("key:" + key);
-
-			long docCount = bucket.getDocCount();
-			System.out.println("docCount:" + docCount);
-
-			Aggregations aggregations1 = bucket.getAggregations();
-			Avg avg_price = aggregations1.get("avg_price");
-			double value = avg_price.getValue();
-			System.out.println("value:" + value);
-
-			System.out.println("=================================");
-		}
-	}
-
-	/**
-	 * 按照颜色分组,计算每个颜色卖出的个数,以及每个颜色卖出的平均值、最大值、最小值、总和
-	 * 
-	 * @throws IOException
-	 */
-	public void testAggsAndMore() throws IOException {
-		// GET /tvs/_search
-		// {
-		// "size" : 0,
-		// "aggs": {
-		// "group_by_color": {
-		// "terms": {
-		// "field": "color"
-		// },
-		// "aggs": {
-		// "avg_price": { "avg": { "field": "price" } },
-		// "min_price" : { "min": { "field": "price"} },
-		// "max_price" : { "max": { "field": "price"} },
-		// "sum_price" : { "sum": { "field": "price" } }
-		// }
-		// }
-		// }
-		// }
-
-		// 构建请求
-		SearchRequest searchRequest = new SearchRequest("tvs");
-
-		// 请求体
-		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		searchSourceBuilder.size(0);
-		searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
-		TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms("group_by_color").field("color");
-
-		// termsAggregationBuilder里放入多个子聚合
-		AvgAggregationBuilder avgAggregationBuilder = AggregationBuilders.avg("avg_price").field("price");
-		MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min("min_price").field("price");
-		MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max("max_price").field("price");
-		SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum("sum_price").field("price");
-
-		termsAggregationBuilder.subAggregation(avgAggregationBuilder);
-		termsAggregationBuilder.subAggregation(minAggregationBuilder);
-		termsAggregationBuilder.subAggregation(maxAggregationBuilder);
-		termsAggregationBuilder.subAggregation(sumAggregationBuilder);
-
-		searchSourceBuilder.aggregation(termsAggregationBuilder);
-
-		// 请求体放入请求头
-		searchRequest.source(searchSourceBuilder);
-
-		// 执行
-		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-		// 获取结果
-		// {
-		// "key" : "红色",
-		// "doc_count" : 4,
-		// "max_price" : {
-		// "value" : 8000.0
-		// },
-		// "min_price" : {
-		// "value" : 1000.0
-		// },
-		// "avg_price" : {
-		// "value" : 3250.0
-		// },
-		// "sum_price" : {
-		// "value" : 13000.0
-		// }
-		// }
-		Aggregations aggregations = searchResponse.getAggregations();
-		Terms group_by_color = aggregations.get("group_by_color");
-		List<? extends Terms.Bucket> buckets = group_by_color.getBuckets();
-		for (Terms.Bucket bucket : buckets) {
-			String key = bucket.getKeyAsString();
-			System.out.println("key:" + key);
-
-			long docCount = bucket.getDocCount();
-			System.out.println("docCount:" + docCount);
-
-			Aggregations aggregations1 = bucket.getAggregations();
-
-			Max max_price = aggregations1.get("max_price");
-			double maxPriceValue = max_price.getValue();
-			System.out.println("maxPriceValue:" + maxPriceValue);
-
-			Min min_price = aggregations1.get("min_price");
-			double minPriceValue = min_price.getValue();
-			System.out.println("minPriceValue:" + minPriceValue);
-
-			Avg avg_price = aggregations1.get("avg_price");
-			double avgPriceValue = avg_price.getValue();
-			System.out.println("avgPriceValue:" + avgPriceValue);
-
-			Sum sum_price = aggregations1.get("sum_price");
-			double sumPriceValue = sum_price.getValue();
-			System.out.println("sumPriceValue:" + sumPriceValue);
-
-			System.out.println("=================================");
-		}
-	}
-
-	/**
-	 * 按照售价每2000价格划分范围,算出每个区间的销售总额 histogram
-	 * 
-	 * @throws IOException
-	 */
-	public void testAggsAndHistogram() throws IOException {
-		// GET /tvs/_search
-		// {
-		// "size" : 0,
-		// "aggs":{
-		// "by_histogram":{
-		// "histogram":{
-		// "field": "price",
-		// "interval": 2000
-		// },
-		// "aggs":{
-		// "income": {
-		// "sum": {
-		// "field" : "price"
-		// }
-		// }
-		// }
-		// }
-		// }
-		// }
-
-		// 构建请求
-		SearchRequest searchRequest = new SearchRequest("tvs");
-
-		// 请求体
-		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		searchSourceBuilder.size(0);
-		searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
-		HistogramAggregationBuilder histogramAggregationBuilder =
-		        AggregationBuilders.histogram("by_histogram").field("price").interval(2000);
-
-		SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum("income").field("price");
-		histogramAggregationBuilder.subAggregation(sumAggregationBuilder);
-		searchSourceBuilder.aggregation(histogramAggregationBuilder);
-
-		// 请求体放入请求头
-		searchRequest.source(searchSourceBuilder);
-
-		// 执行
-		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-		// 获取结果
-		// {
-		// "key" : 0.0,
-		// "doc_count" : 3,
-		// income" : {
-		// "value" : 3700.0
-		// }
-		// }
-		Aggregations aggregations = searchResponse.getAggregations();
-		Histogram group_by_color = aggregations.get("by_histogram");
-		List<? extends Histogram.Bucket> buckets = group_by_color.getBuckets();
-		for (Histogram.Bucket bucket : buckets) {
-			String keyAsString = bucket.getKeyAsString();
-			System.out.println("keyAsString:" + keyAsString);
-			long docCount = bucket.getDocCount();
-			System.out.println("docCount:" + docCount);
-
-			Aggregations aggregations1 = bucket.getAggregations();
-			Sum income = aggregations1.get("income");
-			double value = income.getValue();
-			System.out.println("value:" + value);
-
-			System.out.println("=================================");
-
-		}
-	}
-
-	/**
-	 * 计算每个季度的销售总额
-	 * 
-	 * @throws IOException
-	 */
-	public void testAggsAndDateHistogram() throws IOException {
-		// GET /tvs/_search
-		// {
-		// "size" : 0,
-		// "aggs": {
-		// "sales": {
-		// "date_histogram": {
-		// "field": "sold_date",
-		// "interval": "quarter",
-		// "format": "yyyy-MM-dd",
-		// "min_doc_count" : 0,
-		// "extended_bounds" : {
-		// "min" : "2019-01-01",
-		// "max" : "2020-12-31"
-		// }
-		// },
-		// "aggs": {
-		// "income": {
-		// "sum": {
-		// "field": "price"
-		// }
-		// }
-		// }
-		// }
-		// }
-		// }
-
-		// 构建请求
-		SearchRequest searchRequest = new SearchRequest("tvs");
-
-		// 请求体
-		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-		searchSourceBuilder.size(0);
-		searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
-		DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders
-		        .dateHistogram("date_histogram").field("sold_date").calendarInterval(DateHistogramInterval.QUARTER)
-		        .format("yyyy-MM-dd").minDocCount(0).extendedBounds(new ExtendedBounds("2019-01-01", "2020-12-31"));
-		SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum("income").field("price");
-		dateHistogramAggregationBuilder.subAggregation(sumAggregationBuilder);
-
-		searchSourceBuilder.aggregation(dateHistogramAggregationBuilder);
-		// 请求体放入请求头
-		searchRequest.source(searchSourceBuilder);
-
-		// 执行
-		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-		// 获取结果
-		// {
-		// "key_as_string" : "2019-01-01",
-		// "key" : 1546300800000,
-		// "doc_count" : 0,
-		// "income" : {
-		// "value" : 0.0
-		// }
-		// }
-		Aggregations aggregations = searchResponse.getAggregations();
-		ParsedDateHistogram date_histogram = aggregations.get("date_histogram");
-		List<? extends Histogram.Bucket> buckets = date_histogram.getBuckets();
-		for (Histogram.Bucket bucket : buckets) {
-			String keyAsString = bucket.getKeyAsString();
-			System.out.println("keyAsString:" + keyAsString);
-			long docCount = bucket.getDocCount();
-			System.out.println("docCount:" + docCount);
-			Aggregations aggregations1 = bucket.getAggregations();
-			Sum income = aggregations1.get("income");
-			double value = income.getValue();
-			System.out.println("value:" + value);
-			System.out.println("====================");
-		}
 	}
 }
