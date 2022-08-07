@@ -27,13 +27,8 @@ import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
 public class TestAggs {
 
 	@Autowired
@@ -318,7 +313,7 @@ public class TestAggs {
 		searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 
 		HistogramAggregationBuilder histogramAggregationBuilder =
-		        AggregationBuilders.histogram("by_histogram").field("price").interval(2000);
+				AggregationBuilders.histogram("by_histogram").field("price").interval(2000);
 
 		SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum("income").field("price");
 		histogramAggregationBuilder.subAggregation(sumAggregationBuilder);
@@ -398,8 +393,8 @@ public class TestAggs {
 		searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 
 		DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders
-		        .dateHistogram("date_histogram").field("sold_date").calendarInterval(DateHistogramInterval.QUARTER)
-		        .format("yyyy-MM-dd").minDocCount(0).extendedBounds(new ExtendedBounds("2019-01-01", "2020-12-31"));
+				.dateHistogram("date_histogram").field("sold_date").calendarInterval(DateHistogramInterval.QUARTER)
+				.format("yyyy-MM-dd").minDocCount(0).extendedBounds(new ExtendedBounds("2019-01-01", "2020-12-31"));
 		SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum("income").field("price");
 		dateHistogramAggregationBuilder.subAggregation(sumAggregationBuilder);
 

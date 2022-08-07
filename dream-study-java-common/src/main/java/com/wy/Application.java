@@ -15,21 +15,32 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Tomcat:修改start.sh或catalina.bat,添加:JAVA_OPTS='-Xms256m -Xmx512m -XX:MaxNewSize=256m -XX:MaxPermSize=256m'
  * </pre>
  * 
- * Druid的使用:ip:port/druid/index.html
- * 
  * 一些工具以及问题
  * 
- * @apiNote Jenkins:代码持续集成自动化部署<br>
- *          Gitlab-Cli:代码测试集成自动部署<br>
- *          jmeter,loadrunner:压力测试工具<br>
- *          sonarqube:代码检测工具,findbugs检查代码中的bug<br>
- *          Kryo:更好的序列化框架<br>
- *          apache-james:搭建私人的邮件服务器,Foxmail进行邮件测试
+ * <pre>
+ *	Jenkins:代码持续集成自动化部署
+ * Gitlab-Cli:代码测试集成自动部署
+ * jmeter,loadrunner:压力测试工具
+ * sonarqube:代码检测工具,findbugs检查代码中的bug
+ * Kryo:更好的序列化框架
+ * apache-james:搭建私人的邮件服务器,Foxmail进行邮件测试
+ * </pre>
  * 
- * @apiNote CAP:一致性,可用性,分区容忍性,三个要素最多满足2个,不可能同时满足3个
- *          C:Consistency,在分布式系统中的所有数据备份,在同一时刻是否同样的值,如事务的强一致性
- *          A:Availability,在集群中部分节点故障后,集群整体是否还能响应客户端的请求<br>
- *          P:Partition tolerance,多节点必须在限定的时间内完成数据的一致性,若无法完成,就表示发生了分区,必须做出选择
+ * jacoco:maven插件,见pom.xml.自动化生成测试文档,帮助完善代码
+ * 
+ * <pre>
+ * mvn help:describe -Dplugin=org.jacoco:jacoc-maven-plugin -Ddetail:查看jacoco的配置详情,在pom.xml中配置完后进行打包即可
+ * 打包通过之后,可以在项目的target中找到site目录,将里面的index.html在网页中打开即可
+ * 如果有显示为红色则表示单测不通过,需要修改
+ * </pre>
+ * 
+ * CAP:一致性,可用性,分区容忍性,三个要素最多满足2个,不可能同时满足3个
+ * 
+ * <pre>
+ *	C:Consistency,在分布式系统中的所有数据备份,在同一时刻是否同样的值,如事务的强一致性
+ *	A:Availability,在集群中部分节点故障后,集群整体是否还能响应客户端的请求
+ *	P:Partition tolerance,多节点必须在限定的时间内完成数据的一致性,若无法完成,就表示发生了分区,必须做出选择
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2021-03-30 11:00:45

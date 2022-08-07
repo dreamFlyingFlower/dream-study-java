@@ -13,6 +13,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 2.解析完列表页后获取最终的需要处理的URL交给下载处理器<br>
  * 3.解析最终URL数据,将解析的数据交给下一级处理器处理<br>
  * 
+ * 反爬虫策略:
+ * 
+ * <pre>
+ * 1.利用请求头中的Referer
+ * 2.检查Cookie
+ * 3.关键数据加密
+ * 4.ip频率检查
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2021-01-07 14:08:13
  * @git {@link https://github.com/mygodness100}

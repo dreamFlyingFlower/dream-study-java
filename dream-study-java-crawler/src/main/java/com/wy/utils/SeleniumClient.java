@@ -172,6 +172,7 @@ public class SeleniumClient {
 	private List<CrawlerCookie> delayed(final WebDriver driver, final String cookieName) {
 		List<CrawlerCookie> value = DelayedUtils.delayed(new DelayedCallBack<List<CrawlerCookie>>() {
 
+			@Override
 			public List<CrawlerCookie> callBack(long time) {
 				Set<Cookie> cookieSet = driver.manage().getCookies();
 				return getCrawlerCookie(cookieSet);
@@ -193,6 +194,7 @@ public class SeleniumClient {
 			 * 
 			 * @return
 			 */
+			@Override
 			public long sleepTime() {
 				return SLEEPTIME;
 			}
@@ -202,6 +204,7 @@ public class SeleniumClient {
 			 * 
 			 * @return
 			 */
+			@Override
 			public long timeOut() {
 				return TIMEOUT;
 			}

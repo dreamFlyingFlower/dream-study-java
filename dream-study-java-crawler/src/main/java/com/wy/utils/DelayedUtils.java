@@ -63,6 +63,7 @@ public class DelayedUtils {
 		concurrentEntity.setTimeInterval(time);
 		return new ConcurrentCallBack() {
 
+			@Override
 			public boolean filter() {
 				boolean flag = false;
 				// 数据初始化
