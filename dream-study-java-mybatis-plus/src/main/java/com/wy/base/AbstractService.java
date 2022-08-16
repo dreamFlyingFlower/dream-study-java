@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Serializable> extends ServiceImpl<M, T>
-		implements BaseService<T, ID> {
+        implements BaseService<T, ID> {
 
 	/** 存储反射过程中使用的类和字段 */
 	private Map<Class<?>, List<Field>> CACHE_FIELDS = new ConcurrentHashMap<>(128);
@@ -201,8 +201,8 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 		}
 		Sort sort = field.getAnnotation(Sort.class);
 		return getMax(StrTool.isBlank(sort.value())
-				? sort.hump2Snake() ? StrTool.hump2Snake(field.getName()) : field.getName()
-				: sort.value(), false);
+		        ? sort.hump2Snake() ? StrTool.hump2Snake(field.getName()) : field.getName()
+		        : sort.value(), false);
 	}
 
 	/**
@@ -286,7 +286,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 		}
 		Page<T> page = page(pageParam, new QueryWrapper<T>(t));
 		return null == page ? Result.ok()
-				: Result.page(page.getRecords(), pager.getPageIndex(), pager.getPageSize(), page.getTotal());
+		        : Result.page(page.getRecords(), pager.getPageIndex(), pager.getPageSize(), page.getTotal());
 	}
 
 	/**
