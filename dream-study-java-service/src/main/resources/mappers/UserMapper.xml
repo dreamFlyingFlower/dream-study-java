@@ -48,8 +48,7 @@
 		<result property="email" column="email" />
 		<result property="createtime" column="createtime" />
 		<!-- 单表用association,property是在实体类的属性名,select是Role的xml的查询id,column是参数列 -->
-		<association property="role" select="com.wy.mapper.RoleMapper.getByName"
-			column="user_id"></association>
+		<association property="role" select="com.wy.mapper.RoleMapper.getByName" column="user_id"></association>
 		<!-- 集合可以用collection,property是本xml对应实体类的属性名 -->
 		<collection property="roles"></collection>
 	</resultMap>
@@ -88,9 +87,9 @@
 	<!-- useGeneratedKeys:设置是否使用JDBC的getGenereatedKeys方法获取主键并赋值到keyProperty设置的属性中 -->
 	<!-- 该属性适用于自增主键,非自增主键可以使用selectKey来获取 -->
 	<!-- statementType:取值范围STATEMENT,PREPARED(默认值),CALLABLE -->
-	<insert id="save" parameterType="com.wy.model.User" useGeneratedKeys="true"
-		keyProperty="userId">
-		insert into goods(`goods_name`,`totol`,`sold`,`surplus`,`create_time`)
+	<insert id="save" parameterType="com.wy.model.User" useGeneratedKeys="true" keyProperty="userId">
+		insert into
+		goods(`goods_name`,`totol`,`sold`,`surplus`,`create_time`)
 		values(#{goodsName},#{totol},#{sold},#{surplus},#{createTime})
 	</insert>
 
@@ -201,8 +200,7 @@
 		<!-- 其他关联表字段 -->
 		<!-- property:user类中关联其他表的属性,column:user中传给userEx的字段,javaType:查询的返回类型 -->
 		<!-- select:另一个查询,该查询可以是当前xml中,可以不写namespace,若是其他xml中的,需要写完成的namespace -->
-		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx"
-			select="getSingleEx1"></association>
+		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx" select="getSingleEx1"></association>
 	</resultMap>
 	<select id="getSingleEx1" parameterType="int" resultType="com.wy.model.UserEx">
 		select * from ti_user_ex where
@@ -222,8 +220,7 @@
 		<result property="education" column="education" />
 		<!-- 其他关联表字段 -->
 		<!-- property:user类中关联其他表的字段,column:user中传给userEx的字段,javaType:查询的返回类型,select:另一个查询 -->
-		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx"
-			select="getSingleEx">
+		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx" select="getSingleEx">
 			<id property="userId" column="use_Id" />
 			<result property="eduaction" column="education" />
 		</association>
@@ -250,10 +247,8 @@
 		<!-- property:user类中关联其他表的字段,javaType:查询的返回类型,select:另一个查询 -->
 		<!-- column:作为条件传给userEx的user中的属性,若是单个属性,可直接写user的属性名; -->
 		<!-- 若是多个属性,可以构建一个map,如column="{userId=userId}",key为userEx的java属性名,value为user的属性名 -->
-		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx"
-			select="getSingleEx2"></association>
-		<collection property="roles" ofType="com.wy.model.Role" column="user_id"
-			select="getMultiRole"></collection>
+		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx" select="getSingleEx2"></association>
+		<collection property="roles" ofType="com.wy.model.Role" column="user_id" select="getMultiRole"></collection>
 	</resultMap>
 	<select id="getSingleEx2" parameterType="int" resultType="com.wy.model.UserEx">
 		select * from ti_user_ex where
@@ -262,14 +257,16 @@
 	<select id="getMultiRole" parameterType="int" resultType="com.wy.model.Role">
 		select b.* from tr_user_role a
 		inner join ti_role b on
-		a.role_id = b.role_id where a.user_id = #{userId}
+		a.role_id = b.role_id where
+		a.user_id = #{userId}
 	</select>
 	<!-- 第二种方法,直接将结果集写在联合的标签内 -->
 	<select id="getMulti2" parameterType="int" resultMap="multiUnion2">
 		select * from ti_user a inner join
 		ti_user_ex b on a.user_id
 		= b.user_id
-		left join tr_user_role c on c.user_Id = a.user_Id
+		left join
+		tr_user_role c on c.user_Id = a.user_Id
 		left join
 		ti_role d on d.role_Id = c.role_id where a.user_id =
 		#{userId}
@@ -281,8 +278,7 @@
 		<!-- 其他关联表字段,可有多个association,返回的类型可不同 -->
 		<!-- property:user类中关联其他表的字段,column:user中传给userEx的字段,javaType:查询的返回类型; -->
 		<!-- select:另一个查询,fetchType:默认lazy表示延迟记载,表示使用的时候才会使用sql查询.这里的值大于全局设置 -->
-		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx"
-			fetchType="lazy">
+		<association property="userEx" column="user_id" javaType="com.wy.model.UserEx" fetchType="lazy">
 			<id property="userId" column="user_id" />
 			<result property="eduaction" column="education" />
 		</association>
@@ -311,5 +307,24 @@
 	<!-- 若返回类型为Map<String,List<User>>,可在接口上加上注解@MapKey(实体类属性名),xml中仍然写实体类 -->
 	<select id="getTest2">
 		select * from ti_user where username = #{username}
+	</select>
+
+	<!-- 数字,字符串比较 -->
+	<select id="getTest3">
+		select * from ti_user
+		<where>
+			<!-- id == 100 -->
+			<if test="id == 100"> AND id = 100</if>
+			<if test="id eq 100"> AND id = 100</if>
+
+			<!-- id < 100,id > 100,id <=100,id >=100 -->
+			<if test="id lt 100"> AND id &lt;100 </if>
+			<if test="id gt 100"> AND id &gt; 100 </if>
+			<if test="id lte 100"> AND id &lt;= 100 </if>
+			<if test="id gte 100"> AND id &gt;=100 </if>
+
+			<!-- 此处userType为字符串,字符串数字会被转成数字进行比较 -->
+			<if test="userType == '1'.toString()"></if>
+		</where>
 	</select>
 </mapper>

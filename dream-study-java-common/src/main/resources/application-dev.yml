@@ -37,6 +37,7 @@ spring:
     serialization: 
       INDENT_OUTPUT: true
     date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
   # 定义了多种session策略的时候,需要选择一种作为主要策略
   session: 
     store-type: redis
