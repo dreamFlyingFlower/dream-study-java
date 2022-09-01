@@ -24,7 +24,7 @@ public class JDK12 {
 		int key = 2;
 		switch (key) {
 		// 匹配1和3
-		case 1,3 -> System.out.println(key);
+		case 1, 3 -> System.out.println(key);
 		case 2 -> System.out.println(key);
 		default -> System.out.println("default");
 		}
@@ -33,6 +33,7 @@ public class JDK12 {
 		case 1 -> 1;
 		case 2 -> 2;
 		default -> 0;
-		}
+		};
+		System.out.println(ret);
 	}
 }

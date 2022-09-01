@@ -26,8 +26,8 @@ public class JDK14 {
 			System.out.println(str.length());
 		}
 		// ||后面不能访问str,不管是true还是false的代码块都不能访问.因为短路的关系,其他条件可能直接返回true或false
-		if (obj instanceof String str || str.length() > 3) {
-			System.out.println(str.length());
-		}
+		// if (obj instanceof String str || str.length() > 3) {
+		// System.out.println(str.length());
+		// }
 	}
 }

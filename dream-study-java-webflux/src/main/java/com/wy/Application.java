@@ -7,6 +7,9 @@ import org.springframework.http.client.reactive.JettyClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 /**
  * WebFlux:用于构建基于Reactive技术栈之上的Web应用程序,基于Reactive Stream API,运行于非阻塞服务器上
  * 
@@ -16,6 +19,9 @@ import org.springframework.web.reactive.function.client.WebClient;
  * Netty的{@link ReactorClientHttpConnector},Jetty的{@link JettyClientHttpConnector}
  * 
  * {@link WebClientAutoConfiguration}:自动配置WebClient,但是没有实例化WebClient,只实例化了WebClient.Builder
+ * 
+ * {@link Mono}:单个结果包装
+ * {@link Flux}:多结果包装
  * 
  * @author 飞花梦影
  * @date 2021-09-30 13:26:46

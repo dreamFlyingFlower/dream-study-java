@@ -9,5 +9,6 @@ module test {
 	requires com.fasterxml.jackson.databind;
 	requires lombok;
 	requires java.net.http;
+	requires jmh.core;
 //	requires jdk.incubator.httpclient;
 }

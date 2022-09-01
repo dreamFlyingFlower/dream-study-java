@@ -9,6 +9,7 @@ package com.wy.jdk8.example;
  */
 public interface MyInterfacesChildren extends MyInterfaces {
 
+	@Override
 	default void test1() {
 		System.out.println("JDK8_Interfaces_Children:默认方法1");
 	}

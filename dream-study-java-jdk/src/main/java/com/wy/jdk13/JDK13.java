@@ -15,16 +15,18 @@ package com.wy.jdk13;
 public class JDK13 {
 
 	public static void main(String[] args) {
+		int key = 2;
 		int ret = switch (key) {
 		case 1 -> 1;
 		case 2 -> {
 			if (key == 2) {
-				yield 2*2;
-			}else {
-				yield 1*2;
+				yield 2 * 2;
+			} else {
+				yield 1 * 2;
 			}
 		}
 		default -> 0;
-		}
+		};
+		System.out.println(ret);
 	}
 }

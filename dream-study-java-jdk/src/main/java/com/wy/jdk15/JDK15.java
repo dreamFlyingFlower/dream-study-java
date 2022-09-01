@@ -21,9 +21,9 @@ final class Test01 extends JDK15{}
 
 sealed class Test02 extends JDK15 permits Test04{}
 
-no-sealed class Test05 extends JDK15 {}
+non-sealed class Test05 extends JDK15 {}
 
 // 错误,无法继承
 //class Test03 extends JDK15{}
 
-class Test04 extends Test02{}
+final class Test04 extends Test02{}
