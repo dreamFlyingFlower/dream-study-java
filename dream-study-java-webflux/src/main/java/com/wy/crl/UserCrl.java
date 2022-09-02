@@ -1,45 +1,27 @@
 package com.wy.crl;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.wy.model.User;
-import com.wy.service.UserService;
-
-import reactor.core.publisher.Flux;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 /**
  * 测试WebFlux的用户API接口
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-11-23 14:16:28
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @RestController
 @RequestMapping("user")
+@Slf4j
 public class UserCrl {
-
-	@Autowired
-	private UserService userService;
-
-	@GetMapping("testMono")
-	public Mono<User> testMono() {
-		return Mono.just(User.builder().userId(1l).build());
-	}
-
-	@GetMapping(value = "testFlux", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-	public Flux<User> testFlux() {
-		// 默认情况下,集合中的元素每隔2秒拿到一个,但不返回给前端,等到所有元素都拿到之后一次性返回,请求完成
-		// 当加上特定的produces时,没2秒返回一个值,直接在前端展示,直到所有元素全部展示完毕,请求完成
-		return userService.testFlux().delayElements(Duration.ofSeconds(2));
-	}
 
 	/**
 	 * 使用WebClient调用其他的WebFlux接口,不能本项目的调用本项目的,会抛阻塞异常
@@ -47,7 +29,38 @@ public class UserCrl {
 	@GetMapping("testWebClient")
 	public void testWebClient() {
 		Mono<String> user = WebClient.create().get().uri("http://localhost:8080/user/testMono")
-				.accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(String.class);
+		        .accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(String.class);
 		System.out.println(user.block());
+	}
+
+	@GetMapping("/common")
+	public String commonHandle() {
+		log.info("common--start");
+		// 同步执行耗时操作,阻塞
+		String result = doSome("normal use");
+		log.info("common--end");
+		return result;
+	}
+
+	@GetMapping("/mono")
+	public Mono<String> monoHandle() {
+		log.info("mono--start");
+		// 异步执行耗时操作,但也要等到整个方法执行完毕才返回结果
+		Mono<String> mono = Mono.fromSupplier(() -> doSome("webflux use"));
+		log.info("mono--end");
+		// 返回的mono可以直接在前端进行解析
+		return mono;
+	}
+
+	/**
+	 * 定义耗时操作,非线程操作
+	 */
+	private String doSome(String msg) {
+		try {
+			TimeUnit.SECONDS.sleep(5);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return msg;
 	}
 }

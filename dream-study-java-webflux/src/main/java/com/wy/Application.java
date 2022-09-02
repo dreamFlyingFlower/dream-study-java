@@ -20,8 +20,8 @@ import reactor.core.publisher.Mono;
  * 
  * {@link WebClientAutoConfiguration}:自动配置WebClient,但是没有实例化WebClient,只实例化了WebClient.Builder
  * 
- * {@link Mono}:单个结果包装
- * {@link Flux}:多结果包装
+ * {@link Mono}:单个结果包装,包含0或1个元素的异步序列
+ * {@link Flux}:多结果包装,包含多个元素的异步序列
  * 
  * @author 飞花梦影
  * @date 2021-09-30 13:26:46
