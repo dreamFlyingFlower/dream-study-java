@@ -18,7 +18,7 @@ import org.springframework.core.ParameterNameDiscoverer;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
-public class SpringContextUtils implements InitializingBean, ApplicationContextAware {
+public class ContextUtil implements InitializingBean, ApplicationContextAware {
 
 	private static ApplicationContext applicationContext;
 
@@ -35,7 +35,7 @@ public class SpringContextUtils implements InitializingBean, ApplicationContextA
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		SpringContextUtils.applicationContext = applicationContext;
+		ContextUtil.applicationContext = applicationContext;
 	}
 
 	@Override
