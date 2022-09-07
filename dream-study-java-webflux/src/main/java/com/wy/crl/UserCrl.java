@@ -2,11 +2,17 @@ package com.wy.crl;
 
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.wy.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -23,13 +29,16 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UserCrl {
 
+	@Autowired
+	private UserRepository userRepository;
+
 	/**
 	 * 使用WebClient调用其他的WebFlux接口,不能本项目的调用本项目的,会抛阻塞异常
 	 */
 	@GetMapping("testWebClient")
 	public void testWebClient() {
 		Mono<String> user = WebClient.create().get().uri("http://localhost:8080/user/testMono")
-		        .accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(String.class);
+				.accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(String.class);
 		System.out.println(user.block());
 	}
 
@@ -62,5 +71,17 @@ public class UserCrl {
 			e.printStackTrace();
 		}
 		return msg;
+	}
+
+	/**
+	 * 如果一个Stream无返回值,但是又必须返回一个值,可以在操作后接then,返回一个值
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Mono<ResponseEntity<Void>> delete(@PathVariable Long id) {
+		return userRepository.findById(id)
+				.flatMap(t -> userRepository.delete(t).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
+				.defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
 	}
 }

@@ -8,7 +8,7 @@ import com.wy.model.User;
 import reactor.core.publisher.Flux;
 
 /**
- * User的Reactive数据操作层
+ * User的Reactive数据操作层,不支持关系型数据库,此处可以使用mongdb
  *
  * @author 飞花梦影
  * @date 2022-09-02 10:20:56

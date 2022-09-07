@@ -13,6 +13,13 @@ import com.wy.repository.UserRepository;
 
 import reactor.core.publisher.Mono;
 
+/**
+ * 使用reactive方式操作数据库,但是reactive不支持关系型数据库,此处可以使用mongdb
+ *
+ * @author 飞花梦影
+ * @date 2022-09-03 14:41:46
+ * @git {@link https://gitee.com/dreamFlyingFlower}
+ */
 @Component
 public class UserHandler {
 
@@ -24,17 +31,17 @@ public class UserHandler {
 
 	public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
 		return ServerResponse
-		        // 指定响应码(返回BodyBuiler的方法称为响应体设置中间方法)
-		        .ok().contentType(MediaType.APPLICATION_JSON)
-		        // 响应体设置终止方法,构建数据
-		        .body(userRepository.findAll(), User.class);
+				// 指定响应码(返回BodyBuiler的方法称为响应体设置中间方法)
+				.ok().contentType(MediaType.APPLICATION_JSON)
+				// 响应体设置终止方法,构建数据
+				.body(userRepository.findAll(), User.class);
 	}
 
 	public Mono<ServerResponse> save(ServerRequest request) {
 		// 从请求中获取要添加的数据,并将其封装为指定类型的对象,存放到Mono流中
 		Mono<User> userMono = request.bodyToMono(User.class);
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(userRepository.saveAll(userMono),
-		        User.class);
+				User.class);
 	}
 
 	// 添加,对name的合法性进行验证
@@ -54,7 +61,7 @@ public class UserHandler {
 		// 从请求路径中获取id
 		Long id = Long.parseLong(request.pathVariable("id"));
 		return userRepository.findById(id).flatMap(t -> userRepository.delete(t).then(ServerResponse.ok().build()))
-		        .switchIfEmpty(ServerResponse.notFound().build());
+				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
 	// 修改
@@ -74,8 +81,8 @@ public class UserHandler {
 
 	public static void validateName(String name) {
 		Stream.of(INVALIDE_NAMES).filter(invalideName -> name.equalsIgnoreCase(invalideName)).findAny()
-		        .ifPresent(invalideName -> {
-			        throw new RuntimeException("name" + invalideName + "使用了非法姓名");
-		        });
+				.ifPresent(invalideName -> {
+					throw new RuntimeException("name" + invalideName + "使用了非法姓名");
+				});
 	}
 }

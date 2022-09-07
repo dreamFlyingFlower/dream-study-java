@@ -21,6 +21,7 @@ public class SyncServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -2907189875428836319L;
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 		long startTime = System.currentTimeMillis();
