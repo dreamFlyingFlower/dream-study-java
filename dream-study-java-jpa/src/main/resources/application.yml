@@ -15,12 +15,12 @@ spring:
     name: paradise-study-java-jpa
   mvc:
     async:
-      request-timeout:
-        seconds: 180
+      request-timeout: 180S
     throw-exception-if-no-handler-found: true
-  #静态资源配置文件,false时无法访问静态资源,如html等,默认为true
-  resources:
-    add-mappings: true
+  web: 
+    #静态资源配置文件,false时无法访问静态资源,如html等,默认为true
+    resources:
+      add-mappings: true
   #文件上传
   servlet:
     multipart:
@@ -29,18 +29,16 @@ spring:
   # 格式化输出的json字符串
   jackson: 
     serialization: 
-      INDENT_OUTPUT: true
+      indent-output: true
     date-format: yyyy-MM-dd HH:mm:ss
   # 定义了多种session策略的时候,需要选择一种作为主要策略
   session: 
     store-type: redis
-    timeout:
-      seconds: 1800
+    timeout: 1800S
   cache: 
     type: redis
     redis:
-      time-to-live:
-        seconds: 1800
+      time-to-live: 1800S
   # 开启支持ANSI格式输出
   output:
     ansi:
