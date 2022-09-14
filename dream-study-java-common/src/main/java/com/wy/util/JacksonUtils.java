@@ -1,5 +1,9 @@
 package com.wy.util;
 
+import java.util.Map;
+
+import org.springframework.data.redis.hash.Jackson2HashMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,5 +39,40 @@ public class JacksonUtils {
 			log.error("jackson serializer string to bean failed");
 		}
 		return null;
+	}
+
+	/**
+	 * 将对象转换为Map
+	 * 
+	 * @param source 对象
+	 * @return Map<String, Object>
+	 */
+	public static Map<String, Object> bean2Map(Object source) {
+		Jackson2HashMapper jackson2HashMapper = new Jackson2HashMapper(objectMapper, false);
+		return jackson2HashMapper.toHash(source);
+	}
+
+	/**
+	 * 将Map转换为bean
+	 * 
+	 * @param <T> 泛型类
+	 * @param source 源数据
+	 * @param clazz 目标类
+	 * @return 目标对象
+	 */
+	public static <T> T map2Bean(Map<String, Object> source, Class<T> clazz) {
+		return objectMapper.convertValue(source, clazz);
+	}
+
+	/**
+	 * 将任意对象转换为bean
+	 * 
+	 * @param <T> 泛型类
+	 * @param source 源数据
+	 * @param clazz 目标类
+	 * @return 目标对象
+	 */
+	public static <T> T object2Bean(Object source, Class<T> clazz) {
+		return objectMapper.convertValue(source, clazz);
 	}
 }
