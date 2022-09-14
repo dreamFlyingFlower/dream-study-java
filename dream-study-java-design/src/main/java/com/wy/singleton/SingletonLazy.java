@@ -1,17 +1,15 @@
 package com.wy.singleton;
 
 /**
- * 单例模式,懒汉模式
+ * 单例模式,懒汉模式.懒汉模式是需要的时候才初始化,饿汉则是一开始就初始化,volatile是为了防止虚拟机指令重排
  * 
- * @apiNote 懒汉模式是需要的时候才初始化,饿汉则是一开始就初始化,volatile是为了防止虚拟机指令重排
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-10-06 19:58:51
  * @git {@link https://github.com/mygodness100}
  */
 public class SingletonLazy {
 
-	private SingletonLazy() {
-	}
+	private SingletonLazy() {}
 
 	private static volatile SingletonLazy singleton;
 
