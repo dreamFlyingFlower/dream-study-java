@@ -3,8 +3,9 @@ package com.wy.bridge;
 /**
  * 车类,需要传递一个礼物的实现类
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-09-27 23:29:36
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class CarGift extends Gift {
 
@@ -13,7 +14,7 @@ public class CarGift extends Gift {
 	}
 
 	@Override
-	public void price() {
+	public void send() {
 		this.giftSend.price();
 	}
 }

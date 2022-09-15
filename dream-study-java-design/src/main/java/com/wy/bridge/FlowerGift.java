@@ -14,7 +14,7 @@ public class FlowerGift extends Gift {
 	}
 
 	@Override
-	public void price() {
+	public void send() {
 		this.giftSend.price();
 	}
 }

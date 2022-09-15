@@ -7,9 +7,13 @@ import java.util.List;
 import com.wy.abstracfactory.AbstractChinaCartoonFactory;
 import com.wy.abstracfactory.AbstractFactoryCartoon;
 import com.wy.abstracfactory.AbstractJapanCartoonFactory;
-import com.wy.adapter.Adapter;
-import com.wy.adapter.AdapterA;
-import com.wy.adapter.Text;
+import com.wy.adapter.AdapterExtend;
+import com.wy.adapter.AdapterObject;
+import com.wy.adapter.Computer;
+import com.wy.adapter.SDCard;
+import com.wy.adapter.SDCardImpl;
+import com.wy.adapter.TFCard;
+import com.wy.adapter.TFCardImpl;
 import com.wy.bridge.CarGift;
 import com.wy.bridge.FlowerSend;
 import com.wy.build.HeavenHandler;
@@ -92,8 +96,8 @@ import com.wy.visitor.VisitorPark;
  * 简单工厂->建造模式:简单工厂注重创建对象,而建造模式则是接口中多个属性或方法的设置调用
  * 简单工厂->抽象工厂:区别在于抽象工厂创建的对象之间有联系,是一个产品簇;简单工厂创建的对象之间没有关系
  * 组合模式:当整个项目呈现明显的树形结构时可使用,体现局部和整体的关系,例如人员关系表
- * 装饰模式:类似于JDK中的流,子类都实现一个接口或抽象类,同时类中会存在一个构造函数以接口类型为参数
- *          桥接模式是抽象类中声明一个自己的实现类变量,其他所有的子类继承抽象类或实现类
+ * 装饰->桥接:所有子类以及装饰类都实现了接口,装饰类持有接口的实例,接口的方法会在装饰器中被调用,同时装饰器可以增强实现;
+ *          桥接模式将使用和实现分开,使用类不实现接口,但是同样持有接口的实例,使用类可以自定义实现
  * 桥接->策略:基本相同,桥接模式只是将执行类换成了一个可变的抽象类.策略模式不关心具体执行的类,只关心执行过程
  * 工厂->策略:工厂注重对象的创建,而策略是注重行为的实现
  * 工厂->抽象工厂:抽象工厂多了中间的抽象类,对接口中的一些方法进行默认的实现
@@ -211,20 +215,23 @@ public class Application {
 	}
 
 	public static void adapter() {
-		// 委派适配
-		Text myText = new Text();
-		Adapter adapter = new Adapter(myText);
-		adapter.draw();
-		adapter.border();
-		adapter.setContent("A test text !");
-		System.out.println("The content in Text Shape is :" + adapter.getContent());
+		// 调用继承方式适配器
+		Computer computer = new Computer();
+		SDCard sdCard = new SDCardImpl();
+		System.out.println(computer.read(sdCard));
 
-		// 继承适配
-		AdapterA adapterA = new AdapterA();
-		adapterA.draw();
-		adapterA.border();
-		adapterA.setContent("A test text !");
-		System.out.println("The content in Text Shape is :" + adapterA.getContent());
+		System.out.println("------------");
+
+		// 调用类适配器
+		AdapterExtend adapter = new AdapterExtend();
+		System.out.println(computer.read(adapter));
+
+		System.out.println("------------");
+
+		// 调用对象适配器
+		TFCard tfCard = new TFCardImpl();
+		AdapterObject adapterObject = new AdapterObject(tfCard);
+		System.out.println(computer.read(adapterObject));
 	}
 
 	public static void interpreter() {

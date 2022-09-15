@@ -7,7 +7,7 @@ package com.wy.bridge;
  * @date 2021-11-11 15:06:33
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public abstract class Gift implements GiftSend {
+public abstract class Gift {
 
 	GiftSend giftSend;
 
@@ -18,4 +18,6 @@ public abstract class Gift implements GiftSend {
 	public void setGiftSend(GiftSend giftSend) {
 		this.giftSend = giftSend;
 	}
+
+	public abstract void send();
 }

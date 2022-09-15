@@ -1,14 +1,21 @@
 package com.wy.decorator;
 
+/**
+ * 继承抽象装饰器,实现自己的扩展方法
+ * 
+ * @author 飞花梦影
+ * @date 2022-09-15 10:15:59
+ * @git {@link https://github.com/dreamFlyingFlower }
+ */
 public class FlyAnimalDecorator extends AnimalDecorator {
 
-	public FlyAnimalDecorator(Animal car) {
-		super(car);
+	public FlyAnimalDecorator(Animal animal) {
+		super(animal);
 	}
 
 	@Override
 	public void show() {
-		this.car.show();
+		this.animal.show();
 		this.fly();
 	}
 
