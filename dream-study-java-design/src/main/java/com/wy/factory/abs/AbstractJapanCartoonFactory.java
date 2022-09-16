@@ -1,4 +1,4 @@
-package com.wy.abstracfactory;
+package com.wy.factory.abs;
 
 import com.wy.entity.Cartoon;
 
@@ -9,15 +9,15 @@ import com.wy.entity.Cartoon;
  * @date 2021-11-03 15:55:59
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class AbstractChinaCartoonFactory implements AbstractFactoryCartoon {
+public class AbstractJapanCartoonFactory implements AbstractFactoryCartoon {
 
 	@Override
 	public Cartoon getAir() {
-		return new AbstractChinaAir();
+		return new AbstractJapanAir();
 	}
 
 	@Override
 	public Cartoon getClannad() {
-		return new AbstractChinaClannad();
+		return new AbstractJapanClannad();
 	}
 }

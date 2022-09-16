@@ -2,15 +2,21 @@ package com.wy.facade;
 
 public class Context {
 
-	private Facade facade = new FacadeA();
+	private Facade facadeA = new FacadeA();
+
+	private Facade facadeB = new FacadeB();
 
 	public void sendLetter(String content, String address) {
-		facade.writeContext(content);
+		facadeA.writeContext(content);
+		facadeB.writeContext(content);
 
-		facade.fillEnvelope(address);
+		facadeA.fillEnvelope(address);
+		facadeB.fillEnvelope(address);
 
-		facade.letterInotoEnvelope();
+		facadeA.letterInotoEnvelope();
+		facadeB.letterInotoEnvelope();
 
-		facade.sendLetter();
+		facadeA.sendLetter();
+		facadeB.sendLetter();
 	}
 }

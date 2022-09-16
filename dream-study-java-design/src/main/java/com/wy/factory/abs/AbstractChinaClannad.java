@@ -1,31 +1,31 @@
-package com.wy.abstracfactory;
+package com.wy.factory.abs;
 
 /**
- * 日语青空
+ * 中文青空
  *
  * @author 飞花梦影
- * @date 2021-11-03 15:39:09
+ * @date 2021-11-03 15:40:46
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class AbstractJapanAir extends AbstractAir {
+public class AbstractChinaClannad extends AbstractClannad {
 
 	@Override
 	public String country() {
-		return "中文";
+		return "中国";
 	}
 
 	@Override
 	public String name() {
-		return "Air";
+		return "Clannad";
 	}
 
 	@Override
 	public String chineseName() {
-		return "青空";
+		return "Clannad";
 	}
 
 	@Override
 	public String type() {
-		return "恋爱,悲剧";
+		return "恋爱,治愈";
 	}
 }

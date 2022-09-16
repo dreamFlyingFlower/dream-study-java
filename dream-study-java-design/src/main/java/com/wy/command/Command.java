@@ -1,7 +1,7 @@
 package com.wy.command;
 
 /**
- * 命令模式:行为模式之一,封装一个对象对另外一个对象的调用
+ * 命令模式:封装一个对象对另外一个对象的调用
  * 
  * <pre>
  * 整个调用过程比较繁杂,或者存在多处这种调用,使用Command类对该调用加以封装,便于功能的再利用
@@ -15,6 +15,7 @@ package com.wy.command;
  */
 public abstract class Command {
 
+	/** 命令接收者 */
 	private YoungMan youngMan;
 
 	public Command(YoungMan youngMan) {

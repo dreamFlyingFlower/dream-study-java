@@ -9,7 +9,7 @@ package com.wy.template;
  */
 public abstract class AbstractTemplate implements Template {
 
-	public void run() {
+	public final void run() {
 		// 先发动汽车
 		this.start();
 		// 引擎开始轰鸣

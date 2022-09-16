@@ -7,8 +7,9 @@ import java.lang.reflect.Proxy;
 /**
  * 代理类,必须实现InvocationHandler接口
  *
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-09-26 23:46:44
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class S_ProxyHandle implements InvocationHandler {
 
@@ -25,7 +26,7 @@ public class S_ProxyHandle implements InvocationHandler {
 	 */
 	public Object createProxyInstance() {
 		return Proxy.newProxyInstance(this.targetObject.getClass().getClassLoader(),
-				this.targetObject.getClass().getInterfaces(), this);
+		        this.targetObject.getClass().getInterfaces(), this);
 	}
 
 	/**

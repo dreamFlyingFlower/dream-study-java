@@ -3,8 +3,9 @@ package com.wy.proxy;
 /**
  * 默认的实现类,非代理类
  *
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-09-26 23:30:37
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 public class S_ProxyDefault implements S_Proxy {
 

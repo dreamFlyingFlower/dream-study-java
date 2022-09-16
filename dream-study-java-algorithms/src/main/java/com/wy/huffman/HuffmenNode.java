@@ -23,6 +23,7 @@ public class HuffmenNode implements Comparable<HuffmenNode> {
 
 	private HuffmenNode parent;
 
+	@Override
 	public int compareTo(HuffmenNode o) {
 		return this.weight - o.weight;
 	}

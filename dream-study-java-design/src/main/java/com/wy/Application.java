@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.wy.abstracfactory.AbstractChinaCartoonFactory;
-import com.wy.abstracfactory.AbstractFactoryCartoon;
-import com.wy.abstracfactory.AbstractJapanCartoonFactory;
 import com.wy.adapter.AdapterExtend;
 import com.wy.adapter.AdapterObject;
 import com.wy.adapter.Computer;
@@ -30,18 +27,27 @@ import com.wy.command.YoungMan;
 import com.wy.composite.BeautyCartoon;
 import com.wy.composite.MyGodness;
 import com.wy.composite.TypeCartoon;
+import com.wy.composite.exp.Menu;
+import com.wy.composite.exp.MenuComponent;
+import com.wy.composite.exp.MenuItem;
 import com.wy.decorator.Animal;
 import com.wy.decorator.AnimalLand;
 import com.wy.decorator.FlyAnimalDecorator;
 import com.wy.decorator.WaterAnimalDecorator;
 import com.wy.entity.Cartoon;
+import com.wy.entity.Comic;
 import com.wy.entity.StrollSkyJiuGe;
 import com.wy.factory.FactoryAir;
 import com.wy.factory.FactoryCartoon;
+import com.wy.factory.abs.AbstractChinaCartoonFactory;
+import com.wy.factory.abs.AbstractFactoryCartoon;
+import com.wy.factory.abs.AbstractJapanCartoonFactory;
 import com.wy.interpreter.ContextInterpreter;
 import com.wy.interpreter.Interpreter;
 import com.wy.interpreter.MinusInterpreter;
 import com.wy.interpreter.PlusInterpreter;
+import com.wy.iterator.ComicAggregateImpl;
+import com.wy.iterator.ComicIterator;
 import com.wy.mediator.Mediator;
 import com.wy.mediator.MediatorMan;
 import com.wy.mediator.MediatorPerson;
@@ -131,10 +137,14 @@ public class Application {
 		bridge();
 		// 组合模式
 		composite();
+		// 组合模式
+		compositeExp();
 		// 适配器模式
 		adapter();
 		// 解释器模式
 		interpreter();
+		// 迭代模式
+		iterator();
 		// 责任链模式
 		chain();
 		// 模板模式
@@ -214,6 +224,35 @@ public class Application {
 		}
 	}
 
+	public static void compositeExp() {
+		// 创建菜单树
+		MenuComponent menu1 = new Menu("菜单管理", 2);
+		menu1.add(new MenuItem("页面访问", 3));
+		menu1.add(new MenuItem("展开菜单", 3));
+		menu1.add(new MenuItem("编辑菜单", 3));
+		menu1.add(new MenuItem("删除菜单", 3));
+		menu1.add(new MenuItem("新增菜单", 3));
+
+		MenuComponent menu2 = new Menu("权限管理", 2);
+		menu2.add(new MenuItem("页面访问", 3));
+		menu2.add(new MenuItem("提交保存", 3));
+
+		MenuComponent menu3 = new Menu("角色管理", 2);
+		menu3.add(new MenuItem("页面访问", 3));
+		menu3.add(new MenuItem("新增角色", 3));
+		menu3.add(new MenuItem("修改角色", 3));
+
+		// 创建一级菜单
+		MenuComponent component = new Menu("系统管理", 1);
+		// 将二级菜单添加到一级菜单中
+		component.add(menu1);
+		component.add(menu2);
+		component.add(menu3);
+
+		// 打印菜单名称(如果有子菜单一块打印)
+		component.print();
+	}
+
 	public static void adapter() {
 		// 调用继承方式适配器
 		Computer computer = new Computer();
@@ -265,6 +304,26 @@ public class Application {
 		for (Interpreter ex : list) {
 			ex.interpret(context);
 			System.out.println(context.getOutput());
+		}
+	}
+
+	public static void iterator() {
+		// 创建聚合对象
+		ComicAggregateImpl aggregate = new ComicAggregateImpl();
+		// 添加元素
+		aggregate.addComic(new Comic("秦时明月", "中国", "武侠,古装,文化传承"));
+		aggregate.addComic(new Comic("天行九歌", "中国", "武侠,古装,文化传承"));
+		aggregate.addComic(new Comic("我的女神", "日本", "恋爱,玄幻"));
+
+		// 遍历聚合对象
+
+		// 1,获取迭代器对象
+		ComicIterator iterator = aggregate.getComicIterator();
+		// 2,遍历
+		while (iterator.hasNext()) {
+			// 3,获取元素
+			Comic comic = iterator.next();
+			System.out.println(comic.toString());
 		}
 	}
 

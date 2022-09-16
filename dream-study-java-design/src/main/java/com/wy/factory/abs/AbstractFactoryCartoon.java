@@ -1,4 +1,4 @@
-package com.wy.abstracfactory;
+package com.wy.factory.abs;
 
 import com.wy.entity.Cartoon;
 

@@ -1,4 +1,4 @@
-package com.wy.simplefactory;
+package com.wy.factory.simple;
 
 import com.wy.entity.Air;
 import com.wy.entity.Cartoon;
