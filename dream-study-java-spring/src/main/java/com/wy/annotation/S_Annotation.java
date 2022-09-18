@@ -83,11 +83,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.wy.config.UserSerializer;
 
 /**
  * 一些常用注解
@@ -183,6 +188,10 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * JSON相关:
  * 
  * <pre>
+ * {@link JsonIgnore}:忽略单个字段,不序列化和反序列化
+ * {@link JsonIgnoreProperties}:忽略多个字段,不序列化和反序列化
+ * {@link JsonSerialize}:自定义序列化转换器,详见{@link UserSerializer}
+ * {@link JsonFormat}:通常在Date上使用,序列化日期格式.可以在枚举类上使用,见注解说明
  * {@link JsonBackReference},{@link JsonManagedReference}:配对使用,通常用在父子关系中,比如树形结构.
  * JsonBackReference标注的属性在序列化(对象转json)时,会被忽略;JsonManagedReference标注的属性则会被序列化.
  * 在序列化时,JsonBackReference的作用相当于JsonIgnore,此时可以没有JsonManagedReference.

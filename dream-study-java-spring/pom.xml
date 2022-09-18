@@ -65,6 +65,11 @@
 		</dependency>
 		<dependency>
 			<groupId>dream.flying.flower</groupId>
+			<artifactId>dream-study-java-common</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>dream.flying.flower</groupId>
 			<artifactId>dream-tool-core</artifactId>
 			<version>0.0.1</version>
 		</dependency>

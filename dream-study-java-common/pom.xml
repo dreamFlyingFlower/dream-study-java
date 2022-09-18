@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>dream.flying.flower</groupId>
 	<artifactId>dream-study-java-common</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>dream-study-java-common</name>
 	<description>java study for common grammer</description>
 

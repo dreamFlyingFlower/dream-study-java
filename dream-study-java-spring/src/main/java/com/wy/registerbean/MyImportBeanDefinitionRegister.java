@@ -11,6 +11,8 @@ import com.wy.model.User;
 /**
  * 通过{@link Import}注入类到Spring上下文中,和MyImportSelector类似,只不过是直接使用BeanDefinitionRegistry注入类
  * 
+ * 可以指定扫描包,然后通过{@link BeanDefinitionRegistry}批量注入
+ * 
  * @auther 飞花梦影
  * @date 2019-10-09 10:23:20
  * @git {@link https://github.com/dreamFlyingFlower}

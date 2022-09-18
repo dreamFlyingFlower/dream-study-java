@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Component
-public class MailUtils {
+public class MailUtil {
 
 	@Autowired
 	private JavaMailSender javaMailSender;

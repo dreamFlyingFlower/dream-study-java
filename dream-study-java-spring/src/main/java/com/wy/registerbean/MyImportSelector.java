@@ -1,5 +1,7 @@
 package com.wy.registerbean;
 
+import java.util.Map;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -10,6 +12,8 @@ import com.autoconfigure.S_AutoConfig;
 import com.wy.model.Role;
 
 /**
+ * 通过返回类的全限定类名数组批量注入,会在#ConfigurationClassParser.processImport()中注册bean对象
+ * 
  * 使用{@link Import}注解引入某个类,让该类注入到spring的上下文中,有2种方法:
  * 
  * <pre>
@@ -30,7 +34,11 @@ public class MyImportSelector implements ImportSelector {
 	 */
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		importingClassMetadata.getAnnotationAttributes(S_AutoConfig.class.getName());
+		// 获得注解的属性
+		Map<String, Object> annotationAttributes =
+				importingClassMetadata.getAnnotationAttributes(S_AutoConfig.class.getName());
+		// 获得的属性值需要自行强转
+		annotationAttributes.get("value");
 		return new String[] { "com.wy.model.User", Role.class.getName() };
 	}
 }

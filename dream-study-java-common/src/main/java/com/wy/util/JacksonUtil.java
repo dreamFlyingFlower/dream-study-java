@@ -4,8 +4,11 @@ import java.util.Map;
 
 import org.springframework.data.redis.hash.Jackson2HashMapper;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,9 +20,15 @@ import lombok.extern.slf4j.Slf4j;
  * @git {@link https://github.com/mygodness100}
  */
 @Slf4j
-public class JacksonUtils {
+public class JacksonUtil {
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
+
+	static {
+		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+		objectMapper.setSerializationInclusion(Include.NON_EMPTY);
+	}
 
 	public static String bean2Json(Object bean) {
 		try {
