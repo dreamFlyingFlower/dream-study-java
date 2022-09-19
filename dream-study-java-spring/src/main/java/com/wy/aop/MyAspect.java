@@ -42,16 +42,29 @@ import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfigu
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration.EnableTransactionManagementConfiguration.CglibAutoProxyConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration.EnableTransactionManagementConfiguration.JdkDynamicAutoProxyConfiguration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 /**
  * Spring Aop
  * 
- * {@link EnableAspectJAutoProxy}:该注解指定代理使用的是JDK动态代理还是CGLIB,默认false,使用JDK动态代理
+ * 注意:当多个不同的切面类中有相同的切面拦截表达式时,以类的首字母排序,前面的先执行,和方法名无关;若要改变这种顺序,可以使用{@link Order}
+ * 当同一个类中有切面相同时,以方法的首字母进行排序,前面的先执行,后面的后执行
+ * 
+ * <pre>
+ * {@link EnableAspectJAutoProxy}:指定代理类型以及是否暴露代理对象
+ * ->{@link EnableAspectJAutoProxy#proxyTargetClass()}:指定代理使用的是JDK动态代理还是CGLIB,默认false,使用JDK动态代理
+ * ->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,该功能在某些时候可防止事务失效
  * {@link #JdkDynamicAopProxy}:当使用JDK动态代理时的代理处理类,非public
  * {@link #CglibAopProxy}:当使用CGLIB动态代理时的代理处理类,非public
  * {@link TransactionAutoConfiguration}:事务自动配置类,会根据配置决定是使用JDK动态代理,还是CGLIB动态代理
  * {@link JdkDynamicAutoProxyConfiguration}:当spring.aop.proxy-target-class为false,使用JDK动态代理,默认代理
  * {@link CglibAutoProxyConfiguration}:当spring.aop.proxy-target-class为true时,使用CGLIB动态代理
+ * {@link Aspect}:指定需要代理的类.默认切面类应该为单例的,但是当切面类为一个多例类时,指定预处理的切入点表达式
+ * ->{@link Aspect#value()}:要么使用"",即不指定,且切面类为单例模式;若指定为多例模式,会报错;
+ * 		当切面类为多例时,需要指定预处理的切入点表达式:perthis(切入点表达式),它支持指定切入点表达式,或者是用@Pointcut修饰的全限定方法名.
+ * 		且当切面为多例时,类中其他注解的切面表达式无效,但是必须写,但是多例并不常用
+ * </pre>
  * 
  * AOP原理:
  * 
@@ -126,34 +139,55 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * {@link Invocation}:JoinPoint 子类,添加了获取调用参数方法
  * {@link MethodInvocation}:Invocation 的子类,包含了获取调用方法的方法
  * </pre>
- *
+ * 
  * @author 飞花梦影
  * @date 2021-10-21 13:35:36
  * @git {@link https://github.com/dreamFlyingFlower }
  */
+@Component
 @Aspect
 public class MyAspect {
 
 	/**
-	 * {@link Pointcut}:声明一个切入点,用来配置需要被拦截的类,方法
+	 * {@link Pointcut}:声明一个通用切入点,用来配置需要被拦截的类,方法.若该方法为public,其他类中也可以使用全限定类名来使用
+	 * 
+	 * {@link Pointcut#value()}:声明切入点的表达式
 	 * 
 	 * <pre>
-	 * execution:固定语法,表示执行.参数分为6段:
+	 * 表达式参数拦截:
+	 * 固定语法,使用execution和args等关键字,execution参数分为6段:
 	 * 第一段表示返回值类型,通配符*表示可返回任意类型.若返回指定类型,需要写全路径名,如返回String,需要写java.lang.String.
 	 * 		也可以直接写void,表示无返回值.或者!void,表示只要不是void的就可以
 	 * 第二段表示需要拦截的包名
-	 * 第三段的2给点,表示对包名下的子包同样拦截,不写表示只对当前包下的类,方法进行拦截
+	 * 第三段的2个点,表示对包名下的子包同样拦截,不写表示只对当前包下的类,方法进行拦截
 	 * 第四段表示需要拦截的类,*表示包下所有类
 	 * 第五段表示需要拦截的类中的方法名,*表示所有方法.若需要指定参数,也需要写类全路径名,多给用逗号隔开
 	 * 最后的括号里表示的是参数个数,..表示参数可有可无,可以有多个
 	 * 
-	 * 若需要排除某给方法,不进行拦截,可以使用&&和!
+	 * 若需要排除某个方法,不进行拦截,可以使用&&和!
 	 * 
-	 * 拦截注解:@Pointcut("@annotation(com.wy.annotation.Logger)")
+	 * args:指定被拦截方法需要传递的形参,注意是形参,非参数类型.
+	 * 如果其他切面方法使用了被PointCut修饰的方法,则其他切面也要加上该形参
+	 * 
+	 * 拦截注解:
+	 * 以@annotation关键字实现,内容为需要拦截的注解的全限定类名
 	 * </pre>
+	 * 
+	 * {@link Pointcut#argNames()}:指定切入点表达式参数.参数可以是execution或者args中的.
+	 * 该参数可以不指定,若指定则必须和args关键字中的名称一致.
 	 */
-	@Pointcut("execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..))")
+	@Pointcut(value = "execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..))  ")
+	// @Pointcut("@annotation(com.wy.annotation.Logger)")
 	private void aspect() {
+	}
+
+	@Pointcut(value = "execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..)) && args(token) ")
+	private void aspectArg(String token) {
+	}
+
+	@Before(value = "aspectArg(token) && args(username)")
+	public void beforeAspectArg(String token, String username) {
+
 	}
 
 	/**
@@ -167,7 +201,7 @@ public class MyAspect {
 	}
 
 	/**
-	 * {@link Around}:定义一个环绕通知,进入方法之后,开始执行方法之前调用一次.方法执行完,在After执行完之后再调用一次
+	 * {@link Around}:定义一个环绕通知,在Before开始执行方法之前调用一次.方法执行完,在After执行完之后再调用一次
 	 * 
 	 * @param joinPoint 包含了执行方法的相关信息,方法名,参数等
 	 * @throws Throwable 会被AfterThrowing接收
@@ -180,7 +214,7 @@ public class MyAspect {
 	}
 
 	/**
-	 * {@link AfterReturning}:定义一个后置通知,即方法正常执行完之后调用.当方法抛出异常时,后置通知将不会被执行
+	 * {@link AfterReturning}:定义一个后置通知,即方法正常执行完之后,结果未返回之前执行.当方法抛出异常时,后置通知将不会被执行
 	 * 在这里不能使用ProceedingJoinPoint,只能使用JoinPoint,否则报异常
 	 * returning:接收返回结果的参数,即afterAspect的形参,类型可自定义
 	 */
