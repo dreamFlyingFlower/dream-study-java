@@ -1,46 +1,74 @@
 package com.wy.crl;
 
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.annotation.RequestHeaderMethodArgumentResolver;
-import org.springframework.web.servlet.mvc.method.annotation.ServletCookieValueMethodArgumentResolver;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 /**
  * 测试Crl
  * 
- * {@link RequestHeader}:从请求头获得值,如charset,content-type等,由{@link RequestHeaderMethodArgumentResolver}解析
- * {@link CookieValue}:从请求中获取cookie值,由{@link ServletCookieValueMethodArgumentResolver}解析
- * {@link ModelAttribute}:
- *
  * @author 飞花梦影
  * @date 2022-09-20 14:54:46
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @RestController
 @RequestMapping("test")
+@SessionAttributes("message")
 public class TestCrl {
 
 	@GetMapping("testHeader")
 	public void testHeader(@RequestHeader("content-type") String contentType,
-	        @CookieValue("jessionid") String jessionid) {
+			@CookieValue("jessionid") String jessionid) {
 		System.out.println(contentType);
 		System.out.println(jessionid);
 	}
 
+	/**
+	 * 在其他方法执行之前,先执行当前方法
+	 * 
+	 * @param name
+	 * @return
+	 */
 	@ModelAttribute("username")
-	public String showModel(String name) {
+	public void showModel(String name, Model model) {
 		System.out.println("showModel method name is " + name);
 		name = name + "aaa";
-		return name;
+		model.addAttribute("username", name);
 	}
 
+	/**
+	 * 从Model中取出username赋值给name
+	 * 
+	 * @param name
+	 * @return
+	 */
 	@RequestMapping("/useModelAttribute")
 	public String useModelAttribute(@ModelAttribute("username") String name) {
 		System.out.println("controller method name is " + name);
+		return "success";
+	}
+
+	@GetMapping("testSession")
+	public String testSession(Model model) {
+		// 在类上添加了 SessionAttributes,会将message存入到session中,服务器和客户端都会存
+		model.addAttribute("message", "测试数据session");
+		return "success";
+	}
+
+	/**
+	 * 通过SessionAttribute从session中取数据
+	 * 
+	 * @param message
+	 * @return
+	 */
+	@GetMapping("testSession1")
+	public String testSession1(@SessionAttribute("message") String message) {
 		return "success";
 	}
 }

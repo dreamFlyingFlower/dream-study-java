@@ -1,5 +1,7 @@
 package com.wy.aop;
 
+import java.lang.reflect.Method;
+
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.ConstructorInterceptor;
 import org.aopalliance.intercept.Interceptor;
@@ -9,13 +11,16 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.DeclareParents;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.IntroductionAdvisor;
 import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory;
@@ -45,6 +50,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.wy.service.SysLogService;
+import com.wy.service.impl.SysLogServiceImpl;
+
 /**
  * Spring Aop
  * 
@@ -64,6 +72,7 @@ import org.springframework.stereotype.Component;
  * ->{@link Aspect#value()}:要么使用"",即不指定,且切面类为单例模式;若指定为多例模式,会报错;
  * 		当切面类为多例时,需要指定预处理的切入点表达式:perthis(切入点表达式),它支持指定切入点表达式,或者是用@Pointcut修饰的全限定方法名.
  * 		且当切面为多例时,类中其他注解的切面表达式无效,但是必须写,但是多例并不常用
+ * {@link DeclareParents}:用于给被增强的方法提供新的方法,实现新的接口,给类增强.通常用在类无法被改变的情况,如在jar包中
  * </pre>
  * 
  * AOP原理:
@@ -149,7 +158,17 @@ import org.springframework.stereotype.Component;
 public class MyAspect {
 
 	/**
+	 * 让@DeclareParents中vlaue指代的类具有被标识的接口中方法,defaultImpl为接口的默认实现类,可在各个阶段的增强中使用
+	 * 
+	 * value可以指定单个接口,+表示该接口的所有实现类都有被标识的接口中的方法
+	 */
+	@DeclareParents(value = "com.wy.service+", defaultImpl = SysLogServiceImpl.class)
+	private SysLogService sysLogService;
+
+	/**
 	 * {@link Pointcut}:声明一个通用切入点,用来配置需要被拦截的类,方法.若该方法为public,其他类中也可以使用全限定类名来使用
+	 * 
+	 * 切入点的解析并不是在创建解析Bean对象时执行,而是在refresh()的invokeBeanFactoryPostProcessors()中执行
 	 * 
 	 * {@link Pointcut#value()}:声明切入点的表达式
 	 * 
@@ -190,14 +209,19 @@ public class MyAspect {
 
 	}
 
+	@Before("aspect() && this(sysLogService)")
+	public void beforeAspectDeclareParents(SysLogService sysLogService) {
+		// 在前置中使用
+		sysLogService.create(null);
+	}
+
 	/**
 	 * {@link Before}:定义一个前置通知,在调用方法之前调用.需要设置一个拦截的切入点,即被PointCut修改的方法名
 	 * 
 	 * args:指定被拦截的方法参数个数以及形参名,即只会拦截参数名为username的方法
 	 */
-	@Before("aspect() && args(username)")
-	public void beforeAspect(String username) {
-
+	@Before("aspect() && args(username,token)")
+	public void beforeAspect(String username, String token) {
 	}
 
 	/**
@@ -208,19 +232,40 @@ public class MyAspect {
 	 */
 	@Around("aspect()")
 	public Object aroundAspect(ProceedingJoinPoint joinPoint) throws Throwable {
+		// 获得方法参数
+		joinPoint.getArgs();
 		// 如果定义了环绕拦截,该方法必须执行.该方法实际上就是执行真正的方法,且最好有返回值
 		Object object = joinPoint.proceed();
 		return object;
 	}
 
+	@Around("aspect()")
+	public Object aroundAspectLog(ProceedingJoinPoint joinPoint) throws Throwable {
+		// 获得方法参数
+		joinPoint.getArgs();
+		// 获得签名方法
+		Signature signature = joinPoint.getSignature();
+		// 判断当前签名方法是否为方法签名
+		if (signature instanceof MethodSignature) {
+			MethodSignature methodSignature = (MethodSignature) signature;
+			// 获得当前执行的方法
+			Method method = methodSignature.getMethod();
+			System.out.println(method.getName());
+			System.out.println(method.getModifiers());
+		}
+		// 如果定义了环绕拦截,该方法必须执行.该方法实际上就是执行真正的方法,且最好有返回值
+		return joinPoint.proceed();
+	}
+
 	/**
 	 * {@link AfterReturning}:定义一个后置通知,即方法正常执行完之后,结果未返回之前执行.当方法抛出异常时,后置通知将不会被执行
-	 * 在这里不能使用ProceedingJoinPoint,只能使用JoinPoint,否则报异常
+	 * 在这里不能使用ProceedingJoinPoint,只能使用JoinPoint,否则报异常;该注解既可拿到参数,也可以拿到结果
+	 * 
 	 * returning:接收返回结果的参数,即afterAspect的形参,类型可自定义
 	 */
 	@AfterReturning(pointcut = "aspect()", returning = "result")
 	public void afterAspect(Object result) {
-
+		System.out.println("方法执行结果为:" + result);
 	}
 
 	/**

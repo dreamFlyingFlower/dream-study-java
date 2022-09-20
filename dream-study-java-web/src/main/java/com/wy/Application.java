@@ -32,10 +32,18 @@ import org.springframework.http.converter.xml.SourceHttpMessageConverter;
 import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.method.annotation.RequestHeaderMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
@@ -54,6 +62,7 @@ import org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
+import org.springframework.web.servlet.mvc.method.annotation.ServletCookieValueMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
@@ -217,6 +226,21 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * 服务器将按照这个链的顺序对请求进行依次过滤处理
  * Filter 的 Map 的查询过程与 Servlet 的 Map 的查询过程是不同的:
  * Servlet 的只要找到一个匹配的 key就不再查找;而 Filter则是遍历所有 key,将所有匹配的元素都查找出来
+ * </pre>
+ * 
+ * 相关URL注解:
+ * <pre>
+ * {@link RequestMapping}:请求URL映射
+ * ->{@link RequestMapping#params()}:请求中需要包含的参数名
+ * ->{@link RequestMapping#headers():}:请求头中需要包含的属性
+ * ->{@link RequestMapping#consumes()}:方法接受的请求类型
+ * ->{@link RequestMapping#produces()}:方法返回的响应类型
+ * {@link RequestHeader}:从请求头获得值,如charset,content-type等,由{@link RequestHeaderMethodArgumentResolver}解析
+ * {@link CookieValue}:从请求中获取cookie值,由{@link ServletCookieValueMethodArgumentResolver}解析
+ * {@link ModelAttribute}:修饰方法时表示在该类中的方法执行之前先执行被修饰的方法,类似于前置切面;
+ * 		修饰参数时表示可以从{@link Model}中取值并赋值给被修饰的参数
+ * {@link SessionAttribute}:从session中取出数据
+ * {@link SessionAttributes}:存数据到session中,需要通过{@link Model}或{@link ModelMap}实现
  * </pre>
  * 
  * @author 飞花梦影
