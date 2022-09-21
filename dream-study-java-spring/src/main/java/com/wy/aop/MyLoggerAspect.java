@@ -43,17 +43,17 @@ public class MyLoggerAspect {
 	 * 注解Pointcut切入点
 	 */
 	@Pointcut("@annotation(com.wy.annotation.Logger)")
-	public void loggerAspect() {
-	}
+	public void loggerAspect() {}
 
 	/**
 	 * 抛出异常后通知:方法抛出异常退出时执行的通知,在这里不能使用ProceedingJoinPoint
 	 * 
 	 * @param joinPoint 切入点
 	 * @param throwable 异常信息
+	 * @param logger 注解
 	 */
-	@AfterThrowing(value = "loggerAspect()", throwing = "throwable")
-	public void afterThrowingMethod(JoinPoint joinPoint, Throwable throwable) throws Exception {
+	@AfterThrowing(value = "loggerAspect() && @annotation(logger)", throwing = "throwable")
+	public void afterThrowingMethod(JoinPoint joinPoint, Throwable throwable, Logger logger) throws Exception {
 		HttpServletRequest httpServletRequest = getHttpServletRequest();
 		// 获取管理员用户信息
 		Map<String, Object> user = getUser(httpServletRequest);

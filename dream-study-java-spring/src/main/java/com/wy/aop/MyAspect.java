@@ -50,6 +50,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.wy.annotation.Logger;
 import com.wy.service.SysLogService;
 import com.wy.service.impl.SysLogServiceImpl;
 
@@ -175,15 +176,25 @@ public class MyAspect {
 	 * <pre>
 	 * 表达式参数拦截:
 	 * 固定语法,使用execution和args等关键字,execution参数分为6段:
-	 * 第一段表示返回值类型,通配符*表示可返回任意类型.若返回指定类型,需要写全路径名,如返回String,需要写java.lang.String.
+	 * 第一段:访问修饰符,可省略
+	 * 第二段:返回值类型,必须.通配符*表示可返回任意类型.若返回指定类型,需要写全路径名,如返回String,需要写java.lang.String.
 	 * 		也可以直接写void,表示无返回值.或者!void,表示只要不是void的就可以
-	 * 第二段表示需要拦截的包名
-	 * 第三段的2个点,表示对包名下的子包同样拦截,不写表示只对当前包下的类,方法进行拦截
-	 * 第四段表示需要拦截的类,*表示包下所有类
-	 * 第五段表示需要拦截的类中的方法名,*表示所有方法.若需要指定参数,也需要写类全路径名,多给用逗号隔开
-	 * 最后的括号里表示的是参数个数,..表示参数可有可无,可以有多个
+	 * 第三段:需要拦截的包名.2个点,表示对包下的子包同样拦截,不写表示只对当前包下的类,方法进行拦截
+	 * 第四段:需要拦截的类,*表示包下所有类
+	 * 第五段:需要拦截的类中的方法名,*表示所有方法.若需要指定参数,也需要写类全路径名,多个用逗号隔开
+	 * 第六段:括号里表示的是参数个数,..表示参数可有可无,可以有多个
 	 * 
-	 * 若需要排除某个方法,不进行拦截,可以使用&&和!
+	 * eg:在表达式中也可以使用逻辑表达式,如||,or,!,not,&&,and
+	 * execution(* com.wy..*.*(..)):拦截com.wy包以及子包下所有类的所有方法
+	 * execution(* com..*serviceImpl.*()):拦截所有serviceImpl结尾的类的所有无参方法
+	 * execution(* com..*serviceImpl.*(..)):拦截所有serviceImpl结尾的类的所有方法
+	 * execution(* com..*serviceImpl.*(*)):拦截所有serviceImpl结尾的类的任意参数方法,必须有参数
+	 * execution(* save*(..)):拦截所有以save开头的方法
+	 * execution(* save*(..)) && args(username)):拦截所有save开头,且参数必须有username
+	 * execution(* save*(..)) || execution(* update*(..)):拦截所有的save开头的方法,或者update开头的方法,||可以换成or
+	 * !execution(* save*(..)):不拦截save开头的方法,!可以换成not,注意空格
+	 * bean(userService):拦截容器中userService类中的所有方法
+	 * bean(*Service):拦截容器中Service结尾的类中的所有方法
 	 * 
 	 * args:指定被拦截方法需要传递的形参,注意是形参,非参数类型.
 	 * 如果其他切面方法使用了被PointCut修饰的方法,则其他切面也要加上该形参
@@ -196,13 +207,10 @@ public class MyAspect {
 	 * 该参数可以不指定,若指定则必须和args关键字中的名称一致.
 	 */
 	@Pointcut(value = "execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..))  ")
-	// @Pointcut("@annotation(com.wy.annotation.Logger)")
-	private void aspect() {
-	}
+	private void aspect() {}
 
 	@Pointcut(value = "execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..)) && args(token) ")
-	private void aspectArg(String token) {
-	}
+	private void aspectArg(String token) {}
 
 	@Before(value = "aspectArg(token) && args(username)")
 	public void beforeAspectArg(String token, String username) {
@@ -216,13 +224,35 @@ public class MyAspect {
 	}
 
 	/**
+	 * 注解拦截
+	 */
+	@Pointcut("@annotation(com.wy.annotation.Logger)")
+	private void aspectAnnotation() {}
+	
+	/**
+	 * 第一种拦截注解:直接使用拦截表达式,通过反射获取方法,从方法上获取被拦截的注解
+	 */
+	@Before("aspectAnnotation()")
+	public void beforeAspectAnnotation() {
+
+	}
+	/**
+	 * 第二种拦截注解,拦截注解里的表达式中的参数必须和形参对应
+	 * 
+	 * @param logger
+	 */
+	@Before("aspectAnnotation() && @annotation(logger)")
+	public void beforeAspectAnnotation(Logger logger) {
+		System.out.println(logger.description());
+	}
+
+	/**
 	 * {@link Before}:定义一个前置通知,在调用方法之前调用.需要设置一个拦截的切入点,即被PointCut修改的方法名
 	 * 
 	 * args:指定被拦截的方法参数个数以及形参名,即只会拦截参数名为username的方法
 	 */
 	@Before("aspect() && args(username,token)")
-	public void beforeAspect(String username, String token) {
-	}
+	public void beforeAspect(String username, String token) {}
 
 	/**
 	 * {@link Around}:定义一个环绕通知,在Before开始执行方法之前调用一次.方法执行完,在After执行完之后再调用一次
@@ -284,6 +314,5 @@ public class MyAspect {
 	 * 在这里不能使用ProceedingJoinPoint,只能使用JoinPoint,否则报异常
 	 */
 	@AfterThrowing(pointcut = "aspect()", throwing = "throwable")
-	public void exception(JoinPoint joinPoint, Throwable throwable) {
-	}
+	public void exception(JoinPoint joinPoint, Throwable throwable) {}
 }
