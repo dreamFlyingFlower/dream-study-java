@@ -14,6 +14,11 @@ import java.util.Scanner;
 /**
  * NIO服务端
  * 
+ * {@link SelectionKey#OP_ACCEPT}:接收连接继续事件,表示服务器监听到了客户端,服务器可以连接这个请求了
+ * {@link SelectionKey#OP_CONNECT}:连接就绪事件,表示客户与服务之间的连接已经建立成功
+ * {@link SelectionKey#OP_READ}:读就绪事件,表示通道中有可读的数据,可以进行读操作
+ * {@link SelectionKey#OP_WRITE}:写就绪事件,表示可以向通道中写数据了
+ * 
  * @author 飞花梦影
  * @date 2020-09-29 10:37:32
  * @git {@link https://github.com/dreamFlyingFlower}
@@ -68,7 +73,10 @@ public class S_SocketServer {
 	}
 
 	private void handler(SelectionKey key) throws IOException {
+		// 连接就绪事件
+		// key.isConnectable();
 		if (key.isAcceptable()) {
+			// 连接继续事件
 			// 若是连接成功,只有serversocket才会发生可接收事件,客户端不会发生该类型事件
 			// 处理客户端连接请求时间,此处可以从selectionkey中获得当前服务端连接,也可以将服务端socket作为全局变量
 			ServerSocketChannel channel = (ServerSocketChannel) key.channel();

@@ -24,6 +24,7 @@ public class DeleteFileClientHandler extends WrapFileClientHandler {
 		this.filePath = filePath;
 	}
 
+	@Override
 	public HttpPostRequestEncoder wrapRequestData(HttpDataFactory factory) {
 		HttpPostRequestEncoder bodyRequestEncoder = null;
 		try {

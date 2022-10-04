@@ -29,6 +29,7 @@ public class CreateThumbPictureServerHandler extends AbstractFileServerHandler i
 		super(account);
 	}
 
+	@Override
 	public Result process(RequestParam reqParams) {
 		Result result = new Result();
 		result.setCode(false);

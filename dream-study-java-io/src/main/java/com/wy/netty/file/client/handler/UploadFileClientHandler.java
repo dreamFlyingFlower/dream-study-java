@@ -32,6 +32,7 @@ public class UploadFileClientHandler extends WrapFileClientHandler {
 		this.fileName = fileName;
 	}
 
+	@Override
 	public HttpPostRequestEncoder wrapRequestData(HttpDataFactory factory) {
 		HttpPostRequestEncoder bodyRequestEncoder = null;
 		try {

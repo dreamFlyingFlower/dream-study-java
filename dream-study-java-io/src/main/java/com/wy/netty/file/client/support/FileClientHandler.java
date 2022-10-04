@@ -31,6 +31,7 @@ public class FileClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
 	private Result result;
 
+	@Override
 	public void channelRead0(ChannelHandlerContext ctx, HttpObject object) throws Exception {
 		if (!this.readingChunks) {
 			DefaultFullHttpResponse response = (DefaultFullHttpResponse) object;

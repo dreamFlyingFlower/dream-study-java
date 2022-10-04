@@ -29,6 +29,7 @@ public class DeleteFileServerHandler extends AbstractFileServerHandler implement
 		super(account);
 	}
 
+	@Override
 	public Result process(RequestParam reqParams) {
 		Result result = new Result();
 		result.setCode(false);

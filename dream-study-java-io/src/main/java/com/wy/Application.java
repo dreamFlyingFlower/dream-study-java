@@ -27,13 +27,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <pre>
  * capacity: 容量,buffer的最大长度
  * limit:buffer能写入数据的最大长度,必须小于等于capacity
- * position:读取buffer时指针下标,当前下标是还没有读的,要小于等于limit
+ * position:无参方法读取buffer指针下标,当前下标是还没有读的,要小于等于limit.有参方法指定当前buffer索引
  * mark:记号下标,方便重新读取buffer中的数据,要小于等于position
  * flip():设置limit为position值,再将position设为0,以备用于读取,各种读写操作都是在postion和limit之间进行
  * rewind():将limit和position恢复到读取数据之前,重复读取缓冲区数据
  * clear():重置buffer到初始状态,用于下次写入新的数据,但实际上次的数据仍在缓冲区中,重复写入会覆盖以前的数据
  * allocate():在jvm的堆中分配内存创建缓冲区,并给缓冲区分配大小
  * allocateDirect():在os内核中分配内存创建缓冲区,不占用jvm的内存空间,速度更快,默认是64M,但不可回收
+ * array():将缓冲区数据转为字节数组
  * </pre>
  * 
  * Channel:通道,主要是为了进行Selector的切换,主要可分为以下四种:
