@@ -19,8 +19,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wy.collection.ListTool;
-import com.wy.database.Sort;
-import com.wy.database.Unique;
+import com.wy.db.annotation.Sort;
+import com.wy.db.annotation.Unique;
 import com.wy.excel.ExcelModelTools;
 import com.wy.lang.NumberTool;
 import com.wy.lang.StrTool;
@@ -252,9 +252,9 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 
 	/**
 	 * 该方法根据上级编号查询本级数据或下级数据.为统一前端树形结构,需要将标识符,
-	 * 如id全部转为treeId,显示的名称都改为treeName.同时每次查询都需要将下级的数量查询出来,放入childNum字段中 {@link select b.dic_id
-	 * treeId,b.dic_name treeName,b.dic_code dicCode, (select count(*) from td_dic a where a.pid =
-	 * b.dic_Id) childNum from td_dic b}
+	 * 如id全部转为treeId,显示的名称都改为treeName.同时每次查询都需要将下级的数量查询出来,放入childNum字段中
+	 * {@link select b.dic_id treeId,b.dic_name treeName,b.dic_code dicCode, (select
+	 * count(*) from td_dic a where a.pid = b.dic_Id) childNum from td_dic b}
 	 * 
 	 * @param id 条件编号
 	 * @param self 是否查询本级数据,true获取,false直接获取下级
@@ -297,8 +297,8 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	@Override
 	public void getExport(T t, HttpServletRequest request, HttpServletResponse response) {
 		Result<List<T>> entitys = getEntitys(t);
-		String excelName = StrTool.isBlank(request.getParameter("excelName")) ? "数据导出"
-				: request.getParameter("excelName");
+		String excelName =
+				StrTool.isBlank(request.getParameter("excelName")) ? "数据导出" : request.getParameter("excelName");
 		ExcelModelTools.getInstance().exportExcel(entitys.getData(), response, excelName);
 	}
 

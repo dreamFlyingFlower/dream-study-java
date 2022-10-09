@@ -3,10 +3,13 @@ spring:
     allow-bean-definition-overriding: true
   shardingsphere:
     props:
+      # 显示sql
       sql: 
         show: true
+    # 配置数据源
     datasource:
-      names: ds1,ds2
+      # 配置真实数据库
+      names: ds1,ds2,ds3
       ds1: 
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
@@ -18,18 +21,30 @@ spring:
       ds2: 
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/ts_user?useUnicode=true&useSSL=false&characterEncoding=UTF8&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://localhost:3307/ts_user?useUnicode=true&useSSL=false&characterEncoding=UTF8&serverTimezone=Asia/Shanghai
+        username: root
+        password: 52LDforever
+        maxPoolSize: 100
+        minPoolSize: 5
+      ds3: 
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3307/ts_user?useUnicode=true&useSSL=false&characterEncoding=UTF8&serverTimezone=Asia/Shanghai
         username: root
         password: 52LDforever
         maxPoolSize: 100
         minPoolSize: 5
     sharding: 
+      # 绑定表,2张表中的字段要一样
+      binding-tables:
+        table_name1,table_name2
       # 定义主从数据库对应的逻辑数据源,从数据库可写多个
       master-slave-rules:
         logic1:
           master-data-source-name: ds1
           slave-data-source-names:
           - ds2
+          - ds3
       # 配置默认数据源ds1,主要用于写
       default-data-source-name: ds1
       # 默认分库分表策略,可不指定
@@ -59,7 +74,7 @@ spring:
           # 主键策略
           key-generator: 
             # 主键列名
-            column: id
+            column: user_id
             # 主键生成策略,暂时只有UUID和SNOWFLAKE.自定义可实现ShardingKeyGenerator
             type: SNOWFLAKE
             # 自定义主键生成策略
@@ -78,20 +93,38 @@ spring:
           database-strategy:
             # 行表达式
             inline:
-              sharding-column: id
+              # 数据源分片字段
+              sharding-column: user_id
               # 数据源分片算法,多个时可使用简单算法进行分割.$相当于占位符,值为->后的大括号的结果
-              algorithm-expression: logic$->{id % 2 + 1}
+              # algorithm-expression: logic$->{user_id % 2 + 1}
+              algorithm-expression: logic1
           # 表分片策略
           table-strategy: 
             inline:
-              sharding-column: id
+              # 表分片字段
+              sharding-column: user_id
               # 表分片算法
-              algorithm-expression: ts_user$->{id%2}
+              algorithm-expression: ts_user$->{user_id%2}
+        # 广播表主键策略
+        dict: 
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+        dict_detail: 
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+      # 广播表,不进行分片,所有库中的表数据都是一样的,但仍然要配置主键策略
+      broadcast-tables:
+        dict
+        dict_detail
+    # 定义单个主从对应主从关系,暂时只支持单主写
     masterslave: 
+      # 配置主从名称,可自定义
       name: ms
       # 设置主库master,负责数据的写入
       master-data-source-name: ds1
       # 配置从库slave节点,slave节点可写多个
-      slave-data-source-names: ds2
+      slave-data-source-names: ds2,ds3
       # 配置slave节点的负载均衡策略,有轮询和随机.自定义可实现MasterSlaveLoadBalanceAlgorithm接口
       load-balance-algorithm-type: ROUND_ROBIN

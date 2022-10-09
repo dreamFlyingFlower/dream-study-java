@@ -1,9 +1,10 @@
 package com.wy.valid;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 /**
  * 对自定义校验规则的注解进行处理,此处处理@ValidArray
