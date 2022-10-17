@@ -1,13 +1,19 @@
 package com.wy;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.annotation.HandlesTypes;
 
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.HierarchicalBeanFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,13 +24,16 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 import org.springframework.beans.factory.support.AbstractBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
+import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -42,6 +51,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -307,6 +317,33 @@ import org.springframework.web.servlet.DispatcherServlet;
  * <pre>
  * {@link ClassPathScanningCandidateComponentProvider}:可以对指定包进行扫描并注入,见{@link EurekaServerAutoConfiguration#jerseyApplication}
  * {@link AnnotationTypeFilter}:扫描时指定扫描拦截器,见{@link FeignClientsRegistrar#registerFeignClients}
+ * </pre>
+ * 
+ * Spring上下文初始化:
+ * 
+ * <pre>
+ * {@link ApplicationContextInitializer#initialize(ConfigurableApplicationContext)}
+ * {@link AbstractApplicationContext#refresh()}
+ * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry()}
+ * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}
+ * {@link BeanFactoryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}
+ * {@link SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors(Class, String)}
+ * {@link MergedBeanDefinitionPostProcessor#postProcessMergedBeanDefinition()}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}
+ * {@link SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference(Object, String)}
+ * {@link BeanFactoryAware#setBeanFactory(BeanFactory)}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessPropertyValues()}
+ * {@link ApplicationContextAwareProcessor#invokeAwareInterfaces()}
+ * {@link BeanNameAware#setBeanName(String)}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}
+ * {@link PostConstruct}:注解调用
+ * {@link InitializingBean#afterPropertiesSet()}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}
+ * {@link FactoryBean#getObject()}
+ * {@link SmartInitializingSingleton#afterSingletonsInstantiated()}
+ * {@link CommandLineRunner#run(String...)}
+ * {@link DisposableBean#destroy()}
  * </pre>
  * 
  * @author 飞花梦影

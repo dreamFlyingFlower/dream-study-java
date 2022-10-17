@@ -207,8 +207,8 @@ import com.wy.config.UserSerializer;
  * 其他注解:
  * 
  * <pre>
- * {@link PostConstruct}:非Spring注解,表示该组件被初始化之前需要执行的方法,在构造和init()之间调用.
- * 		一个类中只能有一方法被该注解修改,该方法不能有参数,无返回值,非静态
+ * {@link PostConstruct}:非Spring注解,表示该组件被初始化之前需要执行的方法.一个类中只能有一方法被该注解修改,该方法不能有参数,无返回值,非静态
+ * 		在构造和init()之间调用,在postProcessBeforeInitialization之后,InitializingBean.afterPropertiesSet之前
  * {@link PreDestroy}:非Spring注解,表示该组件被销毁之前需要执行的方法,在destory()之后调用.其他同 PostConstruct,单例才有用
  * {@link Resource}:和 Autowired 正好相反的注入方式
  * {@link ComponentScan}:包扫描

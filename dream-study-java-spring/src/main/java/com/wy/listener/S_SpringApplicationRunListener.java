@@ -13,7 +13,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
  * 实现SpringApplicationRunListener时,必须添加一个带2个参数的构造,否则启动失败.
  * SpringApplicationRunListener的实现类不需要手动添加到Spring上下文中,在Spring启动时会自动装配实现类
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-12-02 19:50:24
  * @git {@link https://github.com/mygodness100}
  */
