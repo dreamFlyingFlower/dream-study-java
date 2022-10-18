@@ -45,7 +45,8 @@ public class ApiFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 		} else {
 			if (request.getRequestURI().startsWith("/user/login") || request.getRequestURI().startsWith("/download/")
-					|| request.getRequestURI().startsWith("/test")) {
+					|| request.getRequestURI().startsWith("/test")
+					|| request.getRequestURI().startsWith("/bigscreen")) {
 				// 登录和下载资源放过
 				filterChain.doFilter(request, response);
 			} else {

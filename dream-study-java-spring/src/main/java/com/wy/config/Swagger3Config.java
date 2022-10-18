@@ -36,7 +36,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class Swagger3Config {
 
 	@Bean
-	public Docket createRestApi() {
+	public Docket generateApi() {
 		// springfox3添加公共请求头
 		List<RequestParameter> requestParameters = new ArrayList<>();
 		requestParameters.add(new RequestParameterBuilder().name("token").description("token").in(ParameterType.HEADER)

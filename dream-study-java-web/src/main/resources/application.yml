@@ -7,36 +7,42 @@ spring:
       enabled: true
       # 当修改该文件的时候才重启,其他修改不重启
 #      trigger-file: version
-#  freemarker:
-#    # 是否开启缓存,本地为false,生产就是true
-#    cache: false
-#    charset: UTF-8
-#    allow-request-override: false
-#    check-template-location: true
-#    content-type: text/html
-#    expose-request-attributes: true
-#    expose-session-attributes: true
-#    # 文件后缀
-#    suffix: .ftl
-#    # 模板路径
-#    template-loader-path:
-#    - classpath:/templates/
-  thymeleaf:
+  freemarker:
+    # 是否开启缓存,本地为false,生产就是true
     cache: false
-    mode: HTML5
-    encoding: UTF-8
-    # 默认是html
-    suffix: .html
-    servlet:
-      content-type: text/html; charset=utf-8
-    # 资源前缀,等同于freemarker的template-loader-path,多个前缀用逗号隔开
-    prefix: classpath:/templates/
+    charset: UTF-8
+    allow-request-override: false
+    check-template-location: true
+    content-type: text/html
+    expose-request-attributes: true
+    expose-session-attributes: true
+    # 文件后缀
+    suffix: .ftl
+    # 模板路径
+    template-loader-path:
+    - classpath:/templates/
+#  thymeleaf:
+#    cache: false
+#    mode: HTML5
+#    encoding: UTF-8
+#    # 默认是html
+#    suffix: .html
+#    servlet:
+#      content-type: text/html; charset=utf-8
+#    # 资源前缀,等同于freemarker的template-loader-path,多个前缀用逗号隔开
+#    prefix: classpath:/templates/
   servlet:
     multipart:
       # 设置一次请求上传文件的总容量
       max-request-size: 200MB
-    
+
   messages:
     basename: i18n/messages
+  web:
+    resources:
+      static-locations:
+      - /static/**
+    static-path-pattern: /static/**
+
 # 使用actuator监控的时候和thymeleaf等模板引擎可能有冲突,此处没有解决
 #management:#  endpoints:#    web:#      exposure:#        include: "*"
