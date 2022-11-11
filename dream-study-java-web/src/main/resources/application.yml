@@ -42,7 +42,6 @@ spring:
     resources:
       static-locations:
       - /static/**
-    static-path-pattern: /static/**
 
 # 使用actuator监控的时候和thymeleaf等模板引擎可能有冲突,此处没有解决
 #management:#  endpoints:#    web:#      exposure:#        include: "*"
