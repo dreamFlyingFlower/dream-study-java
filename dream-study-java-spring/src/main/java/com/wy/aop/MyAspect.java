@@ -186,9 +186,9 @@ public class MyAspect {
 	 * 
 	 * eg:在表达式中也可以使用逻辑表达式,如||,or,!,not,&&,and
 	 * execution(* com.wy..*.*(..)):拦截com.wy包以及子包下所有类的所有方法
-	 * execution(* com..*serviceImpl.*()):拦截所有serviceImpl结尾的类的所有无参方法
-	 * execution(* com..*serviceImpl.*(..)):拦截所有serviceImpl结尾的类的所有方法
-	 * execution(* com..*serviceImpl.*(*)):拦截所有serviceImpl结尾的类的任意参数方法,必须有参数
+	 * execution(* com..*ServiceImpl.*()):拦截所有serviceImpl结尾的类的所有无参方法
+	 * execution(* com..*ServiceImpl.*(..)):拦截所有serviceImpl结尾的类的所有方法
+	 * execution(* com..*ServiceImpl.*(*)):拦截所有serviceImpl结尾的类的任意参数方法,必须有参数
 	 * execution(* save*(..)):拦截所有以save开头的方法
 	 * execution(* save*(..)) && args(username)):拦截所有save开头,且参数必须有username
 	 * execution(* save*(..)) || execution(* update*(..)):拦截所有的save开头的方法,或者update开头的方法,||可以换成or
