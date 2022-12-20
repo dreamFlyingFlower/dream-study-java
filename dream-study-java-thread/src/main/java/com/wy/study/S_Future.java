@@ -104,6 +104,14 @@ public class S_Future {
 		supplyAsync.thenApplyAsync(x -> {
 			return x;
 		});
+		// thenCompose会在上个任务执行完成后将结果作为方法入参然后执行指定的方法,该方法会返回一个新的CompletableFuture
+		// 如果该CompletableFuture实例的result不为null,则返回一个基于该result的新的CompletableFuture实例;
+		// 如果该CompletableFuture实例的result为null,则执行这个新任务
+		supplyAsync.thenCompose(x -> {
+			return CompletableFuture.supplyAsync(() -> {
+				return x;
+			});
+		});
 
 		/** 2个线程都执行完成之后再执行另外一个线程 **/
 		CompletableFuture<Object> A = CompletableFuture.supplyAsync(() -> {
