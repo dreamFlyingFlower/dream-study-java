@@ -48,7 +48,7 @@ public class TestCrl {
 	 * @param name
 	 * @return
 	 */
-	@RequestMapping("/useModelAttribute")
+	@GetMapping("/useModelAttribute")
 	public String useModelAttribute(@ModelAttribute("username") String name) {
 		System.out.println("controller method name is " + name);
 		return "success";

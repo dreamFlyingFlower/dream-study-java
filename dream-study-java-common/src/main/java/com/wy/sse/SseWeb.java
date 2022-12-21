@@ -10,6 +10,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -76,7 +77,7 @@ public class SseWeb {
 	 * @param response 响应
 	 * @return 结果
 	 */
-	@RequestMapping(value = "push", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "push", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public String push(HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		Date date = new Date();
@@ -90,7 +91,7 @@ public class SseWeb {
 	 * 
 	 * @param response
 	 */
-	@RequestMapping(value = "pushRight", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "pushRight", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public void pushRight(HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);

@@ -31,7 +31,7 @@ public class WebSocketCrl {
 
 	// 推送数据接口
 	@ResponseBody
-	@RequestMapping("/socket/push/{cid}")
+	@GetMapping("/socket/push/{cid}")
 	public Map<String, Object> pushToWeb(@PathVariable String cid, String message) {
 		Map<String, Object> result = new HashMap<>();
 		try {

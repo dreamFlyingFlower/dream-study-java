@@ -1,6 +1,7 @@
 package com.wy.crl;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -21,7 +22,7 @@ public class BigScreenCrl {
 	 * @param modelAndView
 	 * @return
 	 */
-	@RequestMapping("/index1")
+	@GetMapping("/index1")
 	public ModelAndView index1(ModelAndView modelAndView) {
 		modelAndView.setViewName("/bigscreen/template1/index");
 		return modelAndView;
@@ -33,7 +34,7 @@ public class BigScreenCrl {
 	 * @param modelAndView
 	 * @return
 	 */
-	@RequestMapping("/index2")
+	@GetMapping("/index2")
 	public ModelAndView index2(ModelAndView modelAndView) {
 		modelAndView.setViewName("/bigscreen/template2/index");
 		return modelAndView;

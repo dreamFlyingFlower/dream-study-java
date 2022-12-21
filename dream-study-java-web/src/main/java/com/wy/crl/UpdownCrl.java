@@ -46,7 +46,7 @@ public class UpdownCrl {
 	 * @return
 	 */
 	@ApiOperation(value = "文件已经形成,重新形成流传输,前端形成文件,如下载一张图片", hidden = true)
-	@RequestMapping("downloadFile")
+	@PostMapping("downloadFile")
 	public ResponseEntity<byte[]> downloadFile(String fileType, HttpServletRequest request) {
 		ResponseEntity<byte[]> entity = null;
 		try (InputStream in = new FileInputStream(new File("d:/myImg/001.png"));) {
