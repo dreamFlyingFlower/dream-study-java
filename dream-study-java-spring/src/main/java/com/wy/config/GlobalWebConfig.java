@@ -11,6 +11,7 @@ import org.springframework.core.Ordered;
 import org.springframework.http.converter.BufferedImageHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.cors.DefaultCorsProcessor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -39,6 +40,11 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
  */
 public class GlobalWebConfig implements WebMvcConfigurer {
 
+	/**
+	 * 处理跨域请求,该方法最终会被{@link DefaultCorsProcessor#processRequest}中调用
+	 * 
+	 * @param registry
+	 */
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**").allowedOrigins("*")

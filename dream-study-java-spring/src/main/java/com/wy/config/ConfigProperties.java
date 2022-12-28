@@ -7,6 +7,8 @@ import javax.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBean;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBindingPostProcessor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.env.RandomValuePropertySource;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +38,9 @@ import lombok.Setter;
  * 配置在bootstrap.yml中可能不会读取.和{@link Configuration}配合使用,Spring启动时会自动引入配置信息
  * {@link EnableConfigurationProperties}:该注解已经在{@link EnableAutoConfiguration}中自动注入,不需要手动显示在类上配置.
  * 该注解可以自动将ConfigurationProperties修改的配置类注入到其他使用该配置类的Bean中
+ * {@link ConfigurationPropertiesBindingPostProcessor}:该类实现了BeanPostProcessor,在postProcessBeforeInitialization()中
+ * 调用了{@link ConfigurationPropertiesBean#create()}解析{@link ConfigurationProperties},
+ * 最终调用 #ConfigurationPropertiesBinder的bind()绑定数据到相应的对象上
  * 
  * {@link PropertySource}:需要和ConfigurationProperties配合使用,读取指定地址的配置,但只能是properties文件
  * 若yml和properties有相同配置,以properties优先使用,properties中没有的才读取yml
