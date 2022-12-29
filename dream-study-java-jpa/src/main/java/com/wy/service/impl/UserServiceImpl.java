@@ -7,6 +7,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,14 +33,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.wy.base.AbstractService;
 import com.wy.model.User;
+import com.wy.model.Userinfo;
 import com.wy.repository.UserRepository;
 import com.wy.service.UserService;
 
 /**
- * Cacheable对应的是ecache的缓存,有默认配置,也可以进行自定义配置
- * 
- * @author ParadiseWY
- * @date 2020年9月26日 下午1:10:53
+ * JPA复杂查询
+ *
+ * @author 飞花梦影
+ * @date 2022-12-29 10:17:30
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
@@ -140,6 +146,10 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 				.withIgnoreCase()
 				// 忽略指定属性的大小写
 				.withIgnoreCase("数据库字段")
+				// 忽略某个字段的值,通常用于基本类型,因为基本类型会赋初始值
+				.withIgnorePaths("")
+				// 修改字符串默认匹配模式,默认为精准匹配,此处可改为模糊匹配
+				.withStringMatcher(StringMatcher.CONTAINING)
 				// 数据库值以实体参数中的值开头
 				.withMatcher("数据库字段", GenericPropertyMatchers.startsWith());
 		// 最后用这个构造获取Example
@@ -164,11 +174,32 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 			 */
 			@Override
 			public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+
+				// 混合条件查询
+				Path<String> exp1 = root.get("username");
+				Path<String> exp2 = root.get("phone");
+				Path<Date> exp3 = root.get("createTime");
+				Predicate predicate = criteriaBuilder.and(criteriaBuilder.like(exp1, "%username%"),
+						criteriaBuilder.lessThan(exp3, new Date()));
+				criteriaBuilder.or(predicate, criteriaBuilder.equal(exp2, "13000000000"));
+				// select count(user0_.id) as col_0_0_ from ti_user user0_ where
+				// (user0_.username like ? and user0_.create_time<?) or user0_.phone=?
+
+				// 多表查询
+				Join<User, Userinfo> join = root.join("userinfo", JoinType.INNER);
+				Path<String> exp4 = join.get("username");
+				criteriaBuilder.like(exp4, "%username%");
+
+				// select count(user0_.id) as col_0_0_ from ti_user user0_ inner join
+				// ti_userinfo userinfo1_ on user0_.user_id=userinfo1_.user_id where
+				// user0_.username like ?
+
 				Predicate predicate1 = criteriaBuilder.equal(root.get("username"), "admin");
 				Predicate predicate2 = criteriaBuilder.equal(root.get("password"), "admin");
 				List<Predicate> list = new ArrayList<>();
 				list.add(predicate1);
 				list.add(predicate2);
+
 				return criteriaBuilder.and(list.toArray(new Predicate[2]));
 			}
 		};

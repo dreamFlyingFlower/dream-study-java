@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import com.wy.model.User;
  * Jpa适合简单的数据库操作,复杂操作仍需要用sql实现,spring整个jpa之后,数据层可直接继承{@link JpaRepository}<br>
  * Jpa在这里遵循Convention over configuration(约定大于配置)的原则,遵循spring以及JPQL定义的方法命名.
  * {@link JpaSpecificationExecutor}:同JpaRepository,但是是对复杂的sql进行操作,不能单独继承该类
+ * {@link QuerydslPredicateExecutor}:可以使用动态查询,功能和JpaSpecificationExecutor类似
  * 
  * Spring提供了一套可以通过命名规则进行查询构建的机制,这套机制会把方法名首先过滤一些关键字,比如:
  * ->find…By,read…By,query…By,count…By和get…By,系统会根据关键字将命名解析成2个子语句:
@@ -50,6 +52,7 @@ import com.wy.model.User;
  * TRUE:findByActiveTrue() -> where x.active = true
  * FALSE:findByActiveFalse() -> where x.active = false
  * IgnoreCase:findByFirstnameIgnoreCase -> where UPPER(x.firstame) = UPPER(?1)
+ * Top/First/Limit:findTopByUsername(String username,Pageable page) -> 查询前N条数据,默认为1;findTop10ByUsername:查询前10条数据
  * </pre>
  * 
  * {@link JpaRepository}:该接口的泛型参数,第一个是实体类,第二个是实体类中的主键类型

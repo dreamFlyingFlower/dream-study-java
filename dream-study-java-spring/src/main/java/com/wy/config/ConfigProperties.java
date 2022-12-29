@@ -2,6 +2,7 @@ package com.wy.config;
 
 import java.util.Date;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +47,8 @@ import lombok.Setter;
  * 若yml和properties有相同配置,以properties优先使用,properties中没有的才读取yml
  * 
  * {@link Value}:可以直接读取配置文件中的属性,不需要在上ConfigurationProperties和PropertySource注解中定义
- * {@link Validated}:对类中的属性进行校验,如email,若有值则必须是一个email,否则报错,需要配合ConfigurationProperties使用
+ * {@link Validated}:对类中的属性进行校验,如email,若有值则必须是一个email,否则报错,需要配合ConfigurationProperties使用.
+ * 如果配置中嵌套了其他对象,该对象必须有{@link Valid}进行注解
  * 
  * 配置文件中属性的值可以使用占位符,即使用配置文件中已经存在的其他属性.如${server.port}.
  * 也可以使用{@link RandomValuePropertySource}中的属性赋值,如config.user-id=${random.uuid}
@@ -55,9 +57,9 @@ import lombok.Setter;
  * 
  * 详见{@link TestConfig#testConfig},application-config.yml
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-12-02 13:46:15
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Configuration
 @ConfigurationProperties(prefix = "config")
@@ -79,4 +81,14 @@ public class ConfigProperties {
 	private String email;
 
 	private String placeholder;
+
+	@Valid
+	private Inner inner;
+
+	@Getter
+	@Setter
+	public static class Inner {
+
+		private String name;
+	}
 }

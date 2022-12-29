@@ -15,7 +15,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * 
  * @author 飞花梦影
  * @date 2021-01-06 22:44:27
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower }
  */
 @NoRepositoryBean
 public interface BaseRepository<T, ID> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {

@@ -122,9 +122,16 @@ import com.wy.config.UserSerializer;
  * {@link Conditional}:配合Condition使用,判断{@link Condition#matches}是否返回true来决定注解修饰的方法或类是否注册到Spring中
  * {@link Profile}:指定类在指定运行环境下才有作用,是 Conditional 的具体使用
  * {@link ConditionalOnBean}:仅仅在当前上下文中存在某个对象时,才会实例化一个Bean
+ * ->{@link ConditionalOnBean#value()}:bean的类型,当ApplicationContext包含给定类的bean时返回true
+ * ->{@link ConditionalOnBean#type()}:bean的类型名,当ApplicationContext包含给定的id时返回true
+ * ->{@link ConditionalOnBean#annotation()}:bean所声明的注解,当ApplicationContext中存在声明该注解的bean时返回true
+ * ->{@link ConditionalOnBean#name()}:bean的id,当ApplicationContext中存在给定id的bean时返回true
+ * ->{@link ConditionalOnBean#search()}:默认是所有上下文搜索
  * {@link ConditionalOnClass}:该注解判断当前环境中是否有某个类,有则该注解修饰的方法或类才加载
  * {@link ConditionalOnExpression}:当spel表达式为true的时候,才会实例化一个Bean
  * {@link ConditionalOnMissingBean}:仅仅在当前上下文中不存在某个对象时,才会实例化一个Bean
+ * ->{@link ConditionalOnMissingBean#ignored()}:给定的类型当进行匹配时进行忽略
+ * ->{@link ConditionalOnMissingBean#ignoredType()}:给定的类型名当进行匹配时进行忽略
  * {@link ConditionalOnMissingClass}:该注解判断当前环境中是否没有某个类,没有则该注解修饰的方法或类才加载
  * {@link ConditionalOnWebApplication}:该注解判断当前环境是否为一个web应用,是则该注解修饰的类或方法才加载
  * {@link ConditionalOnNotWebApplication}:作用和ConditionalOnWebApplication相反,不是才加载
