@@ -13,14 +13,12 @@
 	<version>0.0.1</version>
 	<name>dream-study-java-spring</name>
 	<description>Study for springcommon</description>
-
 	<properties>
 		<!-- 因为日志框架漏洞的关系,log4j-api和log4j-core要升级到2.17以上 -->
 		<log4j2.version>2.17.1</log4j2.version>
 		<logback.version>1.2.10</logback.version>
 		<java.version>1.8</java.version>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -60,6 +58,10 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
@@ -88,7 +90,6 @@
 			<artifactId>springfox-boot-starter</artifactId>
 			<version>3.0.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -111,7 +112,6 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-
 	<!-- 传统打jar包直接将整个项目class文件以及以来jar包都打进去,项目越大,jar包越大,不利用微服务部署,可采用以下方式 -->
 	<!-- 第一种方式:将依赖的jar包指向其他目录,并且在启动项目时添加参数指定依赖的jar包目录:-Djava.ext.dirs=lib -->
 	<!-- <build> -->
@@ -160,7 +160,6 @@
 	<!-- </plugin> -->
 	<!-- </plugins> -->
 	<!-- </build> -->
-
 	<!-- 第二种方式:将所有项目的依赖jar放到指定目录,但是根据指定版本进行加载,不必加载所有依赖jar包,此时不必添加额外启动参数 -->
 	<!-- 微服务jar中的META-INFO/MANIFEST文件会生成根据模块依赖组件列表的Class-Path属性,避免加载不同版本的jar -->
 	<!-- <build> -->
@@ -227,7 +226,6 @@
 	<!-- </plugin> -->
 	<!-- </plugins> -->
 	<!-- </build> -->
-
 	<!-- 第三种方式:有些jar包并不在maven仓库中,要么搭建私服,将这些jar包放进去,要么使用systemPath方式 -->
 	<!-- 需要根据实际情况在properties中定义boot-jar-output等值 -->
 	<!-- <build> -->
@@ -302,7 +300,6 @@
 	<!-- <scope>system</scope> -->
 	<!-- <systemPath>${project.basedir}/lib/dream-tool-core-0.0.1.jar</systemPath> -->
 	<!-- </dependency> -->
-
 	<!-- 搭配maven-assembly-plugin插件进行使用 -->
 	<profiles>
 		<profile>
@@ -331,8 +328,7 @@
 			</properties>
 		</profile>
 	</profiles>
-
-<!-- https://mp.weixin.qq.com/s/WipGDWfK-_zP6afq7kr-cA   补全 -->
+	<!-- https://mp.weixin.qq.com/s/WipGDWfK-_zP6afq7kr-cA   补全 -->
 	<build>
 		<plugins>
 			<plugin>
@@ -356,7 +352,6 @@
 					</excludes>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -379,5 +374,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

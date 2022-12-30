@@ -1,0 +1,12 @@
+server:
+  address: 8888
+  servlet:
+    encoding:
+      # 指定http请求和相应的Charset,默认UTF-8
+      charset: UTF-8
+      # 是否开启http的编码支持,默认为true
+      enabled: false
+      # 是否强制对http请求和响应进行编码,默认为true
+      force: true
+      force-request: true
+      force-response: true
