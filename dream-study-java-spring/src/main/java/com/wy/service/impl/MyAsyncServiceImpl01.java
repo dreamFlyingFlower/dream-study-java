@@ -1,7 +1,10 @@
 package com.wy.service.impl;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.wy.service.MyAsyncService01;
 
@@ -27,5 +30,15 @@ public class MyAsyncServiceImpl01 implements MyAsyncService01 {
 	public void test2() {
 		System.out.println(Thread.currentThread().getName());
 		System.out.println(22222);
+	}
+
+	@Override
+	public void execute(DeferredResult<String> deferredResult) {
+		try {
+			TimeUnit.SECONDS.sleep(60000);
+			deferredResult.setResult("success");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
