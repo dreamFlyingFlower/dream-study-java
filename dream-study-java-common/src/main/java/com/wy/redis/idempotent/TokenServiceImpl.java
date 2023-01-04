@@ -5,11 +5,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dream.starter.core.helper.RedisHelper;
 import com.wy.common.Constant;
 import com.wy.digest.DigestTool;
 import com.wy.enums.TipEnum;
 import com.wy.lang.StrTool;
-import com.wy.redis.RedisUtils;
 import com.wy.result.ResultException;
 
 /**
@@ -23,13 +23,13 @@ import com.wy.result.ResultException;
 public class TokenServiceImpl implements TokenService {
 
 	@Autowired
-	private RedisUtils redisUtils;
+	private RedisHelper redisHelper;
 
 	@Override
 	public String createToken() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(Constant.Redis.TOKEN_PREFIX).append(DigestTool.uuid());
-		redisUtils.setNX(builder.toString(), builder.toString(), 10000L);
+		redisHelper.setNX(builder.toString(), builder.toString(), 10000L);
 		return builder.toString();
 	}
 
@@ -42,10 +42,10 @@ public class TokenServiceImpl implements TokenService {
 				throw new ResultException(TipEnum.TIP_AUTH_TOKEN_EMPTY);
 			}
 		}
-		if (!redisUtils.exist(token)) {
+		if (!redisHelper.exist(token)) {
 			throw new ResultException(TipEnum.TIP_AUTH_TOKEN_NOT_EXIST);
 		}
-		boolean remove = redisUtils.clear(token);
+		boolean remove = redisHelper.clear(token);
 		if (!remove) {
 			throw new ResultException(TipEnum.TIP_AUTH_TOKEN_NOT_EXIST);
 		}

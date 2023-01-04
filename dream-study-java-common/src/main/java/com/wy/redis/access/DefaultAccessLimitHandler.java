@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.dream.starter.core.helper.RedisHelper;
 import com.wy.limit.LimitAccessHandler;
 import com.wy.limit.annotation.LimitAccess;
-import com.wy.redis.RedisUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,22 +23,22 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultAccessLimitHandler implements LimitAccessHandler {
 
 	@Autowired
-	private RedisUtils redisUtils;
+	private RedisHelper redisHelper;
 
 	@Override
 	public boolean handler(LimitAccess limitAccess) {
 		ServletRequestAttributes servletRequestAttributes =
-		        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+				(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = servletRequestAttributes.getRequest();
 		// 直接利用ip+api作为key
 		String key = request.getRemoteAddr() + ":" + request.getContextPath() + ":" + request.getServletPath();
-		Integer count = (Integer) redisUtils.get(key);
+		Integer count = (Integer) redisHelper.get(key);
 		if (null == count || -1 == count) {
-			redisUtils.set(key, 1, limitAccess.value(), limitAccess.timeUnit());
+			redisHelper.setExpire(key, 1, limitAccess.value(), limitAccess.timeUnit());
 			return true;
 		}
 		if (count < limitAccess.count()) {
-			redisUtils.incr(key);
+			redisHelper.incr(key);
 			return true;
 		}
 		if (count >= limitAccess.count()) {

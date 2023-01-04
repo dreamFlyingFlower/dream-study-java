@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.dream.starter.core.helper.RedisHelper;
 import com.wy.common.Constant;
 import com.wy.limit.LimitAccessHandler;
 import com.wy.limit.annotation.LimitAccess;
-import com.wy.redis.RedisUtils;
 import com.wy.redis.idempotent.TokenService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TokenAccessLimitHandler implements LimitAccessHandler {
 
 	@Autowired
-	private RedisUtils redisUtils;
+	private RedisHelper redisHelper;
 
 	@Autowired
 	private TokenService tokenService;
@@ -35,7 +35,7 @@ public class TokenAccessLimitHandler implements LimitAccessHandler {
 	@Override
 	public boolean handler(LimitAccess limitAccess) {
 		ServletRequestAttributes servletRequestAttributes =
-		        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+				(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = servletRequestAttributes.getRequest();
 		Object tokenVal = tokenService.getToken(request, Constant.Redis.TOKEN_LOGIN);
 		if (Integer.parseInt(tokenVal.toString()) > limitAccess.count()) {
@@ -50,7 +50,7 @@ public class TokenAccessLimitHandler implements LimitAccessHandler {
 			count = Integer.parseInt(tokenVal.toString());
 			count++;
 		}
-		redisUtils.set(Constant.Redis.TOKEN_LOGIN, count);
+		redisHelper.set(Constant.Redis.TOKEN_LOGIN, count);
 		return true;
 	}
 }
