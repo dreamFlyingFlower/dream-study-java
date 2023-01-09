@@ -42,6 +42,7 @@ public class S_SpringEventListener {
 		// 事件发布.必须是上下文启动之后发布,否则spring环境没准备好,无法监听该时间,就会报错
 		context.publishEvent(new S_SpringEvent("this is e test!!"));
 		context.close();
+		// 直接注入ApplicationEventPublisher或需要发布监听的类实现ApplicationEventPublisherAware
 	}
 
 	/**
@@ -49,11 +50,11 @@ public class S_SpringEventListener {
 	 * 
 	 * 参数必须有,如果是指定类型的监听器,那就只能监听指定类型事件;如果是Object,则可以监听所有事件
 	 * 
-	 * @param eve 参数必须是继承了ApplicationEvent的类,仍然需要发布事件  FIXME 注解方式无法启动
+	 * @param eve 参数必须是继承了ApplicationEvent的类,仍然需要发布事件 FIXME 注解方式无法启动
 	 */
 	@EventListener
 	public void event(S_SpringEvent eve) {
-		System.out.println("S_SpringEventListener"+eve.getSource());
+		System.out.println("S_SpringEventListener" + eve.getSource());
 	}
 
 	/**
