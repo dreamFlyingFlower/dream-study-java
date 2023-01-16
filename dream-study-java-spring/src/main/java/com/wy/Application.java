@@ -1,6 +1,7 @@
 package com.wy;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.annotation.HandlesTypes;
 
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.HierarchicalBeanFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,11 +32,14 @@ import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 import org.springframework.beans.factory.support.AbstractBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.boot.ApplicationRunner;
@@ -57,9 +62,14 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.ScannedGenericBeanDefinition;
+import org.springframework.context.event.EventListenerMethodProcessor;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.AbstractRefreshableApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -73,6 +83,20 @@ import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
+
+import com.wy.extension.SelfApplicationContextAwareProcessor;
+import com.wy.extension.SelfApplicationContextInitializer;
+import com.wy.extension.SelfBeanDefinitionRegistryPostProcessor;
+import com.wy.extension.SelfBeanFactoryAware;
+import com.wy.extension.SelfBeanFactoryPostProcessor;
+import com.wy.extension.SelfBeanNameAware;
+import com.wy.extension.SelfDisposableBean;
+import com.wy.extension.SelfFactoryBean;
+import com.wy.extension.SelfInitializingBean;
+import com.wy.extension.SelfInstantiationAwareBeanPostProcessor;
+import com.wy.extension.SelfSmartInitializingSingleton;
+import com.wy.extension.SelfSmartInstantiationAwareBeanPostProcessor;
+import com.wy.runner.SelfCommandLineRunner;
 
 /**
  * SpringBoot学习:初始化initialize,listener,自动配置,配置文件.
@@ -242,14 +266,18 @@ import org.springframework.web.servlet.DispatcherServlet;
  * ->{@link AbstractApplicationContext#resetCommonCaches()}:处理缓存中相同的bean
  * ->{@link AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory}
  * ->{@link ClassPathBeanDefinitionScanner.scan()}
- * ->{@link AnnotationConfigUtils.registerAnnotationConfigProcessors()}
- * -->{@link RootBeanDefinition(ConfigurationClassPostProcessor.class)}:判断加载Configuraion,Import,Component,ComponentScan等
- * --->{@link ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry()}
- * --->{@link ConfigurationClassPostProcessor.processConfigBeanDefinitions()}
- * --->{@link ConfigurationClassUtils.checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
- * --->{@link ConfigurationClassUtils.isConfigurationCandidate()}:判断是否为Import,Component,ComponentScan,ImportResource
- * ->{@link AnnotationConfigUtils.registerPostProcessor()}
- * ->{@link BeanDefinitionRegistry.registerBeanDefinition()}
+ * ->{@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}
+ * -->{@link RootBeanDefinition}:以各种BeanPostProcessor实现类为构造参数,判断加载Configuration,Import,Component,ComponentScan等
+ * --->{@link ConfigurationClassPostProcessor}:判断解析Configuration注解,Importor实现类
+ * ---->{@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry()}
+ * ---->{@link ConfigurationClassPostProcessor#processConfigBeanDefinitions()}
+ * ---->{@link ConfigurationClassUtils#checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
+ * ---->{@link ConfigurationClassUtils#isConfigurationCandidate()}:判断是否为Import,Component,ComponentScan,ImportResource
+ * --->{@link AutowiredAnnotationBeanPostProcessor}:判断解析Autowired,Value,javax.inject.Inject注解
+ * --->{@link CommonAnnotationBeanPostProcessor}:判断解析javax.xml.ws.WebServiceRef,javax.ejb.EJB注解
+ * --->{@link EventListenerMethodProcessor}:判断解析EventListenerFactory的实现类
+ * ->{@link AnnotationConfigUtils#registerPostProcessor()}
+ * ->{@link BeanDefinitionRegistry#registerBeanDefinition()}
  * </pre>
  * 
  * {@link ApplicationContextInitializer}:在spring调用refreshed方法之前调用该方法.是为了对spring容器做进一步的控制
@@ -262,6 +290,16 @@ import org.springframework.web.servlet.DispatcherServlet;
  * Bean的加载解析实例化:
  * 
  * <pre>
+ * {@link GenericBeanDefinition}: 通用bean实现,新加入的bean文件配置属性定义类,是ChildBeanDefinition和RootBeanDefinition更好的替代者.
+ * 		Spring初始化时,会用GenericBeanDefinition或是ConfigurationClassBeanDefinition (用@Bean注解注释的类)存储用户自定义的Bean,
+ * 		在初始化Bean时,又会将其转换为RootBeanDefinition.
+ * 		GenericBeanDefinition的patentName属性指定了当前类的父类,最重要的是它实现了parentName属性的setter、getter函数,
+ * 		RootBeanDefinition没有parentName属性,对应的getter函数只是返回null,setter函数不提供赋值操作,
+ * 		也就是说RootBeanDefinition不提供继承相关的操作,但是初始化时使用的是RootBeanDefinition,那父类的性质如何体现?
+ * 		这里子类会覆盖父类中相同的属性,所以Spring会首先初始化父类的RootBeanDefinition,
+ * 		然后根据子类的GenericBeanDefinition覆盖父类中相应的属性,最终获得子类的RootBeanDefinition
+ * {@link AnnotatedGenericBeanDefinition}: 存储@Configuration注解注释的类
+ * {@link ScannedGenericBeanDefinition}: 存储@Component,@Service,@Controller等注解注释的类
  * {@link BeanDefinitionReader}:Bean读取,主要从XML或注解中读取必须的信息,由实现类读取
  * ->{@link XmlBeanDefinitionReader},{@link AnnotatedBeanDefinitionReader},{@link PropertiesBeanDefinitionReader}
  * </pre>
@@ -279,6 +317,7 @@ import org.springframework.web.servlet.DispatcherServlet;
  * -->{@link AutowiredAnnotationBeanPostProcessor}:BeanPostProcessor 实现类,加载由{@link Autowired}和{@link Value}
  * 		修饰的变量,构造等,支持{@link Inject},由{@link BeanUtils#instantiateClass}实例化,
  * 		{@link AutowiredAnnotationBeanPostProcessor#postProcessMergedBeanDefinition()}主要是该方法完成注入
+ * -->{@link CommonAnnotationBeanPostProcessor}:作用同AutowiredAnnotationBeanPostProcessor,加载{@link Resource}以及jakarta.ejb.EJB
  * -->{@link AnnotationConfigApplicationContext},{@link AnnotationConfigWebApplicationContext}:
  * 		根据环境不同启动加载{@link Configuration}
  * -->{@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,
@@ -318,31 +357,52 @@ import org.springframework.web.servlet.DispatcherServlet;
  * {@link AnnotationTypeFilter}:扫描时指定扫描拦截器,见{@link FeignClientsRegistrar#registerFeignClients}
  * </pre>
  * 
- * Spring上下文初始化:
+ * Spring上下文初始化,可扩展点
  * 
  * <pre>
- * {@link ApplicationContextInitializer#initialize(ConfigurableApplicationContext)}
- * {@link AbstractApplicationContext#refresh()}
- * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry()}
- * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}
- * {@link BeanFactoryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}
- * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}
- * {@link SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors(Class, String)}
+ * {@link ApplicationContextInitializer#initialize(ConfigurableApplicationContext)}:
+ * 		eg:{@link SelfApplicationContextInitializer}
+ * {@link AbstractApplicationContext#refresh()}:
+ * 		刷新上下文,加载Bean定义,注解,等
+ * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry()}:
+ * 		eg:{@link SelfBeanDefinitionRegistryPostProcessor}
+ * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}:
+ * 		eg:{@link SelfBeanDefinitionRegistryPostProcessor}
+ * {@link BeanFactoryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}:
+ * 		eg:{@link SelfBeanFactoryPostProcessor}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}:
+ * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
+ * {@link SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors(Class, String)}:
+ * 		eg:{@link SelfSmartInstantiationAwareBeanPostProcessor}
  * {@link MergedBeanDefinitionPostProcessor#postProcessMergedBeanDefinition()}
- * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}
- * {@link SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference(Object, String)}
- * {@link BeanFactoryAware#setBeanFactory(BeanFactory)}
- * {@link InstantiationAwareBeanPostProcessor#postProcessPropertyValues()}
- * {@link ApplicationContextAwareProcessor#invokeAwareInterfaces()}
- * {@link BeanNameAware#setBeanName(String)}
- * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}
- * {@link PostConstruct}:注解调用
- * {@link InitializingBean#afterPropertiesSet()}
- * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}
- * {@link FactoryBean#getObject()}
- * {@link SmartInitializingSingleton#afterSingletonsInstantiated()}
- * {@link CommandLineRunner#run(String...)}
- * {@link DisposableBean#destroy()}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}:
+ * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
+ * {@link SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference(Object, String)}:
+ * 		eg:{@link SelfSmartInstantiationAwareBeanPostProcessor}
+ * {@link BeanFactoryAware#setBeanFactory(BeanFactory)}:
+ * 		eg:{@link SelfBeanFactoryAware}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessPropertyValues()}:
+ * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
+ * {@link ApplicationContextAwareProcessor#invokeAwareInterfaces()}:
+ * 		eg:{@link SelfApplicationContextAwareProcessor}
+ * {@link BeanNameAware#setBeanName(String)}:
+ * 		eg:{@link SelfBeanNameAware}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}:
+ * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
+ * {@link PostConstruct}:
+ * 		在bean初始化阶段,会先调用被PostConstruct修饰的方法.在postProcessBeforeInitialization之后,InitializingBean.afterPropertiesSet之前调用
+ * {@link InitializingBean#afterPropertiesSet()}:
+ * 		eg:{@link SelfInitializingBean}
+ * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}:
+ * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
+ * {@link FactoryBean#getObject()}:
+ * 		eg:{@link SelfFactoryBean}
+ * {@link SmartInitializingSingleton#afterSingletonsInstantiated()}:
+ * 		eg:{@link SelfSmartInitializingSingleton}
+ * {@link CommandLineRunner#run(String...)}:
+ * 		eg:{@link SelfCommandLineRunner}
+ * {@link DisposableBean#destroy()}:
+ * 		eg:{@link SelfDisposableBean}
  * </pre>
  * 
  * @author 飞花梦影

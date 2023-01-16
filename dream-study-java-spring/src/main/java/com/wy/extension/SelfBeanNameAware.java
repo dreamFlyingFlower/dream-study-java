@@ -1,4 +1,4 @@
-package com.autoconfigure;
+package com.wy.extension;
 
 import org.springframework.beans.factory.BeanNameAware;
 

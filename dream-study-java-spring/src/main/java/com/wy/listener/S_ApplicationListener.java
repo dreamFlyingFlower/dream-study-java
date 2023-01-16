@@ -8,7 +8,7 @@ import org.springframework.context.event.ContextStoppedEvent;
 import org.springframework.web.context.support.RequestHandledEvent;
 
 /**
- * Spring的事件监听器(ApplicationListener),实现jdk的{EventListener},该类只是一个标记接口
+ * Spring的事件监听器(ApplicationListener),实现jdk的{EventListener},该类只是一个标记接口,可以监听某个事件的event
  * 
  * Spring主要的内置事件:
  * 
@@ -29,7 +29,7 @@ import org.springframework.web.context.support.RequestHandledEvent;
  * @date 2019-05-03 18:00:46
  * @git {@link https://github.com/mygodness100}
  */
-public class S_SpringListener implements ApplicationListener<S_SpringEvent> {
+public class S_ApplicationListener implements ApplicationListener<S_SpringEvent> {
 
 	@Override
 	public void onApplicationEvent(S_SpringEvent event) {

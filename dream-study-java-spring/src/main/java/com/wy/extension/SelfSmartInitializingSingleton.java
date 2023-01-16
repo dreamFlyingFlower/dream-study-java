@@ -1,9 +1,9 @@
-package com.autoconfigure;
+package com.wy.extension;
 
 import org.springframework.beans.factory.SmartInitializingSingleton;
 
 /**
- * {@link SmartInitializingSingleton}:该接口中只有一个方法,其作用是在spring容器管理的所有单例对象(非懒加载对象)初始化完成之后调用的回调接口.
+ * {@link SmartInitializingSingleton}:该接口是在spring容器管理的所有单例对象(非懒加载对象)初始化完成之后调用的回调接口.
  * 
  * 其触发时机为postProcessAfterInitialization之后,用户可以扩展此接口在对所有单例对象初始化完毕后,做一些后置的业务处理
  *

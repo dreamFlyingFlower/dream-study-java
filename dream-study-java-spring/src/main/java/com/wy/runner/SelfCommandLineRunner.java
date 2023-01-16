@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Component
-public class S_CommandLineRunner implements CommandLineRunner {
+public class SelfCommandLineRunner implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {

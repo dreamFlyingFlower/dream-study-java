@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Component
-public class S_ApplicationRunner implements ApplicationRunner {
+public class SelfApplicationRunner implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {

@@ -24,10 +24,12 @@ public class MyImportBeanDefinitionRegister implements ImportBeanDefinitionRegis
 	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-		BeanDefinitionBuilder rootBeanDefinition = BeanDefinitionBuilder.rootBeanDefinition(User.class);
+		BeanDefinitionBuilder rootBeanDefinition = BeanDefinitionBuilder.genericBeanDefinition(User.class);
 		registry.registerBeanDefinition("user", rootBeanDefinition.getBeanDefinition());
 
-		BeanDefinitionBuilder rootBeanDefinition1 = BeanDefinitionBuilder.rootBeanDefinition(Role.class);
+		BeanDefinitionBuilder rootBeanDefinition1 = BeanDefinitionBuilder.genericBeanDefinition(Role.class);
+		rootBeanDefinition1.addPropertyValue("id", 123);
+		rootBeanDefinition1.addPropertyValue("roleName", "管理员");
 		registry.registerBeanDefinition("role", rootBeanDefinition1.getBeanDefinition());
 	}
 }

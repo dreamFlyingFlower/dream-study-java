@@ -1,4 +1,4 @@
-package com.autoconfigure;
+package com.wy.extension;
 
 import java.lang.reflect.Constructor;
 
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostP
  * {@link SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors}:该触发点发生在postProcessBeforeInstantiation之后.
  * 		用于确定该bean的构造函数之用,返回的是该bean的所有构造函数列表.用户可以扩展这个点,来自定义选择相应的构造器来实例化这个bean
  * {@link SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference}:该触发点发生在postProcessAfterInstantiation之后.
- * 		当有循环依赖的场景,当bean实例化好之后,为了防止有循环依赖,会提前暴露回调方法,用于bean实例化的后置处理.
+ * 		当有循环依赖的场景,bean实例化好之后,为了防止有循环依赖,会提前暴露回调方法,用于bean实例化的后置处理.
  * 		这个方法就是在提前暴露的回调方法中触发
  * </pre>
  *

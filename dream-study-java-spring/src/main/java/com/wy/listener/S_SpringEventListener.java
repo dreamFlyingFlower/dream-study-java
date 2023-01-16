@@ -20,7 +20,7 @@ public class S_SpringEventListener {
 	public static void main(String[] args) {
 		// 第一种发布监听的方式
 		SpringApplication application = new SpringApplication(S_SpringEventListener.class);
-		application.addListeners(new S_SpringListener());
+		application.addListeners(new S_ApplicationListener());
 		ConfigurableApplicationContext configurableApplicationContext = application.run(args);
 		configurableApplicationContext.publishEvent(new S_SpringEvent("test"));
 		configurableApplicationContext.close();
@@ -28,7 +28,7 @@ public class S_SpringEventListener {
 		// 直接在启动类中发布事件监听
 		ConfigurableApplicationContext applicationContext = SpringApplication.run(S_SpringEventListener.class, args);
 		// 添加监听器
-		applicationContext.addApplicationListener(new S_SpringListener());
+		applicationContext.addApplicationListener(new S_ApplicationListener());
 		// 启动完成之后发布监听
 		applicationContext.publishEvent(new S_SpringEvent("test"));
 		configurableApplicationContext.close();
@@ -36,7 +36,7 @@ public class S_SpringEventListener {
 		// 该类实现了{ApplicationEventPublisher},对所有的事件进行发布和监听
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		// 添加监听器
-		context.addApplicationListener(new S_SpringListener());
+		context.addApplicationListener(new S_ApplicationListener());
 		// 上下文启动
 		context.refresh();
 		// 事件发布.必须是上下文启动之后发布,否则spring环境没准备好,无法监听该时间,就会报错

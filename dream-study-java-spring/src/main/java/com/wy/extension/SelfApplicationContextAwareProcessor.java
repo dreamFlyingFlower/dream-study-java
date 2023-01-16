@@ -1,4 +1,4 @@
-package com.autoconfigure;
+package com.wy.extension;
 
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -8,7 +8,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.ResourceLoaderAware;
 
 /**
- * ApplicationContextAwareProcessor:该类本身并没有扩展点,也不能在外部继承,但内部有6个扩展点可供实现,这些类在bean实例化之后,初始化之前触发
+ * #ApplicationContextAwareProcessor:该类没有扩展点,也不能外部继承,但内部有6个扩展点可供实现,这些点在bean实例化之后,初始化之前触发
  * 
  * 该类用于执行各种驱动接口,在bean实例化之后,属性填充之后,通过执行invokeAwareInterfaces()中的扩展接口来获取对应容器的变量
  * 
@@ -16,7 +16,7 @@ import org.springframework.context.ResourceLoaderAware;
  * {@link EnvironmentAware}:用于获取EnviromentAware的一个扩展类,可以获得系统内的所有参数
  * {@link EmbeddedValueResolverAware}:用于获取StringValueResolver的一个扩展类.
  * 		StringValueResolver用于获取基于String类型的properties的变量,一般用@Value的方式去获取.
- * 		如果实现了这个Aware接口,把StringValueResolver缓存起来,通过这个类去获取String类型的变量,效果是一样的
+ * 		如果实现了这个接口,把StringValueResolver缓存起来,通过这个类去获取String类型的变量,效果是一样的
  * {@link ResourceLoaderAware}:用于获取ResourceLoader的一个扩展类.
  * 		ResourceLoader可以用于获取classpath内所有的资源对象,可以扩展此类来拿到ResourceLoader对象
  * {@link ApplicationEventPublisherAware}:用于获取ApplicationEventPublisher的一个扩展类.
