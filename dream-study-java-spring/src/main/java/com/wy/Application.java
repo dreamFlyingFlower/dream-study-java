@@ -206,7 +206,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * 		激活各种BeanFactory处理器,目前BeanFactory没有注册任何BeanFactoryPostProcessor,此处相当于不做任何处理.
  * 		MyBatis就是在此处注入了#MapperScannerConfigurer,从而进一步解析MyBatis XML
  * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:注册 BeanPostProcessor 后置处理器,
- * 		如果没有BeanProcessors,不做任何处理
+ * 		如果没有BeanProcessors,不做任何处理.当前只做注册,实际调用的是{@link BeanFactory#getBean()}
  * ->{@link AbstractApplicationContext#initMessageSource()}:在上下文初始化注册MessageaSource的bean,国际化语言处理
  * ->{@link AbstractApplicationContext#initApplicationEventMulticaster()}:在上下文初始化注册applicationEventMulticaster的bean,
  * 		应用广播消息
