@@ -40,15 +40,19 @@ import com.wy.extension.SelfApplicationContextInitializer;
  * ->{@link SpringBootConfiguration}:作用等同于Configuration,只是起一个标识作用
  * 
  * ->{@link EnableAutoConfiguration}:扫描加载自动配置类,会自动加载所有META-INF/spring.factories中配置的相关类
- * -->{@link AutoConfigurationPackage}:导入一个注册类,该注册类将获取运行@SpringBootApplication注解的包及相关信息
+ * -->{@link AutoConfigurationPackage}:导入一个注册类,该注册类将获取运行@SpringBootApplication注解的类所在包以及子包进行扫描
  * -->{@link Import}:将一个类注入到Spring中,需要添加Configuration,在自定义自动注入类时会使用,通常修饰其他注解
- * --->{@link AutoConfigurationImportSelector}:实现 ImportSelector 接口,自动引入
+ * --->{@link AutoConfigurationImportSelector}:实现 ImportSelector 接口,自动引入,将符合条件的@Configuration引入到Spring中
  * 		isEnabled():从配置文件中查找spring.boot.enableautoconfiguration,默认true自动配置
  * 		selectImports():引入自动配置
  * 		getAutoConfigurationEntry():装在自动配置相关类
  * 		getCandidateConfigurations():从指定路径中获得需要自动加载的类
  * ---->{@link SpringFactoriesLoader#loadFactoryNames()}
- * ---->{@link SpringFactoriesLoader#loadSpringFactories()}:从META/spring.factories获得自动装配类,加载到spring上下文
+ * ---->{@link SpringFactoriesLoader#loadSpringFactories()}:从META-INF/spring.factories获得自动装配类,加载到spring上下文
+ * 
+ * ---->{@link AutoConfigurationImportSelector.ConfigurationClassFilter}:读取META-INF/spring-autoconfigure-metadata.properties,
+ * 		对自动配置的类根据文件中的条件进行过滤
+ * ---->{@link AutoConfigurationImportSelector#fireAutoConfigurationImportEvents}:将自动配置导入监听器
  * 
  * --->{@link ImportSelector}:实现该接口的方法返回类的全路径,需要Import引入,和Import不同的是该接口引入Class字符串
  * 
