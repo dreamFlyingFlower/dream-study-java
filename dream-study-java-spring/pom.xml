@@ -242,8 +242,9 @@
 	<!-- <useUniqueVersions>false</useUniqueVersions> -->
 	<!-- </manifest> -->
 	<!-- <manifestEntries> -->
-	<!-- 非官方第三方jar在pom中是以systemPath方式引入的,maven-jar-plugin组件没有直接参数声明包含指定scope的组件 通过使用额外定义Class-Path来追加指定依赖组件列表,在子模块按实际情况指定jar-manifestEntries-classpath即可 例如(注意前面个点及各空格分隔符):. 
-		lib/xxx-1.0.0.jar lib/yyy-2.0.0.jar.详见各子模块boot-jar-output属性定义 -->
+	<!-- 非官方第三方jar在pom中是以systemPath方式引入的,maven-jar-plugin组件没有直接参数声明包含指定scope的组件 -->
+	<!-- 通过使用额外定义Class-Path来追加指定依赖组件列表,在子模块按实际情况指定jar-manifestEntries-classpath即可 -->
+	<!-- 例如(注意前面个点及各空格分隔符):. lib/xxx-1.0.0.jar lib/yyy-2.0.0.jar.详见各子模块boot-jar-output属性定义 -->
 	<!-- <Class-Path>${jar-manifestEntries-classpath}</Class-Path> -->
 	<!-- </manifestEntries> -->
 	<!-- </archive> -->

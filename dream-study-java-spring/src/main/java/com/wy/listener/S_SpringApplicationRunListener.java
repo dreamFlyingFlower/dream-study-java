@@ -1,7 +1,10 @@
 package com.wy.listener;
 
+import java.time.Duration;
+
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ConfigurableBootstrapContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -32,8 +35,8 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	 * spring启动时调用
 	 */
 	@Override
-	public void starting() {
-		SpringApplicationRunListener.super.starting();
+	public void starting(ConfigurableBootstrapContext bootstrapContext) {
+		SpringApplicationRunListener.super.starting(bootstrapContext);
 		System.out.println("S_ApplicationRunListener...starting");
 	}
 
@@ -41,8 +44,9 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	 * 运行环境已经准备好
 	 */
 	@Override
-	public void environmentPrepared(ConfigurableEnvironment environment) {
-		SpringApplicationRunListener.super.environmentPrepared(environment);
+	public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext,
+			ConfigurableEnvironment environment) {
+		SpringApplicationRunListener.super.environmentPrepared(bootstrapContext, environment);
 		System.out.println("S_ApplicationRunListener...environmentPrepared");
 	}
 
@@ -69,8 +73,8 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	 * {@link ApplicationRunner ApplicationRunners}
 	 */
 	@Override
-	public void started(ConfigurableApplicationContext context) {
-		SpringApplicationRunListener.super.started(context);
+	public void started(ConfigurableApplicationContext context, Duration duration) {
+		SpringApplicationRunListener.super.started(context, duration);
 		System.out.println("S_ApplicationRunListener...started");
 	}
 
@@ -79,8 +83,8 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	 * {@link ApplicationRunner ApplicationRunners}也已经调用
 	 */
 	@Override
-	public void running(ConfigurableApplicationContext context) {
-		SpringApplicationRunListener.super.running(context);
+	public void ready(ConfigurableApplicationContext context, Duration duration) {
+		SpringApplicationRunListener.super.ready(context, duration);
 		System.out.println("S_ApplicationRunListener...running");
 	}
 
