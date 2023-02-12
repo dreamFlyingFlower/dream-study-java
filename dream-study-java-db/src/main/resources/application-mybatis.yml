@@ -1,0 +1,9 @@
+# mybatis配置,多数据源下无效
+mybatis:
+  # 实体类包名的路径,可以在mapper.xml中直接写类名而不用写全路径
+  type-aliases-package: com.wy.model
+  configuration:
+    # 返回结果为map时,自动将下划线转驼峰
+    map-underscore-to-camel-case: true
+    # 指定枚举转换时的默认处理类型,默认为使用name属性
+    default-enum-type-handler: com.wy.mybatis.MyEnumTypeHandler

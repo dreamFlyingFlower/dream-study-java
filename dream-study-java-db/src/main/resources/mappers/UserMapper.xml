@@ -27,7 +27,7 @@
 	<!-- size:引用额数目,代表缓存最多可以存储的对象个数 -->
 	<!-- readOnly:是否只读,如果为TRUE,则所有相同的sql语句返回的是同一个对象,速度快,但并发操作时,可能不安全 -->
 	<!-- 默认为false,相同的sql访问的是cache中数据的clone副本,安全,速度慢 -->
-	<!-- type:自定义cache的使用方式,比如整个ecache,redis,必须实现org.apache.ibatis.cache.Cache -->
+	<!-- type:自定义cache的使用方式,比如ehcache,redis,必须实现org.apache.ibatis.cache.Cache -->
 	<cache eviction="LRU" size="1024" readOnly="false" />
 	<!-- 其他命名空间的缓存引用 -->
 	<!-- <cache-ref></cache-ref> -->
@@ -48,8 +48,7 @@
 		<result property="email" column="email" />
 		<result property="createtime" column="createtime" />
 		<!-- 单表用association,property是在实体类的属性名,select是Role的xml的查询id,column是参数列 -->
-		<association property="role" select="com.wy.mapper.RoleMapper.getByName"
-			column="user_id"></association>
+		<association property="role" select="com.wy.mapper.RoleMapper.getByName" column="user_id"></association>
 		<!-- 集合可以用collection,property是主实体类中对应实体类的属性名 -->
 		<!-- javaType:该实体类的类型,例如此处应该是java.util.ArrayList,可不写 -->
 		<!-- ofType:实体类的具体类型,此处应该是com.wy.model.Role -->
@@ -92,9 +91,9 @@
 	<!-- useGeneratedKeys:设置是否使用JDBC的getGenereatedKeys方法获取主键并赋值到keyProperty设置的属性中 -->
 	<!-- 该属性适用于自增主键,非自增主键可以使用selectKey来获取 -->
 	<!-- statementType:取值范围STATEMENT,PREPARED(默认值),CALLABLE -->
-	<insert id="save" parameterType="com.wy.model.User" useGeneratedKeys="true"
-		keyProperty="userId">
-		insert into goods(`goods_name`,`totol`,`sold`,`surplus`,`create_time`)
+	<insert id="save" parameterType="com.wy.model.User" useGeneratedKeys="true" keyProperty="userId">
+		insert into
+		goods(`goods_name`,`totol`,`sold`,`surplus`,`create_time`)
 		values(#{goodsName},#{totol},#{sold},#{surplus},#{createTime})
 	</insert>
 
@@ -158,7 +157,8 @@
 			from (
 			<foreach collection="users" item="user" separator="union">
 				select
-				#{user.username},#{user.email},#{user.role.role_id} from dual
+				#{user.username},#{user.email},#{user.role.role_id}
+				from dual
 			</foreach>
 			)
 		</foreach>
@@ -205,8 +205,7 @@
 		<!-- 其他关联表字段 -->
 		<!-- property:user类中关联其他表的属性,column:user中传给userEx的字段,javaType:查询的返回类型 -->
 		<!-- select:另一个查询,该查询可以是当前xml中,可以不写namespace,若是其他xml中的,需要写完成的namespace -->
-		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx"
-			select="getSingleEx1"></association>
+		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx" select="getSingleEx1"></association>
 	</resultMap>
 	<select id="getSingleEx1" parameterType="int" resultType="com.wy.entity.UserEx">
 		select * from ti_user_ex where
@@ -216,7 +215,8 @@
 	<!-- 第二种方法,直接将结果集写在联合的标签内 -->
 	<select id="getSingle2" parameterType="int" resultMap="singleUnion2">
 		select * from ti_user a inner join
-		ti_user_ex b on a.user_id
+		ti_user_ex b on
+		a.user_id
 		= b.user_id where a.user_id =
 		#{userId}
 	</select>
@@ -226,8 +226,7 @@
 		<result property="education" column="education" />
 		<!-- 其他关联表字段 -->
 		<!-- property:user类中关联其他表的字段,column:user中传给userEx的字段,javaType:查询的返回类型,select:另一个查询 -->
-		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx"
-			select="getSingleEx">
+		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx" select="getSingleEx">
 			<id property="userId" column="use_Id" />
 			<result property="eduaction" column="education" />
 		</association>
@@ -254,10 +253,8 @@
 		<!-- property:user类中关联其他表的字段,javaType:查询的返回类型,select:另一个查询 -->
 		<!-- column:作为条件传给userEx的user中的属性,若是单个属性,可直接写user的属性名; -->
 		<!-- 若是多个属性,可以构建一个map,如column="{userId=userId}",key为userEx的java属性名,value为user的属性名 -->
-		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx"
-			select="getSingleEx2"></association>
-		<collection property="roles" ofType="com.wy.entity.Role" column="user_id"
-			select="getMultiRole"></collection>
+		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx" select="getSingleEx2"></association>
+		<collection property="roles" ofType="com.wy.entity.Role" column="user_id" select="getMultiRole"></collection>
 	</resultMap>
 	<select id="getSingleEx2" parameterType="int" resultType="com.wy.entity.UserEx">
 		select * from ti_user_ex where
@@ -275,7 +272,8 @@
 		= b.user_id
 		left join tr_user_role c on c.user_Id = a.user_Id
 		left join
-		ti_role d on d.role_Id = c.role_id where a.user_id =
+		ti_role d on d.role_Id = c.role_id where
+		a.user_id =
 		#{userId}
 	</select>
 	<resultMap type="com.wy.entity.User" id="multiUnion2">
@@ -285,8 +283,7 @@
 		<!-- 其他关联表字段,可有多个association,返回的类型可不同 -->
 		<!-- property:user类中关联其他表的字段,column:user中传给userEx的字段,javaType:查询的返回类型; -->
 		<!-- select:另一个查询,fetchType:默认lazy表示延迟记载,表示使用的时候才会使用sql查询.这里的值大于全局设置 -->
-		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx"
-			fetchType="lazy">
+		<association property="userEx" column="user_id" javaType="com.wy.entity.UserEx" fetchType="lazy">
 			<id property="userId" column="user_id" />
 			<result property="eduaction" column="education" />
 		</association>
@@ -296,10 +293,12 @@
 			<id property="roleId" column="role_id" />
 			<result property="roleName" column="role_name" />
 		</collection>
-		<!-- 鉴别器:就是case when,column:需要判断的属性名 -->
+		<!-- 鉴别器:就是case when,column:需要判断的属性名的值,根据不同的值返回不同的结果 -->
 		<discriminator javaType="string" column="sex">
 			<!-- value:需要进行判断的值,resultMap和resultType必须有一个 -->
-			<case value="f" resultType="com.wy.entity.Role"></case>
+			<case value="f" resultType="com.wy.entity.Role">
+				<!-- 返回其他的result或集合等 -->
+			</case>
 			<case value="m" resultType="com.wy.entity.Role"></case>
 		</discriminator>
 	</resultMap>

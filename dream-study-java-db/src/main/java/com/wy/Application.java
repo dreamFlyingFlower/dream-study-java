@@ -7,17 +7,21 @@ import java.sql.Statement;
 
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.binding.MapperProxy;
 import org.apache.ibatis.binding.MapperProxyFactory;
+import org.apache.ibatis.builder.xml.XMLStatementBuilder;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.reflection.ParamNameResolver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.defaults.DefaultSqlSession;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.type.BaseTypeHandler;
@@ -51,14 +55,19 @@ import com.wy.mybatis.CustomPlugin;
  * MyBatis运行流程:
  * 
  * <pre>
- * {@link MybatisAutoConfiguration#sqlSessionFactory()}:自动配置
- * {@link SqlSessionFactoryBean#buildSqlSessionFactory()}:构建工厂
- * {@link DefaultSqlSessionFactory}:获取{@link SqlSessionFactory},解析XML以及全局配置文件等放到{@link Configuration}中
- * {@link DefaultSqlSessionFactory#openSession()}:开启会话
+ * {@link MybatisAutoConfiguration#sqlSessionFactory()}:自动配置,构建{@link SqlSessionFactory},设置{@link Configuration}等
+ * {@link SqlSessionFactoryBean#buildSqlSessionFactory()}:真正的构建{@link SqlSessionFactory},
+ * 		同时解析全局配置文件以及业务mapper.xml文件存放到{@link Configuration}对象中
+ * {@link SqlSessionFactoryBuilder#build()}:将 Configuration 设置到 DefaultSqlSessionFactory 中并返回
+ * {@link DefaultSqlSessionFactory}:默认实现的{@link SqlSessionFactory}
+ * {@link DefaultSqlSessionFactory#openSession()}:开启会话,设置事务,执行SQL等
  * {@link DefaultSqlSession}:获取SqlSession对象,该对象包含Executor和Configuration
  * {@link SqlSession#getMapper()}:获取接口的代理对象,该对象中包含了各种Mapper接口,DefaultSqlSession和Executor
  * {@link MapperProxyFactory#newInstance(org.apache.ibatis.session.SqlSession)}:获取接口的代理对象
  * {@link MapperProxy#invoke()}:获取接口的代理对象,执行各种代理的增删改查
+ * {@link MapperMethod#execute()}:最终的方法执行,根据SQL类型不同执行不同的策略
+ * {@link MapperMethod.MethodSignature#convertArgsToSqlCommandParam()}:处理方法参数,将用户传递的参数转换为XML能识别的参数
+ * {@link ParamNameResolver#getNamedParams(Object[])}:真正的参数转换,将用户参数处理后封装成XML能识别的类型
  * 
  * 调用 DefaultSqlSession 的增删改查(Executor)
  * ->创建StatementHandler,ParameterHandler和ResultSetHandler
@@ -79,7 +88,7 @@ import com.wy.mybatis.CustomPlugin;
  * <pre>
  * {@link Configuration}:MyBatis的主配置信息.
  * 		MyBatis在启动时,将Mapper配置信息,类型别名,TypeHandler等注册到该对象中,其他组件需要这些信息时,可以从该对象获取
- * {@link MappedStatement}:Mapper中的SQL配置信息.
+ * {@link MappedStatement}:Mapper中的SQL配置信息,由{@link XMLStatementBuilder#parseStatementNode}构建.
  * 		封装Mapper XML配置文件中<insert><delete><update><select>等标签或{@link Select}{@link Update}等注解配置信息
  * {@link SqlSession}:MyBatis提供的面向用户的API,和数据库交互时的会话对象,用于完成数据库的增删改查功能.
  * 		SqlSession是Executor组件的外观,目的是对外提供易于理解和使用的数据库操作接口
@@ -110,7 +119,7 @@ import com.wy.mybatis.CustomPlugin;
  * <pre>
  * {@link TypeHandler}:各种类型处理器最上层接口,特别是枚举类型以及一些基本类型
  * {@link EnumTypeHandler}:枚举类型的处理器,默认使用枚举的name属性
- * {@link EnumOrdinalTypeHandler}:也可以修改使用枚举的ordinal
+ * {@link EnumOrdinalTypeHandler}:也可以修改使用枚举的ordinal,需要在配置文件中修改
  * {@link BaseTypeHandler}:自定义类型转换器,继承该类或实现 TypeHandler.自定义类需要在配置文件中进行配置.
  * 		若只对某个枚举进行配置,需要在全局配置的xml中设置,此处为mybatis.xml;若针对所有枚举,在application.yml中配置
  * </pre>
