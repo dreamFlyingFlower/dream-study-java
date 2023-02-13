@@ -56,6 +56,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -309,9 +310,11 @@ import com.wy.runner.SelfCommandLineRunner;
  * <pre>
  * {@link FactoryBean}:工厂bean,类似于抽象工厂模式中返回实例接口的工厂
  * {@link BeanFactory}:Spring容器,默认情况是{@link DefaultListableBeanFactory},加载了Spring中组件及相关参数
+ * {@link BeanFactoryPostProcessor}:在Spring容器初始化之后调用,可对容器做修改,Spring本身没有做扩展
+ * {@link BeanDefinitionRegistryPostProcessor}:对{@link BeanDefinition}进行修改,不对实例进行修
  * {@link BeanPostProcessor}:在接口或类初始化之前,之后进行的操作,对实例进行修改.AOP主要接口实现该接口
- *	{@link BeanPostProcessor#postProcessBeforeInitialization()}:初始化前进行的后置操作,比如afterPropertiesSet,init等
- * 	{@link BeanPostProcessor#postProcessAfterInitialization()}:初始化后进行的后置操作,比如AOP,事务等
+ *	{@link BeanPostProcessor#postProcessBeforeInitialization()}:bean初始化,属性设置完之后调用,比如afterPropertiesSet,init等
+ * 	{@link BeanPostProcessor#postProcessAfterInitialization()}:bean初始化,属性设置,afterPropertiesSet,init等完成后调用,比如AOP,事务等
  * ->{@link InstantiationAwareBeanPostProcessor}:BeanPostProcessor 子接口,该接口在实例化之前添加回调,
  * 		并在实例化之后但在set或 Autowired 注入之前添加回调
  * -->{@link AutowiredAnnotationBeanPostProcessor}:BeanPostProcessor 实现类,加载由{@link Autowired}和{@link Value}
@@ -330,9 +333,9 @@ import com.wy.runner.SelfCommandLineRunner;
  * ----->{@link DefaultListableBeanFactory}:基本集成了所有的功能
  * --->{@link ConfigurableListableBeanFactory}:集大成者,提供解析,修改bean定义,并初始化单例
  * ->{@link ListableBeanFactory}:提供容器内bean实例的枚举功能,但不会考虑父容器内的实例
- * {@link BeanFactoryPostProcessor}:对{@link BeanDefinition}进行修改,不对实例进行修改
  * {@link Value}:将配置文件中的值或系统值赋值给某个变量.该注解由{@link BeanPostProcessor}的实现类实现,
  * 		所以不能在 BeanPostProcessor,BeanFactoryPostProcessor 的实现类中使用,会造成循环引用,可使用{@link Autowired}代替
+ * {@link InitializingBean}:初始化bean,在bean加载完之后,初始化之前执行,在 {@link PostConstruct}初始化之前执行
  * </pre>
  * 
  * {@link SpringServletContainerInitializer}:该类负责对容器启动时相关组件进行初始化,当前类只是完成一些验证和组件装配,
@@ -405,10 +408,20 @@ import com.wy.runner.SelfCommandLineRunner;
  * 		eg:{@link SelfDisposableBean}
  * </pre>
  * 
+ * {@link BeanFactory}和 {@link ApplicationContext}的不同:
+ * 
+ * <pre>
+ * 1.BeanFactory是Bean工厂,ApplicationContext是Spring容器
+ * 2.ApplicationContext是对BeanFactory的扩展,增加了监听,国际化等功能
+ * 3.ApplicationContext继承了BeanFactory,维持了BeanFactory的引用
+ * 4.BeanFactory在首次初始化Bean时才创建Bean,但ApplicationContext在配置文件加载完,容器一创建就将Bean实例化并初始化好
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40
  * @git {@link https://github.com/dreamFlyingFlower}
  */
+@SuppressWarnings("deprecation")
 @SpringBootApplication
 @EnableAsync
 public class Application {

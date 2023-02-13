@@ -1,7 +1,9 @@
 package com.wy.extension;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 
@@ -22,6 +24,8 @@ public class SelfBeanDefinitionRegistryPostProcessor implements BeanDefinitionRe
 
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-
+		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.rootBeanDefinition("需要注册的bean class");
+		beanDefinitionBuilder.addPropertyValue("注入属性的key", "注入属性的value");
+		registry.registerBeanDefinition("beanName", beanDefinitionBuilder.getBeanDefinition());
 	}
 }
