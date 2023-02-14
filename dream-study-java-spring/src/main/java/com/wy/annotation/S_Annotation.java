@@ -114,7 +114,7 @@ import com.wy.config.UserSerializer;
  * <pre>
  * {@link Configuration}:将被修饰的类注入到spring容器中.
  * ->{@link Configuration#proxyBeanMethods()}:默认true,表示每次从容器中获取某个bean时,总是检查是否已经创建了该bean实例,
- * 		保持bean的代理特性;	false表示不检查是否已经存在该bean,直接创建一个bean
+ * 		保持bean的代理特性;	false表示不检查是否已经存在该bean,直接创建一个bean.
  * 		主要是用来检查启动时是否有依赖,如果beanA被其他bean依赖,则应该设置为true,如果不被其他bean依赖,则可以设置为false
  * {@link Bean}:实例化该注解代表的方法返回值,并且纳入spring的上下文管理.可以作为元注解使用,即可以标注在其他注解上
  * {@link Lazy}:指定Bean是否在启动时初始化,默认true在第一次使用时才初始化.只对单例Bean有效,而且只能在 Component 和 Bean 上是有效
