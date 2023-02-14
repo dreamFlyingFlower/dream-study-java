@@ -40,6 +40,7 @@ public class ThreadPoolLogExecutor extends ThreadPoolTaskExecutor {
 		super.execute(task);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void execute(Runnable task, long startTimeout) {
 		logThreadStatus("execute(Runnable,long)");

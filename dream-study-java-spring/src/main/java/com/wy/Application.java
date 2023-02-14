@@ -336,6 +336,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link Value}:将配置文件中的值或系统值赋值给某个变量.该注解由{@link BeanPostProcessor}的实现类实现,
  * 		所以不能在 BeanPostProcessor,BeanFactoryPostProcessor 的实现类中使用,会造成循环引用,可使用{@link Autowired}代替
  * {@link InitializingBean}:初始化bean,在bean加载完之后,初始化之前执行,在 {@link PostConstruct}初始化之前执行
+ * {@link ApplicationContextInitializer}:在Spring容器调用refresh()之前的回调,此时bean还未初始化,只能对容器做操作
  * </pre>
  * 
  * {@link SpringServletContainerInitializer}:该类负责对容器启动时相关组件进行初始化,当前类只是完成一些验证和组件装配,
