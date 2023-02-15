@@ -47,6 +47,7 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
@@ -241,6 +242,7 @@ import com.wy.config.UserSerializer;
  * {@link PropertySource}:该注解可以加载classpath或file下的配置文件,最终解析为 {@link org.springframework.core.env.PropertySource}.
  * 		该注解默认实现为{@link DefaultPropertySourceFactory},只能解析properties,xml或流,不能解析yml和yaml,可以通过自定义解析类来实现.
  * 		见 {@link SelfPropertySourceFactory}
+ * {@link ImportResource}:导入spring的xml配置文件,用法和 PropertySource 类似
  * </pre>
  * 
  * @author 飞花梦影

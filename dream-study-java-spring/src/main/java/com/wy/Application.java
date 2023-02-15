@@ -51,6 +51,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.boot.loader.JarLauncher;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
@@ -416,6 +417,12 @@ import com.wy.runner.SelfCommandLineRunner;
  * 2.ApplicationContext是对BeanFactory的扩展,增加了监听,国际化等功能
  * 3.ApplicationContext继承了BeanFactory,维持了BeanFactory的引用
  * 4.BeanFactory在首次初始化Bean时才创建Bean,但ApplicationContext在配置文件加载完,容器一创建就将Bean实例化并初始化好
+ * </pre>
+ * 
+ * 一些特殊类:
+ * 
+ * <pre>
+ * {@link ServletWebServerFactoryAutoConfiguration}:Web容器自动配置类
  * </pre>
  * 
  * @author 飞花梦影

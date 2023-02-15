@@ -90,6 +90,22 @@ import com.wy.extension.SelfApplicationContextInitializer;
  * 
  * 其他自动注入配置见{@link S_Annotation}
  * 
+ * 常用配置文件优先级,高优先级覆盖低优先级:
+ * 
+ * <pre>
+ * 1.启动参数
+ * 2.jar外config目录
+ * 3.jar外同层级配置
+ * 4.jar内config目录
+ * 5.jar内src同层级配置
+ * 6.jar内classpath下的config目录
+ * 7.jar内classpath下的配置
+ * 8.类上带PropertySource注解的
+ * 总结:配置文件由jar内向jar外加载,先加载不带profile的配置,再加载带profile的配置,后加载的覆盖前面加载的同属性配置.
+ * 如果不带profile和带profile的配置中有同名属性,profile后加载,会覆盖不带profile的属性
+ * </pre>
+ * 
+ * 
  * @author 飞花梦影
  * @date 2020-12-02 22:23:38
  * @git {@link https://github.com/dreamFlyingFlower}
