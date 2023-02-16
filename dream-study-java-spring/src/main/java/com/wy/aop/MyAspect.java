@@ -148,6 +148,8 @@ import com.wy.service.impl.SysLogServiceImpl;
  * {@link Joinpoint}:连接点.在拦截器中使用,封装了原方法调用的相关信息.如参数,对象信息以及直接调用原方法的proceed()
  * {@link Invocation}:JoinPoint 子类,添加了获取调用参数方法
  * {@link MethodInvocation}:Invocation 的子类,包含了获取调用方法的方法
+ * {@link JoinPoint}:所有的切面方法都可以使用,当做参数传入
+ * {@link ProceedingJoinPoint}:只有环绕通知可使用为参数
  * </pre>
  * 
  * @author 飞花梦影
@@ -207,10 +209,12 @@ public class MyAspect {
 	 * 该参数可以不指定,若指定则必须和args关键字中的名称一致.
 	 */
 	@Pointcut(value = "execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..))  ")
-	private void aspect() {}
+	private void aspect() {
+	}
 
 	@Pointcut(value = "execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..)) && args(token) ")
-	private void aspectArg(String token) {}
+	private void aspectArg(String token) {
+	}
 
 	@Before(value = "aspectArg(token) && args(username)")
 	public void beforeAspectArg(String token, String username) {
@@ -227,8 +231,9 @@ public class MyAspect {
 	 * 注解拦截
 	 */
 	@Pointcut("@annotation(com.wy.annotation.Logger)")
-	private void aspectAnnotation() {}
-	
+	private void aspectAnnotation() {
+	}
+
 	/**
 	 * 第一种拦截注解:直接使用拦截表达式,通过反射获取方法,从方法上获取被拦截的注解
 	 */
@@ -236,6 +241,7 @@ public class MyAspect {
 	public void beforeAspectAnnotation() {
 
 	}
+
 	/**
 	 * 第二种拦截注解,拦截注解里的表达式中的参数必须和形参对应
 	 * 
@@ -252,10 +258,12 @@ public class MyAspect {
 	 * args:指定被拦截的方法参数个数以及形参名,即只会拦截参数名为username的方法
 	 */
 	@Before("aspect() && args(username,token)")
-	public void beforeAspect(String username, String token) {}
+	public void beforeAspect(String username, String token) {
+	}
 
 	/**
-	 * {@link Around}:定义一个环绕通知,在Before开始执行方法之前调用一次.方法执行完,在After执行完之后再调用一次
+	 * {@link Around}:定义一个环绕通知,在Before开始执行方法之前调用一次.方法执行完,在After执行完之后再调用一次.
+	 * 如果方法执行有异常,则环绕后通知不执行
 	 * 
 	 * @param joinPoint 包含了执行方法的相关信息,方法名,参数等
 	 * @throws Throwable 会被AfterThrowing接收
@@ -314,5 +322,6 @@ public class MyAspect {
 	 * 在这里不能使用ProceedingJoinPoint,只能使用JoinPoint,否则报异常
 	 */
 	@AfterThrowing(pointcut = "aspect()", throwing = "throwable")
-	public void exception(JoinPoint joinPoint, Throwable throwable) {}
+	public void exception(JoinPoint joinPoint, Throwable throwable) {
+	}
 }

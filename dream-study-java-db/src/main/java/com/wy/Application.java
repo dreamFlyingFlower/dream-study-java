@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.apache.ibatis.binding.MapperMethod;
@@ -29,7 +30,10 @@ import org.apache.ibatis.type.EnumOrdinalTypeHandler;
 import org.apache.ibatis.type.EnumTypeHandler;
 import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
+import org.mybatis.spring.annotation.MapperScannerRegistrar;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
+import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.AutoConfiguredMapperScannerRegistrar;
 import org.mybatis.spring.mapper.ClassPathMapperScanner;
 import org.mybatis.spring.mapper.MapperFactoryBean;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
@@ -68,6 +72,10 @@ import com.wy.mybatis.CustomPlugin;
  * {@link MapperMethod#execute()}:最终的方法执行,根据SQL类型不同执行不同的策略
  * {@link MapperMethod.MethodSignature#convertArgsToSqlCommandParam()}:处理方法参数,将用户传递的参数转换为XML能识别的参数
  * {@link ParamNameResolver#getNamedParams(Object[])}:真正的参数转换,将用户参数处理后封装成XML能识别的类型
+ * {@link AutoConfiguredMapperScannerRegistrar}:从启动时获得的基础包扫描的所有类中找到含有{@link Mapper}修饰的接口
+ * {@link MapperScan}:指定MyBatis扫描的包路径,该包下所有的接口都将被注入到spring容器中
+ * {@link MapperScannerRegistrar}:注册由{@link MapperScan}扫描的接口,效果和AutoConfiguredMapperScannerRegistrar类似
+ * {@link MapperScannerConfigurer}:真正的bean注入类,注入由{@link Mapper}以及{@link MapperScan}扫描到的接口
  * 
  * 调用 DefaultSqlSession 的增删改查(Executor)
  * ->创建StatementHandler,ParameterHandler和ResultSetHandler

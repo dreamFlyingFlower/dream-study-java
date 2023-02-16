@@ -423,6 +423,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * 
  * <pre>
  * {@link ServletWebServerFactoryAutoConfiguration}:Web容器自动配置类
+ * {@link AutoConfigurationPackages}:获得自动配置时获得的基础扫描包路径以及类等信息
  * </pre>
  * 
  * @author 飞花梦影
