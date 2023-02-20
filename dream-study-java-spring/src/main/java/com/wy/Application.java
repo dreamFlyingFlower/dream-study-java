@@ -309,7 +309,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * Bean实例化的一些特殊接口
  * 
  * <pre>
- * {@link FactoryBean}:工厂bean,类似于抽象工厂模式中返回实例接口的工厂
+ * {@link FactoryBean}:工厂bean,类似于抽象工厂模式中返回实例接口的工厂,主要返回同一类的bean实例
  * {@link BeanFactory}:Spring容器,默认情况是{@link DefaultListableBeanFactory},加载了Spring中组件及相关参数
  * {@link BeanFactoryPostProcessor}:在Spring容器初始化之后调用,可对容器做修改,Spring本身没有做扩展
  * {@link BeanDefinitionRegistryPostProcessor}:对{@link BeanDefinition}进行修改,不对实例进行修
