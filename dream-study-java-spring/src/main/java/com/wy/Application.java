@@ -65,6 +65,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigUtils;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.annotation.Configuration;
@@ -331,7 +332,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * -->{@link ConfigurableBeanFactory}:提供factory的配置功能,API等
  * --->{@link AbstractBeanFactory}:实现了 ConfigurableBeanFactory 大部分功能
  * ---->{@link AbstractAutowireCapableBeanFactory}:同时实现了 AbstractBeanFactory 和 AutowireCapableBeanFactory
- * ----->{@link DefaultListableBeanFactory}:基本集成了所有的功能
+ * ----->{@link DefaultListableBeanFactory}:BeanFactory的默认实现类,包含IOC容器具备的重要功能,是一个完整的容器实现类
  * --->{@link ConfigurableListableBeanFactory}:集大成者,提供解析,修改bean定义,并初始化单例
  * ->{@link ListableBeanFactory}:提供容器内bean实例的枚举功能,但不会考虑父容器内的实例
  * {@link Value}:将配置文件中的值或系统值赋值给某个变量.该注解由{@link BeanPostProcessor}的实现类实现,
@@ -424,6 +425,10 @@ import com.wy.runner.SelfCommandLineRunner;
  * <pre>
  * {@link ServletWebServerFactoryAutoConfiguration}:Web容器自动配置类
  * {@link AutoConfigurationPackages}:获得自动配置时获得的基础扫描包路径以及类等信息
+ * {@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}:将指定的bean注入到spring容器中
+ * {@link AnnotatedBeanDefinitionReader}:
+ * {@link ClassPathBeanDefinitionScanner}:扫描指定包路径下的文件,并注入到Spring容器中,
+ * 		用法参照{@link AnnotationConfigApplicationContext#scan(String...)}
  * </pre>
  * 
  * @author 飞花梦影
