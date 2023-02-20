@@ -44,6 +44,7 @@ import java.util.stream.Stream;
  * 13.多分辨率图像API
  * 14.添加JShell命令,多版本兼容JAR包,需要从安装目录的bin中打开jshell,类似于JS.进入jshell之后使用/edit命令可打开文本编辑器
  * 15.下划线使用限制:JDK9不能使用单独的下划线定义变量
+ * 16.Optional是stream()方法
  * </pre>
  *
  * @author 飞花梦影
