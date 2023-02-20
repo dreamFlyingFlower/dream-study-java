@@ -82,6 +82,7 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -425,10 +426,13 @@ import com.wy.runner.SelfCommandLineRunner;
  * <pre>
  * {@link ServletWebServerFactoryAutoConfiguration}:Web容器自动配置类
  * {@link AutoConfigurationPackages}:获得自动配置时获得的基础扫描包路径以及类等信息
+ * {@link AnnotationConfigApplicationContext}:根据被注解修改类或包扫描进行上下文生成的容器
+ * {@link AnnotationConfigApplicationContext#register()}:如果是通过类启动,则扫描该类上的注解进行启动,并将扫描到的类注入到容器中
+ * {@link AnnotationConfigApplicationContext#scan()}:扫描指定包进行bean的注入
  * {@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}:将指定的bean注入到spring容器中
- * {@link AnnotatedBeanDefinitionReader}:
- * {@link ClassPathBeanDefinitionScanner}:扫描指定包路径下的文件,并注入到Spring容器中,
- * 		用法参照{@link AnnotationConfigApplicationContext#scan(String...)}
+ * {@link AnnotatedBeanDefinitionReader#doRegisterBean()}:被指定注解修饰的类读取类
+ * {@link ClassPathBeanDefinitionScanner}:扫描指定包路径下的文件,并注入到Spring容器中,	用法参照{@link AnnotationConfigApplicationContext#scan(String...)}
+ * {@link ClassPathScanningCandidateComponentProvider#registerDefaultFilters()}:根据默认的拦截器,扫描{@link Component}
  * </pre>
  * 
  * @author 飞花梦影
