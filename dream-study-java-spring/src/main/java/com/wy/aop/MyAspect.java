@@ -64,6 +64,7 @@ import com.wy.service.impl.SysLogServiceImpl;
  * {@link EnableAspectJAutoProxy}:指定代理类型以及是否暴露代理对象
  * ->{@link EnableAspectJAutoProxy#proxyTargetClass()}:指定代理使用的是JDK动态代理还是CGLIB,默认false,使用JDK动态代理
  * ->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,该功能在某些时候可防止事务失效
+ * #AspectJAutoProxyRegistrar:由 EnableAspectJAutoProxy 引入注入
  * {@link #JdkDynamicAopProxy}:当使用JDK动态代理时的代理处理类,非public
  * {@link #CglibAopProxy}:当使用CGLIB动态代理时的代理处理类,非public
  * {@link TransactionAutoConfiguration}:事务自动配置类,会根据配置决定是使用JDK动态代理,还是CGLIB动态代理
