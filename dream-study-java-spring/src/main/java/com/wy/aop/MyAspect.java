@@ -9,6 +9,7 @@ import org.aopalliance.intercept.Invocation;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.internal.lang.reflect.PointcutImpl;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -21,6 +22,7 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.DeclareParents;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.aspectj.weaver.patterns.KindedPointcut;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.IntroductionAdvisor;
 import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory;
@@ -47,6 +49,7 @@ import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfigu
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration.EnableTransactionManagementConfiguration.CglibAutoProxyConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration.EnableTransactionManagementConfiguration.JdkDynamicAutoProxyConfiguration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -64,7 +67,8 @@ import com.wy.service.impl.SysLogServiceImpl;
  * {@link EnableAspectJAutoProxy}:指定代理类型以及是否暴露代理对象
  * ->{@link EnableAspectJAutoProxy#proxyTargetClass()}:指定代理使用的是JDK动态代理还是CGLIB,默认false,使用JDK动态代理
  * ->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,该功能在某些时候可防止事务失效
- * #AspectJAutoProxyRegistrar:由 EnableAspectJAutoProxy 引入注入
+ * #AspectJAutoProxyRegistrar:由 EnableAspectJAutoProxy 引入注入,往容器中注入一个internalAutoProxyCreator为key,
+ * 		{@link AnnotationAwareAspectJAutoProxyCreator}为value的beanDefinition代理对象,同时设置相关属性
  * {@link #JdkDynamicAopProxy}:当使用JDK动态代理时的代理处理类,非public
  * {@link #CglibAopProxy}:当使用CGLIB动态代理时的代理处理类,非public
  * {@link TransactionAutoConfiguration}:事务自动配置类,会根据配置决定是使用JDK动态代理,还是CGLIB动态代理
@@ -75,6 +79,8 @@ import com.wy.service.impl.SysLogServiceImpl;
  * 		当切面类为多例时,需要指定预处理的切入点表达式:perthis(切入点表达式),它支持指定切入点表达式,或者是用@Pointcut修饰的全限定方法名.
  * 		且当切面为多例时,类中其他注解的切面表达式无效,但是必须写,但是多例并不常用
  * {@link DeclareParents}:用于给被增强的方法提供新的方法,实现新的接口,给类增强.通常用在类无法被改变的情况,如在jar包中
+ * {@link PointcutImpl}:当方法上有{@link Pointcut}时,该注解会被PointcutImpl解析
+ * {@link KindedPointcut}:当方法上没有 Pointcut时,方法的切入点表达式会被KindedPointcut解析
  * </pre>
  * 
  * AOP原理:
@@ -102,7 +108,14 @@ import com.wy.service.impl.SysLogServiceImpl;
  * <code>registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);</code>
  * -->{@link DefaultListableBeanFactory#registerBeanDefinition}:AnnotationAwareAspectJAutoProxyCreator 将会被注册到 BeanDefinitionMaps 中
  * 
- * {@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,在调用bean本身之前委托给指定的拦截器
+ * ->{@link EnableAspectJAutoProxy}:指定代理类型以及是否暴露代理对象
+ * -->{@link EnableAspectJAutoProxy#proxyTargetClass()}:指定代理使用的是JDK动态代理还是CGLIB,默认false,使用JDK动态代理
+ * -->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,该功能在某些时候可防止事务失效
+ * #AspectJAutoProxyRegistrar:由 EnableAspectJAutoProxy 引入注入,往容器中注入一个internalAutoProxyCreator为key,
+ * 		{@link AnnotationAwareAspectJAutoProxyCreator}为value的beanDefinition代理对象,同时设置相关属性.
+ * 		该Register由{@link AbstractApplicationContext#refresh()}->{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}加载
+ * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:获得所有的BeanPostProcessor实现类,并进行后置处理
+ * ->{@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,在调用bean本身之前委托给指定的拦截器
  * ->{@link AbstractAutoProxyCreator#postProcessAfterInitialization}:对初始化之后的bean进行AOP代理
  * -->{@link AbstractAutoProxyCreator#wrapIfNecessary}:判断Class是否需要代理,若需要,返回代理类以及相关切面
  * --->{@link AbstractAdvisorAutoProxyCreator#getAdvicesAndAdvisorsForBean}:根据beanName判断是否需要代理
