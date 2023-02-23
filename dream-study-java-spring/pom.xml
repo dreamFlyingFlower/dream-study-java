@@ -8,17 +8,17 @@
 		<version>2.7.5</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>dream.flying.flower</groupId>
 	<artifactId>dream-study-java-spring</artifactId>
 	<version>0.0.1</version>
 	<name>dream-study-java-spring</name>
 	<description>Study for springcommon</description>
+
 	<properties>
-		<!-- 因为日志框架漏洞的关系,log4j-api和log4j-core要升级到2.17以上 -->
-		<log4j2.version>2.17.1</log4j2.version>
-		<logback.version>1.2.10</logback.version>
 		<java.version>1.8</java.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -60,6 +60,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.retry</groupId>
+			<artifactId>spring-retry</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -329,7 +333,7 @@
 			</properties>
 		</profile>
 	</profiles>
-	<!-- https://mp.weixin.qq.com/s/WipGDWfK-_zP6afq7kr-cA   补全 -->
+	<!-- https://mp.weixin.qq.com/s/WipGDWfK-_zP6afq7kr-cA 补全 -->
 	<build>
 		<plugins>
 			<plugin>
