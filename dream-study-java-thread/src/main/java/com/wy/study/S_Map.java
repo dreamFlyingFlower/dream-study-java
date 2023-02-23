@@ -2,6 +2,7 @@ package com.wy.study;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -106,8 +107,18 @@ public class S_Map {
 		ConcurrentHashMap<String, String> map1 = new ConcurrentHashMap<>();
 		map1.put("key", "value");
 
-		// 跳表map,线程安全的,但是是有序的,key和value都不能为空,否则抛异常
+		// 跳表map,线程安全的,但是是有序的(根据key进行排序,默认升序),key和value都不能为空,否则抛异常
 		ConcurrentSkipListMap<Object, Object> map2 = new ConcurrentSkipListMap<>();
-		map2.put("key", "value");
+		map2.put("key1", "value");
+		map2.put("key4", "value");
+		map2.put("key3", "value");
+		map2.put("key5", "value");
+		map2.put("key0", "value");
+		// 输出{key0=value, key1=value, key3=value, key4=value, key5=value}
+		System.out.println(map2);
+		// 获得小于key5的Map,不包含key5
+		ConcurrentNavigableMap<Object, Object> headMap = map2.headMap("key5");
+		// {key0=value, key1=value, key3=value, key4=value}
+		System.out.println(headMap);
 	}
 }
