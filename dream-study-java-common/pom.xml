@@ -70,6 +70,10 @@
 			<artifactId>javassist</artifactId>
 			<version>3.28.0-GA</version>
 		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
