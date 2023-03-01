@@ -235,6 +235,16 @@ public class MyAspect {
 
 	}
 
+	/**
+	 * ..表示拦截任意参数开头的方法,适用于拦截只含有某些特定参数的方法
+	 * 
+	 * @param username
+	 */
+	@Before(value = "args(..,username)")
+	public void beforeAspectArgMulti(String username) {
+
+	}
+
 	@Before("aspect() && this(sysLogService)")
 	public void beforeAspectDeclareParents(SysLogService sysLogService) {
 		// 在前置中使用
