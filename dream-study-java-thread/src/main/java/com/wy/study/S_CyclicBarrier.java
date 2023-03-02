@@ -29,6 +29,7 @@ public class S_CyclicBarrier {
 			int num = i + 1;
 			Runnable r = new Runnable() {
 
+				@Override
 				public void run() {
 					try {
 						// 模拟每个线程获得时间片的时间不一样
@@ -58,6 +59,7 @@ public class S_CyclicBarrier {
 			int num = i + 1;
 			Runnable r = new Runnable() {
 
+				@Override
 				public void run() {
 					try {
 						// 模拟每个线程获得时间片的时间不一样

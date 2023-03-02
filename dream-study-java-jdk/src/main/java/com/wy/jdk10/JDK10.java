@@ -17,7 +17,7 @@ import com.wy.model.User;
  * 1.var:类型推断,JS中不建议使用甚至要舍弃的.只会类型推断,不会变量提升.Lambda中不支持.只针对局部变量,不能赋null
  * 2.List,Set,Map中新增了copyof(),该方法返回目标参数的复制体,但是结果不可变.类似于of()
  * 3.部分流方法添加了字符集的重载方法
- * 4.Reader的transferTo(),直接将读取的流写入到输出流中
+ * 4.InputStream,Reader的transferTo(),直接将读取的流写入到输出流OutputStream,Writer中
  * </pre>
  *
  * @author 飞花梦影
