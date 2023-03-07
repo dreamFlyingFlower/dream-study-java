@@ -36,11 +36,13 @@ import org.springframework.aop.framework.AdvisorChainFactory;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.framework.AopProxyFactory;
 import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.aop.framework.DefaultAdvisorChainFactory;
 import org.springframework.aop.framework.ProxyConfig;
 import org.springframework.aop.framework.ProxyCreatorSupport;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
+import org.springframework.aop.framework.autoproxy.BeanFactoryAdvisorRetrievalHelper;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
@@ -122,12 +124,14 @@ import com.wy.service.impl.SysLogServiceImpl;
  * ---->{@link AbstractAdvisorAutoProxyCreator#findEligibleAdvisors}:找到项目中所有被{@link Aspect}修饰的类,进行排序之后返回
  * ------>{@link AnnotationAwareAspectJAutoProxyCreator#findCandidateAdvisors}:获取所有的切面,获取 Aspect 的实现
  * ------->{@link AbstractAdvisorAutoProxyCreator#findCandidateAdvisors}:找到XML配置文件声明的AOP增强
- * -------->{@link BeanFactoryAspectJAdvisorsBuilder#findCandidateAdvisors}:获取所有通过 Aspect 修饰的增强
- * --------->{@link ReflectiveAspectJAdvisorFactory#getAdvisors}:找到需要切面的类,获得{@link Before}, {@link After}等注解
- * --------->{@link ReflectiveAspectJAdvisorFactory#getAdvisorMethods}:循环找被 {@link Pointcut}修饰的方法
- * --------->{@link ReflectiveAspectJAdvisorFactory#getAdvisor}:创建真正的切面类并返回
- * ---------->{@link ReflectiveAspectJAdvisorFactory#getPointcut}:获取pointcut对象进行解析,将解析出来的pointcut表达式设置到属性中
- * ----------->{@link AbstractAspectJAdvisorFactory#findAspectJAnnotationOnMethod}:找到Pointcut,Around,Before等注解
+ * --------> {@link BeanFactoryAdvisorRetrievalHelper#findAdvisorBeans()}:查找所有 Advisor 实现类bean
+ * ------->{@link BeanFactoryAspectJAdvisorsBuilder#buildAspectJAdvisors}:获取所有通过 Aspect 修饰的增强
+ * --------> {@link AnnotationAwareAspectJAutoProxyCreator.BeanFactoryAspectJAdvisorsBuilderAdapter#isEligibleBean}:判断是否为切面
+ * -------->{@link ReflectiveAspectJAdvisorFactory#getAdvisors}:找到需要切面的类,获得{@link Before}, {@link After}等注解
+ * -------->{@link ReflectiveAspectJAdvisorFactory#getAdvisorMethods}:循环找被 {@link Pointcut}修饰的方法
+ * -------->{@link ReflectiveAspectJAdvisorFactory#getAdvisor}:创建真正的切面类并返回
+ * --------->{@link ReflectiveAspectJAdvisorFactory#getPointcut}:获取pointcut对象进行解析,将解析出来的pointcut表达式设置到属性中
+ * ---------->{@link AbstractAspectJAdvisorFactory#findAspectJAnnotationOnMethod}:找到Pointcut,Around,Before等注解
  * ---------> #InstantiationModelAwarePointcutAdvisorImpl:创建真正的切面类并返回
  * 
  * ----->{@link AbstractAdvisorAutoProxyCreator#findAdvisorsThatCanApply}:模糊匹配当前类是否作用的pointcut表示中
@@ -137,17 +141,18 @@ import com.wy.service.impl.SysLogServiceImpl;
  * ------>{@link #JdkDynamicAopProxy#getProxy}:使用JDK动态代理生成代理类,非public
  * ------->{@link AopProxyUtils#completeProxiedInterfaces}:判断剔除不需要的代理类,返回所有需要代理的接口
  * 
- * ------>{@link #JdkDynamicAopProxy#invoke}:真实方法被调用时调用的代理方法
+ * ------>{@link #JdkDynamicAopProxy#invoke}:真实方法被调用时,如果使用JDK代理,则该方法为切面入口
  * ------->{@link AopUtils#invokeJoinpointUsingReflection}:Advised接口或父类接口中定义的方法,直接反射调用,不应用通知
- * <code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器</code>
+ * <code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器链</code>
  * ------->{@link AdvisedSupport}:对 Advised 的构建提供支持,Advised的实现类以及ProxyConfig的子类
- * -------->{@link AdvisedSupport#getInterceptorsAndDynamicInterceptionAdvice}:获得可以应用到被拦截方法上的Interceptor列表
- * --------->{@link AdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:获得Interceptor调用链,并将结果缓存.
+ * ------->{@link AdvisedSupport#getInterceptorsAndDynamicInterceptionAdvice}:获得可以应用到被拦截方法上的Interceptor列表
+ * -------->{@link AdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:获得Interceptor调用链,并将结果缓存.
  * 		从提供的配置实例config中获取advisor列表,遍历处理这些advisor,如果是{@link IntroductionAdvisor},
  * 		则判断此Adcisor能否应用到目标targetClass.如果是 PointcutAdvisor,则判断此 Advisor 能否应用到目标方法上.
  * 		将满足条阿金的Advisor通过AdvisorAdaptor转换成Interceptor列表返回
+ * --------->{@link DefaultAdvisorChainFactory}:AdvisorChainFactory的默认实现类,最终会执行切面方法
  * 
- * ------>{@link #CglibAopProxy#getProxy}:使用CGLIB动态代理生成代理类,非public
+ * ------>{@link #CglibAopProxy#getProxy}:真实方法被调用时,使用CGLIB动态代理生成代理类,非public,该方法为切面入口
  * ------->{@link #CglibAopProxy.DynamicAdvisedInterceptor#intercept}:AOP最终的代理对象的代理方法
  * <code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器</code>
  * </pre>

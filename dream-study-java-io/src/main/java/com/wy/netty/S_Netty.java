@@ -60,16 +60,15 @@ import io.netty.util.concurrent.FastThreadLocal;
  * 
  * ->>>{@link AbstractNioMessageChannel.NioMessageUnsafe}
  * 
- * {@link ChannelHandler}
- * ->{@link ChannelOutboundHandler}
- * ->>{@link ChannelOutboundHandlerAdapter}
- * 
- * ->{@link ChannelHandlerAdapter}
- * ->>{@link ChannelOutboundHandlerAdapter}
- * ->>{@link ChannelInboundHandlerAdapter}
- * 
- * ->{@link ChannelInboundHandler}
- * ->>{@link ChannelInboundHandlerAdapter}
+ * {@link ChannelHandler}:顶级的事件处理接口
+ * ->{@link ChannelOutboundHandler}:发消息的过程处理
+ * ->{@link ChannelInboundHandler}:读取消息的过程处理
+ * ->{@link ChannelInboundHandler#channelActive()}:通道就绪事件
+ * ->{@link ChannelInboundHandler#channelRead()}:通道读取数据事件
+ * ->{@link ChannelInboundHandler#channelReadComplete()}:通道读取数据完毕事件
+ * ->{@link ChannelHandlerAdapter}:即可以读消息,也可以发送消息,是一个适配器
+ * ->>{@link ChannelOutboundHandlerAdapter}:发消息的适配器
+ * ->>{@link ChannelInboundHandlerAdapter}:读消息的适配器
  * </pre>
  * 
  * {@link ByteToMessageDecoder}:解码器,核心方法decode
