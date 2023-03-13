@@ -4,9 +4,13 @@ package com.wy.jdk14;
  * JDK14新特性
  * 
  * <pre>
- * 1.新类型record,相当于pojo的进阶版,不需要写getter/setter
+ * 1.新类型record,不需要写getter/setter,toString(),hashCode(),equals(),但是需要手动定义无参构造.
+ * 		在字节码中被record修饰的类是被final修饰的,同时已经继承了java.lang.Record,这意味着被record修饰的类不能被继承,
+ * 		不能使用abstract,类中也不能再定义全局变量,只能定义静态变量,静态方法
  * 2.安全的堆外内存(DirectBuffer)操作MemorySegment,不需要再使用Unsafe的各种copy/get/offset等
  * 3.jpackage:将Java打包成exe或rpc等可执行文件
+ * 4.更详细的空指针异常信息,需要添加VM参数:-XX:+ShowCodeDetailsInExceptionMessages
+ * 5.删除CMS垃圾回收器,显示的在VM添加参数时会报错,默认是G1回收器
  * </pre>
  *
  * @author 飞花梦影

@@ -24,7 +24,7 @@ public class Record {
  * @param username 构造参数
  * @param age 构造参数
  */
-record User(String username, int age) {
+public record User(String username, int age) {
 
 	// 不能定义成员变量,但是可以定义静态变量
 	// private String passwrod;
