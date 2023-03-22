@@ -25,6 +25,8 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.weaver.patterns.KindedPointcut;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.IntroductionAdvisor;
+import org.springframework.aop.aspectj.AbstractAspectJAdvice;
+import org.springframework.aop.aspectj.AspectJMethodBeforeAdvice;
 import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory;
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.aop.aspectj.annotation.BeanFactoryAspectJAdvisorsBuilder;
@@ -40,9 +42,13 @@ import org.springframework.aop.framework.DefaultAdvisorChainFactory;
 import org.springframework.aop.framework.ProxyConfig;
 import org.springframework.aop.framework.ProxyCreatorSupport;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.framework.ReflectiveMethodInvocation;
+import org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor;
+import org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor;
 import org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.aop.framework.autoproxy.BeanFactoryAdvisorRetrievalHelper;
+import org.springframework.aop.interceptor.ExposeInvocationInterceptor;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
@@ -141,20 +147,27 @@ import com.wy.service.impl.SysLogServiceImpl;
  * ------>{@link #JdkDynamicAopProxy#getProxy}:使用JDK动态代理生成代理类,非public
  * ------->{@link AopProxyUtils#completeProxiedInterfaces}:判断剔除不需要的代理类,返回所有需要代理的接口
  * 
- * ------>{@link #JdkDynamicAopProxy#invoke}:真实方法被调用时,如果使用JDK代理,则该方法为切面入口
+ * ------>{@link #JdkDynamicAopProxy#invoke}:真实方法调用时代理方法才会被调用,如果使用JDK代理,则该方法为切面入口
  * ------->{@link AopUtils#invokeJoinpointUsingReflection}:Advised接口或父类接口中定义的方法,直接反射调用,不应用通知
- * <code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器链</code>
+ * 				<code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器链</code>
  * ------->{@link AdvisedSupport}:对 Advised 的构建提供支持,Advised的实现类以及ProxyConfig的子类
  * ------->{@link AdvisedSupport#getInterceptorsAndDynamicInterceptionAdvice}:获得可以应用到被拦截方法上的Interceptor列表
+ * 				<code>this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(this, method, targetClass);</code>
  * -------->{@link AdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:获得Interceptor调用链,并将结果缓存.
  * 		从提供的配置实例config中获取advisor列表,遍历处理这些advisor,如果是{@link IntroductionAdvisor},
  * 		则判断此Adcisor能否应用到目标targetClass.如果是 PointcutAdvisor,则判断此 Advisor 能否应用到目标方法上.
- * 		将满足条阿金的Advisor通过AdvisorAdaptor转换成Interceptor列表返回
- * --------->{@link DefaultAdvisorChainFactory}:AdvisorChainFactory的默认实现类,最终会执行切面方法
+ * 		将满足条件的Advisor通过AdvisorAdaptor转换成Interceptor列表返回
+ * --------->{@link DefaultAdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:AdvisorChainFactory的默认实现类,最终会执行切面方法.
+ * 		该方法根据情况会返回包含{@link ExposeInvocationInterceptor},{@link MethodBeforeAdviceInterceptor},{@link AfterReturningAdviceInterceptor}等,
+ * 		和切面相关的类的数组,之后循环执行
+ * ---------->{@link ReflectiveMethodInvocation#proceed}:调用切面点通过拦截器链,获得返回值
+ * ----------->{@link MethodBeforeAdviceInterceptor#invoke}:调用{@link AspectJMethodBeforeAdvice}
+ * ----------->{@link AspectJMethodBeforeAdvice#before}:调用{@link AbstractAspectJAdvice}
+ * ------------>{@link AbstractAspectJAdvice#invokeAdviceMethodWithGivenArgs}:执行被切面拦截的前置方法,即执行被@Before修饰的方法
  * 
- * ------>{@link #CglibAopProxy#getProxy}:真实方法被调用时,使用CGLIB动态代理生成代理类,非public,该方法为切面入口
+ * ------>{@link #CglibAopProxy#getProxy}:真实方法被调用时代理方法才会被调用,使用CGLIB动态代理生成代理类,非public,该方法为切面入口
  * ------->{@link #CglibAopProxy.DynamicAdvisedInterceptor#intercept}:AOP最终的代理对象的代理方法
- * <code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器</code>
+ * 				<code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器</code>
  * </pre>
  * 
  * 主要接口:
