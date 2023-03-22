@@ -293,7 +293,9 @@
 			<id property="roleId" column="role_id" />
 			<result property="roleName" column="role_name" />
 		</collection>
-		<!-- 鉴别器:就是case when,column:需要判断的属性名的值,根据不同的值返回不同的结果 -->
+		<!-- 鉴别器:就是case when -->
+		<!-- column:需要判断的属性名的值,根据不同的值返回不同的结果 -->
+		<!-- javaType:列值对应的java类型 -->
 		<discriminator javaType="string" column="sex">
 			<!-- value:需要进行判断的值,resultMap和resultType必须有一个 -->
 			<case value="f" resultType="com.wy.entity.Role">
