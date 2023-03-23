@@ -132,6 +132,17 @@ import com.wy.runner.SelfCommandLineRunner;
  * 
  * 若开启了actuator的shutdown配置,则可以使用post方式远程关闭应用:curl -X POST ip:port/actuator/shutdown
  * 
+ * Springboot启动的大概流程:
+ * 
+ * <pre>
+ * 1.{@link BeanDefinitionReader}: 读取配置文件或注解修饰的类构建bean实例
+ * 2.{@link BeanFactory}: bean实例容器,操作bean实例
+ * 3.{@link Environment}: 各种环境,包括配置文件,系统环境变量等
+ * 4.{@link BeanFactoryPostProcessor}: BeanFactory实例化的前置操作和后置操作
+ * 5.{@link BeanPostProcessor}: Bean实例化的前置和后置操作
+ * 6.{@link FactoryBean}: 生成各种bean的工厂,类似于 ProxyFactoryBean
+ * </pre>
+ * 
  * SpringBoot启动流程-SpringApplication:
  * 
  * <pre>
