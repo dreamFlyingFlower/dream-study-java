@@ -130,44 +130,47 @@ import com.wy.runner.SelfCommandLineRunner;
  * 
  * 自动配置类在spring扫描不到的情况下,仍然能注入到spring上下文中,同样是通过spring.factories加载
  * 
- * 若开启了actuator的shutdown配置,则可以使用post方式远程关闭应用:curl -X POST
- * ip:port/actuator/shutdown
+ * 若开启了actuator的shutdown配置,则可以使用post方式远程关闭应用:curl -X POST ip:port/actuator/shutdown
  * 
- * SpringBoot启动流程:
+ * SpringBoot启动流程-SpringApplication:
  * 
  * <pre>
- * 1.{@link SpringApplication#run(Class, String...)}:构造方法判断是否是SERVLET,REACTIVE,NONE环境
+ * 1.{@link SpringApplication#run(Class, String...)}:推断启动类,判断应用环境(SERVLET,REACTIVE,NONE)
  * 2.{@link SpringApplication#setInitializers}:加载所有META-INF/spring.factories中的{@link ApplicationContextInitializer}
  * 3.{@link SpringApplication#setListeners}:加载所有META-INF/spring.factories中的{@link ApplicationListener}
  * 4.{@link SpringApplication#deduceMainApplicationClass}:推断main所在的类
+ * 
  * 5.{@link SpringApplication#run(String...)}:开始执行run()
- * 6.{@link SpringApplication#configureHeadlessProperty}:设置java.awt.headless系统变量
- * 7.{@link SpringApplication#getRunListeners}:加载所有META-INF/spring.factories中的{@link SpringApplicationRunListener}
- * 8.执行所有的{@link SpringApplicationRunListener#starting()}
- * 9.{@link DefaultApplicationArguments}:实例化ApplicationArguments对象
- * 10.{@link SpringApplication#prepareEnvironment}:创建Environment
- * 11.{@link SpringApplication#configureEnvironment}:配置Enviroment,主要是把run()的参数配置到Environment中
- * 12.执行所有{@link SpringApplicationRunListener#environmentPrepared()}
- * 13.{@link SpringApplication#configureIgnoreBeanInfo}:设置需要忽略的环境变量
- * 14.{@link SpringApplication#printBanner}:设置日志打印Banner
- * 15.{@link SpringApplication#createApplicationContext}:根据环境不同,设置不同的ConfigurableApplicationContext
- * 16.{@link SpringApplication#getSpringFactoriesInstances}:加载自定义的异常报告
- * 17.{@link SpringApplication#prepareContext}:预加载ConfigurableApplicationContext
- * 18.{@link SpringApplication#postProcessApplicationContext}:加载beanNameGenerator,resourceLoade,raddConversionService
- * 19.{@link SpringApplication#applyInitializers}:回调所有的{@link ApplicationContextInitializer#initialize}
- * 20.执行所有的{@link SpringApplicationRunListener#contextPrepared()}
- * 21.{@link SpringApplication#load}:设置beanNameGenerator,resourceLoade,raddConversionService
- * 22.执行所有的{@link SpringApplicationRunListener#contextLoaded()}
- * 23.{@link SpringApplication#refreshContext}:调用context的registerShutdownHook(),执行context的refresh(),
+ * 6.{@link SpringApplication#createBootstrapContext()}:创建启动上下文context
+ * 7.{@link SpringApplication#configureHeadlessProperty}:设置java.awt.headless系统变量
+ * 8.{@link SpringApplication#getRunListeners}:加载所有META-INF/spring.factories中的{@link SpringApplicationRunListener}
+ * 9.执行所有的{@link SpringApplicationRunListener#starting()}
+ * 10.{@link DefaultApplicationArguments}:实例化ApplicationArguments对象
+ * 11.{@link SpringApplication#prepareEnvironment}:创建Environment
+ * 12.{@link SpringApplication#configureEnvironment}:配置Enviroment,主要是把run()的参数配置到Environment中
+ * 13.执行所有{@link SpringApplicationRunListener#environmentPrepared()}
+ * 14.{@link SpringApplication#configureIgnoreBeanInfo}:设置需要忽略的环境变量
+ * 15.{@link SpringApplication#printBanner}:设置日志打印Banner
+ * 16.{@link SpringApplication#createApplicationContext}:根据应用类型加载不同context,设置不同的ConfigurableApplicationContext
+ * ->16.1.当webApplicationType为SERVLET时,context为 AnnotationConfigServletWebServerApplicationContext;
+ * 		当webApplicationType为REACTIVE时,context为 AnnotationConfigReactiveWebServerApplicationContext
+ * 17.{@link SpringApplication#getSpringFactoriesInstances}:加载自定义的异常报告
+ * 18.{@link SpringApplication#prepareContext}:预加载ConfigurableApplicationContext
+ * 19.{@link SpringApplication#postProcessApplicationContext}:加载beanNameGenerator,resourceLoade,raddConversionService
+ * 20.{@link SpringApplication#applyInitializers}:回调所有的{@link ApplicationContextInitializer#initialize}
+ * 21.执行所有的{@link SpringApplicationRunListener#contextPrepared()}
+ * 22.{@link SpringApplication#load}:设置beanNameGenerator,resourceLoade,raddConversionService
+ * 23.执行所有的{@link SpringApplicationRunListener#contextLoaded()}
+ * 24.{@link SpringApplication#refreshContext}:调用context的registerShutdownHook(),执行context的refresh(),
  * 		根据不同环境执行不同的refresh(),最终调用{@link AbstractApplicationContext#refresh()},注册各种Bean以及Spring组件
- * 24.{@link SpringApplication#afterRefresh}:用户可自定义加载完成的方法
- * 25.执行所有的{@link SpringApplicationRunListener#started()}
- * 26.{@link SpringApplication#callRunners}:回调,获取容器中所有的{@link ApplicationRunner},{@link CommandLineRunner},依次调用
- * 27.执行所有的{@link SpringApplicationRunListener#running()}
- * 28.返回{@link ConfigurableApplicationContext}
+ * 25.{@link SpringApplication#afterRefresh}:用户可自定义加载完成的方法
+ * 26.执行所有的{@link SpringApplicationRunListener#started()}
+ * 27.{@link SpringApplication#callRunners}:回调,获取容器中所有的{@link ApplicationRunner},{@link CommandLineRunner},依次调用
+ * 28.执行所有的{@link SpringApplicationRunListener#running()}
+ * 29.返回{@link ConfigurableApplicationContext}
  * </pre>
  * 
- * SpringBoot启动具体流程:
+ * SpringBoot启动流程-类上注解:
  * 
  * <pre>
  * {@link AutoConfigurationPackage}:让包中的类以及子包中的类能够被自动扫描到Spring容器中
@@ -183,12 +186,16 @@ import com.wy.runner.SelfCommandLineRunner;
  * 
  * {@link SpringApplication#SpringApplication(ResourceLoader, Class...)}:从META-INF/spring.factories中加载如下自动配置类,
  * 		{@link ApplicationContextInitializer},{@link ApplicationListener}等
+ * </pre>
  * 
+ * SpringBoot启动流程-refreshContext():
+ * 
+ * <pre>
  * {@link SpringApplication#refreshContext()}:通过XML,注解构建SpringBean,AOP等实例的主要方法
  * ->{@link AbstractApplicationContext#refresh()}:同步刷新上下文,初始化SpringBean,处理各种 BeanPostProcessor,AOP
  * ->{@link AbstractApplicationContext#prepareRefresh()}:预刷新,初始化配置文件,读取{@link Environment}相关参数
  * ->{@link AbstractApplicationContext#obtainFreshBeanFactory()}:告诉子类去刷新内部的beanFactory,获得刷新后的beanFactory,
- * 		最终返回{@link DefaultListableBeanFactory},默认的beanFactory.主要就是根据XML创建 BeanDefinition
+ * 		最终返回{@link DefaultListableBeanFactory},默认的beanFactory.主要就是根据注解,XML等创建 BeanDefinition
  * -->{@link AbstractRefreshableApplicationContext#refreshBeanFactory}:刷新beanFactory,解析XML,注解,注册 BeanDefinition
  * -->{@link AbstractRefreshableApplicationContext#hasBeanFactory}:判断当前上下文是否已经存在beanFactory,
  * 		比如刷新了几次和未关闭的beanFactory.如果有就销毁所有的在这个上下文管理的beans,同时关闭beanFactory
@@ -294,6 +301,9 @@ import com.wy.runner.SelfCommandLineRunner;
  * Bean的加载解析实例化:
  * 
  * <pre>
+ * {@link DefaultListableBeanFactory}:类中的beanDefinitionMap属性维护着封装好的BeanDefinition定义
+ * ->{@link DefaultSingletonBeanRegistry}:DefaultListableBeanFactory的父类,singletonObjects属性维护着单例Bean实例缓存,
+ * 		由beanDefinitionMap经过一系列操作后转化的单例对象
  * {@link GenericBeanDefinition}: 通用bean实现,新加入的bean文件配置属性定义类,是ChildBeanDefinition和RootBeanDefinition更好的替代者.
  * 		Spring初始化时,会用GenericBeanDefinition或是ConfigurationClassBeanDefinition (用@Bean注解注释的类)存储用户自定义的Bean,
  * 		在初始化Bean时,又会将其转换为RootBeanDefinition.
@@ -306,6 +316,18 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link ScannedGenericBeanDefinition}: 存储@Component,@Service,@Controller等注解注释的类
  * {@link BeanDefinitionReader}:Bean读取,主要从XML或注解中读取必须的信息,由实现类读取
  * ->{@link XmlBeanDefinitionReader},{@link AnnotatedBeanDefinitionReader},{@link PropertiesBeanDefinitionReader}
+ * </pre>
+ * 
+ * 基于XML的bean实例化流程:
+ * 
+ * <pre>
+ * 加载xml配置文件,解析获取配置中的每个的信息,封装成一个个的BeanDefinition对象
+ * 将BeanDefinition存储在 DefaultListableBeanFactory 类的beanDefinitionMap属性中
+ * ApplicationContext底层遍历beanDefinitionMap,创建Bean实例对象
+ * 创建好的Bean实例对象,被存储到DefaultSingletonBeanRegistry类的singletonObjects属性
+ * ->DefaultSingletonBeanRegistry为DefaultListableBeanFactory的父类
+ * ->singletonObjects是由BeanFactory将beanDefinitionMap转换而来
+ * 当执行applicationContext.getBean(beanName)时,从singletonObjects去匹配Bean实例返回
  * </pre>
  * 
  * Bean实例化的一些特殊接口
