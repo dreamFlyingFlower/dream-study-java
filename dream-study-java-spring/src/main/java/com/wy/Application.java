@@ -139,8 +139,23 @@ import com.wy.runner.SelfCommandLineRunner;
  * 2.{@link BeanFactory}: bean实例容器,操作bean实例
  * 3.{@link Environment}: 各种环境,包括配置文件,系统环境变量等
  * 4.{@link BeanFactoryPostProcessor}: BeanFactory实例化的前置操作和后置操作
- * 5.{@link BeanPostProcessor}: Bean实例化的前置和后置操作
+ * 5.{@link BeanPostProcessor}: Bean实例化后的初始化前置和后置操作
  * 6.{@link FactoryBean}: 生成各种bean的工厂,类似于 ProxyFactoryBean
+ * </pre>
+ * 
+ * Spring Bean的初始化过程涉及如下几个过程:
+ * 
+ * <pre>
+ * 1.Bean实例的属性填充
+ * ->1.1.注入普通属性,String,int或存储基本类型的集合时,直接通过set方法的反射设置进去
+ * ->1.2.注入单向对象(不互相引用)引用属性时,从容器中getBean()获取后通过set方法反射设置进去;
+ * 		如果容器中没有,则先创建被注入对象Bean实例(完成整个生命周期)后,在进行注入操作作
+ * ->1.3.注入双向对象(相互引用)引用属性时,就比较复杂了,涉及了循环引用(循环依赖)问题
+ * 2.Aware接口属性注入
+ * 3.{@link BeanPostProcessor#postProcessBeforeInitialization()}回调
+ * 4.InitializingBean接口的初始化方法回调
+ * 5.自定义初始化方法init回调,被{@link PostConstruct}修饰的初始化方法
+ * 6.{@link BeanPostProcessor#postProcessAfterInitialization()} 回调
  * </pre>
  * 
  * SpringBoot启动流程-SpringApplication:

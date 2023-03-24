@@ -4,6 +4,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 
@@ -13,6 +14,8 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
  * 
  * SpringIOC在实例化Bean对象之前,需要先读取Bean的相关属性,保存到BeanDefinition中,然后通过BeanDefinition实例化Bean对象.
  * 如果需要对Bean做些特殊处理,可以实现 {@link BeanFactoryPostProcessor}进行处理
+ * 
+ * 如果只是对beanDefinition做处理,可以继承该接口的子类{@link BeanDefinitionRegistryPostProcessor}
  *
  * @author 飞花梦影
  * @date 2022-10-17 23:37:56
