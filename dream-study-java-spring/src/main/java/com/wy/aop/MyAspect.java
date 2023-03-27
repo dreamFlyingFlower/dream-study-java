@@ -31,6 +31,7 @@ import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory;
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.aop.aspectj.annotation.BeanFactoryAspectJAdvisorsBuilder;
 import org.springframework.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactory;
+import org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator;
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.AdvisedSupport;
@@ -68,7 +69,7 @@ import com.wy.service.impl.SysLogServiceImpl;
 /**
  * Spring Aop
  * 
- * 注意:当多个不同的切面类中有相同的切面拦截表达式时,以类的首字母排序,前面的先执行,和方法名无关;若要改变这种顺序,可以使用{@link Order}
+ * 注意:当多个不同的切面类中有相同的切面拦截表达式时,以类的首字母排序,前面的先执行,和方法名无关;可以使用{@link Order}改变顺序
  * 当同一个类中有切面相同时,以方法的首字母进行排序,前面的先执行,后面的后执行
  * 
  * <pre>
@@ -182,6 +183,7 @@ import com.wy.service.impl.SysLogServiceImpl;
  * {@link MethodInvocation}:Invocation 的子类,包含了获取调用方法的方法
  * {@link JoinPoint}:所有的切面方法都可以使用,当做参数传入
  * {@link ProceedingJoinPoint}:只有环绕通知可使用为参数
+ * {@link AspectJAwareAdvisorAutoProxyCreator}:XML方式生成代理的主要类
  * </pre>
  * 
  * @author 飞花梦影

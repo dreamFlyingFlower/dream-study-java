@@ -41,6 +41,7 @@ import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcess
 import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
+import org.springframework.beans.factory.xml.NamespaceHandler;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
@@ -50,6 +51,7 @@ import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.boot.loader.JarLauncher;
@@ -58,19 +60,25 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.context.event.EventListenerMethodProcessor;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -85,6 +93,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -118,8 +127,6 @@ import com.wy.runner.SelfCommandLineRunner;
  * 指定配置文件:java -jar test.jar --spring.profiles.active=dev,config<br>
  * 指定配置文件目录:java -jar test.jar --spring.config.location=/config
  * 
- * {@link Profile}:指定某个类,某个方法在指定环境下才有效
- * 
  * {@link SpringApplicationRunListener}:在调用run()时调用,所有实现该接口的类都必须添加一个构造,
  * 且该构造的参数类型固定,详见其他实现类.若不添加构造,启动报错.<br>
  * 实现该接口的类使用@Configuration或@Component等注解无法注入到Spring上下文中,
@@ -136,7 +143,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * 
  * <pre>
  * 1.{@link BeanDefinitionReader}: 读取配置文件或注解修饰的类构建bean实例
- * 2.{@link BeanFactory}: bean实例容器,操作bean实例
+ * 2.{@link BeanFactory}: 构建bean实例容器
  * 3.{@link Environment}: 各种环境,包括配置文件,系统环境变量等
  * 4.{@link BeanFactoryPostProcessor}: BeanFactory实例化的前置操作和后置操作
  * 5.{@link BeanPostProcessor}: Bean实例化后的初始化前置和后置操作
@@ -152,6 +159,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * 		如果容器中没有,则先创建被注入对象Bean实例(完成整个生命周期)后,在进行注入操作作
  * ->1.3.注入双向对象(相互引用)引用属性时,就比较复杂了,涉及了循环引用(循环依赖)问题
  * 2.Aware接口属性注入
+ * ->2.1.{@link BeanFactoryAware},{@link BeanNameAware},{@link ApplicationContextAware}等
  * 3.{@link BeanPostProcessor#postProcessBeforeInitialization()}回调
  * 4.InitializingBean接口的初始化方法回调
  * 5.自定义初始化方法init回调,被{@link PostConstruct}修饰的初始化方法
@@ -302,10 +310,11 @@ import com.wy.runner.SelfCommandLineRunner;
  * 		同时发出ContextRefreshEvent通知相关对象
  * ->{@link AbstractApplicationContext#resetCommonCaches()}:处理缓存中相同的bean
  * ->{@link AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory}
- * ->{@link ClassPathBeanDefinitionScanner.scan()}
+ * ->{@link ClassPathBeanDefinitionScanner#scan()}:不管是xml启动还是注解启动,都会调用该方法进行包扫描处理 ComponentScan 注解,
+ * 		并将扫描后的类注入到spring容器中.用法参照{@link AnnotationConfigApplicationContext#scan(String...)}
  * ->{@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}
  * -->{@link RootBeanDefinition}:以各种BeanPostProcessor实现类为构造参数,判断加载Configuration,Import,Component,ComponentScan等
- * --->{@link ConfigurationClassPostProcessor}:判断解析Configuration注解,Importor实现类
+ * --->{@link ConfigurationClassPostProcessor}:判断解析Configuration注解,Importor实现类,扫描{@link ComponentScan}所在包
  * ---->{@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry()}
  * ---->{@link ConfigurationClassPostProcessor#processConfigBeanDefinitions()}
  * ---->{@link ConfigurationClassUtils#checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
@@ -445,7 +454,8 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}:
  * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
  * {@link PostConstruct}:
- * 		在bean初始化阶段,会先调用被PostConstruct修饰的方法.在postProcessBeforeInitialization之后,InitializingBean.afterPropertiesSet之前调用
+ * 		在bean初始化阶段,先调用{@link BeanPostProcessor#postProcessBeforeInitialization()}之后,
+ * 		再调用被 PostConstruct 注解修饰的方法,之后再调用{@link InitializingBean#afterPropertiesSet()}
  * {@link InitializingBean#afterPropertiesSet()}:
  * 		eg:{@link SelfInitializingBean}
  * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}:
@@ -474,13 +484,47 @@ import com.wy.runner.SelfCommandLineRunner;
  * <pre>
  * {@link ServletWebServerFactoryAutoConfiguration}:Web容器自动配置类
  * {@link AutoConfigurationPackages}:获得自动配置时获得的基础扫描包路径以及类等信息
- * {@link AnnotationConfigApplicationContext}:根据被注解修改类或包扫描进行上下文生成的容器
+ * {@link AnnotationConfigApplicationContext}:根据被注解修改类或包扫描进行上下文生成的容器,手动启动应用时可用,
+ * 		功能和使用{@link SpringBootApplication}启动时的{@link AnnotationConfigServletWebServerApplicationContext}类似
  * {@link AnnotationConfigApplicationContext#register()}:如果是通过类启动,则扫描该类上的注解进行启动,并将扫描到的类注入到容器中
  * {@link AnnotationConfigApplicationContext#scan()}:扫描指定包进行bean的注入
  * {@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}:将指定的bean注入到spring容器中
  * {@link AnnotatedBeanDefinitionReader#doRegisterBean()}:被指定注解修饰的类读取类
- * {@link ClassPathBeanDefinitionScanner}:扫描指定包路径下的文件,并注入到Spring容器中,	用法参照{@link AnnotationConfigApplicationContext#scan(String...)}
  * {@link ClassPathScanningCandidateComponentProvider#registerDefaultFilters()}:根据默认的拦截器,扫描{@link Component}
+ * </pre>
+ * 
+ * 一些Aware,大部分都是再bean实例话之后,初始化之前调用:
+ * 
+ * <pre>
+ * {@link BeanFactoryAware}: 详见{@link SelfBeanFactoryAware}
+ * {@link ServletContextAware}: spring回调方法注入ServletContext,Web环境才生效
+ * {@link BeanNameAware}: 详见{@link SelfBeanNameAware}
+ * {@link EnvironmentAware}: 详见{@link SelfApplicationContextAwareProcessor}
+ * {@link EmbeddedValueResolverAware}: 详见{@link SelfApplicationContextAwareProcessor}
+ * {@link ResourceLoaderAware}: 详见{@link SelfApplicationContextAwareProcessor}
+ * {@link ApplicationEventPublisherAware}: 详见{@link SelfApplicationContextAwareProcessor}
+ * {@link MessageSourceAware}: 详见{@link SelfApplicationContextAwareProcessor}
+ * {@link ApplicationContextAware}: 详见{@link SelfApplicationContextAwareProcessor}
+ * </pre>
+ * 
+ * Spring根目录下META-INF下各种文件作用
+ * 
+ * <pre>
+ * spring.factories:各种自动配置,监听器,初始化器等类的全路径名,由{@link EnableAutoConfiguration}注解加载
+ * spring.handlers:如果需要自定义xml的命名空间,需要写在该文件中,需要实现接口{@link NamespaceHandler},自定义处理xml
+ * spring.schemas:各种xml的xsd不同版本的文件格式约束映射关系以及xsd文件在包中的位置
+ * </pre>
+ * 
+ * Spring XML方式整合第三方框架
+ * 
+ * <pre>
+ * 1.确定命名空间名称(自定义),schema虚拟路径(需要在包中能找到,参照spring-context下的spring.schemas写法),标签名称(自定义)
+ * 2.编写schema约束文件dream-annotation.xsd,参照org/springframework/context/config/spring-context.xsd
+ * 3.在类加载路径下创建META-INF目录,修改spring.schemas和处理器映射文件spring.handlers
+ * 4.编写命名空间处理器 DreamNamespaceHandler,在init方法中注册DreamBeanDefinitionParser
+ * 5.编写标签的解析器HaohaoBeanDefinitionParser,在parse方法中注册HaohaoeanPostProcessor
+ * 6.编写DreamBeanPostProcessor后置处理器
+ * 7.使用时在applicationContext.xml配置文件中引入命名空间,在applicationContext.xml配置文件中使用自定义的标签
  * </pre>
  * 
  * @author 飞花梦影
