@@ -71,4 +71,21 @@ public class TestCrl {
 	public String testSession1(@SessionAttribute("message") String message) {
 		return "success";
 	}
+
+	/**
+	 * 使用ANT风格(通配符)
+	 * 
+	 * <pre>
+	 * ?: 匹配单个任意字符,但是对特殊符号无效,如?,/
+	 * *: 匹配任意多个字符,特殊符号无效,如/
+	 * **: 直接匹配任意多层目录,但是中间或两边不能有任何其他字符,否则原样处理.如/**\/test可匹配/a/b/test,/a/test/
+	 * /a**b\/test只能匹配/a**b/test
+	 * </pre>
+	 */
+	// @GetMapping("a?a/test")
+	// @GetMapping("a*a/test")
+	@GetMapping("/**/test")
+	public void testPattern() {
+
+	}
 }

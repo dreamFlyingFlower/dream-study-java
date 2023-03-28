@@ -152,42 +152,44 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * {@link DispatcherServletAutoConfiguration}:引入{@link DispatcherServlet},引入文件视图等
  * 
  * <pre>
- * {@link HttpServletBean}:继承{@link HttpServlet},因此在容器初始化时会调用init(),该初始化的作用:
+ * 1.{@link HttpServletBean#init()}:继承{@link HttpServlet},在第一次调用Web请求时会调用init(),该初始化的作用:
  * 		1.将Servlet初始化参数设置到该组件上,通过{@link BeanWrapper}简化设置过程,方便后续使用
- * 		2.提供给子类初始化扩展点:initServletBean(),该方法由{@link FrameworkServlet}覆盖
- * {@link FrameworkServlet}:继承 {@link HttpServletBean},通过initServletBean()进行Web上下文初始化,该方法主要作用:
+ * 		2.提供给子类初始化扩展点:initServletBean(),该方法由{@link FrameworkServlet}重写
+ * 2.{@link FrameworkServlet#initServletBean()}:Web上下文初始化,该方法主要作用:
  * 		1.初始化Web上下文
  * 		2.提供给子类初始化扩展点
- * {@link FrameworkServlet#initWebApplicationContext}:初始化上下文,调用 {@link DispatcherServlet}
- * {@link FrameworkServlet#initFrameworkServlet}:空方法,主要是为了扩展,由子类自定义实现
- * {@link DispatcherServlet}:继承 FrameworkServlet,主要是调度.解析前端URL,执行业务,返回视图等
- * {@link DispatcherServlet#initStrategies}:在刷新Spring上下文时初始化一系列解析器,包括URL接口,ViewResolver等等
- * {@link DispatcherServlet#initMultipartResolver}:初始化多媒体文件视图解析器,主要用于文件上传
- * {@link DispatcherServlet#initLocaleResolver}:初始化本地自定义视图解析器
- * {@link DispatcherServlet#initThemeResolver}:初始化主题视图解析器
- * {@link DispatcherServlet#initHandlerMappings}:初始化请求URL Map,从上下文获得所有{@link HandlerMapping}子类并排序.
+ * ->2.1->3.{@link FrameworkServlet#initWebApplicationContext}:初始化上下文,调用 {@link DispatcherServlet}
+ * ->2.2.{@link FrameworkServlet#initFrameworkServlet}:空方法,主要是为了扩展,由子类自定义实现
+ * 3.{@link FrameworkServlet#onRefresh}:调用子类DispatcherServlet#onRefresh
+ * 4.{@link DispatcherServlet#onRefresh}:主要是调度.解析前端URL,执行业务,返回视图等
+ * 5.{@link DispatcherServlet#initStrategies}:在刷新Spring上下文时初始化一系列解析器,包括URL接口,ViewResolver等等
+ * 6.{@link DispatcherServlet#initMultipartResolver}:初始化多媒体文件视图解析器,主要用于文件上传
+ * 7.{@link DispatcherServlet#initLocaleResolver}:初始化本地自定义视图解析器
+ * 8.{@link DispatcherServlet#initThemeResolver}:初始化主题视图解析器
+ * 9.{@link DispatcherServlet#initHandlerMappings}:初始化请求URL Map,从上下文获得所有{@link HandlerMapping}子类并排序.
  * 		将请求映射到处理器,返回一个{@link HandlerExecutionChain},它包括一个处理器,多个{@link HandlerInterceptor}拦截器
- * ->{@link HandlerMapping}:通过扩展处理器映射器实现不同的映射凡是,如BeanName,注解等
- * ->{@link BeanNameUrlHandlerMapping}:通过定义的 beanName 进行查找要请求的Controller
- * ->{@link RequestMappingHandlerMapping}:通过注解{@link RequestMapping}来查找对应的Controller
+ * ->9.1.{@link HandlerMapping}:通过扩展处理器映射器实现不同的映射凡是,如BeanName,注解等
+ * ->9.2.{@link BeanNameUrlHandlerMapping}:通过定义的 beanName 进行查找要请求的Controller
+ * ->9.3.{@link RequestMappingHandlerMapping}:通过注解{@link RequestMapping}来查找对应的Controller
  * {@link DispatcherServlet#initHandlerAdapters}:初始化适配器,以便支持多种类型的处理器( HandlerExecutionChain 中的处理器)
- * ->{@link HandlerAdapter}:通过扩展处理器适配器,支持更多类型的处理器
- * {@link DispatcherServlet#initHandlerExceptionResolvers}:初始化异常视图,解析执行过程中的异常
- * {@link DispatcherServlet#initRequestToViewNameTranslator}:将请求到视图之间进行转换
- * {@link DispatcherServlet#initViewResolvers}:初始化视图解析器,如{@link BeanNameViewResolver},{@link FreeMarkerViewResolver}
- * {@link DispatcherServlet#initFlashMapManager}:用于管理FlashMap的策略接口,FlashMap用于存储一个请求的输出,
+ * ->9.4.{@link HandlerAdapter}:通过扩展处理器适配器,支持更多类型的处理器
+ * 10.{@link DispatcherServlet#initHandlerExceptionResolvers}:初始化异常视图,解析执行过程中的异常
+ * 11.{@link DispatcherServlet#initRequestToViewNameTranslator}:将请求到视图之间进行转换
+ * 12.{@link DispatcherServlet#initViewResolvers}:初始化视图解析器,如{@link BeanNameViewResolver},{@link FreeMarkerViewResolver}
+ * 13.{@link DispatcherServlet#initFlashMapManager}:用于管理FlashMap的策略接口,FlashMap用于存储一个请求的输出,
  * 		当进入请求时作为该请求的输入,通常用于重定向场景
- * {@link DispatcherServlet#doDispatch}:处理从前端传过来的URL请求,判断是否为媒体文件请求,前置方法,后置方法等
- * {@link AbstractHandlerMethodAdapter#handle}:真正处理请求的方法
- * ->{@link RequestMappingHandlerAdapter#handleInternal}:处理请求
- * ->{@link RequestMappingHandlerAdapter#invokeHandlerMethod}:处理请求
- * -->{@link ServletInvocableHandlerMethod#invokeAndHandle}:继续处理请求
- * -->{@link InvocableHandlerMethod#invokeForRequest}:从请求,视图等中获得请求参数,执行请求
- * -->{@link InvocableHandlerMethod#doInvoke}:利用代理执行真正的请求方法
- * --->{@link HandlerMethodReturnValueHandlerComposite#handleReturnValue}:处理上一步返回的结果,类似JSON序列化等
- * ---->{@link RequestResponseBodyMethodProcessor#handleReturnValue()}:默认跳到该类处理返回结果
- * {@link DispatcherServlet#processDispatchResult}:将doDispath的结果渲染到视图
+ * 14.{@link DispatcherServlet#doDispatch}:处理从前端传过来的URL请求,判断是否为媒体文件请求,前置方法,后置方法等
+ * 15.{@link AbstractHandlerMethodAdapter#handle}:真正处理请求的方法
+ * ->15.1.{@link RequestMappingHandlerAdapter#handleInternal}:处理请求
+ * ->15.2.{@link RequestMappingHandlerAdapter#invokeHandlerMethod}:处理请求
+ * -->15.2.1.{@link ServletInvocableHandlerMethod#invokeAndHandle}:继续处理请求
+ * -->15.2.2.{@link InvocableHandlerMethod#invokeForRequest}:从请求,视图等中获得请求参数,执行请求
+ * -->15.2.3.{@link InvocableHandlerMethod#doInvoke}:利用代理执行真正的请求方法
+ * --->15.2.3.1.{@link HandlerMethodReturnValueHandlerComposite#handleReturnValue}:处理上一步返回的结果,类似JSON序列化等
+ * ---->15.2.3.1.1.{@link RequestResponseBodyMethodProcessor#handleReturnValue()}:默认跳到该类处理返回结果
+ * 16.{@link DispatcherServlet#processDispatchResult}:将doDispath的结果渲染到视图
  * 		如果有视图的话,使用resolveViewName()解析View对象;没有返回视图的话,尝试RequestToViewNameTranslator
+ * 17.再次调用Web请求时,入口为{@link HttpServlet#service},实际调用的是子类{@link FrameworkServlet#service}
  * </pre>
  * 
  * {@link AsyncHandlerInterceptor}:针对异步请求的接口,异步方法不会调用后置拦截器方法,详见{@link DispatcherServlet}1063行
@@ -229,6 +231,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * </pre>
  * 
  * 相关URL注解:
+ * 
  * <pre>
  * {@link RequestMapping}:请求URL映射
  * ->{@link RequestMapping#params()}:请求中需要包含的参数名

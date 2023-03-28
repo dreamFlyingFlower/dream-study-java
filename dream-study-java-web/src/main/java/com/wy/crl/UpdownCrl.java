@@ -34,8 +34,7 @@ public class UpdownCrl {
 
 	@ApiOperation(value = "直接使用流进行文件的传输,前端形成文件,如导出excel表", hidden = true)
 	@PostMapping("exportForm")
-	public void curDeviceStatus(HttpServletResponse response,
-			@RequestBody(required = false) Map<String, Object> params) {
+	public void exportForm(HttpServletResponse response, @RequestBody(required = false) Map<String, Object> params) {
 	}
 
 	/**

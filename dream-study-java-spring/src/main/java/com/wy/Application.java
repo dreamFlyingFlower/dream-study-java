@@ -53,6 +53,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.boot.loader.JarLauncher;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -79,6 +80,8 @@ import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
+import org.springframework.context.annotation.DeferredImportSelector;
+import org.springframework.context.annotation.ImportSelector;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.context.event.EventListenerMethodProcessor;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -137,7 +140,8 @@ import com.wy.runner.SelfCommandLineRunner;
  * 
  * 自动配置类在spring扫描不到的情况下,仍然能注入到spring上下文中,同样是通过spring.factories加载
  * 
- * 若开启了actuator的shutdown配置,则可以使用post方式远程关闭应用:curl -X POST ip:port/actuator/shutdown
+ * 若开启了actuator的shutdown配置,则可以使用post方式远程关闭应用:curl -X POST
+ * ip:port/actuator/shutdown
  * 
  * Springboot启动的大概流程:
  * 
@@ -222,7 +226,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * 		{@link ApplicationContextInitializer},{@link ApplicationListener}等
  * </pre>
  * 
- * SpringBoot启动流程-refreshContext():
+ * SpringBoot启动流程--{@link AbstractApplicationContext#refreshContext()}:
  * 
  * <pre>
  * {@link SpringApplication#refreshContext()}:通过XML,注解构建SpringBean,AOP等实例的主要方法
@@ -324,6 +328,20 @@ import com.wy.runner.SelfCommandLineRunner;
  * --->{@link EventListenerMethodProcessor}:判断解析EventListenerFactory的实现类
  * ->{@link AnnotationConfigUtils#registerPostProcessor()}
  * ->{@link BeanDefinitionRegistry#registerBeanDefinition()}
+ * </pre>
+ * 
+ * SpringBoot启动流程--{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors}
+ * 
+ * <pre>
+ * 1.{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors}:处理bean容器,加载自动配置,注册bean等
+ * 2.{@link #PostProcessorRegistrationDelegate#invokeBeanDefinitionRegistryPostProcessors}:循环注册beanDefinition
+ * 3.{@link ConfigurationClassPostProcessor#processConfigBeanDefinitions()}:beanDefinition注册
+ * 4.{@link #ConfigurationClassParser#parse()}:解析扫描启动类以及自动配置类
+ * 5.{@link #ConfigurationClassParser#doProcessConfigurationClass()}:解析启动类以及自动配置类,加载@Bean,@Import等相关注解
+ * 6.{@link #ConfigurationClassParser#processImports()}:解析自动配置类以及{@link ImportSelector},{@link DeferredImportSelector}
+ * 7.{@link #ConfigurationClassParser$DeferredImportSelectorHandler#handle()}:解析AutoConfigurationImportSelector,
+ * 		该类由{@link EnableAutoConfiguration}引入,加载所有自动配置类
+ * 8.{@link TransactionAutoConfiguration}:所有自动配置在此处被处理,包括AOP相关类AnnotationAwareAspectJAutoProxyCreator
  * </pre>
  * 
  * {@link ApplicationContextInitializer}:在spring调用refreshed方法之前调用该方法.是为了对spring容器做进一步的控制

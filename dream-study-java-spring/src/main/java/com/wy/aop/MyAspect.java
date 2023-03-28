@@ -75,7 +75,7 @@ import com.wy.service.impl.SysLogServiceImpl;
  * <pre>
  * {@link EnableAspectJAutoProxy}:指定代理类型以及是否暴露代理对象
  * ->{@link EnableAspectJAutoProxy#proxyTargetClass()}:指定代理使用的是JDK动态代理还是CGLIB,默认false,使用JDK动态代理
- * ->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,该功能在某些时候可防止事务失效
+ * ->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,某些情况下可防止事务失效
  * #AspectJAutoProxyRegistrar:由 EnableAspectJAutoProxy 引入注入,往容器中注入一个internalAutoProxyCreator为key,
  * 		{@link AnnotationAwareAspectJAutoProxyCreator}为value的beanDefinition代理对象,同时设置相关属性
  * {@link #JdkDynamicAopProxy}:当使用JDK动态代理时的代理处理类,非public
@@ -85,7 +85,8 @@ import com.wy.service.impl.SysLogServiceImpl;
  * {@link CglibAutoProxyConfiguration}:当spring.aop.proxy-target-class为true时,使用CGLIB动态代理
  * {@link Aspect}:指定需要代理的类.默认切面类应该为单例的,但是当切面类为一个多例类时,指定预处理的切入点表达式
  * ->{@link Aspect#value()}:要么使用"",即不指定,且切面类为单例模式;若指定为多例模式,会报错;
- * 		当切面类为多例时,需要指定预处理的切入点表达式:perthis(切入点表达式),它支持指定切入点表达式,或者是用@Pointcut修饰的全限定方法名.
+ * 		当切面类为多例时,需要指定预处理的切入点表达式:perthis(切入点表达式),它支持指定切入点表达式,
+ * 		或者是用@Pointcut修饰的全限定方法名.
  * 		且当切面为多例时,类中其他注解的切面表达式无效,但是必须写,但是多例并不常用
  * {@link DeclareParents}:用于给被增强的方法提供新的方法,实现新的接口,给类增强.通常用在类无法被改变的情况,如在jar包中
  * {@link PointcutImpl}:当方法上有{@link Pointcut}时,该注解会被PointcutImpl解析
@@ -102,7 +103,8 @@ import com.wy.service.impl.SysLogServiceImpl;
  * {@link AopProxy}:代表一个AopProxy 代理对象,可以通过该对象构造代理对象实例
  * {@link Advised}:代表被 Advice 增强的对象,包括添加advisor的方法,添加advice等的方法
  * {@link ProxyConfig}:一个代理对象的配置信息,包括代理的各种属性,如基于接口还是基于类构造代理
- * {@link ProxyCreatorSupport}:AdvisedSupport 的子类,创建代理对象的支持类,内部包含 AopProxyFacory 工厂成员,可直接使用工厂成员创建 Proxy
+ * {@link ProxyCreatorSupport}:AdvisedSupport 的子类,创建代理对象的支持类,内部包含 AopProxyFacory 工厂成员,
+ * 		可直接使用工厂成员创建 Proxy
  * ->{@link ProxyFactory}:用于生成代理对象实例的工厂类
  * {@link Advisor}:代表一个增强器提供者的对象,内部包含getAdvice()获取增强器
  * {@link AdvisorChainFactory}:获取增强器链的工厂接口,提供方法返回所有增强器
@@ -115,17 +117,20 @@ import com.wy.service.impl.SysLogServiceImpl;
  * <code>RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);</code>
  * -->动态代理的{@link BeanPostProcessor}以BeanDefinition的形式注册到BeanDefinitionMaps中
  * <code>registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);</code>
- * -->{@link DefaultListableBeanFactory#registerBeanDefinition}:AnnotationAwareAspectJAutoProxyCreator 将会被注册到 BeanDefinitionMaps 中
+ * -->{@link DefaultListableBeanFactory#registerBeanDefinition}:将AnnotationAwareAspectJAutoProxyCreator注册到beanDefinitionMap
  * 
  * ->{@link EnableAspectJAutoProxy}:指定代理类型以及是否暴露代理对象
  * -->{@link EnableAspectJAutoProxy#proxyTargetClass()}:指定代理使用的是JDK动态代理还是CGLIB,默认false,使用JDK动态代理
- * -->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,该功能在某些时候可防止事务失效
+ * -->{@link EnableAspectJAutoProxy#exposeProxy()}:指定是否暴露代理对象,通过 AopContext 可以进行访问,
+ * 		该功能在某些时候可防止事务失效
  * #AspectJAutoProxyRegistrar:由 EnableAspectJAutoProxy 引入注入,往容器中注入一个internalAutoProxyCreator为key,
  * 		{@link AnnotationAwareAspectJAutoProxyCreator}为value的beanDefinition代理对象,同时设置相关属性.
- * 		该Register由{@link AbstractApplicationContext#refresh()}->{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}加载
+ * 		该Register由{@link AbstractApplicationContext#refresh()}->
+ * 		{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}加载
  * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:获得所有的BeanPostProcessor实现类,并进行后置处理
- * ->{@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,在调用bean本身之前委托给指定的拦截器
- * ->{@link AbstractAutoProxyCreator#postProcessAfterInitialization}:对初始化之后的bean进行AOP代理
+ * ->{@link AbstractAutoProxyCreator}:BeanPostProcessor 实现,用AOP代理包装每个符合条件的bean,
+ * 		在调用bean本身之前委托给指定的拦截器
+ * ->{@link AbstractAutoProxyCreator#postProcessAfterInitialization}:生成代理类的入口,对初始化之后的bean进行AOP代理
  * -->{@link AbstractAutoProxyCreator#wrapIfNecessary}:判断Class是否需要代理,若需要,返回代理类以及相关切面
  * --->{@link AbstractAdvisorAutoProxyCreator#getAdvicesAndAdvisorsForBean}:根据beanName判断是否需要代理
  * ---->{@link AbstractAdvisorAutoProxyCreator#findEligibleAdvisors}:找到项目中所有被{@link Aspect}修饰的类,进行排序之后返回
@@ -133,7 +138,8 @@ import com.wy.service.impl.SysLogServiceImpl;
  * ------->{@link AbstractAdvisorAutoProxyCreator#findCandidateAdvisors}:找到XML配置文件声明的AOP增强
  * --------> {@link BeanFactoryAdvisorRetrievalHelper#findAdvisorBeans()}:查找所有 Advisor 实现类bean
  * ------->{@link BeanFactoryAspectJAdvisorsBuilder#buildAspectJAdvisors}:获取所有通过 Aspect 修饰的增强
- * --------> {@link AnnotationAwareAspectJAutoProxyCreator.BeanFactoryAspectJAdvisorsBuilderAdapter#isEligibleBean}:判断是否为切面
+ * --------> {@link AnnotationAwareAspectJAutoProxyCreator.BeanFactoryAspectJAdvisorsBuilderAdapter#isEligibleBean}:
+ * 		判断是否为切面
  * -------->{@link ReflectiveAspectJAdvisorFactory#getAdvisors}:找到需要切面的类,获得{@link Before}, {@link After}等注解
  * -------->{@link ReflectiveAspectJAdvisorFactory#getAdvisorMethods}:循环找被 {@link Pointcut}修饰的方法
  * -------->{@link ReflectiveAspectJAdvisorFactory#getAdvisor}:创建真正的切面类并返回
@@ -158,15 +164,16 @@ import com.wy.service.impl.SysLogServiceImpl;
  * 		从提供的配置实例config中获取advisor列表,遍历处理这些advisor,如果是{@link IntroductionAdvisor},
  * 		则判断此Adcisor能否应用到目标targetClass.如果是 PointcutAdvisor,则判断此 Advisor 能否应用到目标方法上.
  * 		将满足条件的Advisor通过AdvisorAdaptor转换成Interceptor列表返回
- * --------->{@link DefaultAdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:AdvisorChainFactory的默认实现类,最终会执行切面方法.
- * 		该方法根据情况会返回包含{@link ExposeInvocationInterceptor},{@link MethodBeforeAdviceInterceptor},{@link AfterReturningAdviceInterceptor}等,
- * 		和切面相关的类的数组,之后循环执行
+ * --------->{@link DefaultAdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:AdvisorChainFactory的默认实现类,
+ * 		最终会执行切面方法.该方法根据情况会返回包含{@link ExposeInvocationInterceptor},{@link MethodBeforeAdviceInterceptor},
+ * 		{@link AfterReturningAdviceInterceptor}等,和切面相关的类的数组,之后循环执行
  * ---------->{@link ReflectiveMethodInvocation#proceed}:调用切面点通过拦截器链,获得返回值
  * ----------->{@link MethodBeforeAdviceInterceptor#invoke}:调用{@link AspectJMethodBeforeAdvice}
  * ----------->{@link AspectJMethodBeforeAdvice#before}:调用{@link AbstractAspectJAdvice}
- * ------------>{@link AbstractAspectJAdvice#invokeAdviceMethodWithGivenArgs}:执行被切面拦截的前置方法,即执行被@Before修饰的方法
+ * ------------>{@link AbstractAspectJAdvice#invokeAdviceMethodWithGivenArgs}:执行前置方法,即执行被@Before修饰的方法
  * 
- * ------>{@link #CglibAopProxy#getProxy}:真实方法被调用时代理方法才会被调用,使用CGLIB动态代理生成代理类,非public,该方法为切面入口
+ * ------>{@link #CglibAopProxy#getProxy}:真实方法被调用时代理方法才会被调用,使用CGLIB动态代理生成代理类,
+ * 		非public,该方法为切面入口
  * ------->{@link #CglibAopProxy.DynamicAdvisedInterceptor#intercept}:AOP最终的代理对象的代理方法
  * 				<code>this.advised.getInterceptorsAndDynamicInterceptionAdvice(method,targetClass):该方法返回所有的拦截器</code>
  * </pre>
@@ -240,6 +247,7 @@ public class MyAspect {
 	 * </pre>
 	 * 
 	 * {@link Pointcut#argNames()}:指定切入点表达式参数.参数可以是execution或者args中的.
+	 * 
 	 * 该参数可以不指定,若指定则必须和args关键字中的名称一致.
 	 */
 	@Pointcut(value = "execution(* com.wy..*.*(..)) && !execution(* com.wy..TestCrl.Test(..))  ")
@@ -307,6 +315,7 @@ public class MyAspect {
 
 	/**
 	 * {@link Around}:定义一个环绕通知,在Before开始执行方法之前调用一次.方法执行完,在After执行完之后再调用一次.
+	 * 
 	 * 如果方法执行有异常,则环绕后通知不执行
 	 * 
 	 * @param joinPoint 包含了执行方法的相关信息,方法名,参数等
