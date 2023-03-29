@@ -61,6 +61,7 @@ public class UserHandler {
 		// 从请求路径中获取id
 		Long id = Long.parseLong(request.pathVariable("id"));
 		return userRepository.findById(id).flatMap(t -> userRepository.delete(t).then(ServerResponse.ok().build()))
+				// 如果没有值,返回notFound
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 

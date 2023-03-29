@@ -12,7 +12,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.http.client.reactive.JettyClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.DispatcherHandler;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.server.HandlerFunction;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.servlet.DispatcherServlet;
+
+import com.wy.router.UserHandler;
+import com.wy.router.UserRouter;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,9 +34,15 @@ import reactor.core.publisher.Mono;
  * 
  * {@link WebClientAutoConfiguration}:自动配置WebClient,但是没有实例化WebClient,只实例化了WebClient.Builder
  * 
+ * 响应式编程Reactor实现
+ * 
  * <pre>
- * {@link Mono}:单个结果包装,包含0或1个元素的异步序列
- * {@link Flux}:多结果包装,包含多个元素的异步序列
+ * 响应式编程操作中,Reactor 是满足 Reactive 规范框架
+ * Reactor 有两个核心类:Mono 和 Flux,这两个类实现接口 Publisher,提供丰富操作符
+ * {@link Flux}:多结果包装,包含多个元素的异步序列,返回N个元素
+ * {@link Mono}:单个结果包装,包含0或1个元素的异步序列,返回0或1个元素
+ * Flux 和 Mono 都是数据流的发布者,使用 Flux 和 Mono 都可以发出三种数据信号:元素值,错误信号,完成信号
+ * 错误信号和完成信号都代表终止信号,终止信号用于告诉订阅者数据流结束了,错误信号终止数据流同时把错误信息传递给订阅者
  * </pre>
  * 
  * 反应式流:发布者发送多个元素的异步请求,发布者向订阅者异步发送多个或稍少的元素.反应式流会在 pull 模型和 push 模型流处理机制之间动态切换.
@@ -46,6 +59,14 @@ import reactor.core.publisher.Mono;
  * {@link Processor}:处理器,充当订阅者和发布者的处理阶段, 一个发布者可以拥有多个处理者
  * 		Processor 接口继承了 Publisher和 Subscriber 接口,用于转换发布者/订阅者管道中的元素
  * 		Processor<T, R>会将来自于发布者的 T 类型的消息数据,接收并转换为 R 类型的数据,并将转换后的 R 类型数据发布给订阅者
+ * </pre>
+ * 
+ * WebFlux主要接口类:
+ * 
+ * <pre>
+ * {@link DispatcherHandler}:WebFlux处理Web请求的核心类,流程和普通Web中的{@link DispatcherServlet}差不多
+ * {@link RouterFunction}:函数式编程,路由功能,将请求转发给对应handler,见{@link UserRouter}
+ * {@link HandlerFunction}:函数式编程,处理请求,响应具体的函数,见{@link UserHandler}
  * </pre>
  * 
  * @author 飞花梦影

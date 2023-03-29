@@ -7,13 +7,14 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.ResourceRegionHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -56,6 +57,8 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.HttpServletBean;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
 import org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter;
@@ -68,7 +71,7 @@ import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 
 /**
- * 自动加载视图解析{@link WebMvcAutoConfiguration},{@link DispatcherServletAutoConfiguration}
+ * 自动加载视图解析{@link WebMvcAutoConfiguration},{@link DispatcherServletAutoConfiguration},{@link EnableWebMvc}
  * 对Web配置做一些个性化处理,可以重写{@link WebMvcConfigurer}中的方法,如format,converter,viewer等
  * 
  * 国际化:自动配置类{@link MessageSourceAutoConfiguration},配置前缀为spring.messages<br>
@@ -100,28 +103,32 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * Thymeleaf:在html标签中加入命名空间http://www.thymeleaf.org,自动提示<br>
  * Thymeleaf语法都只能在标签内使用,且都是以th:开头,具体语法见thy/index.html
  * 
- * {@link WebMvcAutoConfiguration#getMessageConverters}会默认加载几种数据转换器,根据条件不同而不同.
- * 如果要修改加载的{@link HttpMessageConverter}顺序,可以参照该方法.默认顺序如下
+ * Web结果解析器HttpMessageConverters,如果需要自定义,可实现{@link WebMvcConfigurer}:
  * 
  * <pre>
- * {@link ByteArrayHttpMessageConverter}:字节数组消息
- * {@link StringHttpMessageConverter}:字符串消息
- * {@link ResourceHttpMessageConverter},{@link ResourceRegionHttpMessageConverter}:资源相关
- * {@link SourceHttpMessageConverter}:当属性 spring.xml.ignore=false 时才添加,默认添加
- * {@link AllEncompassingFormHttpMessageConverter}:我也不知道是什么
- * {@link AtomFeedHttpMessageConverter},{@link RssChannelHttpMessageConverter}:
+ * {@link WebMvcAutoConfigurationAdapter#configureMessageConverters}会默认加载几种数据转换器,根据条件不同而不同.
+ * {@link HttpMessageConverters}:处理数据转换列表,构造加载
+ * {@link HttpMessageConverters#getCombinedConverters()}:添加解析器
+ * {@link HttpMessageConverters#getDefaultConverters()}:添加默认的解析器
+ * {@link WebMvcConfigurationSupport#addDefaultHttpMessageConverters}:添加默认结果解析器,默认顺序如下
+ * ->{@link ByteArrayHttpMessageConverter}:字节数组消息
+ * ->{@link StringHttpMessageConverter}:字符串消息
+ * ->{@link ResourceHttpMessageConverter},{@link ResourceRegionHttpMessageConverter}:资源相关
+ * ->{@link SourceHttpMessageConverter}:当属性 spring.xml.ignore=false 时才添加,默认添加
+ * ->{@link AllEncompassingFormHttpMessageConverter}:我也不知道是什么
+ * ->{@link AtomFeedHttpMessageConverter},{@link RssChannelHttpMessageConverter}:
  * 		存在{@link com.rometools.rome.feed.WireFeed}时才添加
- * {@link MappingJackson2XmlHttpMessageConverter}:XML转换器,
+ * ->{@link MappingJackson2XmlHttpMessageConverter}:XML转换器,
  * 		当属性 spring.xml.ignore=false,且{@link com.fasterxml.jackson.dataformat.xml.XmlMapper}存在时添加
- * {@link Jaxb2RootElementHttpMessageConverter}:XML转换器,
+ * ->{@link Jaxb2RootElementHttpMessageConverter}:XML转换器,
  * 		当属性 spring.xml.ignore=false,且{@link javax.xml.bind.Binder}存在时添加
- * {@link MappingJackson2HttpMessageConverter}:JSON转换器,
+ * ->{@link MappingJackson2HttpMessageConverter}:JSON转换器,
  * 		当{@link com.fasterxml.jackson.databind.ObjectMapper}和{@link com.fasterxml.jackson.core.JsonGenerator}都存在时添加
- * {@link GsonHttpMessageConverter}:JSON转换器,当{com.google.gson.Gson}存在时添加
- * {@link JsonbHttpMessageConverter}:JSON转换器,当{ avax.json.bind.Jsonb}存在时添加
- * {@link KotlinSerializationJsonHttpMessageConverter}:当{ otlinx.serialization.json.Json}存在时添加
- * {@link MappingJackson2SmileHttpMessageConverter}:当{@link com.fasterxml.jackson.dataformat.smile.SmileFactory}存在时添加
- * {@link MappingJackson2CborHttpMessageConverter}:当{@link com.fasterxml.jackson.dataformat.cbor.CBORFactory}存在时添加
+ * ->{@link GsonHttpMessageConverter}:JSON转换器,当{com.google.gson.Gson}存在时添加
+ * ->{@link JsonbHttpMessageConverter}:JSON转换器,当{ avax.json.bind.Jsonb}存在时添加
+ * ->{@link KotlinSerializationJsonHttpMessageConverter}:当{ otlinx.serialization.json.Json}存在时添加
+ * ->{@link MappingJackson2SmileHttpMessageConverter}:当{@link com.fasterxml.jackson.dataformat.smile.SmileFactory}存在时添加
+ * ->{@link MappingJackson2CborHttpMessageConverter}:当{@link com.fasterxml.jackson.dataformat.cbor.CBORFactory}存在时添加
  * </pre>
  * 
  * SpringSession管理原理:通过定制的{@link HttpServletRequest}返回定制的HttpSession
@@ -190,6 +197,16 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * 16.{@link DispatcherServlet#processDispatchResult}:将doDispath的结果渲染到视图
  * 		如果有视图的话,使用resolveViewName()解析View对象;没有返回视图的话,尝试RequestToViewNameTranslator
  * 17.再次调用Web请求时,入口为{@link HttpServlet#service},实际调用的是子类{@link FrameworkServlet#service}
+ * </pre>
+ * 
+ * {@link EnableWebMvc}:自动导入DelegatingWebMvcConfiguration,该类的作用:
+ * 
+ * <pre>
+ * 1.把所有系统中的 WebMvcConfigurer 拿过来,所有功能的定制都是这些 WebMvcConfigurer 合起来一起生效
+ * 2.自动配置了一些非常底层的组件,RequestMappingHandlerMapping、这些组件依赖的组件都是从容器中获取
+ * 3.只保证最基本的使用,同时会导致 {@link WebMvcAutoConfiguration}失效
+ * 4.因为WebMvcAutoConfiguration生效的条件中必须不存在 WebMvcConfigurationSupport,而
+ * 		DelegatingWebMvcConfiguration 继承自 WebMvcConfigurationSupport
  * </pre>
  * 
  * {@link AsyncHandlerInterceptor}:针对异步请求的接口,异步方法不会调用后置拦截器方法,详见{@link DispatcherServlet}1063行

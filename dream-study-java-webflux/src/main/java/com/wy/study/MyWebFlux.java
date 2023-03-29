@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * 
+ * WebClient方式调用WebFlux接口
  *
  * @author 飞花梦影
  * @date 2022-09-02 09:43:34
@@ -43,5 +43,7 @@ public class MyWebFlux {
 
 		Flux<Long> rets = Flux.fromStream(users.stream().map(t -> t.getUserId()));
 		System.out.println(rets);
+		// 订阅之后才会出发数据流操作
+		rets.subscribe(t -> System.out.print(t));
 	}
 }

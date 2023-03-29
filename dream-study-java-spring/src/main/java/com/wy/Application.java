@@ -55,6 +55,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.loader.JarLauncher;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
@@ -531,6 +532,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * spring.factories:各种自动配置,监听器,初始化器等类的全路径名,由{@link EnableAutoConfiguration}注解加载
  * spring.handlers:如果需要自定义xml的命名空间,需要写在该文件中,需要实现接口{@link NamespaceHandler},自定义处理xml
  * spring.schemas:各种xml的xsd不同版本的文件格式约束映射关系以及xsd文件在包中的位置
+ * spring-configuration-metadata.json:{@link ConfigurationProperties}修饰的类编译后产生的自定义属性提示文件
  * </pre>
  * 
  * Spring XML方式整合第三方框架
