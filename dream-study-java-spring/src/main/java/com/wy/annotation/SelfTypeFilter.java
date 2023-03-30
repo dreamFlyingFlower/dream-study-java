@@ -6,6 +6,8 @@ import java.util.Properties;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.AntPathMatcher;
@@ -13,7 +15,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.PathMatcher;
 
 /**
- * 自定义{@link ComponentScan} 规则扫描过滤器
+ * 自定义{@link ComponentScan}规则扫描过滤器,可直接继承AbstractTypeHierarchyTraversingFilter,也可实现{@link TypeFilter}
  *
  * @author 飞花梦影
  * @date 2022-06-19 18:37:47
@@ -61,6 +63,26 @@ public class SelfTypeFilter extends AbstractTypeHierarchyTraversingFilter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 直接实现{@link TypeFilter}
+	 * 
+	 * @param metadataReader 读取到的当前正在扫描的类信息
+	 * @param metadataReaderFactory 获取到其他类信息
+	 * @return
+	 * @throws IOException
+	 */
+	@Override
+	public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
+			throws IOException {
+		// 获得ComponentScan所在类的元注解信息
+		metadataReader.getAnnotationMetadata();
+		// 获得ComponentScan所在类的类信息
+		metadataReader.getClassMetadata();
+		// 获取当前类资源,类路径
+		metadataReader.getResource();
+		return super.match(metadataReader, metadataReaderFactory);
 	}
 
 	/**

@@ -7,6 +7,9 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
+import org.springframework.context.event.EventListener;
+import org.springframework.context.event.EventListenerFactory;
+import org.springframework.context.event.EventListenerMethodProcessor;
 
 /**
  * {@link BeanFactoryPostProcessor}:该接口是beanFactory的扩展接口,在spring读取beanDefinition信息之后,实例化bean之前调用.
@@ -16,6 +19,13 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
  * 如果需要对Bean做些特殊处理,可以实现 {@link BeanFactoryPostProcessor}进行处理
  * 
  * 如果只是对beanDefinition做处理,可以继承该接口的子类{@link BeanDefinitionRegistryPostProcessor}
+ * 
+ * 常用实现类,各个类调用流程见源码:
+ * 
+ * <pre>
+ * {@link BeanDefinitionRegistryPostProcessor}:往beanFactory中注册bean.该接口中的方法先于直接实现BeanFactoryPostProcessor调用
+ * {@link EventListenerMethodProcessor#postProcessBeanFactory}:解析定义注册{@link EventListenerFactory},处理{@link EventListener}
+ * </pre>
  *
  * @author 飞花梦影
  * @date 2022-10-17 23:37:56

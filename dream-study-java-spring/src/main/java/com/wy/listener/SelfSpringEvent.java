@@ -8,7 +8,7 @@ import org.springframework.context.event.ContextStoppedEvent;
 import org.springframework.context.support.AbstractApplicationContext;
 
 /**
- * Spring的事件(ApplicationEvent),基于继承jdk的EventObject,需要发布,见{@link S_SpringEventListener}
+ * Spring的事件(ApplicationEvent),基于继承jdk的EventObject,需要发布,见{@link SelfSpringEventListener}
  * 
  * Spring内部启动时自带的监听事件
  * 
@@ -25,16 +25,16 @@ import org.springframework.context.support.AbstractApplicationContext;
  * @date 2019-05-03 18:08:50
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class S_SpringEvent extends ApplicationEvent {
+public class SelfSpringEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 必须实现的参数构造,该source源可以传任意值
+	 * 必须实现的参数构造,该source源可以传任意值,在事件发布时传递
 	 * 
 	 * @param source 任意值
 	 */
-	public S_SpringEvent(Object source) {
+	public SelfSpringEvent(Object source) {
 		super(source);
 	}
 }

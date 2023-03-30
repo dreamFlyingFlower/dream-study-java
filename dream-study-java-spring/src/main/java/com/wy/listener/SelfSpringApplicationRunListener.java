@@ -20,7 +20,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
  * @date 2020-12-02 19:50:24
  * @git {@link https://github.com/mygodness100}
  */
-public class S_SpringApplicationRunListener implements SpringApplicationRunListener {
+public class SelfSpringApplicationRunListener implements SpringApplicationRunListener {
 
 	/**
 	 * 构造器,必须有,且参数类型固定,可参照其他listener
@@ -28,7 +28,7 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	 * @param application
 	 * @param args
 	 */
-	public S_SpringApplicationRunListener(SpringApplication application, String[] args) {
+	public SelfSpringApplicationRunListener(SpringApplication application, String[] args) {
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	@Override
 	public void starting(ConfigurableBootstrapContext bootstrapContext) {
 		SpringApplicationRunListener.super.starting(bootstrapContext);
-		System.out.println("S_ApplicationRunListener...starting");
+		System.out.println("SelfApplicationRunListener...starting");
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext,
 			ConfigurableEnvironment environment) {
 		SpringApplicationRunListener.super.environmentPrepared(bootstrapContext, environment);
-		System.out.println("S_ApplicationRunListener...environmentPrepared");
+		System.out.println("SelfApplicationRunListener...environmentPrepared");
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	@Override
 	public void contextPrepared(ConfigurableApplicationContext context) {
 		SpringApplicationRunListener.super.contextPrepared(context);
-		System.out.println("S_ApplicationRunListener...contextPrepared");
+		System.out.println("SelfApplicationRunListener...contextPrepared");
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	@Override
 	public void contextLoaded(ConfigurableApplicationContext context) {
 		SpringApplicationRunListener.super.contextLoaded(context);
-		System.out.println("S_ApplicationRunListener...contextLoaded");
+		System.out.println("SelfApplicationRunListener...contextLoaded");
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	@Override
 	public void started(ConfigurableApplicationContext context, Duration duration) {
 		SpringApplicationRunListener.super.started(context, duration);
-		System.out.println("S_ApplicationRunListener...started");
+		System.out.println("SelfApplicationRunListener...started");
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	@Override
 	public void ready(ConfigurableApplicationContext context, Duration duration) {
 		SpringApplicationRunListener.super.ready(context, duration);
-		System.out.println("S_ApplicationRunListener...running");
+		System.out.println("SelfApplicationRunListener...running");
 	}
 
 	/**
@@ -94,6 +94,6 @@ public class S_SpringApplicationRunListener implements SpringApplicationRunListe
 	@Override
 	public void failed(ConfigurableApplicationContext context, Throwable exception) {
 		SpringApplicationRunListener.super.failed(context, exception);
-		System.out.println("S_ApplicationRunListener...failed");
+		System.out.println("SelfApplicationRunListener...failed");
 	}
 }

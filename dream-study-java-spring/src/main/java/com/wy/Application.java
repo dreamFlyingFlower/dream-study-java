@@ -25,6 +25,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
@@ -88,6 +89,9 @@ import org.springframework.context.event.EventListenerMethodProcessor;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.AbstractRefreshableApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
+import org.springframework.core.MethodIntrospector;
+import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.EncodedResource;
@@ -209,7 +213,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * 29.返回{@link ConfigurableApplicationContext}
  * </pre>
  * 
- * SpringBoot启动流程-类上注解:
+ * SpringBoot启动流程-{@link SpringBootApplication}注解:
  * 
  * <pre>
  * {@link AutoConfigurationPackage}:让包中的类以及子包中的类能够被自动扫描到Spring容器中
@@ -233,39 +237,46 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link SpringApplication#refreshContext()}:通过XML,注解构建SpringBean,AOP等实例的主要方法
  * ->{@link AbstractApplicationContext#refresh()}:同步刷新上下文,初始化SpringBean,处理各种 BeanPostProcessor,AOP
  * ->{@link AbstractApplicationContext#prepareRefresh()}:预刷新,初始化配置文件,读取{@link Environment}相关参数
+ * --> initPropertySources()初始化一些属性设置;子类自定义个性化的属性设置方法
+ * --> getEnvironment().validateRequiredProperties();检验属性的合法等
+ * --> earlyApplicationEvents= new LinkedHashSet<ApplicationEvent>();保存容器中的-些早期的事件
+ * 
  * ->{@link AbstractApplicationContext#obtainFreshBeanFactory()}:告诉子类去刷新内部的beanFactory,获得刷新后的beanFactory,
  * 		最终返回{@link DefaultListableBeanFactory},默认的beanFactory.主要就是根据注解,XML等创建 BeanDefinition
- * -->{@link AbstractRefreshableApplicationContext#refreshBeanFactory}:刷新beanFactory,解析XML,注解,注册 BeanDefinition
- * -->{@link AbstractRefreshableApplicationContext#hasBeanFactory}:判断当前上下文是否已经存在beanFactory,
- * 		比如刷新了几次和未关闭的beanFactory.如果有就销毁所有的在这个上下文管理的beans,同时关闭beanFactory
- * -->{@link AbstractRefreshableApplicationContext#createBeanFactory}:创建 {@link BeanFactory}
- * -->{@link AbstractRefreshableApplicationContext#customizeBeanFactory}:对新创建的beanFactory定制化
- * -->{@link AbstractRefreshableApplicationContext#loadBeanDefinitions}:加载bean的定义
- * --->{@link AbstractXmlApplicationContext#loadBeanDefinitions}:主要加载XML资源,包括从Resource资源对象和资源路径加载
- * ---->{@link AbstractBeanDefinitionReader#loadBeanDefinitions}:读取XML配置文件,加载 BeanDefinition
- * ----->{@link XmlBeanDefinitionReader#loadBeanDefinitions(EncodedResource)}:解析XML,加载 BeanDefinition
- * ----->{@link XmlBeanDefinitionReader#doLoadBeanDefinitions()}:解析XML文件,加载箣竹 BeanDefinition
- * ------>{@link DefaultBeanDefinitionDocumentReader#processBeanDefinition()}:处理XML生成的bean定义
- * ------->{@link BeanDefinitionReaderUtils#registerBeanDefinition()}:注册最后的BeanDefinitionHolder对象
- * -------->{@link DefaultListableBeanFactory#registerBeanDefinition()}:将bean定义放入到beanFactory的Map缓存中
  * 
- * ->{@link AbstractApplicationContext#prepareBeanFactory()}:预处理beanFactory,为在上下文中使用,注册默认environment,
- * 		systemEnvironment,systemProperties,设置一些公共属性
- * ->{@link AbstractApplicationContext#postProcessBeanFactory()}:由子类实现该方法,Spring不做任何处理
- * ->{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}:获得包扫描时由注解标注的bean class,然后放入上下文.
+ * ->{@link AbstractApplicationContext#prepareBeanFactory()}:预处理beanFactory,为在上下文中使用.
+ * 		设置beanFactory的类加载器,支持表达式解析器;
+ * 		添加部分BeanPostProcessor[ApplicationContextAwareProcessor];
+ * 		设置忽略的自动装配的接口EnvironmentAware,EmbeddedValueResolverAware等;
+ * 		注册可以解析的自动装配,能直接在任何组件中注入:BeanFactory,ResourceLoader,ApplicationEventPublisher,Application;
+ * 		添加BeanPostProcessor[ApplicationListenerDetector];
+ * 		添加编译时的AspectJ;
+ * 		给BeanFactory中注册一些公共组件:environment[ConfigurableEnvironment],systemProperties,systemEnvironment
+ * 
+ * ->{@link AbstractApplicationContext#postProcessBeanFactory()}:对BeanFactory进一步处理,由子类实现该方法,Spring不做任何处理
+ * 
+ * ->{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors()}:BeanFactory后置处理器,在BeanFactory初始化之后执行.
  * 		激活各种BeanFactory处理器,目前BeanFactory没有注册任何BeanFactoryPostProcessor,此处相当于不做任何处理.
- * 		MyBatis就是在此处注入了#MapperScannerConfigurer,从而进一步解析MyBatis XML
- * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:注册 BeanPostProcessor 后置处理器,
- * 		如果没有BeanProcessors,不做任何处理.当前只做注册,实际调用的是{@link BeanFactory#getBean()}
- * ->{@link AbstractApplicationContext#initMessageSource()}:在上下文初始化注册MessageaSource的bean,国际化语言处理
- * ->{@link AbstractApplicationContext#initApplicationEventMulticaster()}:在上下文初始化注册applicationEventMulticaster的bean,
- * 		应用广播消息
- * ->{@link AbstractApplicationContext#onRefresh()}:初始化其他的bean,默认情况下Spring什么也不做
- * -->{@link ServletWebServerApplicationContext#onRefresh}:Web项目中是调用该实现类
- * -->{@link ServletWebServerApplicationContext#createWebServer}:创建Web容器
- * --->{@link TomcatServletWebServerFactory#getWebServer}:默认由Tomcat创建Web容器
- * ---->{@link SpringServletContainerInitializer}:该类不进行任何实质化的操作,具体的的操作应该交给
- * 			{@link WebApplicationInitializer}的具体实现类完成,比如说 {@link DispatcherServlet},listeners等
+ * 		MyBatis就是在此处注入了#MapperScannerConfigurer,从而进一步解析MyBatis XML.
+ * -->	在此处主要是两个接口: BeanFactoryPostProcessor,BeanDefinitionRegistryPostProcessor(BeanFactoryPostProcessor的子接口)
+ * -->	先执行BeanDefinitionRegistryPostProcessor:
+ * --->1.获取所有的BeanDefinitionRegistryPostProcessor;
+ * --->2.先执行实现了{@link PriorityOrdered}的BeanDefinitionRegistryPostProcessor
+ * --->3.再执行实现了{@link Ordered}的BeanDefinitionRegistryPostProcessor
+ * --->4.最后执行没有实现PriorityOrdered和Ordered的BeanDefinitionRegistryPostProcessors
+ * -->再执行BeanFactoryPostProcessor:过程和执行BeanDefinitionRegistryPostProcessor相同
+ * 
+ * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:注册 BeanPostProcessor 后置处理器,拦截bean的创建.
+ * 		如果没有BeanProcessors,不做任何处理.当前只做注册,实际调用的是{@link BeanFactory#getBean()}.
+ * 		不同接口类型的BeanPostProcessor,在Bean创建前后的执行时机不一样,主要是以下几个接口:
+ * 		{@link DestructionAwareBeanPostProcessor}:
+ * 		{@link InstantiationAwareBeanPostProcessor}:
+ * 		{@link SmartInstantiationAwareBeanPostProcessor}:
+ * 		{@link MergedBeanDefinitionPostProcessor}:[internalPostProcessors]
+ * 
+ * ->{@link AbstractApplicationContext#initMessageSource()}:注册MessageaSource,国际化语言处理
+ * 
+ * ->{@link AbstractApplicationContext#initApplicationEventMulticaster()}:注册applicationEventMulticaster,应用广播消息,发布监听
  * 
  * ->{@link AbstractApplicationContext#registerListeners()}:在所有bena中查找listener bean并注册到消息广播中
  * 
@@ -331,6 +342,29 @@ import com.wy.runner.SelfCommandLineRunner;
  * ->{@link BeanDefinitionRegistry#registerBeanDefinition()}
  * </pre>
  * 
+ * SpringBoot启动流程--{@link AbstractApplicationContext#obtainFreshBeanFactory}
+ * 
+ * 1.{@link AbstractApplicationContext#obtainFreshBeanFactory()}:告诉子类去刷新beanFactory,返回{@link DefaultListableBeanFactory}
+ * 2.{@link AbstractRefreshableApplicationContext#refreshBeanFactory}:刷新创建beanFactory,解析XML,注解,注册
+ * BeanDefinition
+ * 3.{@link AbstractRefreshableApplicationContext#hasBeanFactory}:判断当前上下文是否已经存在beanFactory,
+ * 比如刷新了几次和未关闭的beanFactory.如果有就销毁所有的在这个上下文管理的beans,同时关闭beanFactory
+ * 4.{@link AbstractRefreshableApplicationContext#createBeanFactory}:创建
+ * {@link BeanFactory}
+ * 5.{@link AbstractRefreshableApplicationContext#customizeBeanFactory}:对新创建的beanFactory定制化
+ * 6.{@link AbstractRefreshableApplicationContext#loadBeanDefinitions}:加载bean的定义
+ * ->6.1.{@link AbstractXmlApplicationContext#loadBeanDefinitions}:主要加载XML资源,包括从Resource资源对象和资源路径加载
+ * ->6.1.1.{@link AbstractBeanDefinitionReader#loadBeanDefinitions}:读取XML配置文件,加载
+ * BeanDefinition
+ * ->6.1.1.1.{@link XmlBeanDefinitionReader#loadBeanDefinitions(EncodedResource)}:解析XML,加载
+ * BeanDefinition
+ * ->6.1.1.2.{@link XmlBeanDefinitionReader#doLoadBeanDefinitions()}:解析XML文件,加载箣竹
+ * BeanDefinition
+ * ->6.1.1.2.1.{@link DefaultBeanDefinitionDocumentReader#processBeanDefinition()}:处理XML生成的bean定义
+ * ->6.1.1.2.2.{@link BeanDefinitionReaderUtils#registerBeanDefinition()}:注册最后的BeanDefinitionHolder对象
+ * ->6.1.1.2.3.{@link DefaultListableBeanFactory#registerBeanDefinition()}:将bean定义放入到beanFactory的Map缓存中
+ * 7.{@link AbstractRefreshableApplicationContext#getBeanFactory}:返回刚才GenericApplicationContext创建的BeanFactory对象
+ * 
  * SpringBoot启动流程--{@link AbstractApplicationContext#invokeBeanFactoryPostProcessors}
  * 
  * <pre>
@@ -343,6 +377,29 @@ import com.wy.runner.SelfCommandLineRunner;
  * 7.{@link #ConfigurationClassParser$DeferredImportSelectorHandler#handle()}:解析AutoConfigurationImportSelector,
  * 		该类由{@link EnableAutoConfiguration}引入,加载所有自动配置类
  * 8.{@link TransactionAutoConfiguration}:所有自动配置在此处被处理,包括AOP相关类AnnotationAwareAspectJAutoProxyCreator
+ * </pre>
+ * 
+ * SpringBoot启动流程--{@link AbstractApplicationContext#initApplicationEventMulticaster}
+ * 
+ * <pre>
+ * 1.{@link AbstractApplicationContext#initApplicationEventMulticaster()}:应用广播消息,发布监听消息
+ * 2.{@link AbstractApplicationContext#onRefresh()}:初始化其他的bean,默认情况下Spring什么也不做
+ * ->2.1.{@link ServletWebServerApplicationContext#onRefresh}:Web项目中是调用该实现类
+ * ->2.1.1.{@link ServletWebServerApplicationContext#createWebServer}:创建Web容器
+ * ->2.1.1.1.{@link TomcatServletWebServerFactory#getWebServer}:默认由Tomcat创建Web容器
+ * ->2.1.1.1.1{@link SpringServletContainerInitializer}:该类不进行任何实质化的操作,具体的的操作应该交给
+ * 			{@link WebApplicationInitializer}的具体实现类完成,比如说 {@link DispatcherServlet},listeners等
+ * </pre>
+ * 
+ * SpringBoot启动流程--{@link AbstractApplicationContext#finishBeanFactoryInitialization}
+ * 
+ * <pre>
+ * 1.{@link AbstractApplicationContext#finishBeanFactoryInitialization}:处理剩余的非Lazy的单例bean
+ * 2.{@link DefaultListableBeanFactory#preInstantiateSingletons}:处理剩余的非Lazy的单例bean
+ * 3.{@link SmartInitializingSingleton#afterSingletonsInstantiated}: 处理剩余的单例bean,此处有多种处理程序,包括监听(listener)等
+ * ->3.1.{@link EventListenerMethodProcessor#afterSingletonsInstantiated()}:负责监听器的单例处理
+ * ->3.1.1.{@link EventListenerMethodProcessor#processBean()}:只处理带有@EventListener注解的bean
+ * ->3.1.2.{@link MethodIntrospector#selectMethods}:获得带有@EventListener注解的方法
  * </pre>
  * 
  * {@link ApplicationContextInitializer}:在spring调用refreshed方法之前调用该方法.是为了对spring容器做进一步的控制

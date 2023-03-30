@@ -233,7 +233,7 @@ import com.wy.config.UserSerializer;
  * {@link ComponentScan#useDefaultFilters()}:是否扫描指定注解标识的类,默认true
  * {@link ComponentScan#includeFilters()}:根据 {@link ComponentScan.Filter#type()}的不同,指定扫描类,注解,或切面,正则
  * {@link ComponentScan#excludeFilters()}:根据 {@link ComponentScan.Filter#type()}的不同,指定排除类,注解,或切面,正则
- * {@link TypeFilter}:当 {@link ComponentScan.Filter#type()}为 CUSTOM时,需要实现该接口以完成自定义的拦截器.见 {@link SelfTypeFilter}
+ * {@link TypeFilter}:当 {@link ComponentScan.Filter#type()}为 CUSTOM时,需要实现该接口以完成自定义的拦截器.见{@link SelfTypeFilter}
  * {@link ComponentScan#lazyInit()}:懒加载
  * 
  * {@link Bean#autowireCandidate()}:被Bean修饰的类是否可以被其他组件通过 {@link Autowired}引用,该功能只影响Autowired,不影响{@link Resource}
