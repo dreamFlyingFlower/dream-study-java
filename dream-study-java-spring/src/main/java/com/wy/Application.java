@@ -14,6 +14,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.HierarchicalBeanFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.context.LifecycleProcessor;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
@@ -86,9 +88,11 @@ import org.springframework.context.annotation.DeferredImportSelector;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.context.event.EventListenerMethodProcessor;
+import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.AbstractRefreshableApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
+import org.springframework.context.support.DefaultLifecycleProcessor;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
@@ -117,6 +121,7 @@ import com.wy.extension.SelfInitializingBean;
 import com.wy.extension.SelfInstantiationAwareBeanPostProcessor;
 import com.wy.extension.SelfSmartInitializingSingleton;
 import com.wy.extension.SelfSmartInstantiationAwareBeanPostProcessor;
+import com.wy.initializer.SelfServletContainerInitializer;
 import com.wy.runner.SelfCommandLineRunner;
 
 /**
@@ -269,22 +274,27 @@ import com.wy.runner.SelfCommandLineRunner;
  * ->{@link AbstractApplicationContext#registerBeanPostProcessors()}:注册 BeanPostProcessor 后置处理器,拦截bean的创建.
  * 		如果没有BeanProcessors,不做任何处理.当前只做注册,实际调用的是{@link BeanFactory#getBean()}.
  * 		不同接口类型的BeanPostProcessor,在Bean创建前后的执行时机不一样,主要是以下几个接口:
- * 		{@link DestructionAwareBeanPostProcessor}:
- * 		{@link InstantiationAwareBeanPostProcessor}:
- * 		{@link SmartInstantiationAwareBeanPostProcessor}:
- * 		{@link MergedBeanDefinitionPostProcessor}:[internalPostProcessors]
+ * 		{@link DestructionAwareBeanPostProcessor},{@link InstantiationAwareBeanPostProcessor},
+ * 		{@link SmartInstantiationAwareBeanPostProcessor},{@link MergedBeanDefinitionPostProcessor}:[internalPostProcessors].
+ * 		注册流程同BeanFactoryPostProcessor,只在最后多了注册MergedBeanDefinitionPostProcessor.
+ * 		注册一个ApplicationListenerDetector来在Bean创建完成后检查是否是ApplicationListener,如果是则在初始化完成后添加到容器中.
  * 
- * ->{@link AbstractApplicationContext#initMessageSource()}:注册MessageaSource,国际化语言处理
+ * ->{@link AbstractApplicationContext#initMessageSource()}:注册MessageaSource,国际化语言处理,消息绑定,消息解析.
+ *		获取BeanFactory,查看容器中是否有id为messageSource,类型是MessageSource的组件:
+ *		如果有赋值给messageSource,如果没有自己创建一个DelegatingMessageSource.之后将创建好的MessageSource注册在容器中
  * 
  * ->{@link AbstractApplicationContext#initApplicationEventMulticaster()}:注册applicationEventMulticaster,应用广播消息,发布监听
+ * 		获取BeanFactory,从BeanFactory中获取applicationEventMulticaster的ApplicationEventMulticaster;
+ * 		如果没有该bean,创建一个{@link SimpleApplicationEventMulticaster},将创建的ApplicationEventMulticaster添加到BeanFactorv中
+ * 
+ * ->{@link AbstractApplicationContext#onRefresh()}:子容器实现,可以在容器刷新时自定义逻辑
  * 
  * ->{@link AbstractApplicationContext#registerListeners()}:在所有bena中查找listener bean并注册到消息广播中
+ *		从容器中获得所有的ApplicationListener,将每个监听器添加到事件派发器ApplicationEventMulticaster中,再派发之前步骤产生的事件
  * 
  * ->{@link AbstractApplicationContext#finishBeanFactoryInitialization()}:初始化所有剩下的非延迟初始化的单例bean对象实例,
  * 		Bean的IOC,DI,AOP都是在该方法中调用
- * -->{@link AbstractBeanFactory#doGetBean()}:执行获得bean实例的方法
- * -->{@link AbstractBeanFactory#getSingleton()}:获得bean实例的单例对象
- * --->{@link DefaultSingletonBeanRegistry#getSingleton()}:获得bean实例的单例对象的实际操作类,同时解决循环依赖的问题
+ * -->三级缓存解决循环依赖:
  * <code>
  * 先从一级缓存中查看是否存在bean对象
  *	Object singletonObject = this.singletonObjects.get(beanName);
@@ -322,24 +332,29 @@ import com.wy.runner.SelfCommandLineRunner;
  * --->{@link AbstractAutowireCapableBeanFactory#applyBeanPostProcessorsAfterInitialization}:
  * 		调用{@link BeanPostProcessor#postProcessAfterInitialization}进行后置处理
  * 
- * ->{@link AbstractApplicationContext#finishRefresh()}:完成刷新过程,通知生命周期处理器lifecycleProcessor刷新过程,
- * 		同时发出ContextRefreshEvent通知相关对象
+ * ->{@link AbstractApplicationContext#finishRefresh()}:完成刷新,通知生命周期处理器lifecycleProcessor,发布ContextRefreshEvent事件
+ * 
  * ->{@link AbstractApplicationContext#resetCommonCaches()}:处理缓存中相同的bean
- * ->{@link AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory}
- * ->{@link ClassPathBeanDefinitionScanner#scan()}:不管是xml启动还是注解启动,都会调用该方法进行包扫描处理 ComponentScan 注解,
+ * </pre>
+ * 
+ * SpringBoot启动流程--{@link AbstractApplicationContext#postProcessBeanFactory}
+ * 
+ * <pre>
+ * 1.{@link AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory}:注解方式启动时,调用该子类的方法
+ * 2.{@link ClassPathBeanDefinitionScanner#scan()}:不管是xml启动还是注解启动,都会调用该方法进行包扫描处理 ComponentScan 注解,
  * 		并将扫描后的类注入到spring容器中.用法参照{@link AnnotationConfigApplicationContext#scan(String...)}
- * ->{@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}
- * -->{@link RootBeanDefinition}:以各种BeanPostProcessor实现类为构造参数,判断加载Configuration,Import,Component,ComponentScan等
- * --->{@link ConfigurationClassPostProcessor}:判断解析Configuration注解,Importor实现类,扫描{@link ComponentScan}所在包
- * ---->{@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry()}
- * ---->{@link ConfigurationClassPostProcessor#processConfigBeanDefinitions()}
- * ---->{@link ConfigurationClassUtils#checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
- * ---->{@link ConfigurationClassUtils#isConfigurationCandidate()}:判断是否为Import,Component,ComponentScan,ImportResource
- * --->{@link AutowiredAnnotationBeanPostProcessor}:判断解析Autowired,Value,javax.inject.Inject注解
- * --->{@link CommonAnnotationBeanPostProcessor}:判断解析javax.xml.ws.WebServiceRef,javax.ejb.EJB注解
- * --->{@link EventListenerMethodProcessor}:判断解析EventListenerFactory的实现类
- * ->{@link AnnotationConfigUtils#registerPostProcessor()}
- * ->{@link BeanDefinitionRegistry#registerBeanDefinition()}
+ * 3.{@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}
+ * ->3.1.{@link RootBeanDefinition}:以各种BeanPostProcessor实现类为构造参数,判断加载Configuration,Import,Component,ComponentScan等
+ * ->3.1.1.{@link ConfigurationClassPostProcessor}:判断解析Configuration注解,Importor实现类,扫描{@link ComponentScan}所在包
+ * ->3.1.1.1.{@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry()}
+ * ->3.1.1.2.{@link ConfigurationClassPostProcessor#processConfigBeanDefinitions()}
+ * ->3.1.1.3.{@link ConfigurationClassUtils#checkConfigurationClassCandidate()}:判断是否为Configuration,设置相关属性
+ * ->3.1.1.4.{@link ConfigurationClassUtils#isConfigurationCandidate()}:判断是否为Import,Component,ComponentScan,ImportResource
+ * ->3.1.2.{@link AutowiredAnnotationBeanPostProcessor}:判断解析Autowired,Value,javax.inject.Inject注解
+ * ->3.1.3.{@link CommonAnnotationBeanPostProcessor}:判断解析javax.xml.ws.WebServiceRef,javax.ejb.EJB注解
+ * ->3.1.4.{@link EventListenerMethodProcessor}:判断解析EventListenerFactory的实现类
+ * 4.{@link AnnotationConfigUtils#registerPostProcessor()}
+ * 5.{@link BeanDefinitionRegistry#registerBeanDefinition()}
  * </pre>
  * 
  * SpringBoot启动流程--{@link AbstractApplicationContext#obtainFreshBeanFactory}
@@ -396,18 +411,46 @@ import com.wy.runner.SelfCommandLineRunner;
  * <pre>
  * 1.{@link AbstractApplicationContext#finishBeanFactoryInitialization}:处理剩余的非Lazy的单例bean
  * 2.{@link DefaultListableBeanFactory#preInstantiateSingletons}:处理剩余的非Lazy的单例bean
+ * 
+ * -->1.获取容器中的所有Bean,依次进行初始化和创建对象,获取Bean的定义信息RootBeanDefinition判断Bean不是抽象的,是单实例的,是懒加载:
+ * -->1.1.判断是否是FactoryBean,是否是实现FactoryBean接口的Bean
+ * -->1.2.不是工厂Bean,则利用getBean(beanName)创建对象
+ * -->1.2.1.{@link AbstractBeanFactory#getBean(String)};ioc.getBean();
+ * -->1.2.2.{@link AbstractBeanFactory#doGetBean()}:先获取缓存中的单实例bean,如果获取到,说明之前被创建过.
+ * 		所有创建过的都会被保存在{@link DefaultSingletonBeanRegistry#singletonObjects}中
+ * -->1.2.2.1.{@link AbstractBeanFactory#getSingleton(String)}:从缓存中获得bean实例的单例对象
+ * -->1.2.2.1.1.{@link DefaultSingletonBeanRegistry#getSingleton()}:获得bean实例的单例对象的实际操作类,同时解决循环依赖的问题
+ * -->1.2.2.2.{@link AbstractBeanFactory#getParentBeanFactory()}:如果获取不到,先获取父容器,从父容器获取
+ * -->1.2.2.3.{@link AbstractBeanFactory#markBeanAsCreated()}:标记当前bean已经被创建
+ * -->1.2.2.4.获取bean的定义信息,获取当前bean依赖的其他bean,如果有则按照getBean()把依赖的bean先创建出来
+ * -->1.2.2.5.{@link AbstractBeanFactory#getSingleton(String,ObjectFactory)}:如果是单例,先创建bean,再缓存bean
+ * -->1.2.2.5.1.{@link AbstractAutowireCapableBeanFactory#createBean(String,RootBeanDefinition,Object[])}:启动单实例bean的创建流程
+ * -->1.2.2.5.2.{@link AbstractAutowireCapableBeanFactory#resolveBeforeInstantiation()}:让BeanPostProcessor先拦截返回的代理对象,
+ * 		此处只会执行{@link InstantiationAwareBeanPostProcessor}中的方法,并不会执行所有的BeanPostProcessor
+ * -->1.2.2.5.3.{@link AbstractAutowireCapableBeanFactory#doCreateBean}:如果1.2.2.5.2中没有返回代理的bean对象,则执行创建
+ * -->1.2.2.5.4.{@link AbstractAutowireCapableBeanFactory#createBeanInstance}:利用工厂方法或者对象构造器创建出bean实例
+ * -->1.2.2.5.5.{@link AbstractAutowireCapableBeanFactory#instantiateUsingFactoryMethod}:如果能拿到工厂方法名,则调用该方法创建bean
+ * -->1.2.2.5.6.{@link AbstractAutowireCapableBeanFactory#applyMergedBeanDefinitionPostProcessors}:
+ * 		获得所有的MergedBeanDefinitionPostProcessor,循环调用
+ * -->1.2.2.5.7.{@link AbstractAutowireCapableBeanFactory#populateBean}:bean中的属性赋值
+ * -->1.2.2.5.8.{@link AbstractAutowireCapableBeanFactory#initializeBean}:bean初始化
+ * -->1.2.2.5.8.{@link AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary}:bean的销毁方法
+ * -->1.2.2.6.{@link AbstractBeanFactory#addSingleton()}:缓存bean
+ * 
  * 3.{@link SmartInitializingSingleton#afterSingletonsInstantiated}: 处理剩余的单例bean,此处有多种处理程序,包括监听(listener)等
  * ->3.1.{@link EventListenerMethodProcessor#afterSingletonsInstantiated()}:负责监听器的单例处理
  * ->3.1.1.{@link EventListenerMethodProcessor#processBean()}:只处理带有@EventListener注解的bean
  * ->3.1.2.{@link MethodIntrospector#selectMethods}:获得带有@EventListener注解的方法
  * </pre>
  * 
- * {@link ApplicationContextInitializer}:在spring调用refreshed方法之前调用该方法.是为了对spring容器做进一步的控制
- * 注入实现了该类的方法有2种:Configuration或者在META-INF的spring.factories中添加该类,可参照spring-autoconfigure包里的添加
- * {@link CommandLineRunner}:在容器启动成功之后的最后一个回调,该回调执行之后容器就成功启动
- * {@link ApplicationEvent}:自定义事件,需要发布的事件继承该接口
- * {@link ApplicationListener}:事件监听.可以直接在listener上添加注解或者使用上下文添加到容器中
- * {@link publishEvent}:发布事件,必须在refreshed之后调用.使用任何继承了上下文的context调用,传入ApplicationEvent
+ * SpringBoot启动流程--{@link AbstractApplicationContext#finishRefresh}
+ * 
+ * <pre>
+ * 1.{@link AbstractApplicationContext#finishRefresh()}:完成刷新,通知生命周期处理器lifecycleProcessor,发布ContextRefreshEvent事件
+ * 2.{@link AbstractApplicationContext#initLifecycleProcessor()}:初始化和生命周期有关的后置处理器{@link LifecycleProcessor},
+ * 		如果没有,则创建一个{@link DefaultLifecycleProcessor},该类可以在BeanFactory刷新和关闭时执行回调
+ * 3.{@link AbstractApplicationContext#publishEvent()}:发布ContextRefreshEvent事件,告诉监听器容器已刷新完成
+ * </pre>
  * 
  * Bean的加载解析实例化:
  * 
@@ -472,7 +515,6 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link Value}:将配置文件中的值或系统值赋值给某个变量.该注解由{@link BeanPostProcessor}的实现类实现,
  * 		所以不能在 BeanPostProcessor,BeanFactoryPostProcessor 的实现类中使用,会造成循环引用,可使用{@link Autowired}代替
  * {@link InitializingBean}:初始化bean,在bean加载完之后,初始化之前执行,在 {@link PostConstruct}初始化之前执行
- * {@link ApplicationContextInitializer}:在Spring容器调用refresh()之前的回调,此时bean还未初始化,只能对容器做操作
  * </pre>
  * 
  * {@link SpringServletContainerInitializer}:该类负责对容器启动时相关组件进行初始化,当前类只是完成一些验证和组件装配,
@@ -567,6 +609,11 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}:将指定的bean注入到spring容器中
  * {@link AnnotatedBeanDefinitionReader#doRegisterBean()}:被指定注解修饰的类读取类
  * {@link ClassPathScanningCandidateComponentProvider#registerDefaultFilters()}:根据默认的拦截器,扫描{@link Component}
+ * {@link ApplicationContextInitializer}:在Spring容器调用refresh()之前的回调,此时bean还未初始化,只能对容器做操作
+ * 		注入实现了该类的方法有2种:Configuration或在META-INF/spring.factories中添加该类,可参照spring-autoconfigure
+ * {@link CommandLineRunner}:在容器启动成功之后的最后一个回调,该回调执行之后容器就成功启动
+ * {@link ApplicationEvent}:自定义事件,需要发布的事件继承该接口
+ * {@link ApplicationListener}:事件监听.可以直接在listener上添加注解或者使用上下文添加到容器中
  * </pre>
  * 
  * 一些Aware,大部分都是再bean实例话之后,初始化之前调用:
@@ -590,6 +637,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * spring.handlers:如果需要自定义xml的命名空间,需要写在该文件中,需要实现接口{@link NamespaceHandler},自定义处理xml
  * spring.schemas:各种xml的xsd不同版本的文件格式约束映射关系以及xsd文件在包中的位置
  * spring-configuration-metadata.json:{@link ConfigurationProperties}修饰的类编译后产生的自定义属性提示文件
+ * services/javax.servlet.ServletContainerInitializer:Servlet容器启动时扫描的 ServletContainerInitializer 实现类,见{@link SelfServletContainerInitializer}
  * </pre>
  * 
  * Spring XML方式整合第三方框架
