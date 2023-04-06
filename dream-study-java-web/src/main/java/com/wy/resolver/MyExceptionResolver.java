@@ -1,5 +1,6 @@
 package com.wy.resolver;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,8 +34,18 @@ public class MyExceptionResolver implements HandlerExceptionResolver {
 			log.error("the method {} exception", method.getName());
 		}
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.addObject("message", ex.getMessage());
-		modelAndView.setViewName("error");
+		// 方式一
+		try {
+			// 将异常转发到BasicErrorController的/error
+			response.sendError(500, "错误信息");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// 方式二
+		// modelAndView.addObject("message", ex.getMessage());
+		// modelAndView.setViewName("error");
+
 		return modelAndView;
 	}
 }

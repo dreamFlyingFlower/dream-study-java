@@ -1,5 +1,6 @@
 package com.wy;
 
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
@@ -9,11 +10,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter;
+import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
+import org.springframework.boot.autoconfigure.web.servlet.error.DefaultErrorViewResolver;
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.ResourceRegionHttpMessageConverter;
@@ -35,10 +42,13 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -47,10 +57,12 @@ import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.method.annotation.RequestHeaderMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite;
 import org.springframework.web.method.support.InvocableHandlerMethod;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.FrameworkServlet;
 import org.springframework.web.servlet.HandlerAdapter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
@@ -61,14 +73,19 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
+import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
 import org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import org.springframework.web.servlet.mvc.method.annotation.ServletCookieValueMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
+import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
+
+import com.wy.resolver.MyExceptionResolver;
 
 /**
  * 自动加载视图解析{@link WebMvcAutoConfiguration},{@link DispatcherServletAutoConfiguration},{@link EnableWebMvc}
@@ -207,6 +224,39 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * 3.只保证最基本的使用,同时会导致 {@link WebMvcAutoConfiguration}失效
  * 4.因为WebMvcAutoConfiguration生效的条件中必须不存在 WebMvcConfigurationSupport,而
  * 		DelegatingWebMvcConfiguration 继承自 WebMvcConfigurationSupport
+ * </pre>
+ * 
+ * 文件上传流程:
+ * 
+ * <pre>
+ * {@link MultipartAutoConfiguration}:文件上传自动配置
+ * ->{@link MultipartConfigElement}:文件上传参数解析
+ * ->{@link StandardServletMultipartResolver}:加载了名为multipartResolver的标准Servlet文件上传解析器
+ * 
+ * {@link DispatcherServlet#doDispatch}:处理请求
+ * {@link DispatcherServlet#checkMultipart}:检查是否为文件上传请求,返回MultipartHttpServletRequest
+ * {@link RequestMappingHandlerAdapter#invokeHandlerMethod}:解析方法调用,获得文件上传视图解析器,其他流程同一般请求
+ * </pre>
+ * 
+ * 异常解析流程
+ * 
+ * <pre>
+ * {@link ErrorMvcAutoConfiguration}:异常错误处理自动配置
+ * ->{@link DefaultErrorAttributes}:定义错误页面中可以包含哪些数据
+ * ->{@link BasicErrorController}:默认处理/error的请求,json+白页适配响应,还会存放一个key为error的view组件
+ * ->{@link WhitelabelErrorViewConfiguration}:白页,注入key为error的StaticView组件,默认组件
+ * {@link ControllerAdvice}+{@link ExceptionHandler}: 处理全局异常,底层是 {@link ExceptionHandlerExceptionResolver}
+ * {@link ResponseStatus}+自定义异常(继承Exception或其他Exception):底层是{@link ResponseStatusExceptionResolver}
+ * {@link ErrorViewResolver}:自定义异常视图需实现该接口
+ * {@link HandlerExceptionResolver}:自定义异常需要实现该接口,和视图解析差不多,见{@link MyExceptionResolver}
+ * {@link DefaultHandlerExceptionResolver}:Spring底层默认异常处理器
+ * 
+ * {@link DispatcherServlet#doDispatch}:执行Web请求
+ * {@link DispatcherServlet#processDispatchResult}:处理结果与异常
+ * {@link DispatcherServlet#processHandlerException}:循环异常处理器处理异常
+ * {@link DefaultErrorViewResolver#resolveErrorView}:默认错误视图解析器,将响应码作为错误页的地址
+ * {@link ExceptionHandlerExceptionResolver}:专门用来处理{@link ControllerAdvice}和{@link ExceptionHandler}的异常
+ * {@link ResponseStatusExceptionResolver}:根据自定义异常上的注解解析调用
  * </pre>
  * 
  * {@link AsyncHandlerInterceptor}:针对异步请求的接口,异步方法不会调用后置拦截器方法,详见{@link DispatcherServlet}1063行
