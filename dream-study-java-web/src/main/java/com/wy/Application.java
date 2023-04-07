@@ -11,16 +11,24 @@ import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfigura
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.boot.autoconfigure.web.servlet.error.DefaultErrorViewResolver;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.ResourceRegionHttpMessageConverter;
@@ -257,6 +265,21 @@ import com.wy.resolver.MyExceptionResolver;
  * {@link DefaultErrorViewResolver#resolveErrorView}:默认错误视图解析器,将响应码作为错误页的地址
  * {@link ExceptionHandlerExceptionResolver}:专门用来处理{@link ControllerAdvice}和{@link ExceptionHandler}的异常
  * {@link ResponseStatusExceptionResolver}:根据自定义异常上的注解解析调用
+ * </pre>
+ * 
+ * {@link ServletWebServerFactoryAutoConfiguration}:自动配置Web容器解析
+ * 
+ * <pre>
+ * {@link ServletWebServerFactoryAutoConfiguration}:导入了Tomcat,Jetty,Undertow3个容器
+ * ->{@link #ServletWebServerFactoryConfiguration.EmbeddedTomcat}:注册{@link TomcatServletWebServerFactory}
+ * ->{@link #ServletWebServerFactoryConfiguration.EmbeddedJetty}:注册{@link JettyServletWebServerFactory}
+ * ->{@link #ServletWebServerFactoryConfiguration.EmbeddedUndertow}:注册{@link UndertowServletWebServerFactory}
+ * {@link ServletWebServerApplicationContext#refresh}:{@link AnnotationConfigServletWebServerApplicationContext}继承该类,
+ * 		AnnotationConfig在调用refresh()时会先调用ServletWeb的refresh(),但是默认只是调用{@link AbstractApplicationContext#refresh}
+ * {@link ServletWebServerApplicationContext#onRefresh}:{@link AbstractApplicationContext#onRefresh}未做任何处理,由子类实现,
+ * 		ServletWeb重写了该方法,调用了父类方法之外,同时创建了Web容器
+ * ->{@link ServletWebServerApplicationContext#createWebServer}:寻找 ServletWebServerFactory 并引导创建服务器
+ * {@link ServletWebServerFactory}:ServletWeb容器工厂,用来创建Web容器,根据配置不同创建不同的工厂
  * </pre>
  * 
  * {@link AsyncHandlerInterceptor}:针对异步请求的接口,异步方法不会调用后置拦截器方法,详见{@link DispatcherServlet}1063行

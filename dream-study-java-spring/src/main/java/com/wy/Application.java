@@ -294,7 +294,21 @@ import com.wy.runner.SelfCommandLineRunner;
  * 
  * ->{@link AbstractApplicationContext#finishBeanFactoryInitialization()}:初始化所有剩下的非延迟初始化的单例bean对象实例,
  * 		Bean的IOC,DI,AOP都是在该方法中调用
- * -->三级缓存解决循环依赖:
+ * 
+ * --->{@link DefaultSingletonBeanRegistry#addSingleton()}:将单例bean的实例对象放入Map中
+ * -->{@link AbstractBeanFactory#createBean()}:创建bean实例
+ * --->{@link AbstractAutowireCapableBeanFactory#createBean}:创建bean实例默认实现类
+ * --->{@link AbstractAutowireCapableBeanFactory#doCreateBean}:创建bean实例
+ * --->{@link AbstractAutowireCapableBeanFactory#createBeanInstance}:真正创建bean实例
+ * --->{@link AbstractAutowireCapableBeanFactory#instantiateBean}:真正创建bean实例
+ * ---->{@link BeanUtils#instantiateClass}:基于反射真正创建bean实例
+ * --->{@link AbstractAutowireCapableBeanFactory#populateBean}:给实例化的对象属性进行赋值,并注入依赖,可能产生循环依赖
+ * ---->{@link AbstractAutowireCapableBeanFactory#applyPropertyValues}:设置属性值
+ * ----->{@link #BeanDefinitionValueResolver#resolveValueIfNecessary}:判断是否需要解析值
+ * ----->{@link #BeanDefinitionValueResolver#resolveReference}:解析填充值,会再次调用{@link AbstractBeanFactory#doGetBean}
+ * ----->{@link AbstractBeanFactory#getSingleton}:从一级缓存获得bean,同时解决循环依赖
+ * ------>{@link DefaultSingletonBeanRegistry#getSingleton(String, Boolean)}:利用三级缓存解决循环依赖,但是只能解决set方式
+ * ------>三级缓存解决循环依赖:singletonObjects:一级缓存;earlySingletonObjects:二级缓存;singletonFactories:三级缓存
  * <code>
  * 先从一级缓存中查看是否存在bean对象
  *	Object singletonObject = this.singletonObjects.get(beanName);
@@ -309,7 +323,7 @@ import com.wy.runner.SelfCommandLineRunner;
  *			if (singletonObject == null) {
  *				singletonObject = this.earlySingletonObjects.get(beanName);
  *				if (singletonObject == null) {
- *					查看三级缓存,如果三级缓存中存在,就把依赖放入二级缓存中
+ *					查看三级缓存,如果三级缓存中存在,就把未成型的依赖放入二级缓存中
  *					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
  *					if (singletonFactory != null) {
  *						singletonObject = singletonFactory.getObject();
@@ -317,14 +331,7 @@ import com.wy.runner.SelfCommandLineRunner;
  *						this.singletonFactories.remove(beanName);
  *					}
  * </code>
- * --->{@link DefaultSingletonBeanRegistry#addSingleton()}:将单例bean的实例对象放入Map中
- * -->{@link AbstractBeanFactory#createBean()}:创建bean实例
- * --->{@link AbstractAutowireCapableBeanFactory#createBean}:创建bean实例默认实现类
- * --->{@link AbstractAutowireCapableBeanFactory#doCreateBean}:创建bean实例
- * --->{@link AbstractAutowireCapableBeanFactory#createBeanInstance}:真正创建bean实例
- * --->{@link AbstractAutowireCapableBeanFactory#instantiateBean}:真正创建bean实例
- * ---->{@link BeanUtils#instantiateClass}:基于反射真正创建bean实例
- * --->{@link AbstractAutowireCapableBeanFactory#populateBean}:给实例化的对象属性进行赋值,并注入依赖
+ * 
  * --->{@link AbstractAutowireCapableBeanFactory#initializeBean}:对原始bean对象进行增强,产生代理对象
  * --->{@link AbstractAutowireCapableBeanFactory#applyBeanPostProcessorsBeforeInitialization}:
  * 		调用{@link BeanPostProcessor#postProcessBeforeInitialization}进行前置处理
