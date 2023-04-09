@@ -30,8 +30,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 一些Collections的方法,guaua的一些集合,列表等
  * 使用局部变量,ThreadLocal让线程封闭,阻止并发环境
  * </pre>
+ * 
+ * 内存溢出(OOM)和内存泄漏:
+ * 
+ * <pre>
+ * 内存溢出:内存不足
+ * 内存泄漏:内存无法被释放
+ * </pre>
  *
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-12-09 22:47:03
  * @git {@link https://github.com/mygodness100}
  */

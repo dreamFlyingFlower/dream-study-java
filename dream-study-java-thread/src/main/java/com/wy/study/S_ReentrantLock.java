@@ -8,15 +8,19 @@ import java.util.concurrent.locks.ReentrantLock;
  * 
  * 尝试锁:当锁被其他方法或代码块使用时,可使用尝试锁获取锁,尝试锁可以是阻塞的,也可以是非阻塞的
  * 
- * @apiNote 阻塞状态:普通阻塞,等待队列,锁池队列<br>
- *          普通阻塞:如sleep,可以被打断,调用Thread.interrupt()方法可打断,会抛出异常
- *          等待队列:wait方法,只能由notify或notifyall方法唤醒,无法被打断
- *          锁池队列:无法获取锁标记,不是所有的锁池队列都可被打断
- *          使用ReentrantLock的lock()获取锁标记时,如果需要阻塞等待,无法被打断
- *          使用ReentrantLock的lockInterruptibly()获取锁标记时,如果需要阻塞等待,可以被打断
- * @author ParadiseWY
+ * 阻塞状态:普通阻塞,等待队列,锁池队列
+ * 
+ * <pre>
+ * 普通阻塞:如sleep,可以被打断,调用Thread.interrupt()方法可打断,会抛出异常
+ * 等待队列:wait方法,只能由notify或notifyall方法唤醒,无法被打断
+ * 锁池队列:无法获取锁标记,不是所有的锁池队列都可被打断
+ * 使用ReentrantLock的lock()获取锁标记时,如果需要阻塞等待,无法被打断
+ * 使用ReentrantLock的lockInterruptibly()获取锁标记时,如果需要阻塞等待,可以被打断
+ * </pre>
+ * 
+ * @author DreamFlyingFlower
  * @date 2019-05-09 19:41:40
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_ReentrantLock {
 
