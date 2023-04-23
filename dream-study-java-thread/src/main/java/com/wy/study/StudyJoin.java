@@ -11,14 +11,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2019-05-08 22:19:47
  * @git {@link https://github.com/mygodness100}
  */
-public class S_Join {
+public class StudyJoin {
 
 	AtomicInteger atom = new AtomicInteger();
 
 	private int i = 0;
 
 	public static void main(String[] args) {
-		S_Join s = new S_Join();
+		StudyJoin s = new StudyJoin();
 		List<Thread> ts = new ArrayList<>();
 		for (int j = 0; j < 10; j++) {
 			ts.add(new Thread(new Runnable() {

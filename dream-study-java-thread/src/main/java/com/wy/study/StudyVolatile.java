@@ -18,12 +18,12 @@ import java.util.concurrent.TimeUnit;
  * @date 2019-05-08 21:40:37
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_Volatile {
+public class StudyVolatile {
 
 	private volatile boolean flag = true;
 
 	public static void main(String[] args) {
-		S_Volatile volatile1 = new S_Volatile();
+		StudyVolatile volatile1 = new StudyVolatile();
 		new Thread(new Runnable() {
 
 			@Override

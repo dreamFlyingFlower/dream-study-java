@@ -1,4 +1,4 @@
-package com.wy.study;
+package com.wy.study.lock;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,14 +34,14 @@ import java.util.concurrent.TimeUnit;
  * @date 2020-10-06 18:39:02
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_Synchronized {
+public class StudySynchronized {
 
 	Object o1 = new Object();
 
 	Object o2 = new Object();
 
 	public static void main(String[] args) {
-		S_Synchronized t1 = new S_Synchronized();
+		StudySynchronized t1 = new StudySynchronized();
 		new Thread(() -> {
 			t1.m1();
 		}).start();
@@ -62,7 +62,7 @@ public class S_Synchronized {
 
 	public void test() {
 		// 锁的对象不同,锁的使用范围就不一样.锁可以是任意对象
-		synchronized (S_Synchronized.class) {
+		synchronized (StudySynchronized.class) {
 			System.out.println("代码块锁");
 		}
 	}
@@ -91,7 +91,7 @@ public class S_Synchronized {
 	}
 
 	void m3(String label) {
-		synchronized (S_Synchronized.class) {
+		synchronized (StudySynchronized.class) {
 			try {
 				TimeUnit.SECONDS.sleep(6);
 			} catch (InterruptedException e) {

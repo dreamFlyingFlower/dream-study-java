@@ -1,6 +1,7 @@
 package com.wy.study;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.DelayQueue;
@@ -8,6 +9,7 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
@@ -15,15 +17,47 @@ import java.util.concurrent.TransferQueue;
 /**
  * 队列.先进先出fifo
  * 
- * {@link LinkedBlockingDeque}:链表组成的双向阻塞队列(可以从队列两端插入和删除元素),数据有界
+ * {@link BlockingQueue}:阻塞队列接口
+ * 
+ * <pre>
+ * {@link ArrayBlockingQueue}:数组阻塞单向队列,只使用一把锁对数据进行存储获取
+ * {@link LinkedBlockingQueue}:链表阻塞单向队列,使用两把锁对数据进行存储获取
+ * {@link PriorityBlockingQueue}:队列默认先进先出,而PriorityQueue是按照元素的优先级从小到大出队列的.
+ * 		PriorityQueue中的2个元素之间需要可以比较大小,并实现Comparable接口
+ * {@link DelayQueue}:延迟队列,是一个按延迟时间从小到大出队列的PriorityQueue
+ * ->{@link DelayQueue#take()}:
+ * -->1.一般的阻塞队列只在队列为空的时候才阻塞,DelayQueue如果堆顶元素的延迟时间没到,也会阻塞.
+ * -->2.在上面的代码中使用了一个优化技术,用一个leader变量记录了等待堆顶元素的第1个线程.
+ * 		这样做,通过getDelay()可以知道堆顶元素何时到期,不必无限期等待,可以使用condition.awaitNanos等待一个有限的时间;
+ * 		只有当发现还有其他线程也在等待堆顶元素 (leader!=NULL)时,才需要无限期等待
+ * ->{@link DelayQueue#offer()}:
+ * -->1.元素放入二叉堆,如果放进去的元素刚好在堆顶,说明放入的元素延迟时间最小,需要通知等待的线程;否则没有必要通知等待的线程
+ * -->2.放入的元素延迟时间大于当前堆顶的元素延迟时间,就没必要通知等待的线程,只有当延迟时间是最小且在堆顶时,才有必要通知等待的线程
+ * 
+ * {@link SynchronousQueue}:不存储元素的单向阻塞队列,可设置为公平队列或非公平队列,每个元素插入必须等另一个线程调用移除,
+ * 		否则插入一直阻塞.若同时有多个线程put(),则全部阻塞,内部由内部类Transferer调度.性能通常高于LinkedBlockingQueue.
  * {@link LinkedTransferQueue}:数据转移,无界队列,一般用于处理即时信息<br>
  * 		add:队列会保存数据,不做阻塞等待.transfer会阻塞等待里面的数据被获取,必须有消费者来获取数据
+ * 
+ * {@link BlockingDeque}:阻塞双端队列,继承BlockingQueue
+ * {@link LinkedBlockingDeque}:链表组成的双向阻塞队列(可以从队列两端插入和删除元素),数据有界
+ * </pre>
+ * 
+ * LinkedBlockingQueue和ArrayBlockingQueue的差异:
+ * 
+ * <pre>
+ * 1.为了提高并发度,用2把锁,分别控制队头,队尾的操作,意味着在put()和put()之间,take()与take()之间是互斥的,put()和take()之间并不互斥.
+ * 但对于count(元素个数)变量,双方都需要操作,所以必须是原子类型
+ * 2.因为各自拿了一把锁,所以当需要调用对方的condition的signal时,还必须再加上对方的锁,就是signalNotEmpty()和signalNotFull()
+ * 3.不仅put会通知 take,take 也会通知 put.当put 发现非满的时候,也会通知其他 put线程;当take发现非空的时候,也会通知其他take线程
+ * 4.Array需要指定长度,Linked不需要指定长度,最大值为Integer.MAX
+ * </pre>
  * 
  * @author ParadiseWY
  * @date 2019-05-10 22:08:59
  * @git {@link https://github.com/mygodness100}
  */
-public class S_Queue {
+public class StudyQueue {
 
 	public static void main(String[] args) {
 		/**

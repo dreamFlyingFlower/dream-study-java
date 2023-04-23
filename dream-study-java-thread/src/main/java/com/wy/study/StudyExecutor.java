@@ -1,6 +1,8 @@
 package com.wy.study;
 
+import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,6 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
 import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@link Executor}:线程池,可以对线程进行重复利用,减少线程创建和销毁的开销
@@ -65,6 +68,17 @@ import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
  * largestPoolSize:最大线程池容量,可重入锁中才有效
  * completedTaskCount:已完成任务数量
  * allowCoreThreadTimeOut:是否运行核心线程超时
+ * 
+ * {@link ThreadPoolExecutor#execute(Runnable)}:执行任务
+ * {@link ThreadPoolExecutor#submit(Callable)}:提交任务 task,用返回值 Future 获得任务执行结果
+ * {@link ThreadPoolExecutor#invokeAll(Collection)}:提交 tasks 中所有任务
+ * {@link ThreadPoolExecutor#invokeAll(Collection, long, TimeUnit)}:提交 tasks 中所有任务,带超时时间
+ * {@link ThreadPoolExecutor#invokeAny(Collection)}:提交 tasks 中所有任务,哪个任务先成功执行完毕,返回此任务执行结果,其它任务取消
+ * {@link ThreadPoolExecutor#invokeAny(Collection, long, TimeUnit)}:提交 tasks 中所有任务,带超时时间
+ * {@link ThreadPoolExecutor#isShutdown()}:不在 RUNNING 状态的线程池,此方法就返回 true
+ * {@link ThreadPoolExecutor#isTerminated()}:线程池状态是否是 TERMINATED
+ * {@link ThreadPoolExecutor#awaitTermination()}:调用shutdown后,由于调用线程并不会等待所有任务运行结束,
+ * 		因此如果想在线程池 TERMINATED 后做些操作,可以利用此方法等待
  * </pre>
  * 
  * 线程池运行中线程使用数量变化:
@@ -90,7 +104,7 @@ import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
  * @date 2019-05-11 00:19:31
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_Executor {
+public class StudyExecutor {
 
 	static ExecutorService fixPool = Executors.newFixedThreadPool(5);
 
@@ -115,5 +129,11 @@ public class S_Executor {
 		System.out.println(fixPool.isShutdown());
 		// 是否已经结束.相当于回收了资源.当该方法返回true时,表示多线程任务都已经完成
 		System.out.println(fixPool.isTerminated());
+		// 系统自带的线程池有各自的缺陷,最好自定义一个线程池
+		new ThreadPoolExecutor(2, 5, 2L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200));
+		new ThreadPoolExecutor(2, 5, 2L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+				Executors.defaultThreadFactory());
+		new ThreadPoolExecutor(2, 5, 2L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+				Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
 	}
 }

@@ -37,7 +37,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 			throws Exception {
 		if (handler instanceof HandlerMethod) {
 			HandlerMethod handlerMethod = (HandlerMethod) handler;
-			LimitRate limitRate = handlerMethod.getMethodAnnotation(LimitRate.class);
+			LimitRate limitRate = handlerMethod.getMethod().getAnnotation(LimitRate.class);
 			if (limitRate == null) {
 				return true;
 			}

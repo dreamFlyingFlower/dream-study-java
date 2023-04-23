@@ -1,4 +1,4 @@
-package com.wy.study;
+package com.wy.study.lock;
 
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
@@ -9,14 +9,14 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * 生产者消费者演示条件重入锁
  * 
- * @apiNote Condition,为lock增加条件,当条件满足时,做什么事情,如加锁,解锁,等待唤醒<br>
- *          该类中的await(),signal(),signalAll()刚好对应await(),notify(),notifyAll()
+ * Condition,为lock增加条件,当条件满足时,做什么事情,如加锁,解锁,等待唤醒<br>
+ * 该类中的await(),signal(),signalAll()刚好对应await(),notify(),notifyAll()
  *
  * @author ParadiseWY
  * @date 2019-05-10 09:42:16
  * @git {@link https://github.com/mygodness100}
  */
-public class S_Condition {
+public class StudyCondition {
 
 	Lock lock = new ReentrantLock();
 
@@ -31,7 +31,7 @@ public class S_Condition {
 	LinkedList<String> list = new LinkedList<>();
 
 	public static void main(String[] args) {
-		S_Condition s = new S_Condition();
+		StudyCondition s = new StudyCondition();
 		for (int i = 0; i < 10; i++) {
 			new Thread(new Runnable() {
 
@@ -73,6 +73,8 @@ public class S_Condition {
 				prod.await();
 			}
 			list.add(s + Thread.currentThread().getName());
+			// 唤醒自己的线程
+			// prod.signal();
 			count++;
 			// 借助条件,唤醒所有等待着,必须在释放锁之前调用
 			cons.signalAll();

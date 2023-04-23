@@ -9,13 +9,15 @@ import java.util.concurrent.Executors;
  * Cyclic可循环的障碍物,可多次使用,多线程运行时,当多线程的数量达到指定数目时才继续执行程序
  * 和CountDownLatch的区别在于使用次数,CountDownLatch只能用一次
  * 
+ * CyclicBarrier会响应中断,10个线程没有到齐,如果有线程收到了中断信号,所有阻寒的线程也会被唤醒
+ * 
  * 该类和Semaphonre都是为多线程高并发业务场景时使用
  *
  * @author ParadiseWY
  * @date 2019-03-09 22:42:50
  * @git {@link https://github.com/mygodness100}
  */
-public class S_CyclicBarrier {
+public class StudyCyclicBarrier {
 
 	private static ExecutorService pool = Executors.newCachedThreadPool();
 

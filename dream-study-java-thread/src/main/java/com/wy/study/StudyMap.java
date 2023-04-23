@@ -23,7 +23,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * {@link ConcurrentHashMap}:底层依然是数组+链表+红黑树,但是JDK8抛弃了Segment分段锁机制,
  * 利用CAS+Synchronized+Node来保证线程安全.如果数组index没有发生冲突,则使用CAS;发生冲突则使用Synchronized加锁.
  * JDK8之所以抛弃Segment,是因为需要先要查询Segment的位置,再根据key从Segment中查询key的位置;
- * JDK7使用{@link ReentrantLock}进行加锁,该锁是重量级锁.但是Synchronized会自动升级,从轻量级锁开始->自旋锁->重量级锁
+ * JDK7使用{@link ReentrantLock}进行加锁,该锁是重量级锁.但是Synchronized会自动升级,从轻量级锁开始->自旋锁->重量级锁.
+ * JDK8的加锁是对每个头节点分别加锁,即并发度,就是Node数组的长度,初始长度为16
  * 
  * <pre>
  * table:第一次插入时初始化,默认大小为16的数组,用来存储Node节点数据,扩容时大小总是2的幂次方
@@ -98,7 +99,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @date 2019-05-10 22:01:26
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_Map {
+public class StudyMap {
 
 	public static void main(String[] args) {
 

@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -19,11 +20,13 @@ import java.util.concurrent.TimeoutException;
  * get():获得结果时会阻塞线程,若一直不返回结果,则线程一直阻塞,可手动打断
  * get(long,timeunit):获得结果时会阻塞线程,会等待指定的时间,若仍不返回结果,则抛出异常,可手动打断
  * 
+ * {@link CompletableFuture}:内部使用了{@link ForkJoinPool}进行任务的执行
+ * 
  * @author 飞花梦影
  * @date 2019-05-06 22:54:52
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_Future {
+public class StudyFuture {
 
 	static ExecutorService fixPool = Executors.newFixedThreadPool(5);
 

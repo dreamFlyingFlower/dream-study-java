@@ -1,4 +1,4 @@
-package com.wy.study;
+package com.wy.study.lock;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @date 2019-05-09 19:41:40
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_ReentrantLock {
+public class StudyReentrantLock {
 
 	// 非公平锁,多 线程竞争机制
 	ReentrantLock lock = new ReentrantLock();
@@ -87,7 +87,7 @@ public class S_ReentrantLock {
 			// 阻塞等待锁标记,可尝试打断
 			// 当m3方法运行时,若m3方法没有结束,那么m4方法就是阻塞状态
 			// 若运行m4方法的线程调用interrupt,则会打断m4的阻塞状态,进而会触发lockInterruptibly()
-			// 此时是非正常方式结束线程的阻塞状态,会抛出异常;若是正常的获取锁,那么就不会触发lockInterruptibly()
+			// 此时是非正常方式结束线程的阻塞状态,会抛出异常;若没有竞争,则是正常的获取锁,那么就不会触发lockInterruptibly()
 			lock.lockInterruptibly();
 			System.out.println("打断1");
 		} catch (InterruptedException e) {
@@ -102,7 +102,7 @@ public class S_ReentrantLock {
 	}
 
 	public static void main(String[] args) {
-		S_ReentrantLock li = new S_ReentrantLock();
+		StudyReentrantLock li = new StudyReentrantLock();
 		Thread t = new Thread(new Runnable() {
 
 			@Override

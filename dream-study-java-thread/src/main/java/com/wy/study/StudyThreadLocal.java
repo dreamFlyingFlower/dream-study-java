@@ -15,21 +15,12 @@ import java.util.concurrent.TimeUnit;
  * 而恰好CPU繁忙,则会清空线程的栈数据,保留线程.当该线程被其他对象使用,并从ThreadLocal中取数据时,
  * 就会取到该线程在被清空栈数据之前的数据,造成内存泄漏
  * </pre>
- * 
- * 强,弱,软,虚引用:
- * 
- * <pre>
- * 强引用:当内存不足时,JVM开始进行 GC(垃圾回收),对于强引用对象,就算是出现了OOM 也不会对该对象进行回收
- * 软引用:当内存充足时,不会被回收;当内存不足时,它会被回收,软引用通常用在对内存敏感的.程序中,比如高速缓存就用到软引用,内存够用时就保留,不够时就回收
- * 弱引用:需要用到java.langref.WeakReference来实现.只要有垃圾回收,不管JVM 的内存空间够不够用,都会回收该对象占用的内存空间,ThrealLocal就是弱引用
- * 虚引用:需要用到java.langref.Phantomreference来实现.虚引用就是形同虚设,与其它几种引用不同,虚引用并不会决定对象的声明周期
- * </pre>
  *
  * @author 飞花梦影
  * @date 2019-10-06 14:39:56
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_ThreadLocal {
+public class StudyThreadLocal {
 
 	volatile static String name = "test";
 

@@ -1,4 +1,4 @@
-package com.wy.study;
+package com.wy.study.lock;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -6,14 +6,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * ReadWriteLock:读写锁.写写和读写的时候需要互斥,读读的时候不需要互斥
  * 
+ * <pre>
  * 锁降级:写锁降级为读锁.在写锁木有释放的时候,获取到读锁,再释放写锁
  * 锁升级:读锁升级为写锁.在读锁米有释放的时候,获取到写锁,再释放读锁
  * 
- * @author ParadiseWY
+ * {@link ReentrantReadWriteLock}:ReadWriteLock的实现类,当创建该对象实例时,可以设置锁是否为公平锁,默认为非公平锁.
+ * 		该锁是可重入锁,Reader角色的线程可以获取用于写入的锁,Writer角色的线程可以获取用于读取的锁.
+ * 		该锁可降级,可以将用于写入的锁降级为用于读取的锁
+ * </pre>
+ * 
+ * @author 飞花梦影
  * @date 2020-11-24 23:33:16
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_ReadWriteLock {
+public class StudyReadWriteLock {
 
 	public static void main(String[] args) {
 		ReadWriteLockDemo rw = new ReadWriteLockDemo();

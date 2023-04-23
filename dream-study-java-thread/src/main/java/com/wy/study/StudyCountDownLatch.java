@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
  * @date 2020-11-24 22:57:39
  * @git {@link https://github.com/mygodness100}
  */
-public class S_CountDownLatch {
+public class StudyCountDownLatch {
 
 	public static void main(String[] args) {
 		// 参数表示调用50次countDown方法,就可以继续执行,否则就在调用await的地方一直等待

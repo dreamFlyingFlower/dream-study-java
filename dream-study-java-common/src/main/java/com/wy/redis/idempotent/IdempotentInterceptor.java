@@ -11,7 +11,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.wy.common.Constant;
-import com.wy.idempotent.Idempotency;
+import com.wy.idempotent.annotation.Idempotency;
 import com.wy.result.ResultException;
 
 /**

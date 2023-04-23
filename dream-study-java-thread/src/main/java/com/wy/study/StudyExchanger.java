@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
  * @date 2019-03-09 23:43:26
  * @git {@link https://github.com/mygodness100}
  */
-public class S_Exchanger {
+public class StudyExchanger {
 
 	private static ExecutorService pool = Executors.newCachedThreadPool();
 

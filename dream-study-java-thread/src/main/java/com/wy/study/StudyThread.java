@@ -7,8 +7,17 @@ import java.util.concurrent.TimeUnit;
  * 
  * 优先级:{@link Thread#MAX_PRIORITY},{@link Thread#MIN_PRIORITY}
  * 
+ * {@link Thread.State}:线程状态
+ * 
  * <pre>
- * 线程状态:初始化start()->被调用之后处于就绪状态run()->运行,抢到CPU时间片->阻塞,会释放锁等资源->消亡
+ * {@link Thread.State#NEW}:初始化,新建,还没有调用start()
+ * {@link Thread.State#RUNNABLE}:就绪状态,随时可以运行,此时已经调用了start()
+ * {@link Thread.State#BLOCKED}:阻塞,如获取其他被其他线程占用的锁
+ * {@link Thread.State#WAITING}:无限期等待,如果没有其他线程唤醒将一直等待,如join(),wait(),park()
+ * {@link Thread.State#TIMED_WAITING}:超时等待,指定等待的时间,超过该时间将不再等待,如sleep(time),wait(time),join(time)
+ * {@link Thread.State#TERMINATED}:销毁
+ * 
+ * 线程状态:初始化->start()被调用之后处于就绪状态->run()运行,抢到CPU时间片->阻塞,会释放锁等资源->消亡
  * 从运行到阻塞状态可以调用sleep(),wait(),同步块,唤醒可调用notify(),notifyAll()
  * </pre>
  * 
@@ -20,9 +29,9 @@ import java.util.concurrent.TimeUnit;
  * @date 2019-05-08 20:39:35
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_Thread {
+public class StudyThread {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Thread thread1 = new Thread(new TDaemon());
 		// 线程是否后台启动,即当主线结束时,子线程也结束
 		// 若设置为true,当主线程结束时,子线程就结束,不管子线程是否执行完毕
@@ -33,8 +42,6 @@ public class S_Thread {
 		thread1.start();
 		Thread thread2 = new Thread(new TInterrupt());
 		thread2.start();
-		// 当线程启动之后,再中断,线程若是被中断,则抛出指定异常,可以对特殊情况进行特殊处理
-		thread2.interrupt();
 		System.out.println("main线程结束了...");
 	}
 }
@@ -70,6 +77,15 @@ class TInterrupt implements Runnable {
 				// 当线程A调用了LockSupport.park()之后,线程A会暂停;在线程B调用A.interrupt()之后,线程A打断标记为true;
 				// 此时LockSupoort.park()检测到打断标记为true,将不阻塞线程A;如果后续再次调用LockSupport.park(),不会有任何效果
 				Thread.currentThread().interrupt();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				System.out.println("线程被打断了.............");
+			}
+			try {
+				// System.out.println(Thread.interrupted());
+				// 当Thread.currentThread().interrupt();被调用之后,再调用sleep(),wait(),join()就会抛出InterruptedException
+				// 如果Thread.currentThread().interrupt();被调用之后再调用Thread.interrupted()就会清除打断状态,此时调用sleep()等不会抛异常
+				TimeUnit.SECONDS.sleep(1);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

@@ -18,7 +18,7 @@ import java.util.concurrent.RecursiveTask;
  * @date 2019-05-11 18:02:33
  * @git {@link https://github.com/mygodness100}
  */
-public class S_ForkJoin {
+public class StudyForkJoin {
 
 	static ForkJoinPool pool = new ForkJoinPool();
 
