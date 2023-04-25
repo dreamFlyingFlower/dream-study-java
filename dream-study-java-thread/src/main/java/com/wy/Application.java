@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 锁优化:减少锁持有时间,只有在需要的地方才加锁,进来不要整个方法都加锁<br>
  * 减少锁粒度:将大对象拆成小对象,大大增加并行度,降低锁竞争,使用Concurrent包中的Map等代替原生的同步类<br>
  * 锁分离:根据功能进行锁分离,如读写锁,读多写少的情况可以提高性能<br>
+ * 抛异常默认会自动释放锁
  * 
  * 多线程的调试,线程dump及分析,JDK8对并发的新支持:LongAdder,CompletableFuture,StampedLock
  * 
@@ -67,6 +68,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 4.通过 Lock 可以知道有没有成功获取锁,而 synchronized 却无法办到
  * 5.Lock 可以提高多个线程进行读操作的效率.如果竞争不激烈,两者性能差不多,而竞争非常激烈时,Lock 的性能要远远优于synchronized
  * </pre>
+ * 
+ * 自旋和锁,如果程序耗时很久,用系统锁(synchronized),自旋很消耗CPU,如果线程太多,使用自旋同样很浪费资源,即并发较小或执行时间短用自旋
  * 
  * i++和++i都不是原子性的操作
  * 
