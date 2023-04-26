@@ -3,7 +3,12 @@ package com.wy.study;
 import java.util.concurrent.TimeUnit;
 
 /**
- * volatile:多线程之间的变量可见性,但不保证原子性,必须是同一把锁的线程之间才能使用,可以在某些地方替代synchronized
+ * volatile,多线程之间变量可见性以及禁止指令重排
+ * 
+ * <pre>
+ * 线程可见性:多线程之间的变量可见性,但不保证原子性,必须是同一把锁的线程之间才能使用,可以在某些地方替代synchronized
+ * 指令重排:在JVM执行字节码时可能会对执行顺序进行调整,volatile禁止JVM调整执行顺序
+ * </pre>
  * 
  * MESI:CPU缓存一致性,用于保证多个CPU缓存之间缓存共享数据的一致性,是一种协议
  * 
