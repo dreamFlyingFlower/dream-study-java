@@ -3,7 +3,7 @@ package com.wy.study;
 import java.util.concurrent.TimeUnit;
 
 /**
- * volatile,多线程之间变量可见性以及禁止指令重排
+ * volatile,多线程之间变量可见性以及禁止指令重排.volatile只能让对象可见,但是不能让对象中的值可见
  * 
  * <pre>
  * 线程可见性:多线程之间的变量可见性,但不保证原子性,必须是同一把锁的线程之间才能使用,可以在某些地方替代synchronized

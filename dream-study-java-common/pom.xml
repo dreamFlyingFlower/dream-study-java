@@ -6,6 +6,7 @@
 		<groupId>dream.flying.flower</groupId>
 		<artifactId>dream-parent</artifactId>
 		<version>0.0.1</version>
+		<relativePath />
 	</parent>
 	<artifactId>dream-study-java-common</artifactId>
 	<name>dream-study-java-common</name>

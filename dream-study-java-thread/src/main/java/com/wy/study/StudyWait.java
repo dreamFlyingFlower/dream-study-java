@@ -3,10 +3,10 @@ package com.wy.study;
 /**
  * wait,notify,notifyall:必须在同步代码块中使用,即必须放在synchronized代码块中.wait和notify使用的时候还需要是同一把锁.
  * 
- * wait():被调用的时候会释放锁,此时若是有多个线程同时在wait()等待,当wait被唤醒时,所有等待的线程都将被执行
+ * wait():被调用的时候会释放锁,此时若是有多个线程同时在wait()等待,当wait被唤醒时,所有等待的线程都将被执行.wait()会释放锁
  * 
  * notify():会随机唤醒一个处于等待的线程;notifyAll():唤醒所有等待的线程,但拿到时间片的只有一个线程;
- * notify()调用之后wait线程立刻被唤醒,但是仍然需要notify()所持有的同步代码块释放锁才会调用wait()之后的代码.
+ * notify()调用之后wait线程立刻被唤醒,但是仍然需要notify()所持有的同步代码块释放锁才会调用wait()之后的代码.即notify不会释放锁
  * wait()和notify()的作用域都是当前对象,直接调用时会阻塞或唤醒所在对象
  * 
  * 为什么wait()的时候必须释放锁:

@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 案例可见{@link AtomicInteger#compareAndSet()}
  * 
  * 各种线程安全的扩展类:
+ * 
  * <pre>
  * {@link ConcurrentHashMap}:线程安全的map,底层原来是分段锁,现在是CAS,可代替HashTable,多线程下优于HashMap
  * {@link ConcurrentSkipListMap}:线程安全的TreeMap(可排序map),多线程下优于TreeMap,但更新的消耗更大
@@ -29,6 +30,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 		但在ConcurrentLinkedQueue中,head/tail的更新可能落后于节点的入队和出队,因为它不是直接对head/tail指针进行CAS操作的,
  * 		而是对Node中的item进行操作
  * </pre>
+ * 
+ * AQS底层是CAS+volatile,因为state是volatile修饰的,当state=0表示没有线程竞争,state=1表示有线程竞争,state>1表示可重入
+ * 
+ * JUC包里的同步组件主要实现了AQS的tryAcquire,tryRelease,tryAcquireShared,tryReleaseShared,isHeldExclusivelycoding方法
  * 
  * @author 飞花梦影
  * @date 2020-11-24 22:40:00
