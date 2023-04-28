@@ -1,0 +1,8 @@
+spring:
+  messages:
+    # 指定message的basename,多个以逗号分隔,如果不加包名的话,默认从classpath路径开始,默认: messages
+    basename:
+    # 设定加载的资源文件缓存失效时间,-1的话为永不过期,默认为-1
+    cache-duration: -1
+    # 设定Message bundles的编码.默认UTF-8
+    encoding: UTF-8

@@ -1,0 +1,25 @@
+spring:
+  mustache:
+    # 是否开启mustcache的模板支持
+    enabled: true
+    charset: UTF-8
+    # 是否检查默认的路径是否存在
+    check-template-location: false
+    # 指定模板的前缀,默认classpath:/templates/
+    prefix: 
+    request-context-attribute: 
+    # 指定模板的后缀,默认html
+    suffix: 
+    # 指定使用模板的视图名,多个以逗号分隔
+    view-names:
+    - 
+    servlet:
+      # 是否Enable template caching
+      cache: false
+      allow-session-override: false
+      allow-request-override: false
+      # 指定Content-Type
+      content-type: application/*
+      expose-request-attributes: false
+      expose-session-attributes: false
+      expose-spring-macro-helpers: false

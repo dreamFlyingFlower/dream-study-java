@@ -1,0 +1,126 @@
+spring:
+  jackson:
+    # 指定日期格式,比如yyyy-MM-dd HH:mm:ss,或者具体的格式化类的全限定名
+    date-format: 
+    default-property-inclusion: always
+    # Jackson的反序列化配置
+    deserialization: 
+      accept-empty-array-as-null-object: false
+      accept-empty-string-as-null-object: false
+      accept-float-as-int: false
+      accept-single-value-as-array: false
+      adjust-dates-to-context-time-zone: false
+      eager-deserializer-fetch: false
+      fail-on-ignored-properties: false
+      fail-on-invalid-subtype: false
+      fail-on-missing-creator-properties: false
+      fail-on-missing-external-type-id-property: false
+      fail-on-null-creator-properties: false
+      fail-on-null-for-primitives: false
+      fail-on-numbers-for-enums: false
+      fail-on-reading-dup-tree-key: false
+      fail-on-trailing-tokens: false
+      fail-on-unknown-properties: false
+      fail-on-unresolved-object-ids: false
+      read-date-timestamps-as-nanoseconds: false
+      read-enums-using-to-string: false
+      read-unknown-enum-values-as-null: false
+      read-unknown-enum-values-using-default-value: false
+      unwrap-root-value: false
+      unwrap-single-value-arrays: false
+      use-big-decimal-for-floats: false
+      use-big-integer-for-ints: false
+      use-java-array-for-json-array: false
+      use-long-for-ints: false
+      wrap-exceptions: false
+    # 是否开启json的generators
+    generator: 
+      ignore-unknown: true
+      auto-close-json-content: false
+      auto-close-target: false
+      flush-passed-to-stream: false
+      strict-duplicate-detection: false
+      write-bigdecimal-as-plain: false
+    # 指定json使用的Locale
+    locale: zh_CN
+    # 是否开启Jackson通用的特性
+    mapper:
+      accept-case-insensitive-enums: false
+      accept-case-insensitive-properties: false
+      accept-case-insensitive-values: false
+      allow-coercion-of-scalars: false
+      allow-explicit-property-renaming: false
+      allow-final-fields-as-mutators: false
+      auto-detect-creators: false
+      auto-detect-fields: false
+      auto-detect-getters: false
+      auto-detect-is-getters: false
+      auto-detect-setters: false
+      block-unsafe-polymorphic-base-types: false
+      can-override-access-modifiers: false
+      default-view-inclusion: false
+      ignore-duplicate-module-registrations: false
+      ignore-merge-for-unmergeable: false
+      infer-creator-from-constructor-properties: false
+      infer-property-mutators: false
+      override-public-access-modifiers: false
+      propagate-transient-marker: false
+      require-setters-for-getters: false
+      sort-properties-alphabetically: false
+      use-annotations: false
+      use-base-type-as-default-impl: false
+      use-getters-as-setters: false
+      use-static-typing: false
+      use-std-bean-naming: false
+      use-wrapper-name-as-property-name: false
+    # 是否开启jackson的parser特性
+    parser:
+      # 是否允许有注释
+      allow-comments: false
+      # 是否允许有单引号
+      allow-single-quotes: false
+      # 是否允许有不加引号的字段
+      allow-unquoted-field-names: true
+      # 是否允许yaml文件中的注释
+      allow-yaml-comments: false
+      auto-close-source: false
+      # 忽略未定义的字段
+      ignore-undefined: false
+      include-source-in-location: false
+      strict-duplicate-detection: false
+      allow-backslash-escaping-any-character: false
+      allow-leading-decimal-point-for-numbers: false
+    # 指定PropertyNamingStrategy (CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)或者指定PropertyNamingStrategy子类的全限定类名
+    property-naming-strategy: 
+    # 是否开启jackson的序列化
+    serialization:
+      close-closeable: false
+      eager-serializer-fetch: false
+      fail-on-empty-beans: false
+      fail-on-self-references: false
+      fail-on-unwrapped-type-identifiers: false
+      flush-after-write-value: false
+      indent-output: false
+      order-map-entries-by-keys: false
+      use-equality-for-object-id: false
+      wrap-exceptions: false
+      wrap-root-value: false
+      write-char-arrays-as-json-arrays: false
+      write-date-keys-as-timestamps: false
+      #将时间戳转换为纳秒输出
+      write-date-timestamps-as-nanoseconds: false
+      # 将时间类型转换为时间戳输出
+      write-dates-as-timestamps: false
+      write-dates-with-zone-id: false
+      # 将Duration转换为时间戳输出
+      write-durations-as-timestamps: false
+      # 将枚举的索引作为key序列化
+      write-enum-keys-using-index: false
+      write-enums-using-index: false
+      write-enums-using-to-string: false
+      write-self-references-as-null: false
+      write-single-elem-arrays-unwrapped: false
+    # 指定日期格式化时区,比如Asia/ShangHai或者GMT+8
+    time-zone:
+    visibility: 
+      all: any

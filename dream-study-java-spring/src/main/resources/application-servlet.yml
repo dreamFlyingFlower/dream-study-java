@@ -1,0 +1,15 @@
+spring:
+  servlet:
+    multipart:
+      # 是否开启文件上传支持,默认为true
+      enabled: true
+      # 设定文件写入磁盘的阈值,单位为MB或KB,默认为0
+      file-size-threshold: 10MB
+      # 指定文件上传路径
+      location: 
+      # 指定文件大小最大值,默认1MB
+      max-file-size: 10MB
+      # 指定每次请求的最大值,默认为10MB
+      max-request-size: 10MB
+      # 是否懒解析
+      resolve-lazily: true

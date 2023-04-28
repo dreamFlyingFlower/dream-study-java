@@ -1,0 +1,31 @@
+spring:
+  web:
+    # 指定使用的Locale
+    locale: zh_CN
+    resources:
+      # 是否开启默认的资源处理,默认true
+      add-mappings: true
+      # 指定静态资源路径,默认为classpath:[/META-INF/resources/,/resources/, /static/, /public/]以及context:/
+      static-locations:
+      # 设定资源的缓存时效,以秒为单位
+      cache:
+        period: 18000
+      chain:
+        # 是否开启资源 handling chain,默认false
+        enabled: false
+        # 是否开启缓存,默认true
+        cache: true
+        strategy:
+          content:
+            # 是否开启内容版本策略,默认false
+            enabled: false
+            # 指定要应用的版本的路径,多个以逗号分隔,默认为:[/**]
+            paths: "/**"
+          fixed:
+            # 是否开启固定的版本策略默认false
+            enabled: false
+            # 指定要应用版本策略的路径,多个以逗号分隔
+            paths:
+            - /**
+            # 指定版本策略使用的版本号
+            version: 1

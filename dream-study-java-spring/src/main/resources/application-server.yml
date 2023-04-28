@@ -1,5 +1,6 @@
 server:
   address: 8888
+  max-http-header-size: 10000000
   servlet:
     encoding:
       # 指定http请求和相应的Charset,默认UTF-8
@@ -10,3 +11,23 @@ server:
       force: true
       force-request: true
       force-response: true
+  # 数据压缩
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types:
+    - image/png
+    - image/jpeg
+    - image/jpg
+    - text/html
+    - text/css
+    - application/javascript
+    - application/octet-stream
+    - application/json
+  tomcat:
+    # 当所有可能的请求处理线程都在使用时,传入连接请求的最大队列长度,默认100
+    accept-count: 100
+    # 服务器在任何给定时间接受和处理的最大连接数,一旦达到限制,操作系统仍然可以接受基于acceptCount属性的连接,默认8192
+    max-connections: 8192
+    # 在关闭连接之前可以通过管道传输的HTTP请求的最大数量.当为0或1时,将禁用;当为-1时,允许无限数量的保持活动的请求
+    max-keep-alive-requests: 100

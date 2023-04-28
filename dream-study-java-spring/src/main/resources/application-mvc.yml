@@ -1,0 +1,22 @@
+spring:
+  mvc:
+    async:
+      # 设定async请求的超时时间，以毫秒为单位，如果没有设置的话，以具体实现的超时时间为准，比如tomcat的servlet3的话是10秒
+      request-timeout: 10
+    # 在重定向时是否忽略默认model的内容,默认true
+    ignore-default-model-on-redirect: true
+    # 指定message codes的格式化策略(PREFIX_ERROR_CODE,POSTFIX_ERROR_CODE)
+    message-codes-resolver-format: postfix-error-code
+    view:
+      # 指定mvc视图的前缀和后缀
+      prefix: 
+      suffix: 
+    # 设定日期时间的格式
+    format:
+      date-time: yyyy-MM-dd HH:mm:ss
+      date: yyyy-MM-dd
+      time: HH:mm:ss
+    converters:
+      # 是否优先使用JSON mapper来转换
+      preferred-json-mapper: 
+    log-request-details: false

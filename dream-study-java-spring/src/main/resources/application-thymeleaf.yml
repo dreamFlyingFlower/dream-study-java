@@ -1,0 +1,39 @@
+spring:
+  thymeleaf:
+    # 是否开启模板缓存,默认true
+    cache: true
+    check-template: false
+    # 是否检查模板路径是否存在,默认true
+    check-template-location: true
+    enable-spring-el-compiler: true 
+    # 是否允许MVC使用Thymeleaf,默认为true
+    enabled: true
+    # 指定模板的编码,默认为UTF-8
+    encoding: UTF-8
+    # 指定不使用模板的视图名称,多个以逗号分隔
+    excluded-view-names:
+    -
+    # 指定模板的模式,具体查看StandardTemplateModeHandlers,默认为HTML5 
+    mode: html5
+    # 指定模板的前缀,默认为:classpath:/templates/
+    prefix: 
+    reactive:
+      chunked-mode-view-names:
+      - 
+      full-mode-view-names:
+      -
+      media-types:
+      -  
+      max-chunk-size:
+    render-hidden-markers-before-checkboxes: true
+    servlet:
+      # 指定Content-Type,默认为: text/html
+      content-type: 
+      produce-partial-output-while-processing: true
+    # 指定模板的后缀,默认为html
+    suffix: 
+    # 指定模板的解析顺序,默认为第一个
+    template-resolver-order: 1
+    # 指定使用模板的视图名,多个以逗号分隔
+    view-names:
+    - 
