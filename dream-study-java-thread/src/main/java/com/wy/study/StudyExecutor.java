@@ -40,34 +40,37 @@ import java.util.concurrent.TimeUnit;
  * {@link ThreadPoolExecutor}:除了ForkJoinPool之外,所有的线程池的底层都是该类,主要参数及方法:
  * 
  * <pre>
- * corePoolSize:核心容量,即使其他核心线程处于空闲状态,仍然会创建新的线程,直到达到核心线程数.
+ * {@link ThreadPoolExecutor#corePoolSize}:核心容量,即使其他核心线程处于空闲状态,仍然会创建新的线程,直到达到核心线程数.
  * 		如果调用了prestartAllCoreThreads(),线程池会提前创建好并启动所有核心线程.
  * 		核心线程一直会存在,除非设置了allowCoreThreadTimeOut()
- * maximumPoolSize:最大线程数,若队列满了,将会继续创建线程,直到最大线程数.若设置了无限队列,则该参数无效
- * keepAliveTime:存活时间,只要线程空闲大于该时间并且maximumPoolSize>corePoolSize就回收空闲线程
- * handler:若队列满了和线程池都满了,按照指定的拒绝/饱和策略执行任务,默认策略是直接抛出异常
- * threadFactory:设置创建线程的工厂,可以设置每个创建出来的线程的名字,debug和定位问题时更容易
- * workQueue:阻塞队列,所有待执行的任务都放在队列中,等待空闲线程取出任务并执行,由以下几种队列可选
+ * {@link ThreadPoolExecutor#maximumPoolSize}:最大线程数,若队列满了,将会继续创建线程,直到最大线程数.若设置了无限队列,则该参数无效
+ * {@link ThreadPoolExecutor#keepAliveTime}:存活时间,只要线程空闲大于该时间并且maximumPoolSize>corePoolSize就回收空闲线程
+ * {@link ThreadPoolExecutor#handler}:若队列满了和线程池都满了,按照指定的拒绝/饱和策略执行任务,默认策略是直接抛出异常
+ * {@link ThreadPoolExecutor#threadFactory}:设置创建线程的工厂,可以设置每个创建出来的线程的名字,debug和定位问题时更容易
+ * {@link ThreadPoolExecutor#workQueue}:阻塞队列,所有待执行的任务都放在队列中,等待空闲线程取出任务并执行,由以下几种队列可选
  * ->{@link ArrayBlockingQueue}:有界阻塞数组队列,按FIFO(先进先出)排序元素
  * ->{@link LinkedBlockingQueue}:有界阻塞链表队列,按FIFO(先进先出)排序元素,性能通常高于ArrayBlockingQueue,
  * 		Executors.newFixedThreadPool()使用该队列
  * ->{@link SynchronousQueue}:不存储元素的阻塞队列,每个元素插入必须等另一个线程调用移除,否则插入一直阻塞,
  * 		性能通常高于LinkedBlockingQueue,Executors.newCachedThreadPool使用该队列
  * ->{@link PriorityBlockingQueue}:具有优先级的无限阻塞队列
- * ctl:线程池的控制状态,用来表示线程池的运行状态(整型的高3位)和运行的worker数量(低29位)
- * COUNT_BITS:29位的偏移量
- * CAPACITY:最大容量,2^29 - 1
- * RUNNING:线程状态,接受新任务并且处理已经进入阻塞队列的任务
- * SHUTDOWN:不接受新任务,但是处理已经进入阻塞队列的任务
- * STOP:不接受新任务,不处理已经进入阻塞队列的任务并且中断正在运行的任务
- * TIDYING:所有的任务都已经终止,workerCount为0,线程转化为TIDYING状态并且调用terminated钩子函数
- * TERMINATED:terminated钩子函数已经运行完成
- * mainLock:可重入锁
- * workers:存放工作线程集合
- * termination:终止条件
- * largestPoolSize:最大线程池容量,可重入锁中才有效
- * completedTaskCount:已完成任务数量
- * allowCoreThreadTimeOut:是否运行核心线程超时
+ * {@link ThreadPoolExecutor#ctl}:线程池的控制状态,用来表示线程池的运行状态(整型的高3位)和运行的worker数量(低29位)
+ * {@link ThreadPoolExecutor#COUNT_BITS}:29位的偏移量
+ * {@link ThreadPoolExecutor#CAPACITY}:最大线程数,2^29 - 1
+ * {@link ThreadPoolExecutor#RUNNING}:线程运行状态,接受新任务并且处理已经进入阻塞队列的任务
+ * {@link ThreadPoolExecutor#SHUTDOWN}:不接受新任务,但是处理已经进入阻塞队列的任务
+ * {@link ThreadPoolExecutor#STOP}:不接受新任务,不处理已经进入阻塞队列的任务并且中断正在运行的任务
+ * {@link ThreadPoolExecutor#TIDYING}:所有的任务都已经终止,workerCount为0,线程转化为TIDYING状态并且调用terminated钩子函数
+ * {@link ThreadPoolExecutor#TERMINATED}:terminated钩子函数已经运行完成
+ * {@link ThreadPoolExecutor#mainLock}:可重入锁
+ * {@link ThreadPoolExecutor#workers}:存放工作线程集合
+ * {@link ThreadPoolExecutor#termination}:终止条件
+ * {@link ThreadPoolExecutor#largestPoolSize}:最大线程池容量,可重入锁中才有效
+ * {@link ThreadPoolExecutor#completedTaskCount}:已完成任务数量
+ * {@link ThreadPoolExecutor#allowCoreThreadTimeOut}:是否运行核心线程超时
+ * {@link ThreadPoolExecutor#runStateOf}:获取线程池状态,通过按位与操作,低29位将全部变成0
+ * {@link ThreadPoolExecutor#workerCountOf}:获取线程池worker数量,通过按位与操作,高3位将全部变成0
+ * {@link ThreadPoolExecutor#ctlOf}:根据线程池状态和线程池worker数量,生成ctl值
  * 
  * {@link ThreadPoolExecutor#execute(Runnable)}:执行任务
  * {@link ThreadPoolExecutor#submit(Callable)}:提交任务 task,用返回值 Future 获得任务执行结果
