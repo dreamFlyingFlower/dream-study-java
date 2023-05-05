@@ -3,6 +3,7 @@ package com.wy.study;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
@@ -21,7 +22,10 @@ import java.util.concurrent.TransferQueue;
  * 
  * <pre>
  * {@link ArrayBlockingQueue}:数组阻塞单向队列,只使用一把锁对数据进行存储获取
- * {@link LinkedBlockingQueue}:链表阻塞单向队列,使用两把锁对数据进行存储获取
+ * {@link LinkedBlockingQueue}:链表阻塞单向队列,使用两把锁对数据进行put,take
+ * ->当节点总数大于2时(包括dummy节点),putLock保证last节点的线程安全,takeLock保证head节点的线程安全,两把锁保证入队和出队没有竞争
+ * ->当节点总数等于2时(即一个dummy节点,一个正常节点)这时候,仍然是两把锁锁两个对象,不会竞争
+ * ->当节点总数等于1时(就一个dummy节点),这时take线程会被notEmpty条件阻塞,有竞争,会阻塞
  * {@link PriorityBlockingQueue}:队列默认先进先出,而PriorityQueue是按照元素的优先级从小到大出队列的.
  * 		PriorityQueue中的2个元素之间需要可以比较大小,并实现Comparable接口
  * {@link DelayQueue}:延迟队列,是一个按延迟时间从小到大出队列的PriorityQueue
@@ -39,8 +43,15 @@ import java.util.concurrent.TransferQueue;
  * {@link LinkedTransferQueue}:数据转移,无界队列,一般用于处理即时信息<br>
  * 		add:队列会保存数据,不做阻塞等待.transfer会阻塞等待里面的数据被获取,必须有消费者来获取数据
  * 
+ * {@link ConcurrentLinkedQueue}:实现原理和AQS的阻塞队列类似:都是基于CAS,都是通过head/tail指针记录队列头部和尾部,但有稍许差别
+ * ->1.ConcurrentLinkedQueue内部队列是一个单向链表
+ * ->2.在AQS的阻塞队列中,每次入队后,tail一定后移一个位置;每次出队,head一定后移一个位置,以保证head指向队列头部,tail指向链表尾部.
+ * 		但在ConcurrentLinkedQueue中,head/tail的更新可能落后于节点的入队和出队,因为它不是直接对head/tail指针进行CAS操作的,
+ * 		而是对Node中的item进行操作
+ * 
  * {@link BlockingDeque}:阻塞双端队列,继承BlockingQueue
  * {@link LinkedBlockingDeque}:链表组成的双向阻塞队列(可以从队列两端插入和删除元素),数据有界
+ * {@link ConcurrentLinkedDeque}:安全的双向队列
  * </pre>
  * 
  * LinkedBlockingQueue和ArrayBlockingQueue的差异:
@@ -50,12 +61,16 @@ import java.util.concurrent.TransferQueue;
  * 但对于count(元素个数)变量,双方都需要操作,所以必须是原子类型
  * 2.因为各自拿了一把锁,所以当需要调用对方的condition的signal时,还必须再加上对方的锁,就是signalNotEmpty()和signalNotFull()
  * 3.不仅put会通知 take,take 也会通知 put.当put 发现非满的时候,也会通知其他 put线程;当take发现非空的时候,也会通知其他take线程
- * 4.Array需要指定长度,Linked不需要指定长度,最大值为Integer.MAX
+ * 4.Array必须指定长度,Linked可以指定长度,也可以不指定长度,最大值为Integer.MAX
+ * 5.Array是数组实现,Linked是链表实现
+ * 6.Array的Node节点是提前初始化好的,Linked是添加的时候才新建Node对象
  * </pre>
  * 
- * @author ParadiseWY
+ * LinkedBlockingQueue和ConcurrentLinkedQueue的差异:最大的差异是LinkedBlockingQueue使用锁,ConcurrentLinkedQueue使用CAS
+ * 
+ * @author 飞花梦影
  * @date 2019-05-10 22:08:59
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://gitee.com/dreamFlyingFlower}
  */
 public class StudyQueue {
 

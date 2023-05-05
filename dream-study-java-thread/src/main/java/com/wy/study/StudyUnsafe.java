@@ -3,13 +3,19 @@ package com.wy.study;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.wy.model.User;
 
 import sun.misc.Unsafe;
 
 /**
- * {@link sun.misc.Unsafe}:并非是指该类是不安全的,而是指该类会操作内存,随意使用可能会造成内存问题.只能通过反射实例化
+ * {@link sun.misc.Unsafe}:并非是指该类不安全,而是指该类会操作内存,随意使用可能会造成内存问题.该类是CAS的基础
+ * 
+ * CAS:Compare And Swap,比较替换,操作包含三个操作数-内存位置(V),预期原值(A)和新值(B)
+ * 如果内存位置的值与预期原值相配,那么处理器会自动将该位置值更新为新值;否则,处理器不做任何操作.
+ * CAS存在三大问题:ABA问题,循环时间长开销大,以及只能保证一个共享变量的原子操作
+ * 案例可见{@link AtomicInteger#compareAndSet()}
  *
  * @author 飞花梦影
  * @date 2023-04-22 16:30:08

@@ -1,6 +1,6 @@
 package com.wy;
 
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.Collections;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,30 +16,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 
  * 多线程的调试,线程dump及分析,JDK8对并发的新支持:LongAdder,CompletableFuture,StampedLock
  * 
- * {@link AbstractQueuedSynchronizer}:AQS,为了方便实现同步锁以及相关的同步器(信号量,事件等)提供的一个框架.
- * AQS内部的阻塞队列实现原理是基于双向链表,通过对head/tail进行CAS操作,实现入队和出队.
- * 该类设计成依靠单个原子int值来表示状态的同步器,子类必须定义更改此状态的受保护方法,并定义何种状态是被获取或释放.
- * 可以使用{@link AbstractQueuedSynchronizer#setState()},{@link AbstractQueuedSynchronizer#getState()},
- * {@link AbstractQueuedSynchronizer#compareAndSetState()}以原子方式更改该状态的值,以便实现对锁的操作
- * 
- * {@link AbstractQueuedSynchronizer.Node}:采用双线链表的形式存放正在等待的线程
- * ->CANCELLED:1,表示当前的线程被取消 ->SIGNAL:-1,释放资源后需唤醒后继节点 ->CONDITION:-2,等待 condition
- * 唤醒 ->PROPAGATE:-3,工作于共享锁状态,需要向后传播,比如根据资源是否剩余,唤醒后继节点 ->0:表示当前节点在 sync
- * 队列中,等待着获取锁 ->head 头结点 等待队列的头结点 ->tail 尾结点 正在等待的线程 ->state 锁的状态 0 无锁、1
- * 已结获取锁,当前线程重入不断+1 ->exclusiveOwnerThread 记录锁的持有
- * 
- * 子类可以支持独占和共享其中一种,也可以两种都支持.不同模式下的等待线程可以共享相同的FIFO队列
- * 独占模式:该模式下,其他线程试图获得锁将无法成功,需要实现AbstractQueuedSynchronizer的tryAcquire()和tryRelease
- * 共享模式:多个线程获取某个锁可能成功,也可能失败,需要实现AbstractQueuedSynchronizer#tryAcquireShared()和tryReleaseShared()
- *
  * 不可变对象:
  * 
  * <pre>
- * 对象创建后其状态就不可修改
+ * 对象创建后其状态就不可修改,如String
  * 对象所有域都是final类型
  * 对象是正确创建的(在对象创建期间,this引用没有逸出)
- * 一些Collections的方法,guaua的一些集合,列表等
+ * guaua的一些集合,列表等
  * 使用局部变量,ThreadLocal让线程封闭,阻止并发环境
+ * {@link Collections#synchronizedCollection(java.util.Collection)}等,内部仍然是使用synchronized
  * </pre>
  * 
  * 强,弱,软,虚引用:
