@@ -1,5 +1,8 @@
 package com.wy;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 
 import org.springframework.boot.SpringApplication;
@@ -30,11 +33,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 强,弱,软,虚引用:
  * 
  * <pre>
- * 强引用:当内存不足时,JVM开始进行 GC(垃圾回收),对于强引用对象,就算是出现了OOM 也不会对该对象进行回收
- * 软引用:当内存充足时,不会被回收;当内存不足时,它会被回收,软引用通常用在对内存敏感的.程序中,比如高速缓存就用到软引用,内存够用时就保留,不够时就回收
- * 弱引用:需要用到java.langref.WeakReference来实现.只要有垃圾回收,不管JVM 的内存空间够不够用,都会回收该对象占用的内存空间,ThrealLocal就是弱引用
- * 虚引用:需要用到java.langref.Phantomreference来实现.虚引用就是形同虚设,与其它几种引用不同,虚引用并不会决定对象的声明周期
+ * 强引用:普通对象就是强引用.当内存不足时,JVM开始进行 GC(垃圾回收),对于强引用对象,就算是出现了OOM 也不会对该对象进行回收
+ * 软引用:利用{@link SoftReference}实现.当内存充足时,不会被回收;当内存不足时,会被回收,软引用通常用在对内存敏感的.程序中,比如高速缓存就用到软引用
+ * 弱引用:利用{@link WeakReference}来实现.只要有垃圾回收,不管JVM 的内存空间够不够用,都会回收该对象占用的内存空间,ThrealLocal就是弱引用
+ * 虚引用:利用{@link PhantomReference}来实现.虚引用就是形同虚设,与其它几种引用不同,虚引用并不会决定对象的声明周期
  * </pre>
+ * 
+ * 
  * 
  * 内存溢出(OOM)和内存泄漏:
  * 

@@ -3,20 +3,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>dream.flying.flower</groupId>
+		<artifactId>dream-parent</artifactId>
+		<version>0.0.1</version>
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>dream.flying.flower</groupId>
+
 	<artifactId>dream-study-java-process</artifactId>
-	<version>0.0.1</version>
 	<name>dream-study-java-process</name>
 	<description>java study for activiti and jbpm</description>
-
-	<properties>
-		<java.version>1.8</java.version>
-	</properties>
 
 	<dependencies>
 		<dependency>
@@ -41,29 +36,27 @@
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-spring-boot-starter</artifactId>
-			<version>7.1.0.M5</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.flowable</groupId>
+    		<artifactId>flowable-spring-boot-starter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>
 			<artifactId>mybatis-spring-boot-starter</artifactId>
-			<version>2.1.4</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
 		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-boot-starter</artifactId>
-			<version>3.4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>dream.flying.flower</groupId>
 			<artifactId>dream-tool-third</artifactId>
-			<version>0.0.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-boot-starter</artifactId>
-			<version>3.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -82,7 +75,6 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

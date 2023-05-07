@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wy.database.BaseModelField;
+import com.wy.db.annotation.BaseModelField;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

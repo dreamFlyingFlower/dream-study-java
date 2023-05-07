@@ -17,8 +17,8 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wy.collection.ListTool;
-import com.wy.database.Sort;
-import com.wy.database.Unique;
+import com.wy.db.annotation.Sort;
+import com.wy.db.annotation.Unique;
 import com.wy.lang.NumberTool;
 import com.wy.lang.StrTool;
 import com.wy.reflect.ReflectTool;
@@ -326,7 +326,7 @@ public abstract class AbstractService<T, ID extends Serializable> extends Servic
 	 * @return 大于0有重复值
 	 */
 	@Override
-	public int hasValue(T t) {
+	public long hasValue(T t) {
 		return super.count(new QueryWrapper<T>(t));
 	}
 

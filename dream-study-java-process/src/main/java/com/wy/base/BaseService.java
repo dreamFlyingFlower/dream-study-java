@@ -96,7 +96,7 @@ public interface BaseService<T, ID extends Serializable> extends IService<T> {
 	 * @param t 实体类对象
 	 * @return 大于0有重复值
 	 */
-	int hasValue(T t);
+	long hasValue(T t);
 
 	/**
 	 * 根据主键删除单条数据
