@@ -8,6 +8,11 @@ import java.util.concurrent.ForkJoinPool;
 /**
  * {@link CompletableFuture}:多线程异步变成,内部使用了{@link ForkJoinPool}进行任务的执行
  * 
+ * {@link CompletableFuture#runAsync}与{@link CompletableFuture#supplyAsync}是CompletableFuture的静态方法
+ * {@link CompletableFuture#thenAccept},{@link CompletableFuture#thenAsync},thenApply是CompletableFutre的成员方法
+ * 因为初始的时候没有CompletableFuture对象,也没有参数可传,所以提交的只能是Runnable或者Supplier,只能是静态方法
+ * 通过静态方法生成CompletableFuture对象之后,便可以链式地提交其他任务了,这个时候就可以提交Runnable、Consumer、Function,且都是成员方法
+ * 
  * @author 飞花梦影
  * @date 2019-05-06 22:54:52
  * @git {@link https://github.com/dreamFlyingFlower}
