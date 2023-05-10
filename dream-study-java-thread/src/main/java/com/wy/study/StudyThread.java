@@ -19,6 +19,13 @@ import java.util.concurrent.TimeUnit;
  * 
  * 线程状态:初始化->start()被调用之后处于就绪状态->run()运行,抢到CPU时间片->阻塞,会释放锁等资源->消亡
  * 从运行到阻塞状态可以调用sleep(),wait(),同步块,唤醒可调用notify(),notifyAll()
+ * 
+ * {@link Thread#getId()}:返回Thread对象的标识符.该标识符是在钱程创建时分配的一个正整数,在线程的整个生命周期中唯一且无法改变
+ * {@link Thread#interrupt()}:中断目标线程,给目标线程发送一个中断信号,线程被打上中断标记
+ * {@link Thread#interrupted()}:判断目标线程是否被中断,但是将清除线程的中断标记
+ * {@link Thread#isInterrupted()}:判断目标线程是否被中断,不会清除中断标记
+ * {@link Thread#join()}:暂停线程的执行,直到调用该方法的线程执行结束为止。可以使用该方法等待另一个Thread对象结束
+ * {@link Thread#setUncaughtExceptionHandler()}:当线程执行出现未校验异常时,该方法用于建立未校验异 常的控制器
  * </pre>
  * 
  * 线程的打断,恢复:Interrupt()
@@ -37,12 +44,18 @@ public class StudyThread {
 		// 若设置为true,当主线程结束时,子线程就结束,不管子线程是否执行完毕
 		// 若设置为false,所有的子线程结束,主线程才能结束
 		// thread1.setDaemon(true);
+		// 判断是否为守护线程
+		thread1.isDaemon();
 		// 设置优先级,最大是10,最小是1,值越大的优先级越高,但是线程的运行并不一定是优先级越高越先运行
 		thread1.setPriority(5);
+		// 获得线程优先级
+		System.out.println(thread1.getPriority());
 		thread1.start();
 		Thread thread2 = new Thread(new TInterrupt());
 		thread2.start();
 		System.out.println("main线程结束了...");
+		// 判断当前线程的运行状态
+		System.out.println(thread1.getState());
 	}
 }
 
@@ -72,7 +85,8 @@ class TInterrupt implements Runnable {
 			System.out.println(Thread.interrupted());
 			try {
 				TimeUnit.SECONDS.sleep(1);
-				// 如果被打断线程正在sleep(),wait(),join(),被打断线程会抛出InterruptedException,并清除打断标记(false),线程继续执行;
+				// 如果被打断线程正在sleep(),wait(),join(),即线程状态是WAITING或TIMED_WAITING,
+				// 被打断线程会抛出InterruptedException,并清除打断标记(false),线程继续执行;
 				// 如果被打断线程正在运行,则会设置打断标记为true,但线程仍继续运行;
 				// 当线程A调用了LockSupport.park()之后,线程A会暂停;在线程B调用A.interrupt()之后,线程A打断标记为true;
 				// 此时LockSupoort.park()检测到打断标记为true,将不阻塞线程A;如果后续再次调用LockSupport.park(),不会有任何效果
