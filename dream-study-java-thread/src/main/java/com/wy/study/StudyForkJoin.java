@@ -4,19 +4,26 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RecursiveTask;
 
 /**
- * ForkJoinPool:分支合并,类似递归.当运行的线程数量不足以支持运算时,会将当前的任务评分,
+ * {@link ForkJoinPool}:分支合并,类似递归.当运行的线程数量不足以支持运算时,会将当前的任务平分,
  * 若是平分之后仍然不足以支持计算,那么继续平分,直到pool认为足够运算时,开始运算.
  * 当所有线程运算完成之后,再一层一层的将运算后的数据合并,最终汇聚到一个线程中.
  * 它没有容量,默认都是1个线程,根据任务自动分支新的子线程,当子线程任务结束后,自动合并.
  * 
- * @apiNote ForkJoinTask:要想使用ForkJoinPool,该线程里执行的任务必须是ForkJoinTaks类型的子类型,
- *          否则就无法实现分支和合并.通常可以直接继承的有2类:RecursiveAction(无返回值),RecursiveTask(有返回值)
- * @author ParadiseWY
+ * {@link ForkJoinTask}:ForkJoinPool里的线程必须是{@link ForkJoinTask},否则无法实现分支和合并
+ * 
+ * <pre>
+ * {@link ForkJoinTask#fork()},{@link ForkJoinTask#join()}:核心方法,分支,合并
+ * {@link RecursiveAction}:继承自ForkJoinTask,无返回值
+ * {@link RecursiveTask}:继承自ForkJoinTask,有返回值
+ * </pre>
+ * 
+ * @author 飞花梦影
  * @date 2019-05-11 18:02:33
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class StudyForkJoin {
 
