@@ -16,6 +16,9 @@ import sun.misc.Unsafe;
  * 如果内存位置的值与预期原值相配,那么处理器会自动将该位置值更新为新值;否则,处理器不做任何操作.
  * CAS存在三大问题:ABA问题,循环时间长开销大,以及只能保证一个共享变量的原子操作
  * 案例可见{@link AtomicInteger#compareAndSet()}
+ * 
+ * {@link sun.misc.Unsafe#compareAndSetInt}:参数依次为:要修改哪个对象的属性值;该对象属性在内存的偏移量;期望值;要设置为的目标值
+ * {@link sun.misc.Unsafe#objectFieldOffset}:找到指定类中value属性所在的内存偏移量
  *
  * @author 飞花梦影
  * @date 2023-04-22 16:30:08

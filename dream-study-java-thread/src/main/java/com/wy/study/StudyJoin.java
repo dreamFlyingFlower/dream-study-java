@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Join:当主线程中调用多线程时,使用该方法可让所有线程都执行完成之后再结束主线程.即单个线程运行完后再继续主线程
  * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2019-05-08 22:19:47
  * @git {@link https://github.com/mygodness100}
  */
