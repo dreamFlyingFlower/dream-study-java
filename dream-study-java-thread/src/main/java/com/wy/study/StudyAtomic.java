@@ -40,7 +40,7 @@ public class StudyAtomic {
 	/** 原子整型,线程安全 */
 	static AtomicInteger atomicInteger = new AtomicInteger();
 
-	/** 数组类原子操作 */
+	/** 数组类原子操作,针对的是数据中的元素进行CAS操作,而不是整个数组 */
 	static AtomicIntegerArray atomicIntegerArray = new AtomicIntegerArray(new int[5]);
 
 	static AtomicLongArray atomicLongArray = new AtomicLongArray(new long[5]);
@@ -63,8 +63,10 @@ public class StudyAtomic {
 	static AtomicIntegerFieldUpdater<User> atomicIntegerFieldUpdater =
 			AtomicIntegerFieldUpdater.newUpdater(User.class, "id");
 
+	/** 同AtomicIntegerFieldUpdater,限制只能是long不能是Long,且是volatile修饰 */
 	static AtomicLongFieldUpdater<User> atomicLongFieldUpdater = AtomicLongFieldUpdater.newUpdater(User.class, "id");
 
+	/** 对对象实例中的对象进行修改 */
 	static AtomicReferenceFieldUpdater<User, User> atomicReferenceFieldUpdater =
 			AtomicReferenceFieldUpdater.newUpdater(User.class, User.class, "id");
 
