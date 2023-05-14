@@ -9,12 +9,16 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * 生产者消费者演示条件重入锁
  * 
- * Condition,为lock增加条件,当条件满足时,做什么事情,如加锁,解锁,等待唤醒<br>
- * 该类中的await(),signal(),signalAll()刚好对应await(),notify(),notifyAll()
+ * {@link Condition}:为lock增加条件,当条件满足时,做什么事情,如加锁,解锁,等待唤醒<br>
+ * Condition中的await(),signal(),signalAll()刚好对应await(),notify(),notifyAll(),在某些时候可以替代他们
+ * 
+ * 由于Condition必须和Lock一起使用,所以Condition的实现也是Lock的一部分.
+ * 读写锁中的 ReadLock 是不支持 Condition 的,读写锁的写锁和互斥锁都支持Condition.
+ * 每一个Condition对象上面,都阻塞了多个线程,因此,在ConditionObject内部也有一个双向链表组成的队列
  *
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2019-05-10 09:42:16
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class StudyCondition {
 

@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.atomic.AtomicStampedReference;
 import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
 
 import com.wy.model.User;
@@ -70,14 +71,21 @@ public class StudyAtomic {
 	static AtomicReferenceFieldUpdater<User, User> atomicReferenceFieldUpdater =
 			AtomicReferenceFieldUpdater.newUpdater(User.class, User.class, "id");
 
-	/** 针对Long型的原子操作LongAdder和LongAccumulator,继承自Striped64.在高并发下做运算比AtomicLong更快 */
+	/** 针对Long的原子操作,继承自Striped64.在高并发下做运算比AtomicLong更快,但数据可能不准,只能从0开始加减运算 */
 	static LongAdder longAdder = new LongAdder();
 
-	/** 针对Double类型的DoubleAdder,DoubleAccumulator,继承自Striped64,主要用于计算 */
+	/** 功能和LongAdder相似,但更强大,可以自定义初始值,也可以根据参数进行各种运算 */
+	static LongAccumulator longAccumulator = new LongAccumulator(null, 0);
+
+	/** 针对Double类型的DoubleAdder,DoubleAccumulator,继承自Striped64,主要用于计算.内部也是long来实现的 */
 	static DoubleAdder doubleAdder = new DoubleAdder();
 
 	public static void main(String[] args) {
 		// 参数:User旧值;User新值;版本旧值;版本新值
 		atomicStampedReference.compareAndSet(null, null, 0, 0);
+		longAccumulator.accumulate(0);
+		// Double的CAS操作是通过将Double转成long来操作
+		Double.longBitsToDouble(0);
+		Double.doubleToRawLongBits(0);
 	}
 }
