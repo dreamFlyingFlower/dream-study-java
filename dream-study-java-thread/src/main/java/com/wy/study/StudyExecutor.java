@@ -63,15 +63,15 @@ import java.util.concurrent.TimeUnit;
  * {@link ThreadPoolExecutor#TIDYING}:所有的任务都已经终止,workerCount为0,线程转化为TIDYING状态并且调用terminated钩子函数
  * {@link ThreadPoolExecutor#TERMINATED}:terminated钩子函数已经运行完成
  * {@link ThreadPoolExecutor#mainLock}:可重入锁
- * {@link ThreadPoolExecutor#workers}:存放工作线程集合
+ * {@link ThreadPoolExecutor#workers}:存放工作线程集合,继承了AQS,所以Worker本身就是一把锁
  * {@link ThreadPoolExecutor#termination}:终止条件
  * {@link ThreadPoolExecutor#largestPoolSize}:最大线程池容量,可重入锁中才有效
  * {@link ThreadPoolExecutor#completedTaskCount}:已完成任务数量
+ * 
  * {@link ThreadPoolExecutor#allowCoreThreadTimeOut}:是否运行核心线程超时
  * {@link ThreadPoolExecutor#runStateOf}:获取线程池状态,通过按位与操作,低29位将全部变成0
  * {@link ThreadPoolExecutor#workerCountOf}:获取线程池worker数量,通过按位与操作,高3位将全部变成0
  * {@link ThreadPoolExecutor#ctlOf}:根据线程池状态和线程池worker数量,生成ctl值
- * 
  * {@link ThreadPoolExecutor#execute(Runnable)}:执行任务
  * {@link ThreadPoolExecutor#submit(Callable)}:提交任务 task,用返回值 Future 获得任务执行结果
  * {@link ThreadPoolExecutor#invokeAll(Collection)}:提交 tasks 中所有任务
@@ -82,6 +82,9 @@ import java.util.concurrent.TimeUnit;
  * {@link ThreadPoolExecutor#isTerminated()}:线程池状态是否是 TERMINATED
  * {@link ThreadPoolExecutor#awaitTermination()}:调用shutdown后,由于调用线程并不会等待所有任务运行结束,
  * 		因此如果想在线程池 TERMINATED 后做些操作,可以利用此方法等待
+ * {@link ThreadPoolExecutor#terminated()}:钩子方法,用户可自定义线程池时实现.线程池关闭之前调用
+ * {@link ThreadPoolExecutor#beforeExecute()}:钩子方法,用户可自定义线程池时实现.线程执行之前调用
+ * {@link ThreadPoolExecutor#afterExecute()}:钩子方法,用户可自定义线程池时实现.线程执行之后调用
  * </pre>
  * 
  * 线程池运行中线程使用数量变化:
