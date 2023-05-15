@@ -35,7 +35,18 @@ import java.util.concurrent.TimeUnit;
  * 当线程池中的线程空闲到一定时间时(默认60秒),自动释放线程.缓存线程多数用于测试高并发时,固定线程池的最佳线程数
  * {@link Executors#newScheduledThreadPool}:执行定时任务的线程,底层还是用DelayedQueue
  * 
- * 线程状态:start()->就绪,running->正在运行,shuttingdown->正在关闭,优雅关闭,terminated->结束
+ * 线程池状态
+ * 
+ * <pre>
+ * start()->就绪,running->正在运行,shuttingdown->正在关闭,优雅关闭,terminated->结束
+ * 
+ * {@link ThreadPoolExecutor#RUNNING}:线程运行状态,接受新任务并且处理已经进入阻塞队列的任务
+ * {@link ThreadPoolExecutor#SHUTDOWN}:不接受新任务,但是处理已经进入阻塞队列的任务,调用了shutdown()之后进入该状态
+ * {@link ThreadPoolExecutor#STOP}:不接受新任务,不处理已经进入阻塞队列的任务并且中断正在运行的任务,调用了shutdownNow()之后进入该状态
+ * {@link ThreadPoolExecutor#TIDYING}:所有的任务都已经终止,workerCount为0,线程转化为TIDYING状态并且调用terminated()钩子函数
+ * {@link ThreadPoolExecutor#TERMINATED}:terminated()钩子函数已经运行完成
+ * 状态迁移只能从小到大迁移:-1->0->1->2->3,不会逆向迁移
+ * </pre>
  * 
  * {@link ThreadPoolExecutor}:除了ForkJoinPool之外,所有的线程池的底层都是该类,主要参数及方法:
  * 
@@ -54,14 +65,11 @@ import java.util.concurrent.TimeUnit;
  * ->{@link SynchronousQueue}:不存储元素的阻塞队列,每个元素插入必须等另一个线程调用移除,否则插入一直阻塞,
  * 		性能通常高于LinkedBlockingQueue,Executors.newCachedThreadPool使用该队列
  * ->{@link PriorityBlockingQueue}:具有优先级的无限阻塞队列
+ * 
  * {@link ThreadPoolExecutor#ctl}:线程池的控制状态,用来表示线程池的运行状态(整型的高3位)和运行的worker数量(低29位)
  * {@link ThreadPoolExecutor#COUNT_BITS}:29位的偏移量
  * {@link ThreadPoolExecutor#CAPACITY}:最大线程数,2^29 - 1
- * {@link ThreadPoolExecutor#RUNNING}:线程运行状态,接受新任务并且处理已经进入阻塞队列的任务
- * {@link ThreadPoolExecutor#SHUTDOWN}:不接受新任务,但是处理已经进入阻塞队列的任务
- * {@link ThreadPoolExecutor#STOP}:不接受新任务,不处理已经进入阻塞队列的任务并且中断正在运行的任务
- * {@link ThreadPoolExecutor#TIDYING}:所有的任务都已经终止,workerCount为0,线程转化为TIDYING状态并且调用terminated钩子函数
- * {@link ThreadPoolExecutor#TERMINATED}:terminated钩子函数已经运行完成
+ * 
  * {@link ThreadPoolExecutor#mainLock}:可重入锁
  * {@link ThreadPoolExecutor#workers}:存放工作线程集合,继承了AQS,所以Worker本身就是一把锁
  * {@link ThreadPoolExecutor#termination}:终止条件
@@ -72,7 +80,13 @@ import java.util.concurrent.TimeUnit;
  * {@link ThreadPoolExecutor#runStateOf}:获取线程池状态,通过按位与操作,低29位将全部变成0
  * {@link ThreadPoolExecutor#workerCountOf}:获取线程池worker数量,通过按位与操作,高3位将全部变成0
  * {@link ThreadPoolExecutor#ctlOf}:根据线程池状态和线程池worker数量,生成ctl值
- * {@link ThreadPoolExecutor#execute(Runnable)}:执行任务
+ * {@link ThreadPoolExecutor#execute(Runnable)}:执行任务.
+ * ->1.如果当前线程数小于corePoolSize,则启动新线程,并且添加一个Worker,将command设置为新添加Worker的第一个任务
+ * ->2.如果当前的线程数大于或等于corePoolSize,则调用workQueue.offer放入队列.
+ * ->2.1.如果线程池正在停止,则将command任务从队列移除,并拒绝command任务请求
+ * ->2.2.放入队列中后发现没有线程执行任务,开启新线程
+ * ->3.线程数大于maxPoolSize,并且队列已满,调用拒绝策略
+ * {@link ThreadPoolExecutor#addWorker()}:启动新线程,如果第二个参数为true,则使用corePoolSize作为上限,否则使用maxPoolSize作为上限
  * {@link ThreadPoolExecutor#submit(Callable)}:提交任务 task,用返回值 Future 获得任务执行结果
  * {@link ThreadPoolExecutor#invokeAll(Collection)}:提交 tasks 中所有任务
  * {@link ThreadPoolExecutor#invokeAll(Collection, long, TimeUnit)}:提交 tasks 中所有任务,带超时时间
@@ -85,6 +99,11 @@ import java.util.concurrent.TimeUnit;
  * {@link ThreadPoolExecutor#terminated()}:钩子方法,用户可自定义线程池时实现.线程池关闭之前调用
  * {@link ThreadPoolExecutor#beforeExecute()}:钩子方法,用户可自定义线程池时实现.线程执行之前调用
  * {@link ThreadPoolExecutor#afterExecute()}:钩子方法,用户可自定义线程池时实现.线程执行之后调用
+ * {@link ThreadPoolExecutor#shutdown()}:线程池关闭,进入SHUTDOWN状态,在队列为空,线程池也为空之后,进入TIDYING 状态
+ * {@link ThreadPoolExecutor#shutdownNow()}:立刻关闭线程池,中断所有线程,清空队列,进入STOP状态,在队列为空,线程池也为空之后,进入TIDYING 状态
+ * {@link ThreadPoolExecutor#tryTerminate()}:不会强行终止线程池,只是做了一下检测: 当workerCount为0,workerQueue为空时,
+ * 		先把状态切换到TIDYING,然后调用钩子方法terminated().当钩子方法执行完成时,把状态从TIDYING 改为 TERMINATED,
+ * 		接着调用termination.sinaglAll(),通知前面阻塞在awaitTermination的所有调用者线程
  * </pre>
  * 
  * 线程池运行中线程使用数量变化:
