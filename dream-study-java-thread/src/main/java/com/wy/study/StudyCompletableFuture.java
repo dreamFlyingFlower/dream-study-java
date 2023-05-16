@@ -1,6 +1,7 @@
 package com.wy.study;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
@@ -12,6 +13,8 @@ import java.util.concurrent.ForkJoinPool;
  * {@link CompletableFuture#thenAccept},{@link CompletableFuture#thenAsync},thenApply是CompletableFutre的成员方法
  * 因为初始的时候没有CompletableFuture对象,也没有参数可传,所以提交的只能是Runnable或者Supplier,只能是静态方法
  * 通过静态方法生成CompletableFuture对象之后,便可以链式地提交其他任务了,这个时候就可以提交Runnable、Consumer、Function,且都是成员方法
+ * 
+ * {@link CompletionStage}:所有方法的返回值都是它自己,才能实现如下的链式调用:future1.thenApply().thenApply().thenCompose().thenRun().
  * 
  * @author 飞花梦影
  * @date 2019-05-06 22:54:52

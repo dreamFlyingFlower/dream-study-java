@@ -3,12 +3,14 @@ package com.wy.study;
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
@@ -124,6 +126,14 @@ import java.util.concurrent.TimeUnit;
  * {@link DiscardOldestPolicy}:丢失最长时间没有执行的任务,同时尝试执行处理新的任务,如果线程池未关闭
  * {@link RejectedExecutionHandler}:实现该接口,实现自定义的拒绝策略
  * </pre>
+ * 
+ * {@link ScheduledThreadPoolExecutor}:内部原理是{@link DelayQueue},该类是 BlockingQueue的一种,实现原理是二叉堆.
+ * 而周期性执行任务是执行完一个任务之后,再把该任务扔回到任务队列中,如此就可以对一个任务反复执行.
+ * 但是ScheduledThreadPoolExecutor并没有使用DelayQueue,而是在内部又实现了一个特定的DelayedWorkQueue
+ * {@link ScheduledThreadPoolExecutor.DelayedWorkQueue}:该类和DelayQueue一样,但针对任务的取消进行了优化
+ * {@link ScheduledThreadPoolExecutor#scheduleAtFixedRate()}:下一次执行任务的时间是从上一次任务开始执行时算起,启动之后立即执行一次
+ * {@link ScheduledThreadPoolExecutor#scheduleWithFixedDelay()}:下一次执行任务的时间是从上一次执行完成后开始算起,启动之后立即执行一次
+ * {@link ScheduledThreadPoolExecutor.ScheduledFutureTask}:真正执行任务的类
  * 
  * @author 飞花梦影
  * @date 2019-05-11 00:19:31
