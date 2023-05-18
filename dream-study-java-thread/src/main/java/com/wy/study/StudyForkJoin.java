@@ -13,6 +13,25 @@ import java.util.concurrent.RecursiveTask;
  * 当所有线程运算完成之后,再一层一层的将运算后的数据合并,最终汇聚到一个线程中.
  * 它没有容量,默认都是1个线程,根据任务自动分支新的子线程,当子线程任务结束后,自动合并.
  * 
+ * 与ThreadPoolExector不同的是,除一个全局的任务队列之外,每个线程还有一个自己的局部队列
+ * 
+ * <pre>
+ * {@link ForkJoinPool#ctl}:状态变量,类似于ThreadPoolExecutor中的ctl变量
+ * {@link ForkJoinPool#workQueues}:工作线程队列
+ * {@link ForkJoinPool#factory}:工作线程工厂
+ * {@link ForkJoinPool#indexSeed}:下一个worker的下标
+ * {@link ForkJoinPool.WorkQueue#id}:在ForkJoinPool的workQueues数组中的下标
+ * {@link ForkJoinPool.WorkQueue#base}:队列尾部指针
+ * {@link ForkJoinPool.WorkQueue#top}:队列头指针
+ * {@link ForkJoinPool.WorkQueue#array}:工作线程的局部队列
+ * {@link ForkJoinPool.WorkQueue#owner}:该工作队列的所有者线程,null表示共享
+ * {@link ForkJoinPool#externalSubmit}:将一个可能是外部任务的子任务入队列.
+ * ->如果当前线程是ForkJoinWorkerThread类型的,并且该线程的pool就是当前对象;并且当前pool的workQueue不是null,则将当前任务入队列
+ * ->否则该任务不是当前线程的子任务,调用外部入队方法,入全局队列
+ * {@link ForkJoinTask#fork()}:把自己放入当前线程所在的局部队列中,如果是外部线程调用fork(),则直接将任务添加到共享队列中
+ * 
+ * </pre>
+ * 
  * {@link ForkJoinTask}:ForkJoinPool里的线程必须是{@link ForkJoinTask},否则无法实现分支和合并
  * 
  * <pre>
@@ -20,6 +39,8 @@ import java.util.concurrent.RecursiveTask;
  * {@link RecursiveAction}:继承自ForkJoinTask,无返回值
  * {@link RecursiveTask}:继承自ForkJoinTask,有返回值
  * </pre>
+ * 
+ * 
  * 
  * @author 飞花梦影
  * @date 2019-05-11 18:02:33

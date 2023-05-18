@@ -12,9 +12,26 @@ import java.util.concurrent.ForkJoinPool;
  * {@link CompletableFuture#runAsync}与{@link CompletableFuture#supplyAsync}是CompletableFuture的静态方法
  * {@link CompletableFuture#thenAccept},{@link CompletableFuture#thenAsync},thenApply是CompletableFutre的成员方法
  * 因为初始的时候没有CompletableFuture对象,也没有参数可传,所以提交的只能是Runnable或者Supplier,只能是静态方法
- * 通过静态方法生成CompletableFuture对象之后,便可以链式地提交其他任务了,这个时候就可以提交Runnable、Consumer、Function,且都是成员方法
+ * 通过静态方法生成CompletableFuture对象后,便可以链式地提交其他任务,这个时候就可以提交Runnable,Consumer,Function,且都是成员方法
+ * 每一个CompletableFuture对象内部都有一个栈,存储着是后续依赖它的任务,这个栈也就是Treiber Stack,这里的stack存储的就是栈顶指针
  * 
- * {@link CompletionStage}:所有方法的返回值都是它自己,才能实现如下的链式调用:future1.thenApply().thenApply().thenCompose().thenRun().
+ * {@link CompletionStage}:所有方法的返回值都是它自己,才能实现如下的链式调用:future1.thenApply().thenApply().thenCompose().thenRun()
+ * 
+ * ForkJoinPool只接收ForkJoinTask,而向CompletableFuture提交的任务是Runnable/Supplier/Consumer/Function,因此需要适配器进行转换:
+ * 
+ * <pre>
+ * {@link CompletableFuture.AsyncSupply}:在supplyAsync()中,将 Supplier 转换成一个 AsyncSupply ,然后提交给ForkJoinPool执行
+ * {@link CompletableFuture.AsyncRun}:在runAsync()中,将Runnable转换成一个AsyncRun,然后提交给ForkJoinPool执行
+ * {@link CompletableFuture.UniRun}:在thenRun()中将Runnable转换为UniRun提交给ForkJoinPool,和AsyncRun不同的是,该类可链式调用
+ * {@link CompletableFuture.UniAccept}:在thenAccept()中将Consumer转换为UniAccept提交给ForkJoinPool
+ * {@link CompletableFuture.UniApply}:在thenApply()中将Function转换为UniApply提交给ForkJoinPool
+ * {@link CompletableFuture.BiRun}:组合与,3参数
+ * {@link CompletableFuture.BiAccecpt}:组合与,3参数
+ * {@link CompletableFuture.BiApply}:组合与,3参数
+ * {@link CompletableFuture.OrRun}:组合或,3参数
+ * {@link CompletableFuture.OrAccept}:组合或,3参数
+ * {@link CompletableFuture.OrApply}:组合或,3参数
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2019-05-06 22:54:52
