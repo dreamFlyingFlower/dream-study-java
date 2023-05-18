@@ -38,9 +38,8 @@ import java.util.concurrent.RecursiveTask;
  * {@link ForkJoinTask#fork()},{@link ForkJoinTask#join()}:核心方法,分支,合并
  * {@link RecursiveAction}:继承自ForkJoinTask,无返回值
  * {@link RecursiveTask}:继承自ForkJoinTask,有返回值
+ * {@link ForkJoinTask#status}:任务状态,初始为0.如果status >= 0表示任务未完成;status<0任务已完成
  * </pre>
- * 
- * 
  * 
  * @author 飞花梦影
  * @date 2019-05-11 18:02:33
