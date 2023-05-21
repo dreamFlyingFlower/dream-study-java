@@ -8,11 +8,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 
  * <pre>
  * 锁降级:写锁降级为读锁.在写锁木有释放的时候,获取到读锁,再释放写锁
- * 锁升级:读锁升级为写锁.在读锁米有释放的时候,获取到写锁,再释放读锁
+ * 锁升级:读锁升级为写锁.在读锁木有释放的时候,获取到写锁,再释放读锁
  * 
  * {@link ReentrantReadWriteLock}:ReadWriteLock的实现类,当创建该对象实例时,可以设置锁是否为公平锁,默认为非公平锁.
  * 		该锁是可重入锁,Reader角色的线程可以获取用于写入的锁,Writer角色的线程可以获取用于读取的锁.
- * 		该锁可降级,可以将用于写入的锁降级为用于读取的锁
+ * 		该锁可降级,可以将用于写入的锁降级为用于读取的锁,但是不能将读锁升级为写锁
  * </pre>
  * 
  * {@link ReentrantReadWriteLock.ReadLock},{@link ReentrantReadWriteLock.WriteLock}:读锁,血锁,共用同一个{@link ReentrantReadWriteLock.Sync}对象
