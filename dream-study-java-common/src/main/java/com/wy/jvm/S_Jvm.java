@@ -9,8 +9,9 @@ import java.util.List;
  * 
  * 垃圾回收期分为4个区:eden,新生代(from),老年代(to)
  * 
- * @author ParadiseWY
- * @date 2019年3月24日 下午9:28:53
+ * @author 飞花梦影
+ * @date 2019-03-24 21:28:53
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class S_Jvm {
 
@@ -69,5 +70,10 @@ public class S_Jvm {
 		for (GarbageCollectorMXBean garbageCollectorMXBean : beans) {
 			System.out.println(garbageCollectorMXBean.getName());
 		}
+		
+		// 显示调用垃圾回收,但是不保证一定会调用
+		System.gc();
+		// 必定调用被回收类的finalize()
+		System.runFinalization();
 	}
 }
