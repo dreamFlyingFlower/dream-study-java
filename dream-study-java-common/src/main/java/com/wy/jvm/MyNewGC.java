@@ -11,7 +11,7 @@ package com.wy.jvm;
  * @date 2021-09-14 14:19:37
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class MyNew01 {
+public class MyNewGC {
 
 	public static void main(String[] args) {
 		byte[] b = null;

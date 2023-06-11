@@ -3,16 +3,17 @@ package com.wy.extend;
 /**
  * 继承和实现
  * 
- * @apiNote 非静态->同名属性,只根据申明的类来取值,接口也一样;同名方法则看实体对象的指向,接口也一样
- *          静态->同名属性和同名方法,只根据申明的类来取值,接口也一样
+ * 非静态->同名属性,只根据声明的类来取值,接口也一样;同名方法则看实体对象的指向,接口也一样
  * 
- * @author ParadiseWY
+ * 静态->同名属性和同名方法,只根据声明的类来取值,接口也一样
+ * 
+ * @author 飞花梦影
  * @date 2020-09-29 09:45:45
  */
 public class Client {
 
 	public static void main(String[] args) {
-		Parent parent = new Son();
+		Parent parent = new Son();//
 		System.out.println(parent.richer); // 500000
 		System.out.println(((Parent) parent).richer);// 500000
 		// System.out.println(parent.boy); // 10
@@ -42,5 +43,10 @@ public class Client {
 		// iSon.name(); // iparent static func
 		// iSon.name1(); // ison default name1
 		((IParent) iSon).name1(); // ison default name1
+
+		// 先调父类构造,父类构造调用了this.name(),该方法被子类重写,调用子类name(),此时子类构造还未调用完成,成员变量未初始化,只有默认值,先输出0
+		// 父类构造完成后调用子类构造,给成员变量赋值.构造完成,再次调用子类name(),此时richer值为500
+		Parent1 parent1 = new Son1(); // 0,500
+		System.out.println(parent1.richer); // 1000000
 	}
 }

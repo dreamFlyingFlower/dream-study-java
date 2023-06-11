@@ -1,14 +1,14 @@
 package com.wy.extend;
 
 /**
+ * 子实现
  * 
- * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-09-29 10:02:09
  */
 public class ISon implements IParent {
 
-	public int richer = 50;
+	int richer = 50;
 
 	public static void name() {
 		System.out.println("ison static func");

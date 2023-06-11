@@ -1,20 +1,20 @@
 package com.wy.extend;
 
 /**
+ * 父接口
  * 
- * 
- * @author ParadiseWY
+ * @author 飞花梦影
  * @date 2020-09-29 10:02:03
  */
 public interface IParent {
 
 	int richer = 500000;
 
-	public static void name() {
+	static void name() {
 		System.out.println("iparent static func");
 	}
 
-	public default void name1() {
+	default void name1() {
 		System.out.println("iparent default name1");
 	}
 }

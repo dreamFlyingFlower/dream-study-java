@@ -23,6 +23,25 @@ public class MyClass {
 		return 1 + 1;
 	}
 
+	@SuppressWarnings("unused")
+	public void test() {
+		// 在字节码文件中,s和i公用一个槽位,因为出了各自的作用域
+		{
+			int i = 9;
+		}
+		{
+			String s = "xxx";
+		}
+
+		int i = 10;
+		double j = i / 0.0;
+		System.out.println(j); // Infinity,无穷大
+
+		double m = 10.0;
+		double n = m / 0.0;
+		System.out.println(n); // NaN
+	}
+
 	public static void main(String[] args) {
 		add(1, 2);
 	}
