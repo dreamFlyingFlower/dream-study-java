@@ -32,7 +32,13 @@ public class MyClass {
 		{
 			String s = "xxx";
 		}
+	}
 
+	public static void main(String[] args) {
+		add(1, 2);
+	}
+
+	public static void test1() {
 		int i = 10;
 		double j = i / 0.0;
 		System.out.println(j); // Infinity,无穷大
@@ -42,7 +48,33 @@ public class MyClass {
 		System.out.println(n); // NaN
 	}
 
-	public static void main(String[] args) {
-		add(1, 2);
+	/**
+	 * 从字节码层面解析i++和++i:
+	 * 
+	 * <pre>
+	 * 单独的i++和++i在字节码层面是相同的,都是iinr index by 1,index是i所在局部变量表索引地址
+	 * 赋值时有很大区别:
+	 * i++:先iload,将值加载到操作数栈顶,但是不做其他操作,之后i++会直接在局部变量表中将i自增1;之后栈顶的10赋值给b
+	 * ++i:先自增,赋值给c,然后再iload其中c的值到栈顶,之后再istore给d
+	 * </pre>
+	 */
+	public static void test2() {
+		int a = 10;
+		int b = a++;
+
+		int c = 20;
+		int d = ++c;
+
+		System.out.println(b + d);
+	}
+
+	/**
+	 * 根据i++原理可知,a最后会被栈顶的10给重新覆盖,虽然中间变成过11
+	 */
+	public static void test3() {
+		// 从字节码层面解释
+		int a = 10;
+		a = a++;
+		System.out.println(a); // 10
 	}
 }
