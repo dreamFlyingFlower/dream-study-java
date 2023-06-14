@@ -15,8 +15,18 @@ import com.wy.service.SysLogService;
 @Service
 public class SysLogServiceImpl implements SysLogService {
 
+	public int age = 10;
+
 	@Override
 	public void create(SysLog sysLog) {
-		
+
+	}
+
+	public int test() {
+		return 0;
+	}
+
+	public int test(int i) {
+		return i;
 	}
 }
