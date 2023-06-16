@@ -2,6 +2,8 @@ package com.wy.jvm;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import java.util.List;
 
 /**
@@ -13,7 +15,7 @@ import java.util.List;
  * @date 2019-03-24 21:28:53
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class S_Jvm {
+public class MyJvm {
 
 	/**
 	 * JVM内存分代策略:java虚拟机根据对象周期存活的周期不同,把堆内存分为几块,<br>
@@ -70,10 +72,25 @@ public class S_Jvm {
 		for (GarbageCollectorMXBean garbageCollectorMXBean : beans) {
 			System.out.println(garbageCollectorMXBean.getName());
 		}
-		
+
 		// 显示调用垃圾回收,但是不保证一定会调用
 		System.gc();
 		// 必定调用被回收类的finalize()
 		System.runFinalization();
+
+		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+		// 获得堆空间大小
+		MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+		System.out.println("INIT HEAP: " + heapMemoryUsage.getInit() / 1024 / 1024 + "m");
+		System.out.println("MAX HEAP: " + heapMemoryUsage.getMax() / 1024 / 1024 + "m");
+		System.out.println("USE HEAP: " + heapMemoryUsage.getUsed() / 124 / 1024 + "m");
+		System.out.println(" \nFull Information:");
+		System.out.println("Heap Memory Usage: " + memoryMXBean.getHeapMemoryUsage());
+		System.out.println("Non-Heap Memory Usage: " + memoryMXBean.getNonHeapMemoryUsage());
+
+		System.out.println("==============通过iava来获取相关系统状态=========");
+		System.out.println("当前堆内存大小totalMemory " + (int) Runtime.getRuntime().totalMemory() / 1024 / 1024 + "m");
+		System.out.println("空闲堆内存大小freeMemory " + (int) Runtime.getRuntime().freeMemory() / 1024 / 1024 + "m");
+		System.out.println("最大可用总堆内存maxMemory " + Runtime.getRuntime().maxMemory() / 1024 / 1024 + "m");
 	}
 }
