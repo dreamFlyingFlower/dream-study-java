@@ -3,7 +3,6 @@ package com.wy.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 
 /**
  * 重写系统自动配置的redis注入,参考{RedisAutoConfiguration},多次注入会抛出异常,本类会先RedisAutoConfiguration对redis进行初始化
@@ -38,48 +36,25 @@ public class RedisConfig {
 	protected static final Logger logger = LoggerFactory.getLogger(RedisConfig.class);
 
 	/**
-	 * 对象,map等数据类型在redis中的存储需要用到fastjson进行序列化,也可使用spring的依赖jackson
+	 * 同fastjon序列化,使用spring依赖的jackson,若同时和fastjson使用,必须实例化不能类型的RedisTemplate
 	 */
 	@Bean
-	@ConditionalOnMissingBean
 	public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<Object, Object> template = new RedisTemplate<>();
-		// 使用fastjson序列化
-		FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<Object>(Object.class);
+		// 使用jackson序列化
+		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer =
+				new Jackson2JsonRedisSerializer<>(Object.class);
+		// 若有特殊的序列化要求,可设置自定义的ObjectMapper
+		// jackson2JsonRedisSerializer.setObjectMapper(null);
 		// 设置方法参照{RedisTemplate}类中的afterPropertiesSet方法
-		// value值的序列化采用fastJsonRedisSerializer
-		template.setValueSerializer(fastJsonRedisSerializer);
-		template.setHashValueSerializer(fastJsonRedisSerializer);
 		// key的序列化采用StringRedisSerializer
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
+		// value值的序列化采用fastJsonRedisSerializer
+		template.setValueSerializer(jackson2JsonRedisSerializer);
+		template.setHashValueSerializer(jackson2JsonRedisSerializer);
 		template.setConnectionFactory(redisConnectionFactory);
-		logger.info("||=========== fastjson 实例化redis成功 ===========||");
+		logger.info("||=========== jackson 实例化redis成功 ===========||");
 		return template;
 	}
-
-	// /**
-	// * 同fastjon序列化,使用spring依赖的jackson,若同时和fastjson使用,必须实例化不能类型的RedisTemplate
-	// */
-	// @Bean
-	// public RedisTemplate<String, Map<String,Object>> redisJacksonTemplate(
-	// RedisConnectionFactory redisConnectionFactory) {
-	// RedisTemplate<String, Map<String,Object>> template = new RedisTemplate<>();
-	//
-	// // 使用fastjson序列化
-	// Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new
-	// Jackson2JsonRedisSerializer<Object>(
-	// Object.class);
-	// // 设置方法参照{RedisTemplate}类中的afterPropertiesSet方法
-	// // value值的序列化采用fastJsonRedisSerializer
-	// template.setValueSerializer(jackson2JsonRedisSerializer);
-	// template.setHashValueSerializer(jackson2JsonRedisSerializer);
-	// // key的序列化采用StringRedisSerializer
-	// template.setKeySerializer(new StringRedisSerializer());
-	// template.setHashKeySerializer(new StringRedisSerializer());
-	//
-	// template.setConnectionFactory(redisConnectionFactory);
-	// logger.info("||=========== jackson 实例化redis成功 ===========||");
-	// return template;
-	// }
 }
