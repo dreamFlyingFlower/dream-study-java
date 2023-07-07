@@ -3,15 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.13</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<groupId>dream.flying.flower</groupId>
+		<artifactId>dream-parent</artifactId>
+		<version>0.0.1</version>
+		<relativePath />
 	</parent>
 
-	<groupId>dream.flying.flower</groupId>
 	<artifactId>dream-study-java-spring</artifactId>
-	<version>0.0.1</version>
+	<version>${dream.version}</version>
 	<name>dream-study-java-spring</name>
 	<description>Study for springcommon</description>
 
@@ -77,7 +76,6 @@
 		<dependency>
 			<groupId>dream.flying.flower</groupId>
 			<artifactId>dream-tool-core</artifactId>
-			<version>0.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.alibaba</groupId>
@@ -87,7 +85,6 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>30.0-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>io.minio</groupId>
@@ -98,7 +95,6 @@
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-boot-starter</artifactId>
-			<version>3.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
