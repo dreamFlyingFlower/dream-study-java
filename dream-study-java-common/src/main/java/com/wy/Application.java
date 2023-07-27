@@ -95,62 +95,24 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Builder:建造者模式
  * Template:模板方法类的命名
  * Proxy:代理模式
- * Converter,Resolver:转换和解析.一般用于不同对象之间的格式转换,把一类对象转换成另一类。注意它们语义上的区别,一般特别复杂的转换或者有加载过程的需求,可以使用Resolver。
-
-Parser
-用来表示非常复杂的解析器,比如解析DSL。
-
-Customizer
-用来表示对某个对象进行特别的配置。由于这些配置过程特别的复杂,值得单独提取出来进行自定义设置。
-
-Formatter
-格式化类。主要用于字符串、数字或者日期的格式化处理工作
-
-Packet
-通常用于网络编程中的数据包。
-
-Protocol
-同样用户网络编程中,用来表示某个协议。
-
-Encoder、Decoder、Codec
-编码解码器
-
-Request,Response
-一般用于网络请求的进和出。如果你用在非网络请求的方法上,会显得很怪异
-
-Util,Helper
-都表示工具类,Util一般是无状态的,Helper以便需要创建实例才能使用。但是一般没有使用Tool作为后缀的。
-
-Mode,Type
-看到mode这个后缀,就能猜到这个类大概率是枚举。它通常把常见的可能性都列到枚举类里面,其他地方就可以引用这个Mode。
-
-Invoker,Invocation
-invoker是一类接口,通常会以反射或者触发的方式,执行一些具体的业务逻辑。通过抽象出invoke方法,可以在invoke执行之前对入参进行记录或者处理；在invoke执行之后对结果和异常进行处理,是AOP中常见的操作方式。
-
-Initializer
-如果你的应用程序,需要经过大量的初始化操作才能启动,那就需要把它独立出来,专门处理初始化动作。
-
-Feture,Promise
-它们都是用在多线程之间的,进行数据传递。
-
-Feture相当于一个占位符,代表一个操作将来的结果。一般通过get可以直接阻塞得到结果,或者让它异步执行然后通过callback回调结果。
-
-但如果回调中嵌入了回调呢？如果层次很深,就是回调地狱。Java中的CompletableFuture其实就是Promise,用来解决回调地狱问题。Promise是为了让代码变得优美而存在的。
-
-Selector
-根据一系列条件,获得相应的同类资源。它比较像Factory,但只处理单项资源。
-
-Reporter
-用来汇报某些执行结果。
-
-Constants
-一般用于常量列表。
-
-Accessor
-封装了一系列get和set方法的类。像lombok就有Accessors注解,生成这些方法。但Accessor类一般是要通过计算来完成get和set,而不是直接操作变量。这适合比较复杂的对象存取服务。
-
-Generator
-生成器,一般用于生成代码,生成id等
+ * Converter,Resolver:转换和解析.用于不同对象之间的转换,一般特别复杂的转换或者有加载过程的需求,可以使用Resolver
+ * Parser:表示非常复杂的解析器,比如解析DSL
+ * Customizer:表示对某个对象进行特别的配置
+ * Formatter:格式化类
+ * Packet:通常用于网络编程中的数据包
+ * Protocol:用户网络编程,用来表示某个协议
+ * Encoder、Decoder、Codec:编码解码器
+ * Request,Response:用于网络请求的进和出
+ * Util,Helper:都表示工具类
+ * Mode,Type:枚举
+ * Invoker,Invocation:invoker是一类接口,通常会以反射或者触发的方式,执行一些具体的业务逻辑
+ * Initializer:初始化操作
+ * Feture,Promise:用在多线程之间,进行数据传递.Feture代表一个操作将来的结果;Promise是为了让代码变得优美而存在的
+ * Selector:根据一系列条件,获得相应的同类资源
+ * Reporter:用来汇报某些执行结果
+ * Constants:一般用于常量列表
+ * Accessor:封装了一系列get和set方法的类.Accessor类一般是要通过计算来完成get和set,而不是直接操作变量
+ * Generator:生成器,一般用于生成代码,生成id等
  * </pre>
  * 
  * @author 飞花梦影
