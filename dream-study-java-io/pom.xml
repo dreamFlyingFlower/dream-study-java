@@ -4,14 +4,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.13</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<groupId>dream.flying.flower</groupId>
+		<artifactId>dream-parent</artifactId>
+		<version>0.0.1</version>
+		<relativePath />
 	</parent>
-	<groupId>dream.flying.flower</groupId>
+
 	<artifactId>dream-study-java-io</artifactId>
-	<version>0.0.1</version>
 	<name>dream-study-java-io</name>
 	<description>java study for io grammer</description>
 
@@ -35,7 +34,6 @@
 		<dependency>
 			<groupId>dream.flying.flower</groupId>
 			<artifactId>dream-tool-third</artifactId>
-			<version>0.0.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
@@ -97,13 +95,4 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 </project>

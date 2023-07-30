@@ -9,10 +9,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -75,6 +75,8 @@ public class S_ServerDelimiter {
 				ChannelHandler[] acceptorHandlers = new ChannelHandler[3];
 				// 处理固定结束标记符号的Handler,这个Handler没有@Sharable注解修饰,
 				// 必须每次初始化通道时创建一个新对象
+				// 和DelimiterBasedFrameDecoder类似,以换行符为一个完整的数据
+				// new LineBasedFrameDecoder(1024);
 				// 使用特殊符号分隔处理数据粘包问题,也要定义每个数据包最大长度,netty建议数据有最大长度
 				acceptorHandlers[0] = new DelimiterBasedFrameDecoder(1024, delimiter);
 				// 字符串解码器Handler,会自动处理channelRead方法的msg参数,将ByteBuf类型的数据转换为字符串对象
