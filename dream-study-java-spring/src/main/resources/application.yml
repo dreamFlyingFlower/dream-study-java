@@ -23,7 +23,6 @@ spring:
     user:
       name: admin
       password: 123456
-  hateoas:    use-hal-as-default-json-media-type: false
       
 management:
   endpoints:
