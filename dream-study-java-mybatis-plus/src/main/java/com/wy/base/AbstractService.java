@@ -10,15 +10,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wy.annotation.Sort;
+import com.wy.annotation.Unique;
 import com.wy.collection.ListTool;
-import com.wy.db.annotation.Sort;
-import com.wy.db.annotation.Unique;
 import com.wy.lang.NumberTool;
 import com.wy.lang.StrTool;
 import com.wy.reflect.ReflectTool;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Serializable> extends ServiceImpl<M, T>
-        implements BaseService<T, ID> {
+		implements BaseService<T, ID> {
 
 	/** 存储反射过程中使用的类和字段 */
 	private Map<Class<?>, List<Field>> CACHE_FIELDS = new ConcurrentHashMap<>(128);
@@ -104,34 +104,34 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 * @param saveOrUpdate 新增或更新,true->新增,false->修改
 	 */
 	protected void checkUnique(T t, Field field, boolean saveOrUpdate) {
-		ReflectTool.fixAccessible(field);
-		try {
-			if (saveOrUpdate) {
-				// 当新增时可以直接加入检查唯一的map中,不可多字段同时检查
-				checkUnique(t, field);
-			} else {
-				// 当更新时,检查原始值和新值是否相同,若相同,不用再查数据库,且需要将实体类中的该字段值置空
-				Unique unique = field.getAnnotation(Unique.class);
-				// 获得原始值Java属性
-				String oriName = unique.oriName();
-				if (StrTool.isBlank(oriName)) {
-					oriName = "ori" + StrTool.firstUpper(field.getName());
-				}
-				Field oriField = entityClass.getDeclaredField(oriName);
-				ReflectTool.fixAccessible(oriField);
-				Object object = oriField.get(t);
-				if (Objects.equals(object, field.get(t))) {
-					// 原始值和新值相同,将新值置空,不更新数据库
-					field.set(t, null);
-				} else {
-					// 原始值和新值不同,查询数据库是否有重复值
-					checkUnique(t, field);
-				}
-			}
-		} catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-			log.error(e.getMessage());
-		}
+//		ReflectTool.fixAccessible(field);
+//		try {
+//			if (saveOrUpdate) {
+//				// 当新增时可以直接加入检查唯一的map中,不可多字段同时检查
+//				checkUnique(t, field);
+//			} else {
+//				// 当更新时,检查原始值和新值是否相同,若相同,不用再查数据库,且需要将实体类中的该字段值置空
+//				Unique unique = field.getAnnotation(Unique.class);
+//				// 获得原始值Java属性
+//				String oriName = unique.oriName();
+//				if (StrTool.isBlank(oriName)) {
+//					oriName = "ori" + StrTool.firstUpper(field.getName());
+//				}
+//				Field oriField = entityClass.getDeclaredField(oriName);
+//				ReflectTool.fixAccessible(oriField);
+//				Object object = oriField.get(t);
+//				if (Objects.equals(object, field.get(t))) {
+//					// 原始值和新值相同,将新值置空,不更新数据库
+//					field.set(t, null);
+//				} else {
+//					// 原始值和新值不同,查询数据库是否有重复值
+//					checkUnique(t, field);
+//				}
+//			}
+//		} catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
+//			e.printStackTrace();
+//			log.error(e.getMessage());
+//		}
 	}
 
 	/**
@@ -201,8 +201,8 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 		}
 		Sort sort = field.getAnnotation(Sort.class);
 		return getMax(StrTool.isBlank(sort.value())
-		        ? sort.hump2Snake() ? StrTool.hump2Snake(field.getName()) : field.getName()
-		        : sort.value(), false);
+				? sort.hump2Snake() ? StrTool.hump2Underline(field.getName()) : field.getName()
+				: sort.value(), false);
 	}
 
 	/**
@@ -286,7 +286,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 		}
 		Page<T> page = page(pageParam, new QueryWrapper<T>(t));
 		return null == page ? Result.ok()
-		        : Result.page(page.getRecords(), pager.getPageIndex(), pager.getPageSize(), page.getTotal());
+				: Result.page(page.getRecords(), pager.getPageIndex(), pager.getPageSize(), page.getTotal());
 	}
 
 	/**
@@ -309,7 +309,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 */
 	public Long getMax(String column, boolean hump2Snake) {
 		// 将Java属性字段转下划线
-		column = hump2Snake ? StrTool.hump2Snake(column) : column;
+		column = hump2Snake ? StrTool.hump2Underline(column) : column;
 		Page<Map<String, Object>> pageParam = new Page<>(1, 1);
 		pageParam.addOrder(OrderItem.desc(column));
 		Page<Map<String, Object>> pageMaps = pageMaps(pageParam);
@@ -327,7 +327,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 */
 	@Override
 	public int hasValue(T t) {
-		return super.count(new QueryWrapper<T>(t));
+		return (int) super.count(new QueryWrapper<T>(t));
 	}
 
 	/**
