@@ -5,12 +5,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dream.starter.core.helper.RedisHelper;
 import com.wy.common.Constant;
 import com.wy.digest.DigestTool;
 import com.wy.enums.TipEnum;
 import com.wy.lang.StrTool;
 import com.wy.result.ResultException;
+
+import dream.flying.flower.core.helper.RedisHelper;
 
 /**
  * Token业务实现类
