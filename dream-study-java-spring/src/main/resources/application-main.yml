@@ -1,0 +1,22 @@
+spring:
+  # main的所有配置在某些低版本中,只能写在bootstrap中才能生效
+  main:
+    # 同名bean是否覆盖,默认false
+    allow-bean-definition-overriding: false
+    # 是否支持循环依赖,默认false
+    allow-circular-references: false
+    # banner输出默认,默认console
+    banner-mode: off
+    # 云平台
+    cloud-platform: none
+    # 是否懒加载初始化,默认false
+    lazy-initialization: false
+    # 是否输出启动日志,默认true
+    log-startup-info: true 
+    # 是否注册关闭程序的钩子,默认true
+    register-shutdown-hook: true
+    # spring上下文中需要包含的资源文件,类等
+    sources:
+    - 
+    # web应用类型,默认会根据包中的类进行区分加载
+    web-application-type: servlet
