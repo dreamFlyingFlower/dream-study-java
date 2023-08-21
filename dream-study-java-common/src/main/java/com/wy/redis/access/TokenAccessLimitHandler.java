@@ -13,7 +13,7 @@ import com.wy.limit.LimitAccessHandler;
 import com.wy.limit.annotation.LimitAccess;
 import com.wy.redis.idempotent.TokenService;
 
-import dream.flying.flower.core.helper.RedisHelper;
+import dream.flying.flower.autoconfigure.web.helper.RedisHelper;
 import lombok.extern.slf4j.Slf4j;
 
 /**

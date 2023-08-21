@@ -11,7 +11,7 @@ import com.wy.enums.TipEnum;
 import com.wy.lang.StrTool;
 import com.wy.result.ResultException;
 
-import dream.flying.flower.core.helper.RedisHelper;
+import dream.flying.flower.autoconfigure.web.helper.RedisHelper;
 
 /**
  * Token业务实现类

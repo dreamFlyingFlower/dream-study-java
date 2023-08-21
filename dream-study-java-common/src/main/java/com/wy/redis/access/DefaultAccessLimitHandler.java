@@ -9,7 +9,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.wy.limit.LimitAccessHandler;
 import com.wy.limit.annotation.LimitAccess;
 
-import dream.flying.flower.core.helper.RedisHelper;
+import dream.flying.flower.autoconfigure.web.helper.RedisHelper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
