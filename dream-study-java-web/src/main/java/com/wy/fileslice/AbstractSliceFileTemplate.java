@@ -3,6 +3,7 @@ package com.wy.fileslice;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +69,7 @@ public abstract class AbstractSliceFileTemplate implements SliceFileTemplate {
 			Map<Integer, String> map = new HashMap<>();
 			map.put(param.getChunkIndex(), md5);
 			return FileUpload.builder().chunkMd5Info(map).build();
-		} catch (IOException e) {
+		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 		return null;
