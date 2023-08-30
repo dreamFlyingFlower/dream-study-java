@@ -2,6 +2,8 @@ package com.wy.guava;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -49,5 +51,14 @@ public class MyGuava {
 
 		Joiner.on(",").skipNulls().join((Iterable<?>) null);
 		Splitter.on("regex").split("");
+
+		// 从其他数据源中初始化数据
+		CacheBuilder.newBuilder().build(new CacheLoader<String, Object>() {
+
+			@Override
+			public Object load(String key) throws Exception {
+				return null;
+			}
+		});
 	}
 }

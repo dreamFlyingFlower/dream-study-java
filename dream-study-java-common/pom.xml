@@ -33,7 +33,6 @@
 		<dependency>
 			<groupId>org.redisson</groupId>
 			<artifactId>redisson-spring-boot-starter</artifactId>
-			<version>3.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -60,7 +59,6 @@
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
-			<version>3.28.0-GA</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
