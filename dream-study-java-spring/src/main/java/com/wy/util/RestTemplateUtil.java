@@ -10,9 +10,9 @@ import java.util.StringJoiner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.wy.collection.MapTool;
-import com.wy.lang.StrTool;
-import com.wy.reflect.ReflectTool;
+import com.wy.collection.MapHelper;
+import com.wy.lang.StrHelper;
+import com.wy.reflect.ReflectHelper;
 
 /**
  * RestTemplate工具类
@@ -44,10 +44,10 @@ public class RestTemplateUtil {
 	 * @return 构建后的URL字符串
 	 */
 	public static String generateGetUrl(String url, Map<String, Object> params) {
-		if (MapTool.isNotEmpty(params)) {
+		if (MapHelper.isNotEmpty(params)) {
 			StringJoiner stringJoiner = new StringJoiner("&");
 			for (Map.Entry<String, Object> entry : params.entrySet()) {
-				if (StrTool.isBlank(entry.getKey()) || Objects.isNull(entry.getValue())) {
+				if (StrHelper.isBlank(entry.getKey()) || Objects.isNull(entry.getValue())) {
 					continue;
 				}
 				stringJoiner.add(entry.getKey() + "={" + entry.getKey() + "}");
@@ -69,7 +69,7 @@ public class RestTemplateUtil {
 		Class<?> clazz = t.getClass();
 		Field[] fields = clazz.getDeclaredFields();
 		for (Field field : fields) {
-			ReflectTool.fixAccessible(field);
+			ReflectHelper.fixAccessible(field);
 			try {
 				valueMap.add(field.getName(), field.get(t));
 			} catch (IllegalArgumentException | IllegalAccessException e) {

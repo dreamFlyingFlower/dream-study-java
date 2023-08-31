@@ -15,8 +15,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.wy.collection.MapTool;
-import com.wy.lang.StrTool;
+import com.wy.collection.MapHelper;
+import com.wy.lang.StrHelper;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 
@@ -52,11 +52,11 @@ public class ApiFilter extends OncePerRequestFilter {
 			} else {
 				// 从redis缓存中检验是否存在某个值,值从请求头的auth中来
 				String auth = request.getHeader("Authentication");
-				if (StrTool.isBlank(auth)) {
+				if (StrHelper.isBlank(auth)) {
 					throw new ResultException("您还未登录,请登录");
 				}
 				Map<Object, Object> entity = redisTemplate.opsForHash().entries(auth);
-				if (MapTool.isNotEmpty(entity)) {
+				if (MapHelper.isNotEmpty(entity)) {
 					filterChain.doFilter(request, response);
 				} else {
 					throw new ResultException("您还未登录,请登录");

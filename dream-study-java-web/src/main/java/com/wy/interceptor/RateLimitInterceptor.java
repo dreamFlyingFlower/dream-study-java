@@ -9,7 +9,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.wy.lang.StrTool;
+import com.wy.lang.StrHelper;
 import com.wy.limit.annotation.LimitRate;
 import com.wy.result.ResultException;
 
@@ -42,7 +42,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 				return true;
 			}
 			String value = limitRate.value();
-			if (StrTool.isBlank(value)) {
+			if (StrHelper.isBlank(value)) {
 				value = request.getRequestURI();
 			}
 			RateLimiter rateLimiter = rateLimiters.get(value);

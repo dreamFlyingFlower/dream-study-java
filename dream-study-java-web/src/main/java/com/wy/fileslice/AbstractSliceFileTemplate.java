@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.wy.digest.DigestTool;
+import com.wy.digest.DigestHelper;
 import com.wy.enums.DateEnum;
-import com.wy.io.file.FileNameTool;
-import com.wy.io.file.FileTool;
+import com.wy.io.file.FileNameHelper;
+import com.wy.io.file.FileHelper;
 import com.wy.model.FileUpload;
 import com.wy.model.FileUploadRequest;
-import com.wy.util.DateTimeTool;
+import com.wy.util.DateTimeHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,8 +35,8 @@ public abstract class AbstractSliceFileTemplate implements SliceFileTemplate {
 	public abstract boolean upload(FileUploadRequest param);
 
 	protected String generateUploadDirectory(FileUploadRequest param) {
-		String concatFileName = FileNameTool.concatFileName(param.getFile().getOriginalFilename(), DigestTool.uuid());
-		return "/app/tmp/file/" + DateTimeTool.formatDate(DateEnum.DATE_NONE.getPattern()) + File.separator
+		String concatFileName = FileNameHelper.concatFileName(param.getFile().getOriginalFilename(), DigestHelper.uuid());
+		return "/app/tmp/file/" + DateTimeHelper.formatDate(DateEnum.DATE_NONE.getPattern()) + File.separator
 				+ concatFileName;
 	}
 
@@ -65,7 +65,7 @@ public abstract class AbstractSliceFileTemplate implements SliceFileTemplate {
 			return fileUploadDTO;
 		}
 		try {
-			String md5 = FileTool.getFileMd5(param.getFile().getInputStream());
+			String md5 = FileHelper.getFileMd5(param.getFile().getInputStream());
 			Map<Integer, String> map = new HashMap<>();
 			map.put(param.getChunkIndex(), md5);
 			return FileUpload.builder().chunkMd5Info(map).build();
@@ -90,7 +90,7 @@ public abstract class AbstractSliceFileTemplate implements SliceFileTemplate {
 			accessConfFile.seek(param.getChunkIndex());
 			accessConfFile.write(Byte.MAX_VALUE);
 			// completeList 检查是否全部完成,如果数组里是否全部都是127(全部分片都成功上传)
-			byte[] completeList = FileTool.readToByte(confFile);
+			byte[] completeList = FileHelper.readToByte(confFile);
 			isComplete = Byte.MAX_VALUE;
 			for (int i = 0; i < completeList.length && isComplete == Byte.MAX_VALUE; i++) {
 				// 与运算, 如果有部分没有完成则 isComplete 不是 Byte.MAX_VALUE
@@ -151,13 +151,13 @@ public abstract class AbstractSliceFileTemplate implements SliceFileTemplate {
 	 * @param targetFileName 新文件名,不带路径
 	 */
 	private FileUpload renameFile(File sourceFile, String targetFileName) {
-		FileTool.checkFile(sourceFile);
+		FileHelper.checkFile(sourceFile);
 		String filePath = sourceFile.getParent() + File.separator + targetFileName;
 		File newFile = new File(sourceFile.getParent(), targetFileName);
 		// 修改文件名
 		boolean uploadFlag = sourceFile.renameTo(newFile);
 		return FileUpload.builder().uploadTime(new Date()).uploadComplete(uploadFlag).filePath(filePath)
-				.fileSize(newFile.length()).fileExtension(FileNameTool.getExtension(targetFileName))
+				.fileSize(newFile.length()).fileExtension(FileNameHelper.getExtension(targetFileName))
 				.fileId(targetFileName).build();
 	}
 }

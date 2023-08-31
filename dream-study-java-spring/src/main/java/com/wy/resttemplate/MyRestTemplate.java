@@ -21,7 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.wy.collection.MapTool;
+import com.wy.collection.MapHelper;
 import com.wy.util.RestTemplateUtil;
 
 /**
@@ -69,7 +69,7 @@ public class MyRestTemplate {
 		restTemplate.exchange("http://ip:port", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, Object>>(params, httpHeadersCookie), String.class);
 		// 使用Get发送请求,参数可以封装到Map中,只能用HashMap,且URL要使用占位符
-		Map<String, Object> paramMap = MapTool.builder("pageIndex", "1").put("pageSize", "10").build();
+		Map<String, Object> paramMap = MapHelper.builder("pageIndex", "1").put("pageSize", "10").build();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", authHeader);
 		HttpEntity<MultiValueMap<String, Object>> httpEntity =
@@ -78,7 +78,7 @@ public class MyRestTemplate {
 				httpEntity, String.class, paramMap);
 		// 发送DELETE请求,基本同GET
 		restTemplate.exchange("http://127.0.0.1:8080/delete/{id}", HttpMethod.DELETE, null, String.class,
-				MapTool.builder("id", 1).build());
+				MapHelper.builder("id", 1).build());
 
 		// 使用RequestEntity发送请求
 		// 构建无参地址
@@ -86,7 +86,7 @@ public class MyRestTemplate {
 		// 构建直接拼接在URI后面的参数
 		UriComponentsBuilder.fromUriString("http://ip:port/name={name}&password={password}").build("admin", "123456");
 		UriComponentsBuilder.fromUriString("http://ip:port/")
-				.build(MapTool.builder("name", "admin").put("password", "123456").build());
+				.build(MapHelper.builder("name", "admin").put("password", "123456").build());
 		RequestEntity<Void> requestEntity =
 				RequestEntity.get(uriComponents.toUri()).accept(MediaType.APPLICATION_JSON).build();
 		ResponseEntity<User> exchange = restTemplate.exchange(requestEntity, User.class);

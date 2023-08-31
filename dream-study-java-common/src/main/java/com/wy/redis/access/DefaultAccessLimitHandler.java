@@ -9,7 +9,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.wy.limit.LimitAccessHandler;
 import com.wy.limit.annotation.LimitAccess;
 
-import dream.flying.flower.autoconfigure.web.helper.RedisHelper;
+import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultAccessLimitHandler implements LimitAccessHandler {
 
 	@Autowired
-	private RedisHelper redisHelper;
+	private RedisHelpers redisHelper;
 
 	@Override
 	public boolean handler(LimitAccess limitAccess) {

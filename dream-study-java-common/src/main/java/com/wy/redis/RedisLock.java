@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 
-import com.wy.digest.DigestTool;
+import com.wy.digest.DigestHelper;
 
 /**
  * Redis的分布式锁:redisson,需要添加相关依赖
@@ -92,7 +92,7 @@ public class RedisLock {
 	 */
 	public void redisLock() throws InterruptedException {
 		// 生成的随机uuid,避免删除锁时删除其他线程的锁
-		String uuid = DigestTool.uuid();
+		String uuid = DigestHelper.uuid();
 		// 分布式锁占坑,设置过期时间,必须和加锁一起作为原子性操作
 		Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.MILLISECONDS);
 		if (lock) {

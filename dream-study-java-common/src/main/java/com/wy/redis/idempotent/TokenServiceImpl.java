@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wy.common.Constant;
-import com.wy.digest.DigestTool;
+import com.wy.digest.DigestHelper;
 import com.wy.enums.TipEnum;
-import com.wy.lang.StrTool;
+import com.wy.lang.StrHelper;
 import com.wy.result.ResultException;
 
-import dream.flying.flower.autoconfigure.web.helper.RedisHelper;
+import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 
 /**
  * Token业务实现类
@@ -24,12 +24,12 @@ import dream.flying.flower.autoconfigure.web.helper.RedisHelper;
 public class TokenServiceImpl implements TokenService {
 
 	@Autowired
-	private RedisHelper redisHelper;
+	private RedisHelpers redisHelper;
 
 	@Override
 	public String createToken() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(Constant.Redis.TOKEN_PREFIX).append(DigestTool.uuid());
+		builder.append(Constant.Redis.TOKEN_PREFIX).append(DigestHelper.uuid());
 		redisHelper.setNX(builder.toString(), builder.toString(), 10000L);
 		return builder.toString();
 	}
@@ -37,9 +37,9 @@ public class TokenServiceImpl implements TokenService {
 	@Override
 	public boolean checkToken(HttpServletRequest request, String tokenKey) {
 		String token = request.getHeader(tokenKey);
-		if (StrTool.isBlank(token)) {
+		if (StrHelper.isBlank(token)) {
 			token = request.getParameter(tokenKey);
-			if (StrTool.isBlank(token)) {
+			if (StrHelper.isBlank(token)) {
 				throw new ResultException(TipEnum.TIP_AUTH_TOKEN_EMPTY);
 			}
 		}
@@ -56,9 +56,9 @@ public class TokenServiceImpl implements TokenService {
 	@Override
 	public Object getToken(HttpServletRequest request, String tokenKey) {
 		String token = request.getHeader(tokenKey);
-		if (StrTool.isBlank(token)) {
+		if (StrHelper.isBlank(token)) {
 			token = request.getParameter(tokenKey);
-			if (StrTool.isBlank(token)) {
+			if (StrHelper.isBlank(token)) {
 				throw new ResultException(TipEnum.TIP_AUTH_TOKEN_EMPTY);
 			}
 		}
