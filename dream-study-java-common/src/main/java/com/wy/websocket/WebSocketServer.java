@@ -87,7 +87,7 @@ public class WebSocketServer {
 	}
 
 	/**
-	 * 收到客户端消息后调用的方法
+	 * 收到客户端消息后调用的方法,可以是文本,ByteBuffer或PongMessage
 	 * 
 	 * @param message 客户端发送过来的消息
 	 * @param session 客户端与服务端建立的长连接通道
