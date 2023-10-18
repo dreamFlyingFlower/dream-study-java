@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+	<!-- 搭配maven-assembly-plugin插件,assembly.xml进行不同环境下的打包 -->
+	<!-- 配置打包时候的环境,如mvn clean package -P dev|test|prod -->
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<!-- 传递给脚本的参数值,自定义 -->
+				<activeProfile>dev</activeProfile>
+				<packageName>${project.name}-dev-${project.version}</packageName>
+			</properties>
+			<activation>
+				<!-- 默认打包该环境 -->
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<activeProfile>test</activeProfile>
+				<packageName>${project.name}-test-${project.version}</packageName>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<activeProfile>prod</activeProfile>
+				<packageName>${project.name}-prod-${project.version}</packageName>
+			</properties>
+		</profile>
+	</profiles>
+
+	<!-- https://mp.weixin.qq.com/s/WipGDWfK-_zP6afq7kr-cA 补全 -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<!-- 指定启动的main函数类 -->
+							<mainClass>com.wy.Application</mainClass>
+						</manifest>
+					</archive>
+					<!-- 打包排除项 -->
+					<excludes>
+						<exclude>**/*.sh</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<!-- 指定assembly文件位置 -->
+						<!-- <descriptor>${project.basedir}/src/main/resources/assembly.xml</descriptor> -->
+						<descriptor>./assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

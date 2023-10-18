@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+	<!-- 代码混淆插件,需配合proguard.cfg使用,在mvn clean package时自动调用 -->
+	<!-- 代码混淆不是代码加密,反编译仍然可以拿到源码,只是源码中的一些类名,方法名等改变了 -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.github.wvengen</groupId>
+				<artifactId>proguard-maven-plugin</artifactId>
+				<version>2.6.0</version>
+				<executions>
+					<!-- 执行mvn的package命令时候,会执行proguard -->
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>proguard</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- 输入Jar的名称,需要在pom.xml中配置该属性,可自定义 -->
+					<injar>${project.name}-${project.version}.jar</injar>
+					<!-- 输出jar名称,同名覆盖 -->
+					<outjar>${project.name}-${project.version}.jar</outjar>
+					<!-- 是否混淆,默认true -->
+					<obfuscate>true</obfuscate>
+					<!-- 额外的jar包,通常是项目编译所需要的jar -->
+					<libs>
+						<lib>${java.home}/lib/rt.jar</lib>
+						<lib>${java.home}/lib/jce.jar</lib>
+						<lib>${java.home}/lib/jsse.jar</lib>
+					</libs>
+					<!-- 对输入jar进行过滤比如,如下配置就是对META-INFO文件不处理 -->
+					<inLibsFilter>!META-INF/**,!META-INF/versions/9/**.class</inLibsFilter>
+					<!-- 输出路径配置,但是要注意这个路径必须要包括injar标签填写的jar -->
+					<outputDirectory>${project.basedir}/target</outputDirectory>
+					<!-- 配置一个文件,通常叫做proguard.cfg,该文件主要是配置options选项,也可以直接写在下方的options标签中 -->
+					<proguardInclude>${project.basedir}/proguard.cfg</proguardInclude>
+					<!-- 配置混淆的一些细节选项,比如哪些类不需要混淆,哪些需要混淆 -->
+					<options>
+						<!-- 可以在此处写option标签配置,也可以使用上面的proguardInclude -->
+					</options>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<mainClass>com.wyApplication</mainClass>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
