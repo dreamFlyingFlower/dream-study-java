@@ -31,4 +31,11 @@ public interface UserMapper extends BaseMappers<User, Long> {
 	 * @return 用户以及角色信息
 	 */
 	List<User> selectUserRoles(List<Long> ids);
+
+	/**
+	 * 批量插入
+	 * 
+	 * @param users 用户列表
+	 */
+	void inserts(List<User> users);
 }
