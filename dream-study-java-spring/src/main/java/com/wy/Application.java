@@ -122,6 +122,7 @@ import com.wy.extension.SelfInstantiationAwareBeanPostProcessor;
 import com.wy.extension.SelfSmartInitializingSingleton;
 import com.wy.extension.SelfSmartInstantiationAwareBeanPostProcessor;
 import com.wy.initializer.SelfServletContainerInitializer;
+import com.wy.listener.SelfSpringEvent;
 import com.wy.runner.SelfCommandLineRunner;
 
 /**
@@ -657,6 +658,26 @@ import com.wy.runner.SelfCommandLineRunner;
  * 5.编写标签的解析器HaohaoBeanDefinitionParser,在parse方法中注册HaohaoeanPostProcessor
  * 6.编写DreamBeanPostProcessor后置处理器
  * 7.使用时在applicationContext.xml配置文件中引入命名空间,在applicationContext.xml配置文件中使用自定义的标签
+ * </pre>
+ * 
+ * 可以作为扩展点的16个类:
+ * 
+ * <pre>
+ * {@link ApplicationContextInitializer}:见{@link SelfApplicationContextInitializer}
+ * {@link BeanDefinitionRegistryPostProcessor}:见 {@link SelfBeanDefinitionRegistryPostProcessor}
+ * {@link BeanFactoryPostProcessor}:见 {@link SelfBeanFactoryPostProcessor}
+ * {@link InstantiationAwareBeanPostProcessor}:见 {@link SelfInstantiationAwareBeanPostProcessor}
+ * {@link SmartInstantiationAwareBeanPostProcessor}:见 {@link SelfSmartInstantiationAwareBeanPostProcessor}
+ * {@link BeanFactoryAware}:见 {@link SelfBeanFactoryAware}
+ * {@link SelfApplicationContextAwareProcessor}:见 {@link SelfApplicationContextAwareProcessor}
+ * {@link BeanNameAware}:见 {@link SelfBeanNameAware}
+ * {@link PostConstruct}:初始化注解,在postProcessBeforeInitialization之后,InitializingBean.afterPropertiesSet之前
+ * {@link InitializingBean}:见 {@link SelfInitializingBean}
+ * {@link FactoryBean}:见 {@link SelfFactoryBean}
+ * {@link SmartInitializingSingleton}:见 {@link SelfSmartInitializingSingleton}
+ * {@link CommandLineRunner}:整个项目全部准备完成,等待接收请求时执行触发
+ * {@link DisposableBean}:当此对象销毁时触发.比如说运行applicationContext.registerShutdownHook时,就会触发这个方法
+ * {@link ApplicationListener}:事件监听,见 {@link SelfSpringEvent}
  * </pre>
  * 
  * @author 飞花梦影
