@@ -10,7 +10,7 @@ import org.springframework.web.context.support.RequestHandledEvent;
 import org.springframework.web.context.support.ServletRequestHandledEvent;
 
 /**
- * Spring的事件(ApplicationEvent),基于继承jdk的EventObject,需要发布,见{@link SelfSpringEventListener}
+ * Spring的事件(ApplicationEvent),基于继承jdk的EventObject,需要发布,见{@link SelfSpringListener2}
  * 
  * Spring的主要内置事件
  * 

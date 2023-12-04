@@ -9,8 +9,8 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 import com.wy.common.StatusMsg;
-import com.wy.reflect.ClassTool;
-import com.wy.util.EnumStatusMsgTool;
+import com.wy.reflect.ClassHelper;
+import com.wy.util.EnumStatusMsgHelper;
 
 /**
  * 自定义通用枚举处理类
@@ -37,14 +37,14 @@ public class MyEnumTypeHandler<T extends Enum<T> & StatusMsg> implements TypeHan
 	@Override
 	public T getResult(ResultSet rs, String columnName) throws SQLException {
 		int code = rs.getInt(columnName);
-		return EnumStatusMsgTool.getEnum(code, (Class<T>) ClassTool.getGenricType(MyEnumTypeHandler.class));
+		return EnumStatusMsgHelper.getEnum(code, (Class<T>) ClassHelper.getGenricType(MyEnumTypeHandler.class));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getResult(ResultSet rs, int columnIndex) throws SQLException {
 		int code = rs.getInt(columnIndex);
-		return EnumStatusMsgTool.getEnum(code, (Class<T>) ClassTool.getGenricType(MyEnumTypeHandler.class));
+		return EnumStatusMsgHelper.getEnum(code, (Class<T>) ClassHelper.getGenricType(MyEnumTypeHandler.class));
 	}
 
 	/**
