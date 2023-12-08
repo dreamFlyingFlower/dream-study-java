@@ -12,7 +12,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * 根据{@link DBSelect}选择进行拦截数据源
+ * 根据{@link DSChoice}选择进行拦截数据源
  * 
  * @author 飞花梦影
  * @date 2021-01-13 14:57:50
@@ -21,38 +21,38 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Order(1)
 @Component
-public class DBSelectAspect {
+public class DSChoiceAspect {
 
-	@Pointcut("@annotation(com.wy.dynamicdb.DBSelect)" + "|| @within(com.wy.dynamicdb.DBSelect)")
+	@Pointcut("@annotation(com.wy.dynamicdb.DSChioce)" + "|| @within(com.wy.dynamicdb.DSChoice)")
 	public void dataSourcePoint() {
 
 	}
 
 	@Around("dataSourcePoint()")
 	public Object around(ProceedingJoinPoint point) throws Throwable {
-		DBSelect dataSource = getDataSource(point);
+		DSChoice dataSource = getDataSource(point);
 		if (Objects.nonNull(dataSource)) {
 			DynamicSourceHolder.setDataSourceKey(dataSource.value());
 		}
 		try {
 			return point.proceed();
 		} finally {
-			DynamicSourceHolder.clearDBType();
+			DynamicSourceHolder.clear();
 		}
 	}
 
 	/**
 	 * 获取需要切换的数据源
 	 */
-	public DBSelect getDataSource(ProceedingJoinPoint point) {
+	public DSChoice getDataSource(ProceedingJoinPoint point) {
 		MethodSignature signature = (MethodSignature) point.getSignature();
 		Class<? extends Object> targetClass = point.getTarget().getClass();
-		DBSelect targetDataSource = targetClass.getAnnotation(DBSelect.class);
+		DSChoice targetDataSource = targetClass.getAnnotation(DSChoice.class);
 		if (Objects.nonNull(targetDataSource)) {
 			return targetDataSource;
 		} else {
 			Method method = signature.getMethod();
-			DBSelect dataSource = method.getAnnotation(DBSelect.class);
+			DSChoice dataSource = method.getAnnotation(DSChoice.class);
 			return dataSource;
 		}
 	}

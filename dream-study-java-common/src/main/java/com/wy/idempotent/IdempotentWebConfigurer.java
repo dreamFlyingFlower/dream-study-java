@@ -1,11 +1,9 @@
-package com.wy.config;
+package com.wy.idempotent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.wy.redis.idempotent.IdempotentInterceptor;
 
 /**
  * Web拦截器,初始化等配置
@@ -15,7 +13,7 @@ import com.wy.redis.idempotent.IdempotentInterceptor;
  * @git {@link https://github.com/dreamFlyingFlower }
  */
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class IdempotentWebConfigurer implements WebMvcConfigurer {
 
 	@Autowired
 	private IdempotentInterceptor idempotentInterceptor;

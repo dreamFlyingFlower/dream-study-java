@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.wy.dynamicdb.DBTypeEnum;
+import com.wy.dynamicdb.DSType;
 import com.wy.dynamicdb.DynamicRoutingDataSource;
 
 /**
@@ -30,8 +30,8 @@ public class MybatisMultiConfig {
 	public DataSource dynamicRoutingDataSource(@Qualifier("dataSource") DataSource masterDataSource,
 			@Qualifier("dataSource1") DataSource slave1DataSource) {
 		Map<Object, Object> targetDataSources = new HashMap<>();
-		targetDataSources.put(DBTypeEnum.MASTER, masterDataSource);
-		targetDataSources.put(DBTypeEnum.SLAVE1, slave1DataSource);
+		targetDataSources.put(DSType.MASTER, masterDataSource);
+		targetDataSources.put(DSType.SLAVE1, slave1DataSource);
 		DynamicRoutingDataSource dynamicRoutingDataSource = new DynamicRoutingDataSource();
 		dynamicRoutingDataSource.setDefaultTargetDataSource(masterDataSource);
 		dynamicRoutingDataSource.setTargetDataSources(targetDataSources);

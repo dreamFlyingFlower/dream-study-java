@@ -41,7 +41,7 @@ public class MybatisInterceptor implements Interceptor {
 		Object[] args = invocation.getArgs();
 		if (active) {
 			// 有事务的操作一定在主库中执行
-			DynamicSourceHolder.setDataSourceKey(DBTypeEnum.MASTER);
+			DynamicSourceHolder.setDataSourceKey(DSType.MASTER);
 		} else {
 			// 无事务的方法可以在从库中执行
 			MappedStatement mappedStatement = (MappedStatement) args[0];
@@ -49,9 +49,9 @@ public class MybatisInterceptor implements Interceptor {
 			if (mappedStatement.getSqlCommandType().equals(SqlCommandType.SELECT)) {
 				// 在select语句中使用了last_insert_id函数
 				if (mappedStatement.getId().contains(SelectKeyGenerator.SELECT_KEY_SUFFIX)) {
-					DynamicSourceHolder.setDataSourceKey(DBTypeEnum.MASTER);
+					DynamicSourceHolder.setDataSourceKey(DSType.MASTER);
 				} else {
-					DynamicSourceHolder.setDataSourceKey(DBTypeEnum.SLAVE1);
+					DynamicSourceHolder.setDataSourceKey(DSType.SLAVE1);
 				}
 			}
 		}

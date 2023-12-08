@@ -11,45 +11,45 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DynamicSourceHolder {
 
-	private static final ThreadLocal<DBTypeEnum> DB_LOCAL = new ThreadLocal<>();
+	private static final ThreadLocal<DSType> DS_CURRENT = new ThreadLocal<>();
 
-	private static final AtomicInteger counter = new AtomicInteger(-1);
+	private static final AtomicInteger COUNTER = new AtomicInteger(-1);
 
-	public static void setDataSourceKey(DBTypeEnum dbTypeEnum) {
-		DB_LOCAL.set(dbTypeEnum);
+	public static void setDataSourceKey(DSType dsType) {
+		DS_CURRENT.set(dsType);
 	}
 
-	public static DBTypeEnum getDataSourceKey() {
-		DBTypeEnum dbTypeEnum = DB_LOCAL.get();
-		if (null == dbTypeEnum) {
+	public static DSType getDataSourceKey() {
+		DSType dsType = DS_CURRENT.get();
+		if (null == dsType) {
 			setMaster();
 		}
-		return DB_LOCAL.get();
+		return DS_CURRENT.get();
 	}
 
 	public static void setMaster() {
-		setDataSourceKey(DBTypeEnum.MASTER);
+		setDataSourceKey(DSType.MASTER);
 	}
 
 	/**
 	 * 清理连接类型
 	 */
-	public static void clearDBType() {
-		DB_LOCAL.remove();
+	public static void clear() {
+		DS_CURRENT.remove();
 	}
 
 	/**
 	 * 若为单备数据库,则直接可返回SLAVE,若为多备数据库,则可轮询或其他算法
 	 */
 	public static void setSalve() {
-		int index = counter.getAndIncrement() % 2;
-		if (counter.get() > 99999) {
-			counter.set(-1);
+		int index = COUNTER.getAndIncrement() % 2;
+		if (COUNTER.get() > 99999) {
+			COUNTER.set(-1);
 		}
 		if (index == 0) {
-			setDataSourceKey(DBTypeEnum.SLAVE1);
+			setDataSourceKey(DSType.SLAVE1);
 		} else {
-			setDataSourceKey(DBTypeEnum.SLAVE2);
+			setDataSourceKey(DSType.SLAVE2);
 		}
 	}
 }

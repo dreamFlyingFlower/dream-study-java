@@ -1,5 +1,6 @@
 package com.wy.dynamicdb;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,9 +13,10 @@ import java.lang.annotation.Target;
  * @date 2021-01-13 14:55:36
  * @git {@link https://github.com/mygodness100}
  */
+@Documented
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DBSelect {
+public @interface DSChoice {
 
-	DBTypeEnum value() default DBTypeEnum.MASTER;
+	DSType value() default DSType.MASTER;
 }

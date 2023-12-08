@@ -9,9 +9,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.wy.common.Constant;
+import com.wy.idempotent.TokenService;
 import com.wy.limit.LimitAccessHandler;
 import com.wy.limit.annotation.LimitAccess;
-import com.wy.redis.idempotent.TokenService;
 
 import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 import lombok.extern.slf4j.Slf4j;

@@ -7,7 +7,7 @@ package com.wy.dynamicdb;
  * @date 2021-07-24 16:51:05
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public enum DBTypeEnum {
+public enum DSType {
 
 	MASTER,
 	SLAVE1,

@@ -1,4 +1,4 @@
-package com.wy.redis.idempotent;
+package com.wy.idempotent;
 
 import java.lang.reflect.Method;
 
