@@ -9,7 +9,7 @@ spring:
     # 第一个参数是开发环境配置文件,其他的多个配置文件必须以application-开头,只用写后缀即可,逗号隔开
     active: druid
   application:
-    name: paradise-study-java-db
+    name: dream-study-java-db
   mvc:
     async:
       request-timeout: 180S

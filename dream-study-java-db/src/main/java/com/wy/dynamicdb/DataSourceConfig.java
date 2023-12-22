@@ -35,31 +35,32 @@ public class DataSourceConfig {
 
 	@Bean
 	@ConfigurationProperties("spring.datasource.master")
-	public DataSource masterDataSource() {
+	DataSource masterDataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
 	@Bean
 	@ConfigurationProperties("spring.datasource.slave1")
-	public DataSource slave1DataSource() {
+	DataSource slave1DataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
 	@Bean
 	@ConfigurationProperties("spring.datasource.slave2")
-	public DataSource slave2DataSource() {
+	DataSource slave2DataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
 	@Bean
-	public DataSource dynamicRoutingDataSource(@Qualifier("masterDataSource") DataSource masterDataSource,
+	DataSource dynamicRoutingDataSource(@Qualifier("masterDataSource") DataSource masterDataSource,
 			@Qualifier("slave1DataSource") DataSource slave1DataSource,
-			@Qualifier("slave2DataSource") DataSource slave2DataSource) {
+			@Qualifier("slave2DataSource") DataSource slave2DataSource, DsMultiProperties dsMultiProperties) {
 		Map<Object, Object> targetDataSources = new HashMap<>();
 		targetDataSources.put(DSType.MASTER, masterDataSource);
 		targetDataSources.put(DSType.SLAVE1, slave1DataSource);
 		targetDataSources.put(DSType.SLAVE2, slave2DataSource);
-		DynamicRoutingDataSource dynamicRoutingDataSource = new DynamicRoutingDataSource();
+		DynamicRoutingDataSource dynamicRoutingDataSource =
+				new DynamicRoutingDataSource(dsMultiProperties.getDruidDataSources());
 		dynamicRoutingDataSource.setDefaultTargetDataSource(masterDataSource);
 		dynamicRoutingDataSource.setTargetDataSources(targetDataSources);
 		return dynamicRoutingDataSource;

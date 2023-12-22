@@ -1,0 +1,33 @@
+management:
+  endpoints:
+    web:
+      # 效果等同于server.context-path,若同时存在,base-path优先级更高
+      base-path: /
+      exposure:
+        # 暴露所有的Actuator监控端点,默认禁用
+        #include: "*"
+        # 暴露多个端点
+        include:
+        - health
+        - info
+        # 那些端点不打开
+        exclude:
+        - trace
+  # 单个端点的配置
+  endpoint:
+    shutdown:
+      # 设置该值为true表示可调用actuator的shutdown接口关闭程序,默认该配置为false
+      enabled: true
+    # 默认开放的端点,查看健康信息
+    health:
+      enabled: true
+      # 查看详情
+      show-details: always
+      # 查看组件
+      show-components: always
+  # 设置health的信息
+  health:
+    # db监控
+    db:
+      enabled: true
+      

@@ -1,1 +1,10 @@
 # 写一些自定义的配置
+config:
+  ds:
+    druid-data-sources:
+    - name: ds1
+      username: 
+      password: 
+    - name: ds2
+      username: 
+      password: 
