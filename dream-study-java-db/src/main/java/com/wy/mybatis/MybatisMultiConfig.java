@@ -27,12 +27,12 @@ import com.wy.dynamicdb.DynamicRoutingDataSource;
 public class MybatisMultiConfig {
 
 	@Bean
-	public DataSource dynamicRoutingDataSource(@Qualifier("dataSource") DataSource masterDataSource,
+	DataSource dynamicRoutingDataSource(@Qualifier("dataSource") DataSource masterDataSource,
 			@Qualifier("dataSource1") DataSource slave1DataSource) {
 		Map<Object, Object> targetDataSources = new HashMap<>();
 		targetDataSources.put(DSType.MASTER, masterDataSource);
 		targetDataSources.put(DSType.SLAVE1, slave1DataSource);
-		DynamicRoutingDataSource dynamicRoutingDataSource = new DynamicRoutingDataSource();
+		DynamicRoutingDataSource dynamicRoutingDataSource = new DynamicRoutingDataSource(null);
 		dynamicRoutingDataSource.setDefaultTargetDataSource(masterDataSource);
 		dynamicRoutingDataSource.setTargetDataSources(targetDataSources);
 		return dynamicRoutingDataSource;
