@@ -1,14 +1,15 @@
 package com.wy.signature;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
-import com.wy.binary.HexHelper;
+import com.wy.digest.DigestHelper;
+import com.wy.io.IOHelper;
 import com.wy.lang.StrHelper;
-import com.wy.util.ResourceUtil;
 
 import lombok.Getter;
 
@@ -34,47 +35,41 @@ public class SignatureManager {
 	/**
 	 * 验签。验证不通过可能抛出运行时异常CryptoException
 	 *
-	 * @param callerID 调用方的唯一标识
+	 * @param appId 调用方的唯一标识
 	 * @param rawData 原数据
 	 * @param signature 待验证的签名(十六进制字符串)
 	 * @return 验证是否通过
 	 */
-	public boolean verifySignature(String callerID, String rawData, String signature) {
-		Sign sign = getSignByCallerID(callerID);
-		if (Objects.isNull(sign)) {
+	public boolean verifySignature(String appId, String rawData, String signature) {
+		KeyPairProperties keyPairProperties = getKeyPairProperties(appId);
+		if (Objects.isNull(keyPairProperties)) {
 			return false;
 		}
 
 		// 使用公钥验签
-		return sign.verify(rawData.getBytes(StandardCharsets.UTF_8), HexHelper.decode(signature));
+		return DigestHelper.RSAVerify(rawData, signature, keyPairProperties.getPublicKey());
 	}
 
 	/**
 	 * 生成签名
 	 *
-	 * @param callerID 调用方的唯一标识
+	 * @param appId 调用方的唯一标识
 	 * @param rawData 原数据
 	 * @return 签名(十六进制字符串)
 	 */
-	public String sign(String callerID, String rawData) {
-		Sign sign = getSignByCallerID(callerID);
-		if (Objects.isNull(sign)) {
+	public String sign(String appId, String rawData) {
+		KeyPairProperties keyPairProperties = getKeyPairProperties(appId);
+		if (Objects.isNull(keyPairProperties)) {
 			return null;
 		}
-		return sign.signHex(rawData);
-	}
-
-	public KeyPairProperties getKeyPairPropsByCallerID(String callerID) {
-		return signatureProperties.getKeyPair().get(callerID);
-	}
-
-	private Sign getSignByCallerID(String callerID) {
-		KeyPairProperties keyPairProps = signatureProperties.getKeyPair().get(callerID);
-		if (Objects.isNull(keyPairProps)) {
+		if (StrHelper.isBlank(keyPairProperties.getPrivateKey())) {
 			return null;
 		}
-		return SecureUtil.sign(keyPairProps.getMessageDigestType(), keyPairProps.getPrivateKey(),
-				keyPairProps.getPublicKey());
+		return DigestHelper.RSASignString(rawData.getBytes(), keyPairProperties.getPrivateKey());
+	}
+
+	public KeyPairProperties getKeyPairProperties(String appId) {
+		return signatureProperties.getKeyPair().get(appId);
 	}
 
 	/**
@@ -84,9 +79,10 @@ public class SignatureManager {
 		// 支持类路径配置,形如:classpath:secure/public.txt
 		// 公钥和私钥都是base64编码后的字符串
 		signatureProperties.getKeyPair().forEach((key, keyPairProps) -> {
-			// 如果配置了XxxKeyPath，则优先XxxKeyPath
-			keyPairProps.setPublicKey(loadKeyByPath(keyPairProps.getPublicKeyPath()));
-			keyPairProps.setPrivateKey(loadKeyByPath(keyPairProps.getPrivateKeyPath()));
+			keyPairProps.setPublicKey(Optional.ofNullable(loadKeyByPath(keyPairProps.getPublicKeyPath()))
+					.orElse(keyPairProps.getPublicKey()));
+			keyPairProps.setPrivateKey(Optional.ofNullable(loadKeyByPath(keyPairProps.getPrivateKeyPath()))
+					.orElse(keyPairProps.getPrivateKey()));
 			if (StrHelper.isBlank(keyPairProps.getPublicKey()) || StrHelper.isBlank(keyPairProps.getPrivateKey())) {
 				throw new RuntimeException("No public and private key files configured");
 			}
@@ -97,6 +93,6 @@ public class SignatureManager {
 		if (StrHelper.isBlank(path)) {
 			return null;
 		}
-		return IoUtil.readUtf8(ResourceUtil.getStream(path));
+		return IOHelper.readUtf8(ResourceUtils.getFile(path));
 	}
 }

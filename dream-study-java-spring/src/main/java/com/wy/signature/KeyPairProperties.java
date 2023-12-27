@@ -1,11 +1,9 @@
 package com.wy.signature;
 
-import com.wy.digest.enums.MessageDigestType;
-
 import lombok.Data;
 
 /**
- * 
+ * 读取公钥和私钥,其他路径中的字符串优先级更高
  *
  * @author 飞花梦影
  * @date 2023-12-26 17:29:09
@@ -14,7 +12,7 @@ import lombok.Data;
 @Data
 public class KeyPairProperties {
 
-	private MessageDigestType messageDigestType;
+	// private MessageDigestType messageDigestType;
 
 	private String publicKeyPath;
 

@@ -11,7 +11,7 @@ import org.aspectj.lang.annotation.Pointcut;
  */
 public interface PointCutDef {
 
-	@Pointcut("execution(public * top.ysqorz..controller.*.*(..))")
+	@Pointcut("execution(public * com.wy..controller.*.*(..))")
 	default void controllerMethod() {
 	}
 
