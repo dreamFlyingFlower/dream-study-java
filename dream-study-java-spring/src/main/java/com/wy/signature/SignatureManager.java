@@ -1,14 +1,16 @@
 package com.wy.signature;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
 import com.wy.digest.DigestHelper;
-import com.wy.io.IOHelper;
+import com.wy.io.file.FileHelper;
 import com.wy.lang.StrHelper;
 
 import lombok.Getter;
@@ -32,8 +34,32 @@ public class SignatureManager {
 		loadKeyPairByPath();
 	}
 
+	private void loadKeyPairByPath() {
+		signatureProperties.getKeyPair().forEach((key, keyPairProps) -> {
+			keyPairProps.setPublicKey(Optional.ofNullable(loadKeyByPath(keyPairProps.getPublicKeyPath()))
+					.orElse(keyPairProps.getPublicKey()));
+			keyPairProps.setPrivateKey(Optional.ofNullable(loadKeyByPath(keyPairProps.getPrivateKeyPath()))
+					.orElse(keyPairProps.getPrivateKey()));
+			if (StrHelper.isBlank(keyPairProps.getPublicKey()) || StrHelper.isBlank(keyPairProps.getPrivateKey())) {
+				throw new RuntimeException("No public and private key files configured");
+			}
+		});
+	}
+
+	private String loadKeyByPath(String path) {
+		if (StrHelper.isBlank(path)) {
+			return null;
+		}
+		try {
+			return FileHelper.read(path);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	/**
-	 * 验签。验证不通过可能抛出运行时异常CryptoException
+	 * 验签
 	 *
 	 * @param appId 调用方的唯一标识
 	 * @param rawData 原数据
@@ -46,7 +72,7 @@ public class SignatureManager {
 			return false;
 		}
 
-		// 使用公钥验签
+		// 公钥验签
 		return DigestHelper.RSAVerify(rawData, signature, keyPairProperties.getPublicKey());
 	}
 
@@ -71,28 +97,17 @@ public class SignatureManager {
 	public KeyPairProperties getKeyPairProperties(String appId) {
 		return signatureProperties.getKeyPair().get(appId);
 	}
-
-	/**
-	 * 加载非对称密钥对
-	 */
-	private void loadKeyPairByPath() {
-		// 支持类路径配置,形如:classpath:secure/public.txt
-		// 公钥和私钥都是base64编码后的字符串
-		signatureProperties.getKeyPair().forEach((key, keyPairProps) -> {
-			keyPairProps.setPublicKey(Optional.ofNullable(loadKeyByPath(keyPairProps.getPublicKeyPath()))
-					.orElse(keyPairProps.getPublicKey()));
-			keyPairProps.setPrivateKey(Optional.ofNullable(loadKeyByPath(keyPairProps.getPrivateKeyPath()))
-					.orElse(keyPairProps.getPrivateKey()));
-			if (StrHelper.isBlank(keyPairProps.getPublicKey()) || StrHelper.isBlank(keyPairProps.getPrivateKey())) {
-				throw new RuntimeException("No public and private key files configured");
-			}
-		});
-	}
-
-	private String loadKeyByPath(String path) {
-		if (StrHelper.isBlank(path)) {
-			return null;
+	
+	public static void main(String[] args) {
+		try {
+			List<String> lists = FileHelper.readLines(new File("F:\\test.txt"));
+			String str = FileHelper.read("F:\\test.txt");
+			System.out.println(String.join(",", lists));
+			System.out.println(str);
+			System.out.println(FileHelper.readOne(new File("F:\\test.txt") ));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return IOHelper.readUtf8(ResourceUtils.getFile(path));
 	}
 }
