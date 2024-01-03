@@ -28,7 +28,7 @@ public class MyAsyncConfig01 {
 	 * @return 线程执行器
 	 */
 	@Bean(AsyncExecutionAspectSupport.DEFAULT_TASK_EXECUTOR_BEAN_NAME)
-	public Executor defaultAsyncExecutor() {
+	Executor defaultAsyncExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		// 配置核心线程数
 		executor.setCorePoolSize(10);
@@ -58,7 +58,7 @@ public class MyAsyncConfig01 {
 	 * @return 线程执行器
 	 */
 	@Bean
-	public Executor defaultAsyncPool() {
+	Executor defaultAsyncPool() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		// 配置核心线程数
 		executor.setCorePoolSize(10);

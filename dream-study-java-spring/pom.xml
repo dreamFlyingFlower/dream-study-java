@@ -93,6 +93,12 @@
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
 		</dependency>
+		<!-- minio文件断点续传 -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.12.629</version>
+		</dependency>
 
 		<dependency>
 			<groupId>io.springfox</groupId>

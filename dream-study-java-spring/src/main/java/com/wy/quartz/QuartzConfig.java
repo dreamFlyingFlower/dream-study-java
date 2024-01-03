@@ -22,7 +22,7 @@ public class QuartzConfig {
 	 * 创建Job对象
 	 */
 	@Bean
-	public JobDetailFactoryBean jobDetailFactoryBean() {
+	JobDetailFactoryBean jobDetailFactoryBean() {
 		JobDetailFactoryBean factory = new JobDetailFactoryBean();
 		// 关联自己的Job类
 		factory.setJobClass(QuartzTask.class);
@@ -35,7 +35,7 @@ public class QuartzConfig {
 	 * 创建简单的Trigger
 	 */
 	@Bean
-	public SimpleTriggerFactoryBean simpleTriggerFactoryBean(JobDetailFactoryBean jobDetailFactoryBean) {
+	SimpleTriggerFactoryBean simpleTriggerFactoryBean(JobDetailFactoryBean jobDetailFactoryBean) {
 		SimpleTriggerFactoryBean factory = new SimpleTriggerFactoryBean();
 		// 关联JobDetail对象
 		factory.setJobDetail(jobDetailFactoryBean.getObject());
@@ -50,7 +50,7 @@ public class QuartzConfig {
 	 * 创建简单Scheduler对象
 	 */
 	@Bean
-	public SchedulerFactoryBean simpleSchedulerFactoryBean(SimpleTriggerFactoryBean simpleTriggerFactoryBean) {
+	SchedulerFactoryBean simpleSchedulerFactoryBean(SimpleTriggerFactoryBean simpleTriggerFactoryBean) {
 		SchedulerFactoryBean factory = new SchedulerFactoryBean();
 		// 关联trigger
 		factory.setTriggers(simpleTriggerFactoryBean.getObject());
@@ -61,7 +61,7 @@ public class QuartzConfig {
 	 * 创建自定义的定时任务,Cron Trigger
 	 */
 	@Bean
-	public CronTriggerFactoryBean cronTriggerFactoryBean(JobDetailFactoryBean jobDetailFactoryBean) {
+	CronTriggerFactoryBean cronTriggerFactoryBean(JobDetailFactoryBean jobDetailFactoryBean) {
 		CronTriggerFactoryBean factory = new CronTriggerFactoryBean();
 		factory.setJobDetail(jobDetailFactoryBean.getObject());
 		// 设置cron表达式
@@ -73,7 +73,7 @@ public class QuartzConfig {
 	 * 创建Scheduler对象
 	 */
 	@Bean
-	public SchedulerFactoryBean cronSchedulerFactoryBean(CronTriggerFactoryBean cronTriggerFactoryBean) {
+	SchedulerFactoryBean cronSchedulerFactoryBean(CronTriggerFactoryBean cronTriggerFactoryBean) {
 		SchedulerFactoryBean factory = new SchedulerFactoryBean();
 		// 关联trigger
 		factory.setTriggers(cronTriggerFactoryBean.getObject());

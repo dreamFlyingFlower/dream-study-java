@@ -36,24 +36,24 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class Swagger3Config {
 
 	@Bean
-	public Docket generateApi() {
+	Docket generateApi() {
 		// springfox3添加公共请求头
 		List<RequestParameter> requestParameters = new ArrayList<>();
 		requestParameters.add(new RequestParameterBuilder().name("token").description("token").in(ParameterType.HEADER)
-		        .required(false).build());
+				.required(false).build());
 
 		return new Docket(DocumentationType.OAS_30).groupName("API文档").apiInfo(apiInfo()).select()
-		        // 扫描指定包路径,只能写一个,不支持匹配正则
-		        .apis(RequestHandlerSelectors.basePackage("com.wy.crl"))
-		        // 扫描标识有指定注解的类
-		        .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
-		        // 扫描标识有指定注解的方法
-		        .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class)).paths(PathSelectors.any())
-		        .build()
-		        // 全局请求字段
-		        .globalRequestParameters(requestParameters)
-		        // 忽略某个类,可连写多个
-		        .ignoredParameterTypes(Swagger3Config.class);
+				// 扫描指定包路径,只能写一个,不支持匹配正则
+				.apis(RequestHandlerSelectors.basePackage("com.wy.crl"))
+				// 扫描标识有指定注解的类
+				.apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
+				// 扫描标识有指定注解的方法
+				.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class)).paths(PathSelectors.any())
+				.build()
+				// 全局请求字段
+				.globalRequestParameters(requestParameters)
+				// 忽略某个类,可连写多个
+				.ignoredParameterTypes(Swagger3Config.class);
 	}
 
 	private ApiInfo apiInfo() {

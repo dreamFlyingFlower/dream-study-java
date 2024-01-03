@@ -9,6 +9,7 @@ import org.springframework.aop.interceptor.AsyncExecutionAspectSupport;
 import org.springframework.aop.interceptor.AsyncExecutionInterceptor;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -41,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2021-01-08 10:24:53
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-// @Configuration
+@Configuration
 @Slf4j
 public class MyAsyncConfig02 implements AsyncConfigurer {
 

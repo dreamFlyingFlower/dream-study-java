@@ -36,7 +36,7 @@ public class OpenApiConfig implements GlobalOperationCustomizer {
 	 * 给某个组添加参数
 	 */
 	@Bean
-	public GroupedOpenApi groupedOpenApi() {
+	GroupedOpenApi groupedOpenApi() {
 		return GroupedOpenApi.builder().group("鉴权").pathsToMatch("/**")
 				.addOperationCustomizer((operation, handlerMethod) -> {
 					return operation

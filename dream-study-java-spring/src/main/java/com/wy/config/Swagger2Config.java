@@ -39,15 +39,15 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class Swagger2Config {
 
 	@Bean
-	public Docket createRestApi() {
+	Docket createRestApi() {
 
 		// swagger2添加公共请参数,在swagger3中已经废除
 		ParameterBuilder token = new ParameterBuilder();
 		ParameterBuilder tenant = new ParameterBuilder();
 		token.name("X-Auth-Token").description("访问令牌").modelRef(new ModelRef("string")).parameterType("header")
-		        .required(false).build();
+				.required(false).build();
 		tenant.name("X-Auth-Tenant").description("租户编码").modelRef(new ModelRef("string")).parameterType("header")
-		        .required(false).build();
+				.required(false).build();
 		List<Parameter> pars = new ArrayList<>();
 		pars.add(token.build());
 		pars.add(tenant.build());
@@ -56,10 +56,10 @@ public class Swagger2Config {
 		RequestParameterBuilder tokenBuilder = new RequestParameterBuilder();
 		tokenBuilder.name("token").in(ParameterType.HEADER).required(false);
 		return new Docket(DocumentationType.SWAGGER_2).groupName("通用文档").apiInfo(apiInfo()).select()
-		        .apis(RequestHandlerSelectors.basePackage("com.wy.crl")).paths(PathSelectors.any()).build()
-		        .globalOperationParameters(pars)
-		        // 忽略某个类,可连写多个
-		        .ignoredParameterTypes(Swagger2Config.class);
+				.apis(RequestHandlerSelectors.basePackage("com.wy.crl")).paths(PathSelectors.any()).build()
+				.globalOperationParameters(pars)
+				// 忽略某个类,可连写多个
+				.ignoredParameterTypes(Swagger2Config.class);
 	}
 
 	private ApiInfo apiInfo() {

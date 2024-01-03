@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -52,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2021-10-02 09:41:21
  * @git {@link https://github.com/dreamFlyingFlower}
  */
+@Configuration
 @Slf4j
 public class RestTemplateConfig {
 
@@ -63,7 +65,7 @@ public class RestTemplateConfig {
 	private Resource keyStore;
 
 	@Bean
-	public RestTemplate restTemplate() {
+	RestTemplate restTemplate() {
 		restTemplateBuilder
 				// 设置自定义的requestfactory
 				.requestFactory(HttpComponentsClientHttpRequestFactory.class)
@@ -76,7 +78,7 @@ public class RestTemplateConfig {
 	 * 利用httpclient构建自定义的requestfactory
 	 */
 	@Bean
-	public HttpComponentsClientHttpRequestFactory requestFactory() {
+	HttpComponentsClientHttpRequestFactory requestFactory() {
 		PoolingHttpClientConnectionManager poolingHttpClientConnectionManager =
 				new PoolingHttpClientConnectionManager(30, TimeUnit.SECONDS);
 		// 设置最大连接数
