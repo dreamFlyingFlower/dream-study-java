@@ -15,6 +15,6 @@ import org.apache.ibatis.type.TypeHandler;
  * @date 2023-11-20 15:19:59
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class NoteSensitive {
+public class NoteMyBatisSensitive {
 
 }
