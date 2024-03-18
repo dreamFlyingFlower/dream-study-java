@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2020-12-08 19:55:09
  * @git {@link https://github.com/mygodness100}
  */
+@Configuration
 public class SecondServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;

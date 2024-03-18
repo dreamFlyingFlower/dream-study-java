@@ -10,8 +10,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.wy.common.Constant;
 import com.wy.idempotent.TokenService;
+import com.wy.lang.StrHelper;
 import com.wy.limit.LimitAccessHandler;
 import com.wy.limit.annotation.LimitAccess;
+import com.wy.result.ResultException;
 
 import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 import lombok.extern.slf4j.Slf4j;
@@ -37,20 +39,27 @@ public class TokenAccessLimitHandler implements LimitAccessHandler {
 		ServletRequestAttributes servletRequestAttributes =
 				(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = servletRequestAttributes.getRequest();
-		Object tokenVal = tokenService.getToken(request, Constant.Redis.TOKEN_LOGIN);
-		if (Integer.parseInt(tokenVal.toString()) > limitAccess.count()) {
+		String token = tokenService.getToken(request, Constant.Redis.TOKEN_LOGIN);
+		if (StrHelper.isBlank(token)) {
+			throw new ResultException("token不存在,请检查!");
+		}
+
+		int loginNum = 0;
+		Object count = redisHelper.get(token);
+		if (Objects.isNull(count)) {
+			loginNum++;
+		} else {
+			loginNum = Integer.parseInt(count.toString());
+		}
+
+		if (loginNum > limitAccess.count()) {
 			log.error("访问频繁,请稍后重试");
 			return false;
 		}
-		int count = 0;
-		if (Objects.isNull(tokenVal)) {
-			count++;
+		if (loginNum <= limitAccess.count()) {
+			loginNum++;
 		}
-		if (Integer.parseInt(tokenVal.toString()) <= limitAccess.count()) {
-			count = Integer.parseInt(tokenVal.toString());
-			count++;
-		}
-		redisHelper.set(Constant.Redis.TOKEN_LOGIN, count);
+		redisHelper.set(token, loginNum);
 		return true;
 	}
 }

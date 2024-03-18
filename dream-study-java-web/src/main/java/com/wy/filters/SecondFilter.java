@@ -22,6 +22,7 @@ import com.wy.config.GlobalWebConfig;
  * @date 2019-04-07 10:32:36
  * @git {@link https://github.com/mygodness100}
  */
+@Configuration
 public class SecondFilter implements Filter {
 
 	@Override

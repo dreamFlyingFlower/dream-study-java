@@ -54,7 +54,7 @@ public class TokenServiceImpl implements TokenService {
 	}
 
 	@Override
-	public Object getToken(HttpServletRequest request, String tokenKey) {
+	public String getToken(HttpServletRequest request, String tokenKey) {
 		String token = request.getHeader(tokenKey);
 		if (StrHelper.isBlank(token)) {
 			token = request.getParameter(tokenKey);

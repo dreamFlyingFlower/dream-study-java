@@ -34,5 +34,5 @@ public interface TokenService {
 	 * @param tokenKey 存储在redis中的token key
 	 * @return token值
 	 */
-	Object getToken(HttpServletRequest request, String tokenKey);
+	String getToken(HttpServletRequest request, String tokenKey);
 }

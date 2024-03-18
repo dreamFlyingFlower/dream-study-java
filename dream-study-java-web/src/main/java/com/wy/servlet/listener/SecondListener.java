@@ -16,6 +16,7 @@ import com.wy.config.GlobalWebConfig;
  * @date 2020-12-08 23:24:55
  * @git {@link https://github.com/mygodness100}
  */
+@Configuration
 public class SecondListener implements ServletContextListener {
 
 	@Override
