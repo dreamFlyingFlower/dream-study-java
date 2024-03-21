@@ -1,0 +1,16 @@
+dream:
+  debezium:
+    enabled: true
+    offset-file-name: D:\\debezium\\offsets.dat
+    offset-file-clean: true
+    offset-time: 1
+    history-file-name: D:\\debezium\\dbhistory.dat
+    db-ip: 127.0.0.1
+    db-port: 3306
+    db-username: root
+    db-password: root
+    instance-name: mysql-connector
+    logic-name: mysql-customer
+    include-table: dbo.vehicle
+    include-db: test
+    server-id: 1
