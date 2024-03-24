@@ -105,7 +105,6 @@ import com.wy.extension.SelfApplicationContextInitializer;
  * 如果不带profile和带profile的配置中有同名属性,profile后加载,会覆盖不带profile的属性
  * </pre>
  * 
- * 
  * @author 飞花梦影
  * @date 2020-12-02 22:23:38
  * @git {@link https://github.com/dreamFlyingFlower}
@@ -114,7 +113,7 @@ import com.wy.extension.SelfApplicationContextInitializer;
 public class S_AutoConfig {
 
 	@Bean
-	public SelfApplicationContextInitializer init() {
+	SelfApplicationContextInitializer init() {
 		System.out.println("S_AutoConfig...");
 		return new SelfApplicationContextInitializer();
 	}

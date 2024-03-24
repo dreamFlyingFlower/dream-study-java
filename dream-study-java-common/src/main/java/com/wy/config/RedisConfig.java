@@ -39,7 +39,7 @@ public class RedisConfig {
 	 * 同fastjon序列化,使用spring依赖的jackson,若同时和fastjson使用,必须实例化不能类型的RedisTemplate
 	 */
 	@Bean
-	public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+	RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<Object, Object> template = new RedisTemplate<>();
 		// 使用jackson序列化
 		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer =

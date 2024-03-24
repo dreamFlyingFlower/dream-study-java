@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 public class XssFilterRegister {
 
 	@Bean
-	public FilterRegistrationBean<XssFilter> xssFilterRegistrationBean() {
+	FilterRegistrationBean<XssFilter> xssFilterRegistrationBean() {
 		FilterRegistrationBean<XssFilter> filterRegistrationBean = new FilterRegistrationBean<>();
 		filterRegistrationBean.setFilter(new XssFilter());
 		filterRegistrationBean.setOrder(1);

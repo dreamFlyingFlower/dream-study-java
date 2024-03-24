@@ -25,9 +25,6 @@ spring:
       time: HH:mm:ss
     throw-exception-if-no-handler-found: true
   # 静态资源配置文件,false时无法访问静态资源,如html等,默认为true
-  resources:
-    add-mappings: true
-  # 文件上传
   servlet:
     multipart:
       enabled: true
@@ -35,7 +32,7 @@ spring:
   # 格式化输出的json字符串
   jackson: 
     serialization: 
-      INDENT_OUTPUT: true
+      indent-output: true
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
   # 定义了多种session策略的时候,需要选择一种作为主要策略
@@ -76,3 +73,6 @@ spring:
   # 国际化
   messages:
     basename: i18n.message.messages
+  web:
+    resources:
+      add-mappings: true

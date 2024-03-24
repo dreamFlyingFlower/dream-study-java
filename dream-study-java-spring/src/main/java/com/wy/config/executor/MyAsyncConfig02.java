@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.aop.interceptor.AsyncExecutionAspectSupport;
 import org.springframework.aop.interceptor.AsyncExecutionInterceptor;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
@@ -49,7 +48,6 @@ public class MyAsyncConfig02 implements AsyncConfigurer {
 	/**
 	 * 在需要使用{@link Async}的地方,该直接的value()值必须是getAsyncExecutor
 	 */
-	@Bean
 	@Override
 	public Executor getAsyncExecutor() {
 		// 使用自定义的线程池或直接使用系统自带的线程池

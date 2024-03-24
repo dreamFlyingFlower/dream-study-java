@@ -65,7 +65,7 @@ public class CacheConfig extends CachingConfigurerSupport {
 	@Bean
 	@ConditionalOnClass(RedisConfig.class)
 	@ConditionalOnMissingBean
-	public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+	CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 		RedisSerializer<String> redisSerializer = new StringRedisSerializer();
 		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer =
 				new Jackson2JsonRedisSerializer<>(Object.class);

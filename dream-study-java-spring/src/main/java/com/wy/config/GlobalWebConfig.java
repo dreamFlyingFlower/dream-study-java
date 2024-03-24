@@ -51,6 +51,14 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 				.allowedMethods("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH").allowCredentials(true).maxAge(3600);
 	}
 
+	/**
+	 * 设置静态资源映射
+	 * 
+	 * 如果继承了WebMvcConfigurer或使用了EnableWebMvc,则自动配置类WebMvcAutoConfiguration会失效
+	 * 因此默认的映射路径/static,/public,/META-INF/resources,/resources都将失效
+	 * 
+	 * @param registry 资源注册
+	 */
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		// 支持swagger2资源库

@@ -8,10 +8,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.BoundZSetOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2021-10-29 16:30:53
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-@Component
+@Configuration
 @Slf4j
 public class DelayBucket {
 
@@ -40,7 +40,7 @@ public class DelayBucket {
 	private List<String> bucketNames = new ArrayList<>();
 
 	@Bean
-	public List<String> createBuckets() {
+	List<String> createBuckets() {
 		for (int i = 0; i < bucketsSize; i++) {
 			bucketNames.add("bucket" + i);
 		}
