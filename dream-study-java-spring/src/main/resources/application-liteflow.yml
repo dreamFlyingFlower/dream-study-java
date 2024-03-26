@@ -1,0 +1,23 @@
+liteflow:
+  enable: true
+  # 规则文件
+  ruleSource : liteflow/*.el.xml
+  # 失败重试次数
+  retry-count: 0
+  # 是否打印执行日志
+  print-execution-log: true
+  # 监控日志
+  monitor:
+    enable-log: true
+    period: 300000
+  request-id-generator-class: com.platform.orderserver.config.AppRequestIdGenerator
+  # 上下文的最大数量槽
+  slot-size : 10240
+  # 线程数,默认为64
+  main-executor-works: 64
+  # when 节点全局异步线程池最大线程数
+  when-max-workers: 16
+  # when 节点全局异步线程池队列数
+  when-queue-limit: 5120
+  # 在启动的时候就解析规则
+  parse-on-start: true
