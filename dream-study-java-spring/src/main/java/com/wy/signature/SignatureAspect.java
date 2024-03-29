@@ -16,8 +16,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
-import com.wy.lang.StrHelper;
-import com.wy.result.ResultException;
+import com.dream.lang.StrHelper;
+import com.dream.result.ResultException;
 
 import dream.framework.web.helper.WebHelpers;
 import lombok.extern.slf4j.Slf4j;

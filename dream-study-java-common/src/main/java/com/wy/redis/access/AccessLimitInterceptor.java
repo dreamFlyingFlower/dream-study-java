@@ -18,9 +18,9 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wy.limit.LimitAccessHandler;
-import com.wy.limit.annotation.LimitAccess;
-import com.wy.result.Result;
+import com.dream.limit.LimitAccessHandler;
+import com.dream.limit.annotation.LimitAccess;
+import com.dream.result.Result;
 
 /**
  * Redis接口限流

@@ -10,9 +10,9 @@ import java.util.StringJoiner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.wy.collection.MapHelper;
-import com.wy.lang.StrHelper;
-import com.wy.reflect.ReflectHelper;
+import com.dream.collection.MapHelper;
+import com.dream.lang.StrHelper;
+import com.dream.reflect.ReflectHelper;
 
 /**
  * RestTemplate工具类

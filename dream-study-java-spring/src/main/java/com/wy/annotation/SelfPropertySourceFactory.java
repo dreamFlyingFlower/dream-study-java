@@ -13,7 +13,7 @@ import org.springframework.core.io.support.PropertySourceFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
-import com.wy.ConstFile;
+import com.dream.ConstFile;
 
 /**
  * 参照DefaultPropertySourceFactory,可同时解析yml,yaml,properties,xml以及inputstream

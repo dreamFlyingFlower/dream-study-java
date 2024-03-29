@@ -14,7 +14,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
-import com.wy.result.ResultException;
+import com.dream.result.ResultException;
 
 /**
  * quartz工具类

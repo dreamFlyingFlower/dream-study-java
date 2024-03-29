@@ -23,9 +23,9 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.PartListing;
 import com.amazonaws.services.s3.model.PartSummary;
-import com.wy.digest.DigestHelper;
+import com.dream.digest.DigestHelper;
+import com.dream.helper.DateHelper;
 import com.wy.minio.MinioProperties;
-import com.wy.util.DateHelper;
 
 import lombok.AllArgsConstructor;
 

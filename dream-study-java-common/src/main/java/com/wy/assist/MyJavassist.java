@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
-import com.wy.annotation.Example;
+import com.dream.annotation.Example;
 
 import javassist.CannotCompileException;
 import javassist.ClassPath;

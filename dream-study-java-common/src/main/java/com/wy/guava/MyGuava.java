@@ -1,5 +1,6 @@
 package com.wy.guava;
 
+import com.dream.annotation.Example;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.cache.CacheBuilder;
@@ -8,7 +9,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Multimap;
-import com.wy.annotation.Example;
 
 /**
  * Guava使用

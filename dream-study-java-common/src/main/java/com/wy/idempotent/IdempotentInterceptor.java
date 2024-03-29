@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import com.dream.idempotent.annotation.Idempotency;
+import com.dream.result.ResultException;
 import com.wy.common.Constant;
-import com.wy.idempotent.annotation.Idempotency;
-import com.wy.result.ResultException;
 
 /**
  * 幂等接口拦截,需要使用{@link Idempotency},同时配置Web拦截器

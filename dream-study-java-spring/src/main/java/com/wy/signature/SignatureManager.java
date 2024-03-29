@@ -9,9 +9,9 @@ import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
-import com.wy.digest.DigestHelper;
-import com.wy.io.file.FileHelper;
-import com.wy.lang.StrHelper;
+import com.dream.digest.DigestHelper;
+import com.dream.io.file.FileHelper;
+import com.dream.lang.StrHelper;
 
 import lombok.Getter;
 

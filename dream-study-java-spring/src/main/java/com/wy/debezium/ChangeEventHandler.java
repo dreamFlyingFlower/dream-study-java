@@ -15,7 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson2.JSON;
-import com.wy.collection.MapHelper;
+import com.dream.collection.MapHelper;
 
 import io.debezium.data.Envelope;
 import io.debezium.engine.DebeziumEngine;

@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 
-import com.wy.digest.DigestHelper;
+import com.dream.digest.DigestHelper;
 
 /**
  * Redis的分布式锁:redisson,需要添加相关依赖

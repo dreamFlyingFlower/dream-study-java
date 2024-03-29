@@ -8,10 +8,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 
+import com.dream.enums.TipEnum;
+import com.dream.limit.annotation.LimitRate;
+import com.dream.result.Result;
 import com.google.common.util.concurrent.RateLimiter;
-import com.wy.enums.TipEnum;
-import com.wy.limit.annotation.LimitRate;
-import com.wy.result.Result;
 
 /**
  * 限流切面

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import com.wy.result.ResultException;
+import com.dream.result.ResultException;
 
 import lombok.extern.slf4j.Slf4j;
 
