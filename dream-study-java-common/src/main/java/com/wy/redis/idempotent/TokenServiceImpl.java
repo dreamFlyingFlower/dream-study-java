@@ -1,4 +1,4 @@
-package com.wy.idempotent;
+package com.wy.redis.idempotent;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,13 +24,13 @@ import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 public class TokenServiceImpl implements TokenService {
 
 	@Autowired
-	private RedisHelpers redisHelper;
+	private RedisHelpers redisHelpers;
 
 	@Override
 	public String createToken() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(Constant.Redis.TOKEN_PREFIX).append(DigestHelper.uuid());
-		redisHelper.setNX(builder.toString(), builder.toString(), 10000L);
+		redisHelpers.setNX(builder.toString(), builder.toString(), 10000L);
 		return builder.toString();
 	}
 
@@ -43,11 +43,12 @@ public class TokenServiceImpl implements TokenService {
 				throw new ResultException(TipEnum.TIP_AUTH_TOKEN_EMPTY);
 			}
 		}
-		if (!redisHelper.exist(token)) {
+
+		if (!redisHelpers.exist(tokenKey)) {
 			throw new ResultException(TipEnum.TIP_AUTH_TOKEN_NOT_EXIST);
 		}
-		boolean remove = redisHelper.clear(token);
-		if (!remove) {
+		boolean success = redisHelpers.atomicCompareAndDelete(tokenKey, token);
+		if (!success) {
 			throw new ResultException(TipEnum.TIP_AUTH_TOKEN_NOT_EXIST);
 		}
 		return true;

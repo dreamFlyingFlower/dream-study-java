@@ -1,4 +1,4 @@
-package com.wy.idempotent;
+package com.wy.redis.idempotent;
 
 import javax.servlet.http.HttpServletRequest;
 

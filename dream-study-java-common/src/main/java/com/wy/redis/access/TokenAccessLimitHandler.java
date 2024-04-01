@@ -13,7 +13,7 @@ import com.dream.limit.LimitAccessHandler;
 import com.dream.limit.annotation.LimitAccess;
 import com.dream.result.ResultException;
 import com.wy.common.Constant;
-import com.wy.idempotent.TokenService;
+import com.wy.redis.idempotent.TokenService;
 
 import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 import lombok.extern.slf4j.Slf4j;

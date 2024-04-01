@@ -1,6 +1,6 @@
 package com.wy.filters;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -9,7 +9,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 /**
  *  简单的通用跨域请求拦截器,若是需要对单个请求进行跨域,可使用{@link CrossOrigin}

@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.wy.digest.DigestHelper;
-import com.wy.enums.DateEnum;
-import com.wy.io.file.FileNameHelper;
-import com.wy.io.file.FileHelper;
+import com.dream.digest.DigestHelper;
+import com.dream.enums.DateEnum;
+import com.dream.helper.DateTimeHelper;
+import com.dream.io.file.FileHelper;
+import com.dream.io.file.FileNameHelper;
 import com.wy.model.FileUpload;
 import com.wy.model.FileUploadRequest;
-import com.wy.util.DateTimeHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,8 @@ public abstract class AbstractSliceFileTemplate implements SliceFileTemplate {
 	public abstract boolean upload(FileUploadRequest param);
 
 	protected String generateUploadDirectory(FileUploadRequest param) {
-		String concatFileName = FileNameHelper.concatFileName(param.getFile().getOriginalFilename(), DigestHelper.uuid());
+		String concatFileName =
+				FileNameHelper.concatFileName(param.getFile().getOriginalFilename(), DigestHelper.uuid());
 		return "/app/tmp/file/" + DateTimeHelper.formatDate(DateEnum.DATE_NONE.getPattern()) + File.separator
 				+ concatFileName;
 	}
