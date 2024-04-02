@@ -19,8 +19,14 @@ import org.springframework.web.socket.WebSocketSession;
  * @date 2023-10-07 13:57:41
  * @git {@link https://gitee.com/dreamFlyingFlower}
  */
-public class ServletWebSocketServerHandler implements WebSocketHandler {
+public class WebSocketServerHandler implements WebSocketHandler {
 
+	/**
+	 * websocket建立连接后执行afterConnectionEstablished回调接口
+	 * 
+	 * @param session WebSocketSession
+	 * @throws Exception
+	 */
 	@Override
 	public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
 		// 连接建立
@@ -43,11 +49,25 @@ public class ServletWebSocketServerHandler implements WebSocketHandler {
 		session.sendMessage(new PongMessage(ByteBuffer.allocate(1024)));
 	}
 
+	/**
+	 * websocket传输异常时执行该方法
+	 * 
+	 * @param session WebSocketSession
+	 * @param exception Throwable
+	 * @throws Exception
+	 */
 	@Override
 	public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) throws Exception {
 		// 异常处理
 	}
 
+	/**
+	 * websocket关闭连接后执行afterConnectionClosed回调接口
+	 * 
+	 * @param session WebSocketSession
+	 * @param closeStatus CloseStatus
+	 * @throws Exception
+	 */
 	@Override
 	public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus closeStatus)
 			throws Exception {

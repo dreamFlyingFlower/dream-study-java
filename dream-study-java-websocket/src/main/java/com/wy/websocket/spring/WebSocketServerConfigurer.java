@@ -17,13 +17,16 @@ import com.wy.websocket.MyWebSocketInterceptor;
  */
 @Configuration
 @EnableWebSocket
-public class ServletWebSocketServerConfigurer implements WebSocketConfigurer {
+public class WebSocketServerConfigurer implements WebSocketConfigurer {
 
 	@Override
 	public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
-		registry
-				// 添加处理器到对应的路径
-				.addHandler(new ServletWebSocketServerHandler(), "/websocket/**").setAllowedOrigins("*")
+		// 添加处理器到对应的路径
+		registry.addHandler(new WebSocketServerHandler(), "/websocket/**").setAllowedOrigins("*")
 				.addInterceptors(new MyWebSocketInterceptor());
+		registry.addHandler(new WebSocketServerHandler(), "/sockjs/server").setAllowedOrigins("*")
+				.addInterceptors(new MyWebSocketInterceptor())
+				// 应对浏览器不支持websocket协议的时候降级为轮询
+				.withSockJS();
 	}
 }

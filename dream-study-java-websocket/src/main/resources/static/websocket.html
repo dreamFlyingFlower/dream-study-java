@@ -12,7 +12,9 @@
 		var websocket = null;
 		//判断当前浏览器是否支持WebSocket
 		if ('WebSocket' in window) {
-			websocket = new WebSocket("ws://localhost:12345/websocket");
+			websocket = new WebSocket("ws://localhost:12345/api/websocket");
+		} else if ('MozWebSocket' in window) {
+			websocket = new MozWebSocket("ws://localhost:12345/api/websocket");
 		} else {
 			alert('当前浏览器 Not support websocket')
 		}

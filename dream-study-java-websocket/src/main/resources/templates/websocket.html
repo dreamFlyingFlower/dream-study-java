@@ -20,7 +20,9 @@
 	//判断当前浏览器是否支持WebSocket
 	if ('WebSocket' in window) {
 		//改成你的地址
-		websocket = new WebSocket("ws://localhost:5555/api/websocket/100");
+		websocket = new WebSocket("ws://localhost:12345/api/websocket/100");
+	} else if ('MozWebSocket' in window) {
+				websocket = new MozWebSocket("ws://localhost:12345/api/websocket/100");
 	} else {
 		alert('当前浏览器 Not support websocket')
 	}

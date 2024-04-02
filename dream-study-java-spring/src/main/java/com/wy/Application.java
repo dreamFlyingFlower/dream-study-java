@@ -78,13 +78,17 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 import org.springframework.context.annotation.DeferredImportSelector;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.context.event.EventListenerMethodProcessor;
@@ -678,6 +682,34 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link CommandLineRunner}:整个项目全部准备完成,等待接收请求时执行触发
  * {@link DisposableBean}:当此对象销毁时触发.比如说运行applicationContext.registerShutdownHook时,就会触发这个方法
  * {@link ApplicationListener}:事件监听,见 {@link SelfSpringEvent}
+ * </pre>
+ * 
+ * Spring对配置类的处理主要分为2个阶段:
+ * 
+ * <pre>
+ * 1.配置类解析阶段:会得到一批配置类的信息,和一些需要注册的bean
+ * 类中有下面任意注解之一的就属于配置类:{@link Component}, {@link Configuration}, {@link ComponentScan}, {@link Import}, {@link ImportResource}, {@link Bean}
+ * org.springframework.context.annotation.ConfigurationClassUtils#isConfigurationCandidate:判断一个类是不是一个配置类
+ * 
+ * 2.bean注册阶段:将配置类解析阶段得到的配置类和需要注册的bean注册到spring容器中
+ * 
+ * Spring中处理这2个过程会循环进行,直到完成所有配置类的解析及所有bean的注册
+ * {@link ConfigurationClassPostProcessor#processConfigBeanDefinitions(BeanDefinitionRegistry)}:Spring对配置类处理过程
+ * 
+ * 整个过程大致的过程如下:
+ * 1.通常我们会通过new AnnotationConfigApplicationContext()传入多个配置类来启动spring容器
+ * 2.Spring对传入的多个配置类进行解析
+ * 3.配置类解析阶段:这个过程就是处理配置类上面6中注解的过程,此过程中又会发现很多新的配置类.比如@Import导入的一批新的类刚好也符合配置类,
+ * 	而被@CompontentScan扫描到的一些类刚好也是配置类;此时会对这些新产生的配置类进行同样的过程解析
+ * 4.Bean注册阶段:配置类解析后,会得到一批配置类和一批需要注册的bean,此时spring容器会将这批配置和这批需要注册的bean注册到spring容器
+ * 5.经过上面第3个阶段之后,spring容器中会注册很多新的bean,这些新的bean中可能又有很多新的配置类
+ * 6.Spring从容器中将所有bean拿出来,遍历一下,会过滤得到一批未处理的新的配置类,继续交给第3步进行处理
+ * 7.step3到step6,这个过程会经历很多次,直到完成所有配置类的解析和bean的注册
+ * 
+ * 从上面过程中可以了解到:
+ * 1.可以在配置类上面加上{@link Conditional},来控制是否需要解析这个配置类,配置类如果不被解析,那么这个配置上面6种注解的解析都会被跳过
+ * 2.可以在被注册的bean上面加上{@link Conditional},来控制这个bean是否需要注册到spring容器中
+ * 3.如果配置类不会被注册到容器,那么这个配置类解析所产生的所有新的配置类及所产生的所有新的bean都不会被注册到容器
  * </pre>
  * 
  * @author 飞花梦影
