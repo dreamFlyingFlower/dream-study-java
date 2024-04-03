@@ -1,11 +1,13 @@
 package com.wy.crl;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +16,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.wy.repository.UserRepository;
 
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 /**
  * 测试WebFlux的用户API接口
@@ -31,6 +36,18 @@ public class UserCrl {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	public void createWebClient() {
+		HttpClient httpClient = HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
+				.responseTimeout(Duration.ofMillis(60000))
+				.doOnConnected(conn -> conn.addHandlerLast(new ReadTimeoutHandler(60000)));
+
+		WebClient webClient = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+
+		Mono<String> user = webClient.get().uri("http://localhost:8080/user/testMono")
+				.accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(String.class);
+		System.out.println(user.block());
+	}
 
 	/**
 	 * 使用WebClient调用其他的WebFlux接口,不能本项目的调用本项目的,会抛阻塞异常

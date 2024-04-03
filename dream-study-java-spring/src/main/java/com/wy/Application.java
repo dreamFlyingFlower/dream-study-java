@@ -712,6 +712,17 @@ import com.wy.runner.SelfCommandLineRunner;
  * 3.如果配置类不会被注册到容器,那么这个配置类解析所产生的所有新的配置类及所产生的所有新的bean都不会被注册到容器
  * </pre>
  * 
+ * 在被{@link Configuration}修饰的类中用{@link Bean}创建对象和直接用{@link Bean}创建对象的区别
+ * 
+ * <pre>
+ * 使用Configuration的该类默认情况下会CgLib代理,其中创建的bean默认是单例
+ * 不使用Configuration的类不会注入到Spring中,使用底层代理,bean默认是原型
+ * 
+ * {@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry}
+ * {@link ConfigurationClassPostProcessor#postProcessBeanFactory}
+ * {@link ConfigurationClassPostProcessor#enhanceConfigurationClasses}
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2020-12-02 15:16:40
  * @git {@link https://github.com/dreamFlyingFlower}

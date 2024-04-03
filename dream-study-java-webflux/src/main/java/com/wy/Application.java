@@ -1,12 +1,11 @@
 package com.wy;
 
 import java.util.concurrent.Flow;
-import java.util.concurrent.Flow.Processor;
-import java.util.concurrent.Flow.Publisher;
-import java.util.concurrent.Flow.Subscriber;
-import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.SubmissionPublisher;
 
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;

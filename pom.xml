@@ -30,6 +30,7 @@
 		<module>dream-study-java-sharding</module>
 		<module>dream-study-java-shiro</module>
 		<module>dream-study-java-spring</module>
+		<module>dream-study-java-spring3</module>
 		<module>dream-study-java-thread</module>
 		<module>dream-study-java-web</module>
 		<module>dream-study-java-webflux</module>
