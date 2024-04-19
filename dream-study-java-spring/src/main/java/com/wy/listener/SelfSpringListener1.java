@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 监听器的实现方式1,泛型为需要监听的事件类型
  * 
- * ApplicationListener实现jdk的{@link EventListener},该类只是一个标记接口
+ * ApplicationListener实现jdk的{@link EventListener},该类只是一个标记接口.
+ * 
+ * {@link SelfSpringEvent}可以换成任何实现ApplicationEvent的类,也可以是内置类
  * 
  * @author 飞花梦影
  * @date 2019-05-03 18:00:46

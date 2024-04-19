@@ -12,7 +12,7 @@ import org.springframework.web.context.support.ServletRequestHandledEvent;
 /**
  * Spring的事件(ApplicationEvent),基于继承jdk的EventObject,需要发布,见{@link SelfSpringListener2}
  * 
- * Spring的主要内置事件
+ * Spring的主要内置事件,可以直接被监听,见{@link SelfSpringListener1}
  * 
  * <pre>
  * {@link ContextRefreshedEvent}:在{@link AbstractApplicationContext#finishRefresh()}中发布,也可以在ConfigurableApplicationContext中使用refresh()触发.

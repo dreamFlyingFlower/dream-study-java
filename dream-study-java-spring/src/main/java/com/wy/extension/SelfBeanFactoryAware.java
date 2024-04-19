@@ -17,11 +17,19 @@ import com.wy.service.SysLogService;
  */
 public class SelfBeanFactoryAware implements BeanFactoryAware {
 
+	private BeanFactory beanFactory;
+
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		System.out.println(
 				"[SelfBeanFactoryAware] " + beanFactory.getBean(SelfBeanFactoryAware.class).getClass().getSimpleName());
 		beanFactory.getBean("sysLogService");
 		beanFactory.getBean(SysLogService.class);
+
+		this.beanFactory = beanFactory;
+	}
+
+	public <T> T getBean(Class<T> clazz) {
+		return beanFactory.getBean(clazz);
 	}
 }

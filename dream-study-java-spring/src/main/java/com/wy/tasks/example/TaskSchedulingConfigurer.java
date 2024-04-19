@@ -1,4 +1,4 @@
-package com.wy.tasks;
+package com.wy.tasks.example;
 
 import java.util.Date;
 
