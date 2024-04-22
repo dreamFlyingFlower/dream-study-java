@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: manyDatasource
+  datasource:
+    test1:
+      jdbcurl: jdbc:mysql://localhost:3306/demo?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8
+      username: root
+      password: 123456
+      minPoolSize: 3
+      maxPoolSize: 25
+      maxLifetime: 20000
+      borrowConnectionTimeout: 30
+      loginTimeout: 30
+      maintenanceInterval: 60
+      maxIdleTime: 60
+    test2:
+      jdbcurl: jdbc:mysql://localhost:3306/demo?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8
+      username: root
+      password: 123456
+      minPoolSize: 3
+      maxPoolSize: 25
+      maxLifetime: 20000
+      borrowConnectionTimeout: 30
+      loginTimeout: 30
+      maintenanceInterval: 60
+      maxIdleTime: 60
+  web:
+    resources:
+      static-locations: classpath:static/,file:static/
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+logging:
+  level:
+    czs: debug
+    '[org.springframework]': WARN

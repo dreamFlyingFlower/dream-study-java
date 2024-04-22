@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
-import com.wy.digest.DigestHelper;
+import com.dream.digest.DigestHelper;
 
 /**
  * 参数拦截,进行加解密

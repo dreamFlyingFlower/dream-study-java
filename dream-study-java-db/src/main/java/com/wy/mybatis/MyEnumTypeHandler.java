@@ -8,9 +8,9 @@ import java.sql.SQLException;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
-import com.wy.common.StatusMsg;
-import com.wy.reflect.ClassHelper;
-import com.wy.util.EnumStatusMsgHelper;
+import com.dream.common.StatusMsg;
+import com.dream.helper.EnumStatusMsgHelper;
+import com.dream.reflect.ClassHelper;
 
 /**
  * 自定义通用枚举处理类

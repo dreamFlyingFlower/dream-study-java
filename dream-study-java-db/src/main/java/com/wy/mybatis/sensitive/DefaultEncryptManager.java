@@ -2,7 +2,7 @@ package com.wy.mybatis.sensitive;
 
 import java.lang.reflect.Field;
 
-import com.wy.digest.DigestHelper;
+import com.dream.digest.DigestHelper;
 
 /**
  * 默认加密处理器
