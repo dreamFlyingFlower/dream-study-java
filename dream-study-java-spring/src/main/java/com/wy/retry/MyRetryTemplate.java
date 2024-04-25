@@ -7,6 +7,8 @@ import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 使用{@link RetryTemplate}进行重试,效果和使用注解相同,但更灵活
  * 
@@ -41,7 +43,8 @@ import org.springframework.retry.support.RetryTemplate;
  * @date 2023-02-23 21:15:51
  * @git {@link https://gitee.com/dreamFlyingFlower}
  */
-public class SelfRetryTemplate {
+@Slf4j
+public class MyRetryTemplate {
 
 	/** 重试间隔时间ms,默认1000ms */
 	private long fixedPeriodTime = 1000L;
@@ -53,6 +56,7 @@ public class SelfRetryTemplate {
 	private Map<Class<? extends Throwable>, Boolean> exceptionMap = new HashMap<>();
 
 	public void test() {
+		// 指定重试异常
 		exceptionMap.put(NullPointerException.class, true);
 		// 构建重试模板实例
 		RetryTemplate retryTemplate = new RetryTemplate();
@@ -66,8 +70,9 @@ public class SelfRetryTemplate {
 		Boolean execute = retryTemplate.execute(
 				// RetryCallback:正常的重试逻辑
 				retryContext -> {
-					System.out.println(100 / 0);
-					return true;
+					boolean b = MyRetryTask.retryTask("abc");
+					log.info("调用的结果:{}", b);
+					return b;
 				},
 				// RecoveryCallback:重试次数消耗完之后的策略
 				retryContext -> {

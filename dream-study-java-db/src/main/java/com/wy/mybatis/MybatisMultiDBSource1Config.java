@@ -34,7 +34,7 @@ public class MybatisMultiDBSource1Config {
 	@Bean(name = "dataSource")
 	@ConfigurationProperties(prefix = "spring.datasource.hikari")
 	@Primary
-	public DataSource dataSource() {
+	DataSource dataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
@@ -47,7 +47,7 @@ public class MybatisMultiDBSource1Config {
 	 */
 	@Bean(name = "sqlSessionFactory")
 	@Primary
-	public SqlSessionFactory sqlSessionFactory(@Qualifier("dataSource") DataSource dataSource) throws Exception {
+	SqlSessionFactory sqlSessionFactory(@Qualifier("dataSource") DataSource dataSource) throws Exception {
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource);
 		bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mappers/*.xml"));
@@ -66,13 +66,13 @@ public class MybatisMultiDBSource1Config {
 
 	@Bean(name = "transactionManager")
 	@Primary
-	public DataSourceTransactionManager transactionManager(@Qualifier("dataSource") DataSource dataSource) {
+	DataSourceTransactionManager transactionManager(@Qualifier("dataSource") DataSource dataSource) {
 		return new DataSourceTransactionManager(dataSource);
 	}
 
 	@Bean(name = "sqlSessionTemplate")
 	@Primary
-	public SqlSessionTemplate sqlSessionTemplate(@Qualifier("sqlSessionFactory") SqlSessionFactory sqlSessionFactory)
+	SqlSessionTemplate sqlSessionTemplate(@Qualifier("sqlSessionFactory") SqlSessionFactory sqlSessionFactory)
 			throws Exception {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}

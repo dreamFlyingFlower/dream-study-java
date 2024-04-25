@@ -28,7 +28,7 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.dream.result.Result;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wy.model.User;
+import com.wy.entity.User;
 
 import lombok.extern.slf4j.Slf4j;
 

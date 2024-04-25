@@ -27,7 +27,7 @@ import com.mysql.cj.jdbc.MysqlXADataSource;
 public class MyBatisConfig1 {
 
 	@Bean(name = "test1DataSource")
-	public DataSource testDataSource(DataSourceConfig1 testConfig) throws SQLException {
+	DataSource testDataSource(DataSourceConfig1 testConfig) throws SQLException {
 		MysqlXADataSource mysqlXaDataSource = new MysqlXADataSource();
 		// mysqlXaDataSource.setUrl(testConfig.getUrl());
 		mysqlXaDataSource.setUrl(testConfig.getJdbcurl());
@@ -53,16 +53,15 @@ public class MyBatisConfig1 {
 	}
 
 	@Bean(name = "test1SqlSessionFactory")
-	public SqlSessionFactory testSqlSessionFactory(@Qualifier("test1DataSource") DataSource dataSource)
-			throws Exception {
+	SqlSessionFactory testSqlSessionFactory(@Qualifier("test1DataSource") DataSource dataSource) throws Exception {
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource);
 		return bean.getObject();
 	}
 
 	@Bean(name = "test1SqlSessionTemplate")
-	public SqlSessionTemplate testSqlSessionTemplate(
-			@Qualifier("test1SqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
+	SqlSessionTemplate testSqlSessionTemplate(@Qualifier("test1SqlSessionFactory") SqlSessionFactory sqlSessionFactory)
+			throws Exception {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}
 }

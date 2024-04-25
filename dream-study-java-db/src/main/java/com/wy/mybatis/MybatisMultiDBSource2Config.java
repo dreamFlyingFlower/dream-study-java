@@ -8,12 +8,14 @@ import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
@@ -27,9 +29,8 @@ import com.wy.properties.ConfigProperties;
  * @date 2021-07-24 17:52:55
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-// @Configuration
-// @MapperScan(basePackages = "com.wy.mapper1", sqlSessionTemplateRef =
-// "sqlSessionTemplate1")
+@Configuration
+@MapperScan(basePackages = "com.wy.mapper1", sqlSessionTemplateRef = "sqlSessionTemplate1")
 public class MybatisMultiDBSource2Config {
 
 	@Autowired
@@ -40,14 +41,14 @@ public class MybatisMultiDBSource2Config {
 
 	@Bean(name = "dataSource1")
 	@ConfigurationProperties(prefix = "config.data-source1")
-	public DataSource dataSource() {
+	DataSource dataSource() {
 		return DataSourceBuilder.create().type(type).driverClassName(config.getDataSource1().getDriverClassName())
 				.url(config.getDataSource1().getUrl()).username(config.getDataSource1().getUsername())
 				.password(config.getDataSource1().getPassword()).build();
 	}
 
 	@Bean(name = "sqlSessionFactory1")
-	public SqlSessionFactory sqlSessionFactory(@Qualifier("dataSource1") DataSource dataSource) throws Exception {
+	SqlSessionFactory sqlSessionFactory(@Qualifier("dataSource1") DataSource dataSource) throws Exception {
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(dataSource);
 		bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mappers1/*.xml"));
@@ -64,12 +65,12 @@ public class MybatisMultiDBSource2Config {
 	}
 
 	@Bean(name = "transactionManager1")
-	public DataSourceTransactionManager transactionManager(@Qualifier("dataSource1") DataSource dataSource) {
+	DataSourceTransactionManager transactionManager(@Qualifier("dataSource1") DataSource dataSource) {
 		return new DataSourceTransactionManager(dataSource);
 	}
 
 	@Bean(name = "sqlSessionTemplate1")
-	public SqlSessionTemplate sqlSessionTemplate(@Qualifier("sqlSessionFactory1") SqlSessionFactory sqlSessionFactory)
+	SqlSessionTemplate sqlSessionTemplate(@Qualifier("sqlSessionFactory1") SqlSessionFactory sqlSessionFactory)
 			throws Exception {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}

@@ -38,7 +38,7 @@ public class TransactionConfig {
 	 * @return
 	 */
 	@Bean
-	public TransactionManager mysqlTransactionManager(DataSource dataSource) {
+	TransactionManager mysqlTransactionManager(DataSource dataSource) {
 		DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
 		dataSourceTransactionManager.setDataSource(dataSource);
 		return dataSourceTransactionManager;
@@ -51,14 +51,13 @@ public class TransactionConfig {
 	 * @return
 	 */
 	@Bean
-	public TransactionInterceptor mysqlTxAdvice(
-			@Qualifier("mysqlTransactionManager") TransactionManager transactionManager) {
+	TransactionInterceptor mysqlTxAdvice(@Qualifier("mysqlTransactionManager") TransactionManager transactionManager) {
 		// 默认事务
-		DefaultTransactionAttribute defAttr = new DefaultTransactionAttribute(
-				TransactionDefinition.PROPAGATION_REQUIRED);
+		DefaultTransactionAttribute defAttr =
+				new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
 		// 查询只读事务
-		DefaultTransactionAttribute queryAttr = new DefaultTransactionAttribute(
-				TransactionDefinition.PROPAGATION_REQUIRED);
+		DefaultTransactionAttribute queryAttr =
+				new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
 		queryAttr.setReadOnly(true);
 		// 设置拦截的方法
 		NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
@@ -79,7 +78,7 @@ public class TransactionConfig {
 	}
 
 	@Bean
-	public Advisor txAdviceAdvisor(@Qualifier("mysqlTxAdvice") TransactionInterceptor mysqlTxAdvice) {
+	Advisor txAdviceAdvisor(@Qualifier("mysqlTxAdvice") TransactionInterceptor mysqlTxAdvice) {
 		AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
 		return new DefaultPointcutAdvisor(pointcut, mysqlTxAdvice);
 	}

@@ -23,7 +23,7 @@ public class S_ProxyCglicClient implements MethodInterceptor {
 	}
 
 	/**
-	 * @param obj 代理的对象,是底层通过字节码生成的新的对象,不是被代理的对象
+	 * @param obj 代理对象,是底层通过字节码生成的新的对象,不是被代理的对象
 	 * @param method 被代理对象被调用的方法
 	 * @param params 被调用方法的参数
 	 * @param methodProxy 代理类的代理方法
