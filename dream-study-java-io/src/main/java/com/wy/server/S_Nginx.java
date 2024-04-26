@@ -12,8 +12,7 @@ package com.wy.server;
 public class S_Nginx {
 
 	/**
-	 * nginx命令:start nginx.exe,nginx.exe -s stop,nginx.exe -s reload
-	 * 正向代理:用户->代理->浏览器.浏览器可以很明确的知道访问他的用户地址
+	 * nginx命令:start nginx.exe,nginx.exe -s stop,nginx.exe -s reload 正向代理:用户->代理->浏览器.浏览器可以很明确的知道访问他的用户地址
 	 * 反响代理:用户->nginx->tomcat.tomcat不知道请求的真正来源,只知道是从nginx发送的请求
 	 */
 }

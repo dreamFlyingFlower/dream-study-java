@@ -3,7 +3,7 @@ package com.wy.netty.study.serial;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import com.wy.io.ZipTool;
+import com.dream.io.ZipHelper;
 import com.wy.model.NtClient;
 import com.wy.util.MarshallingUtils;
 import com.wy.util.NettyUtils;
@@ -66,7 +66,7 @@ public class S_Client {
 			future = client.doRequest("localhost", 9999, new S_ClientHandler());
 			String attachment = "test attachment";
 			byte[] attBuf = attachment.getBytes();
-			attBuf = ZipTool.zip(attBuf);
+			attBuf = ZipHelper.zip(attBuf);
 			NtClient msg = new NtClient(new Random().nextLong(), "test", attBuf);
 			future.channel().writeAndFlush(msg);
 			TimeUnit.SECONDS.sleep(1);

@@ -5,7 +5,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 import com.wy.netty.file.AccountServer;
 import com.wy.netty.file.Result;
 import com.wy.netty.file.enums.EnumFileAction;
@@ -35,7 +35,7 @@ public class CreateThumbPictureServerHandler extends AbstractFileServerHandler i
 		result.setCode(false);
 		result.setAction(EnumFileAction.CREATE_THUMB_PICTURE.getValue());
 
-		if (StrTool.isNotBlank(reqParams.getFilePath())) {
+		if (StrHelper.isNotBlank(reqParams.getFilePath())) {
 			String realPath = getRealPath(reqParams.getFilePath());
 
 			if (LOGGER.isDebugEnabled()) {

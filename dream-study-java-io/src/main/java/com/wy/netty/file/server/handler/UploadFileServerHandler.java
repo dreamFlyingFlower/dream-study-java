@@ -10,7 +10,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 import com.wy.netty.file.AccountServer;
 import com.wy.netty.file.Constants;
 import com.wy.netty.file.Result;
@@ -47,7 +47,7 @@ public class UploadFileServerHandler extends AbstractFileServerHandler implement
 	public Result process(RequestParam reqParams) {
 		FileUpload fileUpload = reqParams.getFileUpload();
 		String srcFileName = reqParams.getFileName();
-		if (StrTool.isBlank(srcFileName)) {
+		if (StrHelper.isBlank(srcFileName)) {
 			srcFileName = fileUpload.getFilename();
 		}
 		LOGGER.info("--srcFileName--" + srcFileName);

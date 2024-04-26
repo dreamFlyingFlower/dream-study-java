@@ -23,8 +23,7 @@ public class HttpFileServerInitializer extends ChannelInitializer<SocketChannel>
 		 * 2.WriteTimeoutHandler:控制数据输出的时候的超时,构造参数1表示如果持续1秒钟都没有数据写了,那么就超时
 		 * 3.HttpRequestrianDecoder:从读取的数据中将http报文信息解析出来,无非就是什么requestline,header,body什么的...
 		 * 4.HttpObjectAggregator:将上面解析出来的http报文的数据组装成为封装好的httprequest对象
-		 * 5.HttpresponseEncoder:将用户返回的httpresponse编码成为http报文格式的数据
-		 * 6.HttpHandler:自定义的handler,用于处理接收到的http请求
+		 * 5.HttpresponseEncoder:将用户返回的httpresponse编码成为http报文格式的数据 6.HttpHandler:自定义的handler,用于处理接收到的http请求
 		 */
 		// http-request解码器,http服务器端对request解码
 		pipeline.addLast("decoder", new HttpRequestDecoder());

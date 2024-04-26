@@ -12,13 +12,11 @@ import io.netty.buffer.UnpooledByteBufAllocator;
 /**
  * {@link ByteBuf}:类似于NIO的ByteBuffer,但不是全部相同,主要方法是readXXX(),writeXXX(),setXXX()
  * 
- * read类方法会改变readIndex,write类方法会改变writeIndex,
- * set类方法不会改变readIndex和writeIndex,但是set和write写入的数据会相互覆盖
+ * read类方法会改变readIndex,write类方法会改变writeIndex, set类方法不会改变readIndex和writeIndex,但是set和write写入的数据会相互覆盖
  * mark()和reset()功能同ByteBuffer中的mark()和reset(),都是标记功能,用来重读或重写数据
  * 
  * ByteBuf的主要操作类划分:<br>
- * Pooled开头的实现类:每次都从预先分配好的内存中取一段连续内存来封装成ByteBuf,即从JVM中进行内存分配
- * Unpooled开头的实现类:每次使用的时候直接调用API向系统申请内存,即使用CPU中的内存
+ * Pooled开头的实现类:每次都从预先分配好的内存中取一段连续内存来封装成ByteBuf,即从JVM中进行内存分配 Unpooled开头的实现类:每次使用的时候直接调用API向系统申请内存,即使用CPU中的内存
  * Unsafe():可以直接拿到对象的内存地址,对数据进行读写操作<br>
  * 非Unsafe():不能拿到对象的内存地址<br>
  * Heap():直接对JVM中的堆内存进行操作,Pooled和Unpooled都包括了Heap和Direct<br>

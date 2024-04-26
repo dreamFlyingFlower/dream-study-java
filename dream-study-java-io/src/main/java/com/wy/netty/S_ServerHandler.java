@@ -12,8 +12,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 /**
  * netty服务端启动逻辑
  * 
- * Sharable:代表该Handler是一个可分享的处理器,服务器注册此Handler后,可分享给多个客户端同时使用
- * 如果不使用注解,则每次客户端请求时,必须为客户端重新创建一个新的Handler对象<br>
+ * Sharable:代表该Handler是一个可分享的处理器,服务器注册此Handler后,可分享给多个客户端同时使用 如果不使用注解,则每次客户端请求时,必须为客户端重新创建一个新的Handler对象<br>
  * 如果handler是一个Sharable的,一定避免定义可写的实例变量
  * 
  * @author ParadiseWy

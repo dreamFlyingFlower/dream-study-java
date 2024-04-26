@@ -294,8 +294,7 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 	}
 
 	/**
-	 * When file timestamp is the same as what the browser is sending up, send a
-	 * "304 Not Modified"
+	 * When file timestamp is the same as what the browser is sending up, send a "304 Not Modified"
 	 * 
 	 * @param ctx Context
 	 */

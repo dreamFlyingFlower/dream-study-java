@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 import com.wy.netty.file.Constants;
 
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -101,19 +101,19 @@ public class RequestParam {
 		sb.append("\r\nNETTY WEB Server\r\n");
 		sb.append("===================================\r\n");
 		sb.append("\r\n\r\n");
-		if (StrTool.isNotBlank(getUserName())) {
+		if (StrHelper.isNotBlank(getUserName())) {
 			sb.append("UserName=" + getUserName() + "\r\n");
 		}
-		if (StrTool.isNotBlank(getPwd())) {
+		if (StrHelper.isNotBlank(getPwd())) {
 			sb.append("pwd=" + getPwd() + "\r\n");
 		}
-		if (StrTool.isNotBlank(getAction())) {
+		if (StrHelper.isNotBlank(getAction())) {
 			sb.append("action=" + getAction() + "\r\n");
 		}
-		if (StrTool.isNotBlank(this.fileName)) {
+		if (StrHelper.isNotBlank(this.fileName)) {
 			sb.append("fileName=" + getFileName() + "\r\n");
 		}
-		if (StrTool.isNotBlank(this.fileContentType)) {
+		if (StrHelper.isNotBlank(this.fileContentType)) {
 			sb.append("fileContentType=" + getFileContentType() + "\r\n");
 		}
 		if (fileUpload != null) {

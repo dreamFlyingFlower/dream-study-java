@@ -78,8 +78,7 @@ import io.netty.util.concurrent.ThreadPerTaskExecutor;
  * </pre>
  * 
  * {@link ChannelOutboundInvoker#writeAndFlush}{@link #AbstractChannelHandlerContext#writeAndFlush}:
- * 写数据到channel中,此时申请的内存(堆内存和直接内存)都被Netty主动释放掉了
- * {@link ReferenceCountUtil#release}:内存释放
+ * 写数据到channel中,此时申请的内存(堆内存和直接内存)都被Netty主动释放掉了 {@link ReferenceCountUtil#release}:内存释放
  * {@link ChannelInboundHandlerAdapter}:当Netty中的handler继承该类时需要手动释放读的内存,否则可能会发生内存泄露,
  * ->{@link AbstractNioByteChannel.NioByteUnsafe#read}:主要的读方法,分配直接内存(150)
  * -->{@link AbstractByteBufAllocator#ioBuffer}:根据是否使用pool分配内存之内内存或堆内存
@@ -117,8 +116,7 @@ public class S_NettyClient {
 			throws InterruptedException {
 		/*
 		 * 客户端的Bootstrap没有childHandler方法,只有handler().
-		 * 该方法含义等同ServerBootstrap中的childHandler().在客户端必须绑定处理器,也就是必须调用handler()
-		 * 服务器必须绑定处理器,必须调用childHandler()
+		 * 该方法含义等同ServerBootstrap中的childHandler().在客户端必须绑定处理器,也就是必须调用handler() 服务器必须绑定处理器,必须调用childHandler()
 		 */
 		this.bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 

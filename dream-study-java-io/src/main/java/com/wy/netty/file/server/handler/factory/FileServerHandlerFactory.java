@@ -3,7 +3,7 @@ package com.wy.netty.file.server.handler.factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 import com.wy.netty.file.AccountServer;
 import com.wy.netty.file.Result;
 import com.wy.netty.file.enums.EnumFileAction;
@@ -38,17 +38,17 @@ public class FileServerHandlerFactory {
 					handler = new UploadFileServerHandler(account);
 				}
 			} else if (EnumFileAction.DELETE_FILE == action) {// 删除文件
-				if (StrTool.isNotBlank(requestParams.getFilePath())) {
+				if (StrHelper.isNotBlank(requestParams.getFilePath())) {
 					LOGGER.info("进行文件删除操作....");
 					handler = new DeleteFileServerHandler(account);
 				}
 			} else if (EnumFileAction.REPLACE_FILE == action) {// 替换文件
-				if ((requestParams.getFileUpload() != null) && (StrTool.isNotBlank(requestParams.getFilePath()))) {
+				if ((requestParams.getFileUpload() != null) && (StrHelper.isNotBlank(requestParams.getFilePath()))) {
 					LOGGER.info("进行文件替换操作....");
 					handler = new ReplaceFileServerHandler(account);
 				}
 			} else if ((EnumFileAction.CREATE_THUMB_PICTURE == action)
-					&& (StrTool.isNotBlank(requestParams.getFilePath()))) {// 生成缩略图
+					&& (StrHelper.isNotBlank(requestParams.getFilePath()))) {// 生成缩略图
 				LOGGER.info("进行生成缩略图操作....");
 				handler = new CreateThumbPictureServerHandler(account);
 			}

@@ -36,8 +36,7 @@ import io.netty.util.concurrent.ThreadPerTaskExecutor;
  * ->doBind()<br>
  * ->->initAndRegister():初始化并注册Selector
  * ->->->newChannel():反射创建服务端channel,该channel就是BootStrap初始化时传入的{@link NioServerSocketChannel}<br>
- * ->->->->{@link NioServerSocketChannel}:反射调用该类的无参构造,再调用父类构造
- * ->->->->{@link AbstractNioChannel}:调用构造,再调用父类构造
+ * ->->->->{@link NioServerSocketChannel}:反射调用该类的无参构造,再调用父类构造 ->->->->{@link AbstractNioChannel}:调用构造,再调用父类构造
  * ->->->->{@link AbstractChannel}:设置相应参数<br>
  * ->->->->{@link AbstractNioMessageChannel}:调用newUnsafe(),再调用父类构造<br>
  * ->->->->{@link AbstractChannel}:调用内部抽象类AbstractUnsafe的register(),该方法在initAndRegister()中被调用<br>
@@ -66,8 +65,7 @@ import io.netty.util.concurrent.ThreadPerTaskExecutor;
  * ->->->{@link FastThreadLocalThread}:Netty封装的线程,是对ThreadLocal的优化实现
  * 
  * ->->newChild(),此处的实现类为{@link NioEventLoopGroup}<br>
- * ->->->{@link NioEventLoopGroup}的newChild()
- * ->->->{@link NioEventLoop}:构造,生成selector,任务队列Queue,该任务队列会传递到更上一层的父类赋值
+ * ->->->{@link NioEventLoopGroup}的newChild() ->->->{@link NioEventLoop}:构造,生成selector,任务队列Queue,该任务队列会传递到更上一层的父类赋值
  * 
  * ->->chooserFactory.newChooser(),此处实现类为{@link DefaultEventExecutorChooserFactory},对chooser进行处理
  * ->->{@link MultithreadEventExecutorGroup#next()}:当一个线程完成绑定之后下一个线程继续绑定,该方法会被
@@ -76,18 +74,15 @@ import io.netty.util.concurrent.ThreadPerTaskExecutor;
  * {@link ServerBootstrap#childHandler()}:需要传递一个{@link ChannelHandler}的实现类,此时的该类为
  * {@link ServerBootstrap.ServerBootstrapAcceptor}
  * 
- * {@link AbstractChannel}:构造函数->{@link DefaultChannelPipeline}:构造函数
- * ->>{@link DefaultChannelPipeline.TailContext}
+ * {@link AbstractChannel}:构造函数->{@link DefaultChannelPipeline}:构造函数 ->>{@link DefaultChannelPipeline.TailContext}
  * ->>{@link DefaultChannelPipeline.HeadContext}
  * 
  * {@link ChannelInboundHandler#channelRead}:channelRead事件传播
  * ->{@link ChannelInboundHandlerAdapter}->{@link SimpleChannelInboundHandler}
- * ->{@link ChannelHandlerContext#writeAndFlush()}:写数据
- * ->write写buffer队列:direct化ByteBuf->插入写队列->设置写状态
+ * ->{@link ChannelHandlerContext#writeAndFlush()}:写数据 ->write写buffer队列:direct化ByteBuf->插入写队列->设置写状态
  * ->flush刷新buffer队列:添加刷新标志并设置写状态->遍历buffer队列,过滤ByteBuf->调用jdk底层API进行自旋写
  * 
- * {@link ChannelOutboundHandler}:write事件传播,writeAndFlush()
- * ->{@link ChannelOutboundHandlerAdapter}
+ * {@link ChannelOutboundHandler}:write事件传播,writeAndFlush() ->{@link ChannelOutboundHandlerAdapter}
  * 
  * @author 飞花梦影
  * @date 2019-05-13 18:58:15
@@ -146,11 +141,9 @@ public class S_NettyServer {
 	public ChannelFuture doAccept(int port, final ChannelHandler... acceptorHandlers) throws InterruptedException {
 
 		/**
-		 * childHandler是服务的Bootstrap中的方法,用于提供处理对象,可以一次性增加多个处理逻辑,类似责任链模式
-		 * 增加A,B两个处理逻辑,在处理客户端请求数据的时候,根据A->B顺序依次处理
+		 * childHandler是服务的Bootstrap中的方法,用于提供处理对象,可以一次性增加多个处理逻辑,类似责任链模式 增加A,B两个处理逻辑,在处理客户端请求数据的时候,根据A->B顺序依次处理
 		 * 
-		 * ChannelInitializer:用于提供处理器的一个模型对象.其中定义了initChannel(),该方法用于初始化处理逻辑责任链条,
-		 * 保证服务端的Bootstrap只初始化一次处理器<br>
+		 * ChannelInitializer:用于提供处理器的一个模型对象.其中定义了initChannel(),该方法用于初始化处理逻辑责任链条, 保证服务端的Bootstrap只初始化一次处理器<br>
 		 * 尽量提供处理逻辑的重用,避免反复的创建处理器对象,节约资源开销
 		 */
 		bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {

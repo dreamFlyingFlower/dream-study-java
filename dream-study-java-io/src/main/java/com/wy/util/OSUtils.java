@@ -22,8 +22,7 @@ import org.hyperic.sigar.Who;
 /**
  * 通过JVM获取一些信息,或者通过org.hyperic.sigar获取系统信息
  * 
- * sigar需要配合org.kaazing的sigar.dist使用,下载下来该jar包之后,在maven仓库中会有一个zip文件
- * 根据操作系统的不同,从该zip文件解压相应的系统文件,并将该文件放到javahome/bin目录下
+ * sigar需要配合org.kaazing的sigar.dist使用,下载下来该jar包之后,在maven仓库中会有一个zip文件 根据操作系统的不同,从该zip文件解压相应的系统文件,并将该文件放到javahome/bin目录下
  * 若不知道所用的操作系统是什么,可以直接运行sigar的代码,将会提示需要使用那个系统文件
  * 
  * @author 飞花梦影

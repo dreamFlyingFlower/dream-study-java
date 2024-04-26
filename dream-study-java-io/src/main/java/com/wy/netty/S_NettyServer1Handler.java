@@ -47,8 +47,7 @@ public class S_NettyServer1Handler extends SimpleChannelInboundHandler<String> {
 	}
 
 	/**
-	 * 处理从上一个handler中传过来的参数,此处是String,则可以直接接收String类型
-	 * 如果上一个管道并没有指定任何类型,接收的原始参数类型是PooledUnsafeDirectByteBuf或其他ByteBuf的字类
+	 * 处理从上一个handler中传过来的参数,此处是String,则可以直接接收String类型 如果上一个管道并没有指定任何类型,接收的原始参数类型是PooledUnsafeDirectByteBuf或其他ByteBuf的字类
 	 * 
 	 * @param ctx 上下文环境
 	 * @param msg 上一个handler传递的字符串信息

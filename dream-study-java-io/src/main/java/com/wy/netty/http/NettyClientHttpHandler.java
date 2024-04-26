@@ -1,6 +1,6 @@
 package com.wy.netty.http;
 
-import com.wy.result.ResultException;
+import com.dream.result.ResultException;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

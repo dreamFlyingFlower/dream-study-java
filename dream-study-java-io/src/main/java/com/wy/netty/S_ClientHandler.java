@@ -35,14 +35,13 @@ public class S_ClientHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	/*
-	 * @Override // 断开连接时执行 public void channelInactive(ChannelHandlerContext ctx)
-	 * throws Exception { System.out.println("channelInactive method run..."); }
+	 * @Override // 断开连接时执行 public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+	 * System.out.println("channelInactive method run..."); }
 	 * 
-	 * @Override // 连接通道建立成功时执行 public void channelActive(ChannelHandlerContext ctx)
-	 * throws Exception { System.out.println("channelActive method run..."); }
+	 * @Override // 连接通道建立成功时执行 public void channelActive(ChannelHandlerContext ctx) throws Exception {
+	 * System.out.println("channelActive method run..."); }
 	 * 
-	 * @Override // 每次读取完成时执行 public void channelReadComplete(ChannelHandlerContext
-	 * ctx) throws Exception {
+	 * @Override // 每次读取完成时执行 public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 	 * System.out.println("channelReadComplete method run..."); }
 	 */
 }

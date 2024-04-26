@@ -5,7 +5,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 import com.wy.netty.file.AccountServer;
 import com.wy.netty.file.Result;
 import com.wy.netty.file.enums.EnumFileAction;
@@ -34,7 +34,7 @@ public class ReplaceFileServerHandler extends AbstractFileServerHandler implemen
 		Result result = new Result();
 		result.setCode(false);
 		result.setAction(EnumFileAction.REPLACE_FILE.getValue());
-		if ((StrTool.isNotBlank(reqParams.getFilePath())) && (reqParams.getFileUpload() != null)) {
+		if ((StrHelper.isNotBlank(reqParams.getFilePath())) && (reqParams.getFileUpload() != null)) {
 			String realPath = getRealPath(reqParams.getFilePath());
 			LOGGER.info("进行替换文件：" + realPath);
 			File oldFile = new File(realPath);

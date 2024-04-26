@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Component;
 
-import com.wy.collection.CollectionTool;
+import com.dream.collection.CollectionHelper;
 import com.wy.netty.chat.exception.ErrorCodeException;
 import com.wy.netty.chat.model.ResultCode;
 import com.wy.netty.chat.response.PlayerResponse;
@@ -29,7 +29,7 @@ public class PlayerServiceImpl implements PlayerService {
 		List<Player> existPlayers =
 				playerRepository.findAll(Example.of(Player.builder().playerName(playerName).build()));
 		// 玩家名已被占用
-		if (CollectionTool.isNotEmpty(existPlayers)) {
+		if (CollectionHelper.isNotEmpty(existPlayers)) {
 			throw new ErrorCodeException(ResultCode.PLAYER_EXIST);
 		}
 
@@ -53,7 +53,7 @@ public class PlayerServiceImpl implements PlayerService {
 		List<Player> existPlayers =
 				playerRepository.findAll(Example.of(Player.builder().playerName(playerName).build()));
 		// 玩家不存在
-		if (CollectionTool.isEmpty(existPlayers)) {
+		if (CollectionHelper.isEmpty(existPlayers)) {
 			throw new ErrorCodeException(ResultCode.PLAYER_NO_EXIST);
 		}
 

@@ -1,8 +1,5 @@
 package com.wy.netty.chat.serial;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.util.ReferenceCountUtil;
-
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,73 +7,81 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.util.ReferenceCountUtil;
+
 /**
  * 自定义序列化接口
+ * 
  * @author -琴兽-
  *
  */
 public abstract class Serializer {
-	
-	
+
 	public static final Charset CHARSET = Charset.forName("UTF-8");
-	
+
 	protected ByteBuf writeBuffer;
-	
+
 	protected ByteBuf readBuffer;
-	
+
 	/**
 	 * 反序列化具体实现
 	 */
 	protected abstract void read();
-	
+
 	/**
 	 * 序列化具体实现
 	 */
 	protected abstract void write();
-	
+
 	/**
 	 * 从byte数组获取数据
-	 * @param bytes	读取的数组
+	 * 
+	 * @param bytes 读取的数组
 	 */
 	public Serializer readFromBytes(byte[] bytes) {
 		readBuffer = BufferFactory.getBuffer(bytes);
 		read();
 		readBuffer.clear();
-		//释放buffer
+		// 释放buffer
 		ReferenceCountUtil.release(readBuffer);
 		return this;
 	}
-	
+
 	/**
 	 * 从buff获取数据
+	 * 
 	 * @param readBuffer
 	 */
 	public void readFromBuffer(ByteBuf readBuffer) {
 		this.readBuffer = readBuffer;
 		read();
 	}
-	
+
 	/**
 	 * 写入本地buff
+	 * 
 	 * @return
 	 */
-	public ByteBuf writeToLocalBuff(){
+	public ByteBuf writeToLocalBuff() {
 		writeBuffer = BufferFactory.getBuffer();
 		write();
 		return writeBuffer;
 	}
-	
+
 	/**
 	 * 写入目标buff
+	 * 
 	 * @param buffer
 	 * @return
 	 */
-	public ByteBuf writeToTargetBuff(ByteBuf buffer){
+	public ByteBuf writeToTargetBuff(ByteBuf buffer) {
 		writeBuffer = buffer;
 		write();
 		return writeBuffer;
 	}
-	
+
 	/**
 	 * 返回buffer数组
 	 * 
@@ -92,12 +97,11 @@ public abstract class Serializer {
 			writeBuffer.readBytes(bytes);
 		}
 		writeBuffer.clear();
-		//释放buffer
+		// 释放buffer
 		ReferenceCountUtil.release(writeBuffer);
 		return bytes;
 	}
 
-	
 	public byte readByte() {
 		return readBuffer.readByte();
 	}
@@ -121,7 +125,7 @@ public abstract class Serializer {
 	public double readDouble() {
 		return readBuffer.readDouble();
 	}
-	
+
 	public String readString() {
 		int size = readBuffer.readShort();
 		if (size <= 0) {
@@ -133,7 +137,7 @@ public abstract class Serializer {
 
 		return new String(bytes, CHARSET);
 	}
-	
+
 	public <T> List<T> readList(Class<T> clz) {
 		List<T> list = new ArrayList<>();
 		int size = readBuffer.readShort();
@@ -142,55 +146,54 @@ public abstract class Serializer {
 		}
 		return list;
 	}
-	
-	public <K,V> Map<K,V> readMap(Class<K> keyClz, Class<V> valueClz) {
-		Map<K,V> map = new HashMap<>();
+
+	public <K, V> Map<K, V> readMap(Class<K> keyClz, Class<V> valueClz) {
+		Map<K, V> map = new HashMap<>();
 		int size = readBuffer.readShort();
 		for (int i = 0; i < size; i++) {
 			K key = read(keyClz);
 			V value = read(valueClz);
-			map.put(key, value);	
+			map.put(key, value);
 		}
 		return map;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <I> I read(Class<I> clz) {
 		Object t = null;
-		if ( clz == int.class || clz == Integer.class) {
+		if (clz == int.class || clz == Integer.class) {
 			t = this.readInt();
-		} else if (clz == byte.class || clz == Byte.class){
+		} else if (clz == byte.class || clz == Byte.class) {
 			t = this.readByte();
-		} else if (clz == short.class || clz == Short.class){
+		} else if (clz == short.class || clz == Short.class) {
 			t = this.readShort();
-		} else if (clz == long.class || clz == Long.class){
+		} else if (clz == long.class || clz == Long.class) {
 			t = this.readLong();
-		} else if (clz == float.class || clz == Float.class){
+		} else if (clz == float.class || clz == Float.class) {
 			t = readFloat();
-		} else if (clz == double.class || clz == Double.class){
+		} else if (clz == double.class || clz == Double.class) {
 			t = readDouble();
-		} else if (clz == String.class ){
+		} else if (clz == String.class) {
 			t = readString();
-		} else if (Serializer.class.isAssignableFrom(clz)){
+		} else if (Serializer.class.isAssignableFrom(clz)) {
 			try {
 				byte hasObject = this.readBuffer.readByte();
-				if(hasObject == 1){
-					Serializer temp = (Serializer)clz.newInstance();
+				if (hasObject == 1) {
+					Serializer temp = (Serializer) clz.newInstance();
 					temp.readFromBuffer(this.readBuffer);
 					t = temp;
-				}else{
+				} else {
 					t = null;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-			} 
-			
+			}
+
 		} else {
 			throw new RuntimeException(String.format("不支持类型:[%s]", clz));
 		}
 		return (I) t;
 	}
-
 
 	public Serializer writeByte(Byte value) {
 		writeBuffer.writeByte(value);
@@ -234,7 +237,7 @@ public abstract class Serializer {
 		return this;
 	}
 
-	public <K,V> Serializer writeMap(Map<K, V> map) {
+	public <K, V> Serializer writeMap(Map<K, V> map) {
 		if (isEmpty(map)) {
 			writeBuffer.writeShort((short) 0);
 			return this;
@@ -261,10 +264,10 @@ public abstract class Serializer {
 	}
 
 	public Serializer writeObject(Object object) {
-		
-		if(object == null){
-			writeByte((byte)0);
-		}else{
+
+		if (object == null) {
+			writeByte((byte) 0);
+		} else {
 			if (object instanceof Integer) {
 				writeInt((int) object);
 				return this;
@@ -291,22 +294,23 @@ public abstract class Serializer {
 				return this;
 			}
 			if (object instanceof Serializer) {
-				writeByte((byte)1);
+				writeByte((byte) 1);
 				Serializer value = (Serializer) object;
 				value.writeToTargetBuff(writeBuffer);
 				return this;
 			}
-			
+
 			throw new RuntimeException("不可序列化的类型:" + object.getClass());
 		}
-		
+
 		return this;
 	}
 
 	private <T> boolean isEmpty(Collection<T> c) {
 		return c == null || c.size() == 0;
 	}
-	public <K,V> boolean isEmpty(Map<K,V> c) {
+
+	public <K, V> boolean isEmpty(Map<K, V> c) {
 		return c == null || c.size() == 0;
 	}
 }

@@ -5,7 +5,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 import com.wy.netty.file.AccountServer;
 import com.wy.netty.file.Constants;
 import com.wy.netty.file.Result;
@@ -34,7 +34,7 @@ public class DeleteFileServerHandler extends AbstractFileServerHandler implement
 		Result result = new Result();
 		result.setCode(false);
 		result.setAction(EnumFileAction.DELETE_FILE.getValue());
-		if (StrTool.isNotBlank(reqParams.getFilePath())) {
+		if (StrHelper.isNotBlank(reqParams.getFilePath())) {
 			String realPath = getRealPath(reqParams.getFilePath());
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("进行删除文件：" + realPath);

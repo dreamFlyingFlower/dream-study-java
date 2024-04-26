@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 import com.wy.netty.file.AccountServer;
 import com.wy.netty.file.Constants;
 
@@ -56,8 +56,8 @@ public class FileServerContainer {
 	public void setAccounts(List<AccountServer> accounts) {
 		this.accounts = accounts;
 		for (AccountServer item : this.accounts) {
-			if ((StrTool.isBlank(item.getUserName())) || (StrTool.isBlank(item.getPwd()))
-					|| (StrTool.isBlank(item.getRootPath()))) {
+			if ((StrHelper.isBlank(item.getUserName())) || (StrHelper.isBlank(item.getPwd()))
+					|| (StrHelper.isBlank(item.getRootPath()))) {
 				log.error("账户配置出现错误，请检查，" + item);
 				new Exception().printStackTrace();
 			}
