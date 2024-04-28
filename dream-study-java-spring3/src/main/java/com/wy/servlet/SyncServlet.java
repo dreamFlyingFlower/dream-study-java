@@ -1,4 +1,4 @@
-package com.wy.study;
+package com.wy.servlet;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

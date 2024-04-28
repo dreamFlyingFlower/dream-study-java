@@ -6,3 +6,7 @@ spring:
     password: 123456
   jackson:
     time-zone: GMT+8
+  # 启用虚拟线程
+  threads:
+    virtual:
+      enabled: true

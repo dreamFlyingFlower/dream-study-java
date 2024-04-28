@@ -1,9 +1,6 @@
-package com.wy.study.publish;
+package com.wy.process;
 
 import java.util.concurrent.SubmissionPublisher;
-
-import com.wy.study.processor.MyProcessor;
-import com.wy.study.subscribe.MySubscriber;
 
 /**
  * 消息发布者
