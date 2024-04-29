@@ -9,8 +9,8 @@
 		<version>0.0.1</version>
 		<relativePath />
 	</parent>
-	<artifactId>dream-study-java-websocket</artifactId>
-	<name>dream-study-java-websocket</name>
+	<artifactId>dream-study-java-websocket-client</artifactId>
+	<name>dream-study-java-websocket-client</name>
 	<description>java study for websocket grammer</description>
 
 	<dependencies>

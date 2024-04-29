@@ -1,4 +1,4 @@
-package com.wy.websocket;
+package com.wy.websocket.original;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
  * 
  * @author 飞花梦影
  * @date 2021-01-12 11:06:38
- * @git {@link https://github.com/mygodness100}
+ * @git {@link https://gitee.com/dreamFlyingFlower}
  */
 @Configuration
 public class WebSocketServerConfig {

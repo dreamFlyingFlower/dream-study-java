@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.wy.websocket.original.WebSocketServer;
+
+import lombok.AllArgsConstructor;
 
 /**
  * websocket测试类
@@ -18,25 +20,17 @@ import org.springframework.web.servlet.ModelAndView;
  * @date 2021-01-12 11:15:31
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-@Controller
-@RequestMapping("/api/websocket")
+@RestController
+@RequestMapping("websocket")
+@AllArgsConstructor
 public class WebSocketController {
 
-	@GetMapping("/index/{userId}")
-	public ModelAndView socket(@PathVariable String userId) {
-		ModelAndView mav = new ModelAndView("/socket1");
-		mav.addObject("userId", userId);
-		return mav;
-	}
-
-	// 推送数据接口
-	@ResponseBody
-	@GetMapping("/socket/push/{cid}")
-	public Map<String, Object> pushToWeb(@PathVariable String cid, String message) {
+	@GetMapping("/push/{sid}")
+	public Map<String, Object> pushToWeb(@PathVariable String sid, String message) {
 		Map<String, Object> result = new HashMap<>();
 		try {
-			WebSocketServer.sendInfo(message, cid);
-			result.put("code", cid);
+			WebSocketServer.sendInfo(message, sid);
+			result.put("code", sid);
 			result.put("msg", message);
 		} catch (IOException e) {
 			e.printStackTrace();

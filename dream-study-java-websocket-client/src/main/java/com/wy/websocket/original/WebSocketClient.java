@@ -1,4 +1,4 @@
-package com.wy.websocket;
+package com.wy.websocket.original;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,6 +12,10 @@ import javax.websocket.OnOpen;
 import javax.websocket.PongMessage;
 import javax.websocket.Session;
 
+import org.springframework.stereotype.Component;
+
+import lombok.AllArgsConstructor;
+
 /**
  * WebSocket客户端,发送消息
  *
@@ -20,24 +24,27 @@ import javax.websocket.Session;
  * @git {@link https://gitee.com/dreamFlyingFlower}
  */
 @ClientEndpoint
+@Component
+@AllArgsConstructor
 public class WebSocketClient {
 
 	@OnOpen
 	public void onOpen(Session session) {
-		// 连接建立
+		System.out.println("WebSocket客户端连接建立...");
 	}
 
 	@OnClose
 	public void onClose(Session session, CloseReason reason) {
-		// 连接关闭
+		System.out.println("WebSocket客户端连接关闭,关闭之后无法进行重连...." + reason.getReasonPhrase());
 	}
 
 	@OnMessage
 	public void onMessage(Session session, String message) {
 		// 发送文本消息
-		session.getAsyncRemote().sendText(message);
+		// session.getAsyncRemote().sendText(message);
 		// 发送Object消息,会尝试使用Encoder编码
-		session.getAsyncRemote().sendObject(message);
+		// session.getAsyncRemote().sendObject(message);
+		System.out.println("WebSocket客户端收到来自服务器的消息:" + message);
 	}
 
 	@OnMessage

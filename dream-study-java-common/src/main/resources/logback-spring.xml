@@ -8,7 +8,11 @@
 	<!--<include resource="org/springframework/boot/logging/logback/base.xml" /> -->
 
 	<!-- 文件名必须是logback-spring.xml,如果不带spring后缀就读不到application.yml中的属性 -->
-	<springProperty scope="context" name="PROJECT_DIR" source="spring.application.name" />
+	<!-- 唯一不好的一点是无法使用默认值,如果在值不存在,将会报错 -->
+	<springProperty scope="context" name="PROJECT" source="spring.application.name" />
+
+	<property name="LOG_PATH" value="/tmp/logs/${PROJECT}" />
+	<property name="CHARSET" value="UTF-8" />
 
 	<!-- 日志文件输出格式: -->
 	<!-- %-d{yyyy-MM-dd HH:mm:ss} [ %t:%r ] - [ %p ] %m%n:日志输出时间 -->
@@ -18,8 +22,6 @@
 	<!-- %logger{36}:日志输出者的名字 -->
 	<!-- %msg:日志消息 -->
 	<!-- %n:平台的换行符 -->
-	<property name="LOG_PATH" value="logs/${PROJECT_DIR:temp}" />
-	<property name="CHARSET" value="UTF-8" />
 
 	<!-- 带颜色的输出,只对控制台有效 -->
 	<!-- magenta:洋红 -->

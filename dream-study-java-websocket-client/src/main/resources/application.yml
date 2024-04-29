@@ -1,6 +1,6 @@
 server:
   address: 127.0.0.1
-  port: 12345
+  port: 12346
   max-http-header-size: 10000000
   # 优雅停机,接收命令后将不再接收新的请求,默认是immediate.kill -9不会触发优雅停机,需使用kill -2
   shutdown: graceful

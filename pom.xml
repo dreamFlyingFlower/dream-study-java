@@ -36,6 +36,7 @@
 		<module>dream-study-java-web</module>
 		<module>dream-study-java-webflux</module>
 		<module>dream-study-java-websocket</module>
+		<module>dream-study-java-websocket-client</module>
 		<module>dream-study-java-wsdl</module>
 		<module>dream-study-java-xxljob</module>
 		<module>dream-study-java-xxljob-admin</module>

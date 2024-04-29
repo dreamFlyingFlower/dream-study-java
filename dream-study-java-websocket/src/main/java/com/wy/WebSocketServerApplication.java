@@ -2,6 +2,7 @@ package com.wy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 /**
  * 启动类
@@ -10,10 +11,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date 2021-03-30 11:00:45
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-@SpringBootApplication
-public class Application {
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+public class WebSocketServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(WebSocketServerApplication.class, args);
 	}
 }

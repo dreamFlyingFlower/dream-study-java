@@ -1,10 +1,9 @@
-package com.wy.websocket;
+package com.wy.websocket.spring;
 
 import java.util.Map;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
@@ -15,7 +14,6 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * @date 2022-05-24 23:15:08
  * @git {@link https://gitee.com/dreamFlyingFlower}
  */
-@Component
 public class MyWebSocketInterceptor implements HandshakeInterceptor {
 
 	/**
@@ -31,6 +29,7 @@ public class MyWebSocketInterceptor implements HandshakeInterceptor {
 	@Override
 	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Map<String, Object> attributes) throws Exception {
+		System.out.println("WebSocket...握手之前");
 		attributes.put("userId", "userId");
 		return true;
 	}
@@ -46,6 +45,6 @@ public class MyWebSocketInterceptor implements HandshakeInterceptor {
 	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Exception exception) {
-
+		System.out.println("WebSocket...握手之后");
 	}
 }

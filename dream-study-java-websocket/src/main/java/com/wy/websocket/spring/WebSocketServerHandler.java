@@ -30,6 +30,7 @@ public class WebSocketServerHandler implements WebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
 		// 连接建立
+		System.out.println("WebSocket...已经建立了连接");
 	}
 
 	@Override
@@ -59,6 +60,7 @@ public class WebSocketServerHandler implements WebSocketHandler {
 	@Override
 	public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) throws Exception {
 		// 异常处理
+		System.out.println("WebSocket...发生了异常");
 	}
 
 	/**
@@ -72,6 +74,7 @@ public class WebSocketServerHandler implements WebSocketHandler {
 	public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus closeStatus)
 			throws Exception {
 		// 连接关闭
+		System.out.println("WebSocket...关闭了连接");
 	}
 
 	@Override
