@@ -1,4 +1,4 @@
-package com.wy.socketio;
+package com.wy.websocket;
 
 import java.io.Serializable;
 
@@ -12,7 +12,7 @@ import lombok.Data;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Data
-public class MySocketIoMessage implements Serializable {
+public class MyWebSocketMessage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class MySocketIoMessage implements Serializable {
 	private String type;
 
 	/**
-	 * 消息类型
+	 * 消息内容
 	 */
 	private String content;
 

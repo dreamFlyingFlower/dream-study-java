@@ -1,4 +1,4 @@
-package com.wy.socketio;
+package com.wy.websocket.socketio;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

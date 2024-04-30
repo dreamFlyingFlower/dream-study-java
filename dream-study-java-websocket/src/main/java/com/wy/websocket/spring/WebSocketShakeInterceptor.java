@@ -1,20 +1,22 @@
 package com.wy.websocket.spring;
 
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 /**
- * WebSocket拦截器
+ * WebSocket握手拦截器
  *
  * @author 飞花梦影
  * @date 2022-05-24 23:15:08
  * @git {@link https://gitee.com/dreamFlyingFlower}
  */
-public class MyWebSocketInterceptor implements HandshakeInterceptor {
+public class WebSocketShakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * 握手之前,若返回false,则不建立连接
@@ -30,7 +32,9 @@ public class MyWebSocketInterceptor implements HandshakeInterceptor {
 	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Map<String, Object> attributes) throws Exception {
 		System.out.println("WebSocket...握手之前");
-		attributes.put("userId", "userId");
+		HttpHeaders headers = request.getHeaders();
+		List<String> tokens = headers.get("token");
+		attributes.put("tokens", tokens.get(0));
 		return true;
 	}
 

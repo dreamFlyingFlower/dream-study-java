@@ -1,4 +1,4 @@
-package com.wy.socketio;
+package com.wy.websocket.socketio;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;

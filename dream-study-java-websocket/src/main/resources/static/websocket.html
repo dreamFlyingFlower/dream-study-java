@@ -29,6 +29,17 @@
 
 		// 连接成功建立的回调方法
 		websocket.onopen = function() {
+			console.log(websocket)
+			// 0:未连接;1:已链接;2:连接正在关闭;3:连接已关闭
+			console.log(websocket.readyState === websocket.OPEN)
+			// 0
+			console.log(websocket.CONNECTING)
+			// 1
+			console.log(websocket.OPEN)
+			// 2
+			console.log(websocket.CLOSING)
+			// 3
+			console.log(websocket.CLOSED)
 			setMessageInnerHTML("WebSocket连接成功");
 		}
 

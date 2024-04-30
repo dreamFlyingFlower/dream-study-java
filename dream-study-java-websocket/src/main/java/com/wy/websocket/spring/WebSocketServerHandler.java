@@ -31,6 +31,13 @@ public class WebSocketServerHandler implements WebSocketHandler {
 	public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
 		// 连接建立
 		System.out.println("WebSocket...已经建立了连接");
+		Object token = session.getAttributes().get("token");
+		if (token != null) {
+			// 用户连接成功,放入在线用户缓存
+			WebSocketSessionManager.add(token.toString(), session);
+		} else {
+			throw new RuntimeException("用户登录已经失效!");
+		}
 	}
 
 	@Override
@@ -75,6 +82,10 @@ public class WebSocketServerHandler implements WebSocketHandler {
 			throws Exception {
 		// 连接关闭
 		System.out.println("WebSocket...关闭了连接");
+		Object token = session.getAttributes().get("token");
+		if (token != null) {
+			WebSocketSessionManager.remove(token.toString());
+		}
 	}
 
 	@Override

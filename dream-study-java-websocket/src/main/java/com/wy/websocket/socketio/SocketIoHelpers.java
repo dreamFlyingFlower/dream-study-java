@@ -1,4 +1,4 @@
-package com.wy.socketio;
+package com.wy.websocket.socketio;
 
 import java.util.Map;
 import java.util.Objects;

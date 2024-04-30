@@ -1,4 +1,4 @@
-package com.wy.socketio;
+package com.wy.websocket.socketio;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.wy.websocket.MyWebSocketMessage;
 
 /**
  * 
@@ -26,7 +28,7 @@ public class SocketIoController {
 	SocketIoHelpers socketIoHelpers;
 
 	@PostMapping("/testSendMsg")
-	public String testSendMsg(@RequestBody MySocketIoMessage myMessage) {
+	public String testSendMsg(@RequestBody MyWebSocketMessage myMessage) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("msg", myMessage.getContent());
 
