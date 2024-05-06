@@ -13,6 +13,7 @@
 	</properties>
 
 	<modules>
+		<module>dream-study-java-ai</module>
 		<module>dream-study-java-algorithms</module>
 		<module>dream-study-java-common</module>
 		<module>dream-study-java-crawler</module>

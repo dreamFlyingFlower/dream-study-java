@@ -1,4 +1,4 @@
-package com.wy.common;
+package com.wy.transaction;
 
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -59,5 +59,5 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
  * @date 2018-03-06 22:37:19
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class Transaction implements TransactionDefinition {
+public class MyTransaction implements TransactionDefinition {
 }

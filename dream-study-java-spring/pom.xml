@@ -368,28 +368,41 @@
 	</profiles>
 	<!-- https://mp.weixin.qq.com/s/WipGDWfK-_zP6afq7kr-cA 补全 -->
 	<build>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<!--项目打包完成的包中只包含当前环境文件-->
+					<include>mapper/**/*.xml</include>
+					<include>logback-spring.xml</include>
+					<include>static/**</include>
+					<include>application.yml</include>
+					<include>bootstrap.properties</include>
+				</includes>
+				<!--打包排除项 -->
+				<excludes>
+					<exclude>**/*.sh</exclude>
+					<exclude>**/*.rar</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<addMavenDescriptor>false</addMavenDescriptor>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>${scripts_bootMain}</mainClass>
-						</manifest>
-					</archive>
-					<!--打包排除项 -->
-					<excludes>
-						<exclude>**/*.yml</exclude>
-						<exclude>**/*.properties</exclude>
-						<exclude>**/*.xml</exclude>
-						<exclude>**/*.sh</exclude>
-					</excludes>
-				</configuration>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.7.18</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
