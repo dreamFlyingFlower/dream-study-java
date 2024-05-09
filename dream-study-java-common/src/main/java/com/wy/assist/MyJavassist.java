@@ -55,20 +55,33 @@ public class MyJavassist implements ClassFileTransformer {
 	}
 
 	/**
-	 * 在应用启动之前调用
+	 * 在JVM启动之后,调用main()之前调用.方法名称固定,参数固定
 	 * 
-	 * @param args
-	 * @param instrumentation
+	 * @param args 启动参数,在JVM启动时指定
+	 * @param instrumentation Instrumentation对象
 	 */
 	public static void premain(String[] args, Instrumentation instrumentation) {
 		// 添加了一个监听器
 		instrumentation.addTransformer(new MyJavassist());
+		// 注册Class文件转换器,转换器用于改变Class文件二进制流的数据:转换器;设置是否允许重新转换
+		// instrumentation.addTransformer(null, true);
+		// 移除一个转换器
+		// instrumentation.removeTransformer(null);
+		// 在类加载之后,重新转换类,如果重新转换的方法有活跃的栈帧,那些活跃的栈帧继续运行未转换前的方法
+		// instrumentation.retransformClasses();
+		// 当前JVM配置是否支持重新转换
+		instrumentation.isRetransformClassesSupported();
+		// 获取所有已加载的类
+		instrumentation.getAllLoadedClasses();
 	}
 
 	/**
-	 * JVM中每个类加载之前执行该方法,返回修改后的字节码
+	 * 调用Instrumentation#addTransformer()注册ClassFileTransformer以后,后续所有JVM加载类都会被它的transform()拦截
 	 * 
-	 * 有自动容错,即使抛异常或null,仍然会返回源字节码文件
+	 * JVM中每个类加载之前执行该方法,返回修改后的字节码.如果抛异常或返回null,仍然会返回源字节码文件
+	 * 
+	 * @param className 表示当前加载类的类名
+	 * @param classfileBuffer 待加载类文件的字节数组
 	 */
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -83,6 +96,7 @@ public class MyJavassist implements ClassFileTransformer {
 		if (className.indexOf("$Proxy") != -1) {
 			return null;
 		}
+		// 判断是否为指定加载类
 		if (className.equals("com.wy.model.User")) {
 			// 需要的操作,最后返回相应字节码
 			ClassPool classPool = ClassPool.getDefault();
