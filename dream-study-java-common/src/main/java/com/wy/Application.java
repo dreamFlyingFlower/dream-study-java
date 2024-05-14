@@ -113,6 +113,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Constants:一般用于常量列表
  * Accessor:封装了一系列get和set方法的类.Accessor类一般是要通过计算来完成get和set,而不是直接操作变量
  * Generator:生成器,一般用于生成代码,生成id等
+ * Tripartite:第三方
  * </pre>
  * 
  * @author 飞花梦影
