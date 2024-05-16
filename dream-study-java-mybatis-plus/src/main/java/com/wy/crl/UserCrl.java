@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wy.base.AbstractCrl;
+import com.dream.result.Result;
+import com.wy.base.AbstractController;
 import com.wy.model.User;
-import com.wy.result.Result;
 import com.wy.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -24,7 +24,7 @@ import io.swagger.annotations.Api;
 @Api(tags = "User用户API")
 @RestController
 @RequestMapping("user")
-public class UserCrl extends AbstractCrl<User, Long> {
+public class UserCrl extends AbstractController<User, Long> {
 
 	@Autowired
 	private UserService userService;
@@ -33,9 +33,9 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	public Result<?> resetPwd(@RequestBody User user) {
 		return Result.ok(userService.resetPwd(user));
 	}
-	
+
 	@GetMapping("test")
-	public Result<?> test(){
+	public Result<?> test() {
 		userService.test1();
 		return Result.ok();
 	}

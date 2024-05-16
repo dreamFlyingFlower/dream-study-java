@@ -16,14 +16,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wy.annotation.Sort;
-import com.wy.annotation.Unique;
-import com.wy.collection.ListTool;
-import com.wy.lang.NumberTool;
-import com.wy.lang.StrTool;
-import com.wy.reflect.ReflectTool;
-import com.wy.result.Result;
-import com.wy.result.ResultException;
+import com.dream.collection.ListHelper;
+import com.dream.db.annotation.Sort;
+import com.dream.db.annotation.Unique;
+import com.dream.lang.NumberHelper;
+import com.dream.lang.StrHelper;
+import com.dream.reflect.ReflectHelper;
+import com.dream.result.Result;
+import com.dream.result.ResultException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,11 +64,11 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 		Class<?> searchType = entityClass;
 		while (Object.class != searchType && searchType != null) {
 			List<Field> fields = CACHE_FIELDS.get(searchType);
-			if (ListTool.isEmpty(fields)) {
+			if (ListHelper.isEmpty(fields)) {
 				fields = Arrays.asList(searchType.getDeclaredFields());
 				CACHE_FIELDS.put(searchType, (fields.size() == 0 ? Collections.emptyList() : fields));
 			}
-			if (ListTool.isNotEmpty(fields)) {
+			if (ListHelper.isNotEmpty(fields)) {
 				for (Field field : fields) {
 					checkUniqueAndSort(t, field, saveOrUpdate, checkSort);
 				}
@@ -104,34 +104,34 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 * @param saveOrUpdate 新增或更新,true->新增,false->修改
 	 */
 	protected void checkUnique(T t, Field field, boolean saveOrUpdate) {
-//		ReflectTool.fixAccessible(field);
-//		try {
-//			if (saveOrUpdate) {
-//				// 当新增时可以直接加入检查唯一的map中,不可多字段同时检查
-//				checkUnique(t, field);
-//			} else {
-//				// 当更新时,检查原始值和新值是否相同,若相同,不用再查数据库,且需要将实体类中的该字段值置空
-//				Unique unique = field.getAnnotation(Unique.class);
-//				// 获得原始值Java属性
-//				String oriName = unique.oriName();
-//				if (StrTool.isBlank(oriName)) {
-//					oriName = "ori" + StrTool.firstUpper(field.getName());
-//				}
-//				Field oriField = entityClass.getDeclaredField(oriName);
-//				ReflectTool.fixAccessible(oriField);
-//				Object object = oriField.get(t);
-//				if (Objects.equals(object, field.get(t))) {
-//					// 原始值和新值相同,将新值置空,不更新数据库
-//					field.set(t, null);
-//				} else {
-//					// 原始值和新值不同,查询数据库是否有重复值
-//					checkUnique(t, field);
-//				}
-//			}
-//		} catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
-//			e.printStackTrace();
-//			log.error(e.getMessage());
-//		}
+		// ReflectTool.fixAccessible(field);
+		// try {
+		// if (saveOrUpdate) {
+		// // 当新增时可以直接加入检查唯一的map中,不可多字段同时检查
+		// checkUnique(t, field);
+		// } else {
+		// // 当更新时,检查原始值和新值是否相同,若相同,不用再查数据库,且需要将实体类中的该字段值置空
+		// Unique unique = field.getAnnotation(Unique.class);
+		// // 获得原始值Java属性
+		// String oriName = unique.oriName();
+		// if (StrTool.isBlank(oriName)) {
+		// oriName = "ori" + StrTool.firstUpper(field.getName());
+		// }
+		// Field oriField = entityClass.getDeclaredField(oriName);
+		// ReflectTool.fixAccessible(oriField);
+		// Object object = oriField.get(t);
+		// if (Objects.equals(object, field.get(t))) {
+		// // 原始值和新值相同,将新值置空,不更新数据库
+		// field.set(t, null);
+		// } else {
+		// // 原始值和新值不同,查询数据库是否有重复值
+		// checkUnique(t, field);
+		// }
+		// }
+		// } catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
+		// e.printStackTrace();
+		// log.error(e.getMessage());
+		// }
 	}
 
 	/**
@@ -160,7 +160,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 * @param field 待检查的Java属性
 	 */
 	protected void checkSort(T t, Field field) {
-		ReflectTool.fixAccessible(field);
+		ReflectHelper.fixAccessible(field);
 		// 获得排序字段的值
 		Long maxSort = getMaxSort(t, field);
 		if (null == maxSort) {
@@ -189,7 +189,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 			// 若排序字段有值且大于0,直接返回
 			Object value = field.get(t);
 			if (Objects.nonNull(value)) {
-				Long number = NumberTool.toLong(field.get(t).toString());
+				Long number = NumberHelper.toLong(field.get(t).toString());
 				if (number > 0) {
 					return number;
 				}
@@ -200,8 +200,8 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 			return -1l;
 		}
 		Sort sort = field.getAnnotation(Sort.class);
-		return getMax(StrTool.isBlank(sort.value())
-				? sort.hump2Snake() ? StrTool.hump2Underline(field.getName()) : field.getName()
+		return getMax(StrHelper.isBlank(sort.value())
+				? sort.transfer() ? StrHelper.hump2Underline(field.getName()) : field.getName()
 				: sort.value(), false);
 	}
 
@@ -277,8 +277,8 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 			return Result.ok(super.list(new QueryWrapper<T>(t)));
 		}
 		Page<T> pageParam = new Page<T>(pager.getPageIndex(), pager.getPageSize());
-		if (StrTool.isNotBlank(pager.getPageOrder())) {
-			if (StrTool.equalsIgnoreCase("asc", pager.getPageDirection())) {
+		if (StrHelper.isNotBlank(pager.getPageOrder())) {
+			if (StrHelper.equalsIgnoreCase("asc", pager.getPageDirection())) {
 				pageParam.setOrders(OrderItem.ascs(pager.getPageOrder().split(",")));
 			} else {
 				pageParam.setOrders(OrderItem.descs(pager.getPageOrder().split(",")));
@@ -309,7 +309,7 @@ public abstract class AbstractService<M extends BaseMapper<T>, T, ID extends Ser
 	 */
 	public Long getMax(String column, boolean hump2Snake) {
 		// 将Java属性字段转下划线
-		column = hump2Snake ? StrTool.hump2Underline(column) : column;
+		column = hump2Snake ? StrHelper.hump2Underline(column) : column;
 		Page<Map<String, Object>> pageParam = new Page<>(1, 1);
 		pageParam.addOrder(OrderItem.desc(column));
 		Page<Map<String, Object>> pageMaps = pageMaps(pageParam);

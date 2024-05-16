@@ -9,8 +9,8 @@ import java.util.Objects;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wy.collection.CollectionTool;
-import com.wy.result.Result;
+import com.dream.collection.CollectionHelper;
+import com.dream.result.Result;
 
 /**
  * 通用业务接口
@@ -85,7 +85,7 @@ public interface BaseService<T, ID extends Serializable> extends IService<T> {
 	 */
 	default Result<List<Map<String, Object>>> getLists(Map<String, Object> params) {
 		Result<List<T>> entitys = getEntitys(JSON.parseObject(JSON.toJSONString(params), getEntityClass()));
-		if (Objects.nonNull(entitys) && CollectionTool.isNotEmpty(entitys.getData())) {
+		if (Objects.nonNull(entitys) && CollectionHelper.isNotEmpty(entitys.getData())) {
 			List<Map<String, Object>> parseObject = JSON.parseObject(JSON.toJSONString(entitys.getData()),
 					new TypeReference<List<Map<String, Object>>>() {
 					});

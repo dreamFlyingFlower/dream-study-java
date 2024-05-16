@@ -53,6 +53,10 @@
 			<groupId>dream.flying.flower</groupId>
 			<artifactId>dream-framework-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.mysql</groupId>

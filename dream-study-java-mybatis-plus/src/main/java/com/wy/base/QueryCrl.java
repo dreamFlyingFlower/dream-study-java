@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.wy.result.Result;
+import com.dream.result.Result;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

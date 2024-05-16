@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.generator.config.PackageConfig;
 import com.baomidou.mybatisplus.generator.config.StrategyConfig;
 import com.baomidou.mybatisplus.generator.config.TemplateConfig;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
-import com.wy.lang.StrTool;
+import com.dream.lang.StrHelper;
 
 /**
  * MyBatisPlus代码生成器
@@ -31,7 +31,7 @@ public class MyBatisPlusGenerator {
 			System.out.println(help.toString());
 			if (scanner.hasNext()) {
 				String ipt = scanner.next();
-				if (StrTool.isNotBlank(ipt)) {
+				if (StrHelper.isNotBlank(ipt)) {
 					return ipt;
 				}
 			}
@@ -52,7 +52,7 @@ public class MyBatisPlusGenerator {
 		String projectName = "/generator";
 		// 全局配置
 		GlobalConfig globalConfig = new GlobalConfig.Builder().outputDir(projectPath + projectName + "/src/main/java")
-		        .author("飞花梦影").build();
+				.author("飞花梦影").build();
 		autoGenerator.global(globalConfig);
 
 		// 生成包配置
@@ -61,24 +61,24 @@ public class MyBatisPlusGenerator {
 
 		// 配置模板,注意不要带上.ftl/.vm
 		TemplateConfig templateConfig = new TemplateConfig.Builder().entity("templates/entity.java")
-		        .mapper("templates/mapper.xml").service("templates/service.java")
-		        .serviceImpl("templates/serviceImpl.java").controller("templates/controller.java").build();
+				.mapper("templates/mapper.xml").service("templates/service.java")
+				.serviceImpl("templates/serviceImpl.java").controller("templates/controller.java").build();
 
 		autoGenerator.template(templateConfig);
 
 		// 策略配置
 		StrategyConfig strategyConfig = new StrategyConfig.Builder()
-		        // 若只需要生成单个表,可直接指定表名
-		        // .addInclude("")
-		        // 表名映射到实体名称去掉前缀
-		        .addTableSuffix(packageConfig.getModuleName() + "_").mapperBuilder().entityBuilder()
-		        // 设置父类
-		        .superClass("com.wy.base.BaseEntity")
-		        // 表名映射到实体策略,带下划线的转成驼峰
-		        .naming(NamingStrategy.underline_to_camel)
-		        // 列名映射到类型属性策略,带下划线的转成驼峰
-		        .columnNaming(NamingStrategy.underline_to_camel).enableLombok().controllerBuilder().enableRestStyle()
-		        .superClass("com.wy.base.AbstractController").build();
+				// 若只需要生成单个表,可直接指定表名
+				// .addInclude("")
+				// 表名映射到实体名称去掉前缀
+				.addTableSuffix(packageConfig.getModuleName() + "_").mapperBuilder().entityBuilder()
+				// 设置父类
+				.superClass("com.wy.base.BaseEntity")
+				// 表名映射到实体策略,带下划线的转成驼峰
+				.naming(NamingStrategy.underline_to_camel)
+				// 列名映射到类型属性策略,带下划线的转成驼峰
+				.columnNaming(NamingStrategy.underline_to_camel).enableLombok().controllerBuilder().enableRestStyle()
+				.superClass("com.wy.base.AbstractController").build();
 
 		autoGenerator.strategy(strategyConfig);
 		System.out.println("===================== MyBatis Plus Generator ==================");

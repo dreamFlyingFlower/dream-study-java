@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.wy.collection.ListTool;
-import com.wy.enums.TipEnum;
-import com.wy.result.Result;
+import com.dream.collection.ListHelper;
+import com.dream.enums.TipEnum;
+import com.dream.result.Result;
 import com.wy.valid.ValidAdds;
 import com.wy.valid.ValidEdits;
 
@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiParam;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Api(tags = "通用修改控制层API")
-public abstract class AbstractCrl<T, ID extends Serializable> extends QueryCrl<T, ID> {
+public abstract class AbstractController<T, ID extends Serializable> extends QueryCrl<T, ID> {
 
 	/**
 	 * 数据新增,只会插入实体对象中的非空值
@@ -59,7 +59,7 @@ public abstract class AbstractCrl<T, ID extends Serializable> extends QueryCrl<T
 	@ApiOperation("批量数据新增,只会插入实体对象中的非空值")
 	@PostMapping("adds")
 	public Result<?> adds(@ApiParam("需要新增的数据列表") @RequestBody List<T> ts, BindingResult bindingResult) {
-		if (ListTool.isEmpty(ts)) {
+		if (ListHelper.isEmpty(ts)) {
 			return Result.error(TipEnum.TIP_PARAM_NOT_NULL);
 		}
 		return Result.ok(baseService.adds(ts));
@@ -93,7 +93,7 @@ public abstract class AbstractCrl<T, ID extends Serializable> extends QueryCrl<T
 	@ApiOperation("批量数据修改,只会修改实体对象中的非空值")
 	@PostMapping("edits")
 	public Result<?> edits(@ApiParam("需要修改的数据列表") @RequestBody List<T> ts, BindingResult bindingResult) {
-		if (ListTool.isEmpty(ts)) {
+		if (ListHelper.isEmpty(ts)) {
 			return Result.error(TipEnum.TIP_PARAM_NOT_NULL);
 		}
 		return Result.ok(baseService.edits(ts));

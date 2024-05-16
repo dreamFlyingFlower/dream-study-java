@@ -53,6 +53,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.wy.mybatis.CustomPlugin;
 
 /**
@@ -189,6 +190,25 @@ import com.wy.mybatis.CustomPlugin;
  * 2.利用分库分表中间件,全量数据导入到对应的新表中
  * 3.通过单表数据和分库分表数据两两比较,更新不匹配的数据到新表中
  * 4.数据稳定后,将单表的配置切换到分库分表配置上
+ * </pre>
+ * 
+ * {@link DS}:MybatisPlus出品的多数据源工具,配置见application-dynamic.yml.方法注解优先于类上注解
+ * 
+ * <pre>
+ * 支持数据源分组,适用于多种场景,纯粹多库,读写分离,一主多从,混合模式
+ * 支持数据库敏感配置信息,加密 ENC()
+ * 支持每个数据库独立初始化表结构schema和数据库database
+ * 支持无数据源启动,支持懒加载数据源(需要的时候再创建连接)
+ * 支持自定义注解,需继承DS(3.2.0+)
+ * 提供并简化对Druid,HikariCp,BeeCp,Dbcp2的快速集成
+ * 提供对Mybatis-Plus,Quartz,ShardingJdbc,P6sy,Jndi等组件的集成方案
+ * 提供自定义数据源来源方案(如全从数据库加载)
+ * 提供项目启动后动态增加移除数据源方案
+ * 提供Mybatis环境下的纯读写分离方案
+ * 提供使用spel动态参数解析数据源方案.内置spel,session,header,支持自定义
+ * 支持多层数据源嵌套切换.ex:ServiceA >>> ServiceB >>> ServiceC
+ * 提供基于seata的分布式事务方案
+ * 提供本地多数据源事务方案
  * </pre>
  * 
  * @author 飞花梦影

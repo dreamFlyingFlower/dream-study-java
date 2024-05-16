@@ -37,7 +37,7 @@ public class MyWebClient {
 		Mono<User> bodyToMono = retrieve.bodyToMono(User.class);
 		System.out.println(bodyToMono.block());
 		// 处理结果
-		Mono<ClientResponse> exchange = requestHeadersUriSpec.exchange();
+		Mono<ClientResponse> exchange = requestHeadersUriSpec.exchangeToMono(null);
 		exchange.flux().blockFirst().bodyToFlux(User.class);
 
 		// 构建请求,设置HTTP请求地址

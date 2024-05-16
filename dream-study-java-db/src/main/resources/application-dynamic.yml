@@ -1,0 +1,17 @@
+# mybatis-plus的动态多数据源,支持多数据源,读写分离
+spring: 
+  datasource:
+    dynamic:
+      # 指定主数据源
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://localhost:3306/demo?serverTimezone=Asia/Shanghai
+          username: root
+          password: 123456
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        slave1:
+          url: jdbc:mysql://localhost:3307/demo?serverTimezone=Asia/Shanghai
+          username: root
+          password: 123456
+          driver-class-name: com.mysql.cj.jdbc.Driver
