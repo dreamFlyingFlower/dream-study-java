@@ -1,4 +1,4 @@
-package com.wy.crl;
+package com.wy.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dream.result.Result;
-import com.wy.model.LoginDTO;
+import com.wy.entity.LoginDTO;
 
 import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 import dream.framework.web.controller.BaseController;

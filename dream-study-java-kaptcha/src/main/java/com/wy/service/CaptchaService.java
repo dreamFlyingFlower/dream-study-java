@@ -1,6 +1,6 @@
 package com.wy.service;
 
-import com.wy.model.CaptchaVO;
+import com.wy.entity.CaptchaVO;
 
 /**
  * 

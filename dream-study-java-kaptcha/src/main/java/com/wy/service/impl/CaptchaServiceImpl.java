@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.wy.model.CaptchaVO;
+import com.wy.entity.CaptchaVO;
 import com.wy.service.CaptchaService;
 
 import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
+
+//import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 
 /**
  * 
@@ -21,7 +23,7 @@ import dream.flying.flower.autoconfigure.web.helper.RedisHelpers;
 @Service
 public class CaptchaServiceImpl implements CaptchaService {
 
-	@Value("${server.session.timeout:300}")
+	@Value("${server.session.timeout:1}")
 	private Long timeout;
 
 	@Autowired

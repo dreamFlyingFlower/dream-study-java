@@ -1,12 +1,6 @@
 spring:
-  profiles:
-    active:
-    - config
-    - mail
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
+  application:
+    name: dream-study-java-kaptcha
   mvc:
     format:
       date: yyyy-MM-dd
@@ -21,5 +15,15 @@ spring:
     rollback-on-commit-failure: true
   redis:
     host: 172.30.252.13
+    password: admin$%123
+    database: 15
   cache:
     type: redis
+    
+#  datasource:
+#    username: root
+#    password: 123456
+#    url: jdbc://localhost:3306/test
+    
+server:
+  port: 8080

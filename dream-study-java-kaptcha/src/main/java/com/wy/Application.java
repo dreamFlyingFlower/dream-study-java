@@ -2,7 +2,6 @@ package com.wy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 /**
  * 验证码
@@ -11,7 +10,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
  * @date 2020-12-02 15:16:40
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@SpringBootApplication
 public class Application {
 
 	public static void main(String[] args) {

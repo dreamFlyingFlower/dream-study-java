@@ -234,7 +234,7 @@
 
 	<!-- 不同环境配置不同的日志级别 -->
 	<!-- 开发,测试环境日志级别 -->
-	<springProfile name="dev,test">
+	<springProfile name="default,dev,test">
 		<!-- 基本策略:默认日志级别 -->
 		<root level="INFO">
 			<appender-ref ref="CONSOLE" />

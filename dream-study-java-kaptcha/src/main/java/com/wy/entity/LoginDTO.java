@@ -1,4 +1,4 @@
-package com.wy.model;
+package com.wy.entity;
 
 import java.io.Serializable;
 

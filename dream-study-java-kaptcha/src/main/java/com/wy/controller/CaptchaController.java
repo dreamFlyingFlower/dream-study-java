@@ -1,4 +1,4 @@
-package com.wy.crl;
+package com.wy.controller;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
-import com.wy.model.CaptchaVO;
+import com.wy.entity.CaptchaVO;
 import com.wy.service.CaptchaService;
 
 /**
@@ -25,7 +25,7 @@ import com.wy.service.CaptchaService;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @RestController
-@RequestMapping("/captcha")
+@RequestMapping("captcha")
 public class CaptchaController {
 
 	@Autowired
@@ -35,7 +35,7 @@ public class CaptchaController {
 	private CaptchaService captchaService;
 
 	@ResponseBody
-	@GetMapping("/get")
+	@GetMapping("get")
 	public CaptchaVO getCaptcha() throws IOException {
 
 		// 生成文字验证码
