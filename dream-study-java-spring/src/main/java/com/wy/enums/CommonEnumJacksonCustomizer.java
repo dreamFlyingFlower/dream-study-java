@@ -31,7 +31,7 @@ public class CommonEnumJacksonCustomizer {
 	private CommonEnumRegistry enumRegistry;
 
 	@Bean
-	public Jackson2ObjectMapperBuilderCustomizer commonEnumBuilderCustomizer() {
+	Jackson2ObjectMapperBuilderCustomizer commonEnumBuilderCustomizer() {
 		return builder -> {
 			Map<Class<?>, List<CommonEnum>> classDict = enumRegistry.getClassDict();
 			classDict.forEach((aClass, commonEnums) -> {
