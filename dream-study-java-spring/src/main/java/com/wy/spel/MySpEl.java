@@ -1,8 +1,24 @@
 package com.wy.spel;
 
+import java.lang.reflect.Method;
+import java.util.Objects;
+
 import javax.cache.annotation.CachePut;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.context.expression.CachedExpressionEvaluator;
+import org.springframework.core.MethodParameter;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import com.dream.lang.StrHelper;
+
+import dream.framework.web.helper.MethodHelpers;
+import dream.framework.web.helper.SpringContextHelpers;
 
 /**
  * SpringEL表达式
@@ -61,5 +77,49 @@ public class MySpEl {
 	@CachePut(cacheName = "#name")
 	public void test(String name) {
 
+	}
+
+	public static void main(Method method, Object[] args) {
+		// Spel表达式解析器
+		ExpressionParser expressionParser = new SpelExpressionParser();
+		// 解析Spel表达式
+		Expression expression = expressionParser.parseExpression("spel表达式");
+		// 初始化Spel表达式上下文
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		// 初始化Spel表达式上下文,并直接和某个对象绑定
+		new StandardEvaluationContext(new MySpEl());
+		// 设置表达式支持spring bean
+		ApplicationContext applicationContext = SpringContextHelpers.getApplicationContext();
+		context.setBeanResolver(new BeanFactoryResolver(applicationContext));
+		for (int i = 0; i < args.length; i++) {
+			// 读取方法参数
+			MethodParameter methodParam = MethodHelpers.getMethodParameter(method, i);
+			// 为Spel变量设置方法参数名和值
+			context.setVariable(methodParam.getParameterName(), args[i]);
+		}
+		// 获取解析后的结果
+		expression.getValue(context, Boolean.class);
+	}
+
+	/**
+	 * EL表达式解析,参照#CacheOperationExpressionEvaluator 或{@link CachedExpressionEvaluator}
+	 *
+	 * @param expression EL表达式
+	 * @param method 方法
+	 * @param args 参数
+	 * @return
+	 */
+	public static Object parse(String expression, Method method, Object[] args) {
+		if (StrHelper.isBlank(expression)) {
+			return null;
+		}
+		String[] parameterNames = MethodHelpers.getParameterNames(method);
+		// SPEL解析
+		ExpressionParser parser = new SpelExpressionParser();
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		for (int i = 0; i < Objects.requireNonNull(parameterNames).length; i++) {
+			context.setVariable(parameterNames[i], args[i]);
+		}
+		return parser.parseExpression(expression).getValue(context);
 	}
 }
