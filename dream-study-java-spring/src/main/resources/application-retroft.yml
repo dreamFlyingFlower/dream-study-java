@@ -1,0 +1,41 @@
+retrofit:
+  global-timeout:
+    call-timeout-ms: 10000
+  global-log:
+    # 启用日志打印
+    enable: true
+    # 日志级别
+    log-level: debug
+    aggregate: false
+    # 日志级别,body包括请求,响应和请求头
+    log-strategy: body
+  degrade:
+    # 熔断降级实现方式
+    degrade-type: sentinel
+    global-sentinel-degrade:
+      enable: true
+      count: 0
+      grade: 0
+      time-window: 10
+    global-resilience4j-degrade:
+      enable: false
+      circuit-breaker-config-name: test
+  auto-set-prototype-scope-for-path-math-interceptor: true
+  global-retry:
+    enable: true
+    max-retries: 5
+    interval-ms: 5000
+    retry-rules:
+    # 发生IO异常时执行重试
+    - occur-io-exception
+    # 发生任何异常时重试
+    - occur-exception
+    # 响应状态码不是2xx时执行重试
+    - response-status-not-2xx
+  # 全局转换器工厂
+  global-converter-factories: 
+#    - retrofit2.converter.jackson.JacksonConverterFactory
+  # 全局调用适配器工厂
+  global-call-adapter-factories:
+#    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
+#    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
