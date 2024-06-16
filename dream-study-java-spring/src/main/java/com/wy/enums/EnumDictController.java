@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dream.result.Result;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import dream.flying.flower.result.Result;
 import io.swagger.annotations.Api;
 
 /**

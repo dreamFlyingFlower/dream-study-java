@@ -5,11 +5,11 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import com.dream.enums.TipEnum;
-import com.dream.result.Result;
 import com.wy.skill.SecondKillService;
 import com.wy.skill.SuccessKilled;
 
+import dream.flying.flower.enums.TipEnum;
+import dream.flying.flower.result.Result;
 import lombok.extern.slf4j.Slf4j;
 
 /**

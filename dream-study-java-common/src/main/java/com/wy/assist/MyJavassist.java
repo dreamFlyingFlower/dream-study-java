@@ -8,8 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
-import com.dream.annotation.Example;
-
+import dream.flying.flower.annotation.Example;
 import javassist.CannotCompileException;
 import javassist.ClassPath;
 import javassist.ClassPool;

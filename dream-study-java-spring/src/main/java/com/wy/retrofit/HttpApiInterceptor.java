@@ -1,10 +1,10 @@
 package com.wy.retrofit;
 
-import com.dream.result.Result;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
 import com.wy.model.User;
 
+import dream.flying.flower.result.Result;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 

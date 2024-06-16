@@ -21,8 +21,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.dream.collection.MapHelper;
 import com.wy.util.RestTemplateUtil;
+
+import dream.flying.flower.collection.MapHelper;
 
 /**
  * 使用RestTemplate

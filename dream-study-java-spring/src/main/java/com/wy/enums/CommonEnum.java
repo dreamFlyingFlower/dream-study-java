@@ -1,6 +1,6 @@
 package com.wy.enums;
 
-import com.dream.common.CodeMsg;
+import dream.flying.flower.common.CodeMsg;
 
 /**
  * 

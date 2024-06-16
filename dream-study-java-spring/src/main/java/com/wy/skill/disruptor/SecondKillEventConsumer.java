@@ -1,12 +1,12 @@
 package com.wy.skill.disruptor;
 
-import com.dream.enums.TipEnum;
-import com.dream.result.Result;
 import com.lmax.disruptor.EventHandler;
 import com.wy.skill.SecondKillService;
 import com.wy.skill.SuccessKilled;
 
-import dream.framework.web.helper.SpringContextHelpers;
+import dream.flying.flower.enums.TipEnum;
+import dream.flying.flower.framework.web.helper.SpringContextHelpers;
+import dream.flying.flower.result.Result;
 import lombok.extern.slf4j.Slf4j;
 
 /**

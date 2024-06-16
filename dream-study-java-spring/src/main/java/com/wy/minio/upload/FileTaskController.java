@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dream.result.Result;
-
+import dream.flying.flower.result.Result;
 import lombok.AllArgsConstructor;
 
 /**

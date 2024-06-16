@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.context.request.async.WebAsyncTask;
 
-import com.dream.result.Result;
 import com.wy.service.MyAsyncService01;
 
+import dream.flying.flower.result.Result;
 import lombok.extern.slf4j.Slf4j;
 
 /**

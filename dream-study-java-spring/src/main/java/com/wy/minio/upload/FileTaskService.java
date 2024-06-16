@@ -23,10 +23,10 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.PartListing;
 import com.amazonaws.services.s3.model.PartSummary;
-import com.dream.digest.DigestHelper;
-import com.dream.helper.DateHelper;
 import com.wy.minio.MinioProperties;
 
+import dream.flying.flower.digest.DigestHelper;
+import dream.flying.flower.helper.DateHelper;
 import lombok.AllArgsConstructor;
 
 /**

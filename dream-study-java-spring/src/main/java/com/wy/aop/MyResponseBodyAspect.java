@@ -8,8 +8,9 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import com.dream.result.Result;
 import com.wy.annotation.MyResponseBodyExclude;
+
+import dream.flying.flower.result.Result;
 
 /**
  * 在Spring将Controller返回结果转成JSON数据之前的操作.配合MyResponseBodyExclude进行过滤

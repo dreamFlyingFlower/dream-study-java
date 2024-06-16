@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.dream.lang.StrHelper;
+import dream.flying.flower.lang.StrHelper;
 
 /**
  * service层在线预览方法代码

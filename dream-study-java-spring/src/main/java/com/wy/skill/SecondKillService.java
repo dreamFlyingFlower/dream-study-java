@@ -4,10 +4,10 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.dream.result.Result;
 import com.wy.skill.disruptor.DisruptorUtil;
 import com.wy.skill.queue.SecondKillQueue;
 
+import dream.flying.flower.result.Result;
 import lombok.extern.slf4j.Slf4j;
 
 /**
