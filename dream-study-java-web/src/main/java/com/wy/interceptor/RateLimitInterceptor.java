@@ -8,10 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import com.dream.lang.StrHelper;
-import com.dream.limit.annotation.LimitRate;
-import com.dream.result.ResultException;
 import com.google.common.util.concurrent.RateLimiter;
+
+import dream.flying.flower.lang.StrHelper;
+import dream.flying.flower.limit.annotation.LimitRate;
+import dream.flying.flower.result.ResultException;
 
 /**
  * 限流拦截器,也可以使用AOP.需要加入到拦截器中

@@ -15,10 +15,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.dream.collection.MapHelper;
-import com.dream.lang.StrHelper;
-import com.dream.result.ResultException;
 import com.wy.properties.ConfigProperties;
+
+import dream.flying.flower.collection.MapHelper;
+import dream.flying.flower.lang.StrHelper;
+import dream.flying.flower.result.ResultException;
 
 /**
  * url拦截器,只有登录和下载资源不需要校验,其他都需要进行校验
