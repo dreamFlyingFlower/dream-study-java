@@ -72,7 +72,7 @@ public class SignatureManager {
 		}
 
 		// 公钥验签
-		return DigestHelper.RSAVerify(rawData, signature, keyPairProperties.getPublicKey());
+		return DigestHelper.rsaVerify(rawData, signature, keyPairProperties.getPublicKey());
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class SignatureManager {
 		if (StrHelper.isBlank(keyPairProperties.getPrivateKey())) {
 			return null;
 		}
-		return DigestHelper.RSASignString(rawData.getBytes(), keyPairProperties.getPrivateKey());
+		return DigestHelper.rsaSignString(rawData.getBytes(), keyPairProperties.getPrivateKey());
 	}
 
 	public KeyPairProperties getKeyPairProperties(String appId) {
