@@ -72,7 +72,7 @@ public class SignatureManager {
 		}
 
 		// 公钥验签
-		return DigestHelper.rsaVerify(rawData, signature, keyPairProperties.getPublicKey());
+		return DigestHelper.rsaVerifySign(rawData, signature, keyPairProperties.getPublicKey());
 	}
 
 	/**
