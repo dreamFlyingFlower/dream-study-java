@@ -157,8 +157,7 @@
 			from (
 			<foreach collection="users" item="user" separator="union">
 				select
-				#{user.username},#{user.email},#{user.role.role_id}
-				from dual
+				#{user.username},#{user.email},#{user.role.role_id} from dual
 			</foreach>
 			)
 		</foreach>
@@ -316,5 +315,24 @@
 	<!-- 若返回类型为Map<String,List<User>>,可在接口上加上注解@MapKey(实体类属性名),xml中仍然写实体类 -->
 	<select id="getTest2">
 		select * from ti_user where username = #{username}
+	</select>
+	
+	<!-- 数字,字符串比较 -->
+	<select id="getTest3">
+		select * from ti_user
+		<where>
+			<!-- id == 100 -->
+			<if test="id == 100"> AND id = 100</if>
+			<if test="id eq 100"> AND id = 100</if>
+
+			<!-- id < 100,id > 100,id <=100,id >=100 -->
+			<if test="id lt 100"> AND id &lt;100 </if>
+			<if test="id gt 100"> AND id &gt; 100 </if>
+			<if test="id lte 100"> AND id &lt;= 100 </if>
+			<if test="id gte 100"> AND id &gt;=100 </if>
+
+			<!-- 此处userType为字符串,字符串数字会被转成数字进行比较 -->
+			<if test="userType == '1'.toString()"></if>
+		</where>
 	</select>
 </mapper>

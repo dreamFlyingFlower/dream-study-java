@@ -4,18 +4,59 @@ spring:
 #    username: root
 #    password: 52LDforever
     type: com.alibaba.druid.pool.DruidDataSource
-    druid: 
-      min-idle: 5
-      max-active: 10
-      initial-size: 10
-      max-wait: 60000
-      timeBetweenEvictionRunsMillis: 60000
-      minEvictableIdleTimeMillis: 300000
-      validationQuery: select 'x'
-      test-while-idle: true
-      testOnBorrow: false
-      testOnReturn: false
-      poolPreparedStatements: true
+    dynamic: 
+      druid:
+        # druidweb端页面监控用户名和密码
+        stat-view-servlet: 
+          login-username: root
+          login-password: 123456
+        # 合并多个DruidDataSource的监控数据
+        use-global-data-source-stat: true
+        # 初始化大小,最小,最大线程
+        initial-size: 10
+        min-idle: 5
+        max-active: 10
+        # 获取连接等待超时的时间,单位毫秒
+        max-wait: 60000
+        # 间隔多久才进行一次检测,检测需要关闭的空闲连接,单位毫秒
+        time-between-eviction-runs-millis: 60000
+        # 配置一个连接在池中最小和最大生存的时间,单位是毫秒
+        min-evictable-idle-time-millis: 300000
+        max-evictable-idle-time-millis:  900000
+        # 测试连接是否可用
+        validation-query: select 1
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+        pool-prepared-statements: true
+        # 通过connectProperties属性来打开mergeSql功能,慢SQL记录
+        connect-properties: 
+          druid: 
+            stat: 
+              merge-sql: true
+              slowSqlMillis: 5000
+        # 配置监控统计拦截的filters,去掉后监控界面sql无法统计,wall用于防火墙
+        filters: stat,wall,slf4j
+        filter:
+          wall:
+            enabled: true
+            log-violation: true
+            throw-exception: true
+            config:
+              alter-table-allow: false
+              truncate-allow: false
+              drop-table-allow: false
+              none-base-statement-allow: false
+              update-where-none-check: true
+              select-into-outfile-allow: false
+              metadata-allow: true
+              multi-statement-allow: true
+          stat:
+            log-slow-sql: true
+            enabled: true
+            merge-sql: true
+            slow-sql-millis: 1000
+          
     hikari:
       jdbc-url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT&tinyInt1isBit=false&allowMultiQueries=true
       username: root

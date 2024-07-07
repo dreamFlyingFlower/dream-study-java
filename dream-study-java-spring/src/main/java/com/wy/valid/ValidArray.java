@@ -39,6 +39,8 @@ public @interface ValidArray {
 	 * ->{@link MessageInterpolatorFactory} ->{@link ParameterMessageInterpolator}
 	 * ->{@link AbstractMessageInterpolator}
 	 * 
+	 * 如果是固定信息,不需要以{}包裹
+	 * 
 	 * @return class类
 	 */
 	String message() default "{com.wy.valid.ValidArray.message}";

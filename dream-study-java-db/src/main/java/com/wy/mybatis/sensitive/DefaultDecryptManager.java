@@ -2,7 +2,7 @@ package com.wy.mybatis.sensitive;
 
 import java.lang.reflect.Field;
 
-import com.dream.digest.DigestHelper;
+import dream.flying.flower.digest.DigestHelper;
 
 /**
  * 默认解密处理器
@@ -25,7 +25,7 @@ public class DefaultDecryptManager implements DecryptManager {
 				if (object instanceof String) {
 					String value = (String) object;
 					try {
-						field.set(result, DigestHelper.AESDecrypt(ConstSensitive.AES_SECRET, value));
+						field.set(result, DigestHelper.aesDecrypt(ConstSensitive.AES_SECRET, value));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

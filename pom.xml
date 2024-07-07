@@ -29,7 +29,6 @@
 		<module>dream-study-java-process</module>
 		<module>dream-study-java-rbac</module>
 		<module>dream-study-java-search</module>
-		<module>dream-study-java-service</module>
 		<module>dream-study-java-sharding</module>
 		<module>dream-study-java-shiro</module>
 		<module>dream-study-java-spring</module>

@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
-import com.dream.digest.DigestHelper;
+import dream.flying.flower.digest.DigestHelper;
 
 /**
  * 参数拦截,进行加解密
@@ -86,7 +86,7 @@ public class ParameterInterceptor implements Interceptor {
 			Map<String, String> map = ((Map<String, String>) parameterObject);
 			for (String param : params) {
 				String value = map.get(param);
-				map.put(param, value == null ? null : DigestHelper.AESEncrypt(ConstSensitive.AES_SECRET, value));
+				map.put(param, value == null ? null : DigestHelper.aesEncrypt(ConstSensitive.AES_SECRET, value));
 			}
 		}
 	}

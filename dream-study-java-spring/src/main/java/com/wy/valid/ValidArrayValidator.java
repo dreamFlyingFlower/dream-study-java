@@ -1,5 +1,8 @@
 package com.wy.valid;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.AssertFalse;
@@ -27,12 +30,12 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.CreditCardNumber;
 import org.hibernate.validator.constraints.URL;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.springframework.stereotype.Component;
 
 /**
  * 对自定义校验规则的注解进行处理,此处处理@ValidArray
+ * 
+ * {@link ConstraintValidator}:第一个参数为需要检验的注解,第二个参数为正在校验的字段类型
  * 
  * 可用的校验注解:
  * 
@@ -68,6 +71,7 @@ import java.util.Set;
  * @date 2020-12-19 10:11:43
  * @git {@link https://github.com/mygodness100}
  */
+@Component
 public class ValidArrayValidator implements ConstraintValidator<ValidArray, Integer> {
 
 	private Set<Integer> set = new HashSet<>();
