@@ -32,7 +32,7 @@ public class MyTikaConfig {
 	private ResourceLoader resourceLoader;
 
 	@Bean
-	public Tika tika() throws TikaException, IOException, SAXException {
+	Tika tika() throws TikaException, IOException, SAXException {
 		// 配置文件
 		Resource resource = resourceLoader.getResource("classpath:tika.xml");
 		InputStream inputStream = resource.getInputStream();

@@ -29,7 +29,7 @@ public class SecondServlet extends HttpServlet {
 	}
 
 	@Bean
-	public ServletRegistrationBean<SecondServlet> secondServlet() {
+	ServletRegistrationBean<SecondServlet> secondServlet() {
 		ServletRegistrationBean<SecondServlet> bean = new ServletRegistrationBean<>(new SecondServlet());
 		bean.addUrlMappings("/second");
 		return bean;

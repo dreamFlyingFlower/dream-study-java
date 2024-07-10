@@ -20,7 +20,8 @@ import com.wy.config.GlobalWebConfig;
 public class SecondListener implements ServletContextListener {
 
 	@Override
-	public void contextDestroyed(ServletContextEvent arg0) {}
+	public void contextDestroyed(ServletContextEvent arg0) {
+	}
 
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
@@ -33,9 +34,9 @@ public class SecondListener implements ServletContextListener {
 	 * @return 监听器对象
 	 */
 	@Bean
-	public ServletListenerRegistrationBean<SecondListener> secondListener() {
-		ServletListenerRegistrationBean<SecondListener> bean = new ServletListenerRegistrationBean<SecondListener>(
-				new SecondListener());
+	ServletListenerRegistrationBean<SecondListener> secondListener() {
+		ServletListenerRegistrationBean<SecondListener> bean =
+				new ServletListenerRegistrationBean<SecondListener>(new SecondListener());
 		return bean;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.DecimalMax;
@@ -53,7 +54,7 @@ import org.springframework.stereotype.Component;
  * {@link Negative}:检查是否为一个负数,包括小数
  * {@link NegativeOrZero}:检查是否为一个小等于0的负数,包括小数
  * {@link NotBlank}:不能为空,检查时会将空格忽略
- * {@link NotEmpty}:不能为空,这里的空是指空字符串
+ * {@link NotEmpty}:不能为空,这里的空是对象为不null,但是对象中没有元素,可用于字符串,数组,集合,Map
  * {@link NotNull}:不能为null
  * {@link Null}:必须为null
  * {@link Past}:检查字段的日期是否是过去的日期
@@ -61,10 +62,12 @@ import org.springframework.stereotype.Component;
  * {@link Pattern}:被注释的元素必须符合指定的正则表达式
  * {@link Positive}:检查字段是否为一个正数,包括小数
  * {@link PositiveOrZero}:检查字段是否为一个大于等于0的正数
- * {@link Size}:检查所属的字段的长度是否在min和max之间,只能用于字符串
+ * {@link Size}:检查所属的字段的长度是否在min和max之间,可用于字符串,数组,集合,Map
  * 
  * {@link CreditCardNumber}:对信用卡号进行一个大致的验证
  * {@link URL}:检查是否是一个有效的URL,如果提供了protocol,host等,则该URL还需满足提供的条件
+ * 
+ * {@link Valid}: 当需要进行嵌套检验时,即实体类中需要检验另外的实体类时可使用该注解
  * </pre>
  *
  * @author 飞花梦影

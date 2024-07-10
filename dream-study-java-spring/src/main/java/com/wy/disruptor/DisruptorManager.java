@@ -3,6 +3,7 @@ package com.wy.disruptor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.lmax.disruptor.BlockingWaitStrategy;
@@ -17,6 +18,7 @@ import com.lmax.disruptor.dsl.ProducerType;
  * @date 2024-04-01 17:09:12
  * @git {@link https://github.com/dreamFlyingFlower}
  */
+@Configuration
 public class DisruptorManager {
 
 	@Bean("messageModelRingBuffer")

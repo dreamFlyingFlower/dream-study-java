@@ -34,7 +34,7 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 	 * @return 过滤器注册对象
 	 */
 	@Bean
-	public FilterRegistrationBean<?> secondFilterRegistration() {
+	FilterRegistrationBean<?> secondFilterRegistration() {
 		FilterRegistrationBean<SecondFilter> bean = new FilterRegistrationBean<>(new SecondFilter());
 		bean.addUrlPatterns("/second");
 		return bean;
@@ -46,9 +46,9 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 	 * @return 监听器对象
 	 */
 	@Bean
-	public ServletListenerRegistrationBean<SecondListener> getServletListenerRegistrationBean() {
+	ServletListenerRegistrationBean<SecondListener> getServletListenerRegistrationBean() {
 		ServletListenerRegistrationBean<SecondListener> bean =
-		        new ServletListenerRegistrationBean<SecondListener>(new SecondListener());
+				new ServletListenerRegistrationBean<SecondListener>(new SecondListener());
 		return bean;
 	}
 
@@ -61,12 +61,12 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 		// 直接将对象注入或spring注入
 		// registry.addInterceptor(new FirstInterceptor());
 		registry.addInterceptor(firstInterceptor)
-		        // 拦截的请求,只对单个拦截器有效,每个拦截都需要配置,不配置默认拦截所有请求
-		        .addPathPatterns("/**")
-		        // 不拦截的请求
-		        .excludePathPatterns("/bigscreen/template1/js/jquery.easyui.min.js", "/static/**",
-		                "/bigscreen/template1/js/*.js", "/bigscreen/tempate1/**", "/bigscreen/**",
-		                "/bigscreen/template1/js/**");
+				// 拦截的请求,只对单个拦截器有效,每个拦截都需要配置,不配置默认拦截所有请求
+				.addPathPatterns("/**")
+				// 不拦截的请求
+				.excludePathPatterns("/bigscreen/template1/js/jquery.easyui.min.js", "/static/**",
+						"/bigscreen/template1/js/*.js", "/bigscreen/tempate1/**", "/bigscreen/**",
+						"/bigscreen/template1/js/**");
 		// 若interceptor没有加入到springboot上下文中,可以直接new一个,效果同上
 		// registry.addInterceptor(new FirstInterceptor());
 	}

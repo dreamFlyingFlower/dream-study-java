@@ -47,7 +47,7 @@ public class SecondFilter implements Filter {
 	 * @return 过滤器对象
 	 */
 	@Bean
-	public FilterRegistrationBean<SecondFilter> secondFilter() {
+	FilterRegistrationBean<SecondFilter> secondFilter() {
 		FilterRegistrationBean<SecondFilter> bean = new FilterRegistrationBean<>(new SecondFilter());
 		bean.addUrlPatterns("/secondFilter");
 		return bean;
