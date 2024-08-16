@@ -204,6 +204,8 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- ASM -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -220,7 +222,30 @@
 					</archive>
 				</configuration>
 			</plugin>
+
+			<!-- install,package跳过测试 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<encoding>${project.build.sourceEncoding}</encoding>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<!-- 直接跳过测试编译 -->
+					<testIncludes>[]</testIncludes>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
-
 </project>

@@ -55,6 +55,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -106,6 +107,8 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
@@ -721,6 +724,13 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry}
  * {@link ConfigurationClassPostProcessor#postProcessBeanFactory}
  * {@link ConfigurationClassPostProcessor#enhanceConfigurationClasses}
+ * </pre>
+ * 
+ * 同时引入多种Bean操作,根据类型选择适合的Bean操作
+ * 
+ * <pre>
+ * {@link CacheAutoConfiguration}->{@link CacheAutoConfiguration.CacheConfigurationImportSelector}
+ * {@link PasswordEncoderFactories}->{@link DelegatingPasswordEncoder}
  * </pre>
  * 
  * @author 飞花梦影

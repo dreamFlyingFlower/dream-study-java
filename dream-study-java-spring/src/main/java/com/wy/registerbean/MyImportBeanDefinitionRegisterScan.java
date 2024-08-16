@@ -14,7 +14,7 @@ import org.springframework.core.type.filter.TypeFilter;
 import com.wy.scan.MyScan;
 
 /**
- * 
+ * 需要使用Import注解导入
  *
  * @author 飞花梦影
  * @date 2022-09-18 15:42:40
