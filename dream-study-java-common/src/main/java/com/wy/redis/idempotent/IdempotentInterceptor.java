@@ -12,7 +12,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.wy.common.Constant;
 
-import dream.flying.flower.framework.web.handler.TokenService;
+import dream.flying.flower.framework.web.handler.TokenHandler;
 import dream.flying.flower.idempotent.annotation.Idempotency;
 import dream.flying.flower.result.ResultException;
 
@@ -27,7 +27,7 @@ import dream.flying.flower.result.ResultException;
 public class IdempotentInterceptor implements HandlerInterceptor {
 
 	@Autowired
-	private TokenService tokenService;
+	private TokenHandler tokenService;
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
