@@ -135,7 +135,7 @@ import com.wy.config.UserSerializer;
  * ->{@link ConditionalOnBean#search()}:默认是所有上下文搜索
  * {@link ConditionalOnClass}:该注解判断当前环境中是否有某个类,有则该注解修饰的方法或类才加载
  * {@link ConditionalOnExpression}:当spel表达式为true的时候,才会实例化一个Bean
- * {@link ConditionalOnMissingBean}:仅仅在当前上下文中不存在某个对象时,才会实例化一个Bean
+ * {@link ConditionalOnMissingBean}:仅仅在当前上下文中不存在某个对象时,才会实例化一个Bean,用在类上时需要制定beanName或beanClass
  * ->{@link ConditionalOnMissingBean#ignored()}:给定的类型当进行匹配时进行忽略
  * ->{@link ConditionalOnMissingBean#ignoredType()}:给定的类型名当进行匹配时进行忽略
  * {@link ConditionalOnMissingClass}:该注解判断当前环境中是否没有某个类,没有则该注解修饰的方法或类才加载
