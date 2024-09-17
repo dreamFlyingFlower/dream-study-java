@@ -1,6 +1,6 @@
 package com.wy.enums;
 
-import dream.flying.flower.common.CodeMsg;
+import dream.flying.flower.common.StatusMsg;
 
 /**
  * 
@@ -9,7 +9,7 @@ import dream.flying.flower.common.CodeMsg;
  * @date 2024-05-22 17:35:43
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-public interface CommonEnum extends CodeMsg<Integer> {
+public interface CommonEnum extends StatusMsg<Integer> {
 
 	String getName();
 
