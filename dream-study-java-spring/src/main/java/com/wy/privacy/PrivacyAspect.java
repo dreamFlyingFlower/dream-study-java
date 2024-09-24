@@ -16,6 +16,8 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
+import dream.flying.flower.reflect.ReflectHelper;
+
 /**
  * 脱敏切面,拦截 {@link PrivacyKey}注解
  *
@@ -82,7 +84,7 @@ public class PrivacyAspect {
 	 */
 	private void setFieldMethod(Object result, boolean flag, Field field) throws IllegalAccessException {
 		// 设置属性的可访问性
-		field.setAccessible(true);
+		ReflectHelper.fixAccessible(field);
 		// 只获取isPrivacyKey
 		String name = field.getName();
 		// 过滤非布尔类型

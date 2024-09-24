@@ -128,7 +128,7 @@ public class ModifyArgsValueInterceptor implements Interceptor {
 		try {
 			Field field = obj.getClass().getDeclaredField(property);
 			if (Objects.nonNull(field)) {
-				field.setAccessible(true);
+				ReflectHelper.fixAccessible(field);
 				Object val = field.get(obj);
 				if (Objects.isNull(val)) {
 					BeanUtils.setProperty(obj, property, value);

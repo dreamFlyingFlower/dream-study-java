@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
-import dream.flying.flower.digest.DigestHelper;
+import dream.flying.flower.digest.RsaHelper;
 import dream.flying.flower.io.file.FileHelper;
 import dream.flying.flower.lang.StrHelper;
 import lombok.Getter;
@@ -72,7 +72,7 @@ public class SignatureManager {
 		}
 
 		// 公钥验签
-		return DigestHelper.rsaVerifySign(rawData, signature, keyPairProperties.getPublicKey());
+		return RsaHelper.verify(rawData, signature, keyPairProperties.getPublicKey());
 	}
 
 	/**
@@ -90,20 +90,20 @@ public class SignatureManager {
 		if (StrHelper.isBlank(keyPairProperties.getPrivateKey())) {
 			return null;
 		}
-		return DigestHelper.rsaSignString(rawData.getBytes(), keyPairProperties.getPrivateKey());
+		return RsaHelper.signString(rawData.getBytes(), keyPairProperties.getPrivateKey());
 	}
 
 	public KeyPairProperties getKeyPairProperties(String appId) {
 		return signatureProperties.getKeyPair().get(appId);
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			List<String> lists = FileHelper.readLines(new File("F:\\test.txt"));
 			String str = FileHelper.read("F:\\test.txt");
 			System.out.println(String.join(",", lists));
 			System.out.println(str);
-			System.out.println(FileHelper.readOne(new File("F:\\test.txt") ));
+			System.out.println(FileHelper.readOne(new File("F:\\test.txt")));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

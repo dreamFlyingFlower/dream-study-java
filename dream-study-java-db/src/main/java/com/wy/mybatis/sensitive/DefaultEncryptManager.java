@@ -17,7 +17,7 @@ public class DefaultEncryptManager implements EncryptManager {
 	public <T> T encrypt(Field[] declaredFields, T paramsObject) throws IllegalAccessException {
 		for (Field field : declaredFields) {
 			if (field.isAnnotationPresent(EncryptData.class)) {
-				field.setAccessible(true);
+				ReflectHelper.fixAccessible(field);
 				Object object = field.get(paramsObject);
 				// 只对string类型的数据进行加解密
 				if (object instanceof String) {

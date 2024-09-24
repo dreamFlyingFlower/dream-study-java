@@ -28,6 +28,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import dream.flying.flower.reflect.ReflectHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -197,7 +198,7 @@ public class MyDynamicLoader {
 		// 移除bean定义
 		Field mergedBeanDefinitions =
 				beanFactory.getClass().getSuperclass().getSuperclass().getDeclaredField("mergedBeanDefinitions");
-		mergedBeanDefinitions.setAccessible(true);
+		ReflectHelper.fixAccessible(mergedBeanDefinitions);
 
 		Map<String, RootBeanDefinition> rootBeanDefinitionMap =
 				((Map<String, RootBeanDefinition>) mergedBeanDefinitions.get(beanFactory));
@@ -211,7 +212,7 @@ public class MyDynamicLoader {
 		try {
 			// 从类加载器底层的classes中移除连接
 			Field field = ClassLoader.class.getDeclaredField("classes");
-			field.setAccessible(true);
+			ReflectHelper.fixAccessible(field);
 			Vector<Class<?>> classes = (Vector<Class<?>>) field.get(myClassLoader);
 			classes.removeAllElements();
 			// 移除类加载器的引用

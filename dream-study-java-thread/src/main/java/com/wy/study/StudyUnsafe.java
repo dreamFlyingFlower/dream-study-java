@@ -30,7 +30,7 @@ public class StudyUnsafe {
 		try {
 			// 通过类中的私有单例对象获取,该字段可通过源码查看
 			Field field = Unsafe.class.getDeclaredField("theUnsafe");
-			field.setAccessible(true);
+			ReflectHelper.fixAccessible(field);
 			Unsafe unsafe = (Unsafe) field.get(null);
 			System.out.println(unsafe);
 

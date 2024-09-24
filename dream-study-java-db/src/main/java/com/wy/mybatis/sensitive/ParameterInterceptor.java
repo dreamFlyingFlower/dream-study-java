@@ -47,7 +47,7 @@ public class ParameterInterceptor implements Interceptor {
 		ParameterHandler parameterHandler = (ParameterHandler) invocation.getTarget();
 		// 获取参数对像,即 mapper 中 paramsType 的实例
 		Field parameterField = parameterHandler.getClass().getDeclaredField("parameterObject");
-		parameterField.setAccessible(true);
+		ReflectHelper.fixAccessible(parameterField);
 		// 取出实例
 		Object parameterObject = parameterField.get(parameterHandler);
 		// 搜索该方法中是否有需要加密的普通字段
@@ -64,7 +64,7 @@ public class ParameterInterceptor implements Interceptor {
 			if (CollectionUtils.isNotEmpty(paramNames)) {
 				// 反射获取 BoundSql 对象,此对象包含生成的sql和sql的参数map映射
 				Field boundSqlField = parameterHandler.getClass().getDeclaredField("boundSql");
-				boundSqlField.setAccessible(true);
+				ReflectHelper.fixAccessible(boundSqlField);
 				BoundSql boundSql = (BoundSql) boundSqlField.get(parameterHandler);
 				System.out.println(boundSql.toString());
 				PreparedStatement ps = (PreparedStatement) invocation.getArgs()[0];
@@ -95,7 +95,7 @@ public class ParameterInterceptor implements Interceptor {
 			throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
 		Class<ParameterHandler> handlerClass = ParameterHandler.class;
 		Field mappedStatementFiled = handlerClass.getDeclaredField("mappedStatement");
-		mappedStatementFiled.setAccessible(true);
+		ReflectHelper.fixAccessible(mappedStatementFiled);
 		MappedStatement mappedStatement = (MappedStatement) mappedStatementFiled.get(parameterHandler);
 		String methodName = mappedStatement.getId();
 		Class<?> mapperClass = Class.forName(methodName.substring(0, methodName.lastIndexOf('.')));

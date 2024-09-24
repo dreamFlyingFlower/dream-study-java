@@ -196,7 +196,7 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 							CriteriaBuilder criteriaBuilder) {
 						Field[] fields = model.getClass().getDeclaredFields();
 						for (Field field : fields) {
-							field.setAccessible(true);
+							ReflectHelper.fixAccessible(field);
 							try {
 								if (Objects.nonNull(field.get(model))) {
 									if ("createtime".equals(field.getName())) {
