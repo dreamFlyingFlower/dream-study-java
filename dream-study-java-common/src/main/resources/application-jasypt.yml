@@ -1,0 +1,13 @@
+jasypt:
+  encryptor:
+    password: 加解密密钥,必须配置或在启动时输入.为安全起见,不要写在配置文件中,在启动时写入该命令
+    algorithm: 加解密算法,默认即可
+    property:
+      prefix: 筛选需要解密的属性前缀,默认为ENC(
+      suffix: 筛选需要解密的属性后缀,默认为)
+    
+    
+spring:
+  datasource:
+    # 使用jasypt加密后的用户名,ENC(密文)为固定写法.例如明文为yang_wan,密钥为9ZvUNNxDsZmjNLrn,加密后为e9KIvF4dxNJ0BWxoVSiLhZcV8DwopQ1k
+    username: ENC(e9KIvF4dxNJ0BWxoVSiLhZcV8DwopQ1k)

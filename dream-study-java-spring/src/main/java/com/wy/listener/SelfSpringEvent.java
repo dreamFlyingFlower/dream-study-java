@@ -25,7 +25,7 @@ import org.springframework.web.context.support.ServletRequestHandledEvent;
  * 		可以在接受到这个事件后做必要的清理的工作.
  * {@link ContextClosedEvent}:在{@link AbstractApplicationContext#close()}中发布.此时IOC容器已经关闭,但尚未销毁所有的bean
  * 		一个已关闭的上下文到达生命周期末端,它不能被刷新或重启
- * {@link RequestHandledEvent}:这是一个 web-specific 事件,告诉所有 bean HTTP 请求已经被服务.只能应用于使用DispatcherServlet的Web应用.
+ * {@link RequestHandledEvent}:这是一个 web-specific 事件,告诉所有 bean HTTP 请求已经服务结束.只能应用于使用DispatcherServlet的Web应用.
  * 		在使用Spring作为前端的MVC控制器时,当Spring处理用户请求结束后,系统会自动触发该事件
  * {@link ServletRequestHandledEvent}:RequestHandledEvent的一个子类,用于添加特定于Servlet的上下文信息
  * </pre>

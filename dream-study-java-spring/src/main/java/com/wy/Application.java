@@ -130,6 +130,7 @@ import com.wy.extension.SelfSmartInitializingSingleton;
 import com.wy.extension.SelfSmartInstantiationAwareBeanPostProcessor;
 import com.wy.initializer.SelfServletContainerInitializer;
 import com.wy.listener.SelfSpringEvent;
+import com.wy.runner.SelfApplicationRunner;
 import com.wy.runner.SelfCommandLineRunner;
 
 /**
@@ -554,7 +555,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link AnnotationTypeFilter}:扫描时指定扫描拦截器,见{@link FeignClientsRegistrar#registerFeignClients}
  * </pre>
  * 
- * Spring上下文初始化,可扩展点
+ * Spring上下文初始化,可扩展点调用顺序
  * 
  * <pre>
  * {@link ApplicationContextInitializer#initialize(ConfigurableApplicationContext)}:
@@ -597,6 +598,8 @@ import com.wy.runner.SelfCommandLineRunner;
  * 		eg:{@link SelfFactoryBean}
  * {@link SmartInitializingSingleton#afterSingletonsInstantiated()}:
  * 		eg:{@link SelfSmartInitializingSingleton}
+ * {@link ApplicationRunner#run()}:
+ * 		eg:{@link SelfApplicationRunner}
  * {@link CommandLineRunner#run(String...)}:
  * 		eg:{@link SelfCommandLineRunner}
  * {@link DisposableBean#destroy()}:
