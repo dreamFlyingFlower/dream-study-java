@@ -1,4 +1,4 @@
-package com.wy.extension;
+package com.scalable.example;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;

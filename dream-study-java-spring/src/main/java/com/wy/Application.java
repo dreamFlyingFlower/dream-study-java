@@ -9,7 +9,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.HierarchicalBeanFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -55,7 +54,6 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -105,10 +103,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.SpringFactoriesLoader;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
@@ -116,22 +111,11 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import com.wy.extension.SelfApplicationContextAwareProcessor;
-import com.wy.extension.SelfApplicationContextInitializer;
-import com.wy.extension.SelfBeanDefinitionRegistryPostProcessor;
-import com.wy.extension.SelfBeanFactoryAware;
-import com.wy.extension.SelfBeanFactoryPostProcessor;
-import com.wy.extension.SelfBeanNameAware;
-import com.wy.extension.SelfDisposableBean;
-import com.wy.extension.SelfFactoryBean;
-import com.wy.extension.SelfInitializingBean;
-import com.wy.extension.SelfInstantiationAwareBeanPostProcessor;
-import com.wy.extension.SelfSmartInitializingSingleton;
-import com.wy.extension.SelfSmartInstantiationAwareBeanPostProcessor;
+import com.scalable.example.SelfApplicationContextAwareProcessor;
+import com.scalable.example.SelfBeanFactoryAware;
+import com.scalable.example.SelfBeanNameAware;
 import com.wy.initializer.SelfServletContainerInitializer;
-import com.wy.listener.SelfSpringEvent;
-import com.wy.runner.SelfApplicationRunner;
-import com.wy.runner.SelfCommandLineRunner;
+import com.wy.listener.SelfApplicationListener;
 
 /**
  * SpringBoot学习:初始化initialize,listener,自动配置,配置文件.
@@ -148,14 +132,6 @@ import com.wy.runner.SelfCommandLineRunner;
  * 启动jar时,在启动参数上指定读取的配置文件和配置文件路径:<br>
  * 指定配置文件:java -jar test.jar --spring.profiles.active=dev,config<br>
  * 指定配置文件目录:java -jar test.jar --spring.config.location=/config
- * 
- * {@link SpringApplicationRunListener}:在调用run()时调用,所有实现该接口的类都必须添加一个构造,
- * 且该构造的参数类型固定,详见其他实现类.若不添加构造,启动报错.<br>
- * 实现该接口的类使用@Configuration或@Component等注解无法注入到Spring上下文中,
- * 只能通过在resources目录下的META-INF/spring.factories添加相应配置才能生效
- * 
- * {@link ApplicationContextInitializer}:在调用run()时调用,在IOC上下文环境准备完成之前调用
- * 该接口的实现类同{@link SpringApplicationRunListener}一样,只能在spring.factories中添加才能生效
  * 
  * 自动配置类在spring扫描不到的情况下,仍然能注入到spring上下文中,同样是通过spring.factories加载
  * 
@@ -533,11 +509,6 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link InitializingBean}:初始化bean,在bean加载完之后,初始化之前执行,在 {@link PostConstruct}初始化之前执行
  * </pre>
  * 
- * {@link SpringServletContainerInitializer}:该类负责对容器启动时相关组件进行初始化,当前类只是完成一些验证和组件装配,
- * 具体初始化由类上注解{@link HandlesTypes}的值决定,实际上就是{@link WebApplicationInitializer}的实现类.
- * #TomcatStarter:该类并非通过SPI机制实例化,因为该类非public,也无无参构造,本质上是通过new实例化的.
- * 该类和{@link SpringServletContainerInitializer}类似,主要初始化是通过{@link ServletContextInitializer}完成
- * 
  * Jar启动原理:
  * 
  * <pre>
@@ -546,64 +517,6 @@ import com.wy.runner.SelfCommandLineRunner;
  * Main-Class: 指定{@link JarLauncher}加载用户自定义类以及扩展引用JAR包
  * Spring-Boot-Classes:指定用户class目录,默认BOOT-INF/classes/
  * Spring-Boot-Lib:指定引用JAR包目录,默认BOOT-INF/lib/
- * </pre>
- * 
- * 可以参考用来写自定义注入,扫包,扫注解等方法事例
- * 
- * <pre>
- * {@link ClassPathScanningCandidateComponentProvider}:可以对指定包进行扫描并注入,见{@link EurekaServerAutoConfiguration#jerseyApplication}
- * {@link AnnotationTypeFilter}:扫描时指定扫描拦截器,见{@link FeignClientsRegistrar#registerFeignClients}
- * </pre>
- * 
- * Spring上下文初始化,可扩展点调用顺序
- * 
- * <pre>
- * {@link ApplicationContextInitializer#initialize(ConfigurableApplicationContext)}:
- * 		eg:{@link SelfApplicationContextInitializer}
- * {@link AbstractApplicationContext#refresh()}:
- * 		刷新上下文,加载Bean定义,注解,等
- * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry()}:
- * 		eg:{@link SelfBeanDefinitionRegistryPostProcessor}
- * {@link BeanDefinitionRegistryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}:
- * 		eg:{@link SelfBeanDefinitionRegistryPostProcessor}
- * {@link BeanFactoryPostProcessor#postProcessBeanFactory(ConfigurableListableBeanFactory)}:
- * 		eg:{@link SelfBeanFactoryPostProcessor}
- * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}:
- * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
- * {@link SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors(Class, String)}:
- * 		eg:{@link SelfSmartInstantiationAwareBeanPostProcessor}
- * {@link MergedBeanDefinitionPostProcessor#postProcessMergedBeanDefinition()}
- * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}:
- * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
- * {@link SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference(Object, String)}:
- * 		eg:{@link SelfSmartInstantiationAwareBeanPostProcessor}
- * {@link BeanFactoryAware#setBeanFactory(BeanFactory)}:
- * 		eg:{@link SelfBeanFactoryAware}
- * {@link InstantiationAwareBeanPostProcessor#postProcessPropertyValues()}:
- * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
- * {@link ApplicationContextAwareProcessor#invokeAwareInterfaces()}:
- * 		eg:{@link SelfApplicationContextAwareProcessor}
- * {@link BeanNameAware#setBeanName(String)}:
- * 		eg:{@link SelfBeanNameAware}
- * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInitialization(Object, String)}:
- * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
- * {@link PostConstruct}:
- * 		在bean初始化阶段,先调用{@link BeanPostProcessor#postProcessBeforeInitialization()}之后,
- * 		再调用被 PostConstruct 注解修饰的方法,之后再调用{@link InitializingBean#afterPropertiesSet()}
- * {@link InitializingBean#afterPropertiesSet()}:
- * 		eg:{@link SelfInitializingBean}
- * {@link InstantiationAwareBeanPostProcessor#postProcessAfterInitialization(Object, String)}:
- * 		eg:{@link SelfInstantiationAwareBeanPostProcessor}
- * {@link FactoryBean#getObject()}:
- * 		eg:{@link SelfFactoryBean}
- * {@link SmartInitializingSingleton#afterSingletonsInstantiated()}:
- * 		eg:{@link SelfSmartInitializingSingleton}
- * {@link ApplicationRunner#run()}:
- * 		eg:{@link SelfApplicationRunner}
- * {@link CommandLineRunner#run(String...)}:
- * 		eg:{@link SelfCommandLineRunner}
- * {@link DisposableBean#destroy()}:
- * 		eg:{@link SelfDisposableBean}
  * </pre>
  * 
  * {@link BeanFactory}和 {@link ApplicationContext}的不同:
@@ -627,11 +540,19 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link AnnotationConfigUtils#registerAnnotationConfigProcessors()}:将指定的bean注入到spring容器中
  * {@link AnnotatedBeanDefinitionReader#doRegisterBean()}:被指定注解修饰的类读取类
  * {@link ClassPathScanningCandidateComponentProvider#registerDefaultFilters()}:根据默认的拦截器,扫描{@link Component}
- * {@link ApplicationContextInitializer}:在Spring容器调用refresh()之前的回调,此时bean还未初始化,只能对容器做操作
+ * {@link ApplicationContextInitializer}:{@link SpringApplication#refreshContext()}之前的回调,此时bean还未初始化,IOC上下文环境还未完成,只能对容器做操作.
  * 		注入实现了该类的方法有2种:Configuration或在META-INF/spring.factories中添加该类,可参照spring-autoconfigure
  * {@link CommandLineRunner}:在容器启动成功之后的最后一个回调,该回调执行之后容器就成功启动
  * {@link ApplicationEvent}:自定义事件,需要发布的事件继承该接口
  * {@link ApplicationListener}:事件监听.可以直接在listener上添加注解或者使用上下文添加到容器中
+ * 
+ * {@link SpringServletContainerInitializer}:该类负责对容器启动时相关组件进行初始化,当前类只是完成一些验证和组件装配,
+ * 		具体初始化由类上注解{@link HandlesTypes}的值决定,实际上就是{@link WebApplicationInitializer}的实现类.
+ * #TomcatStarter:该类并非通过SPI机制实例化,因为该类非public,也无无参构造,本质上是通过new实例化的.
+ * 		该类和{@link SpringServletContainerInitializer}类似,主要初始化是通过{@link ServletContextInitializer}完成
+ * 
+ * {@link SpringApplicationRunListener}:{@link SpringApplication#run()}调用,所有实现该接口的类都必须添加一个构造,且该构造的参数类型固定,详见{@link SelfApplicationListener}.
+ * 		实现该接口的类使用@Configuration或@Component等注解无法注入到Spring上下文中,只能通过META-INF/spring.factories添加相应配置才能生效
  * </pre>
  * 
  * 一些Aware,大部分都是再bean实例话之后,初始化之前调用:
@@ -648,7 +569,7 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link ApplicationContextAware}: 详见{@link SelfApplicationContextAwareProcessor}
  * </pre>
  * 
- * Spring根目录下META-INF下各种文件作用
+ * Spring根目录下META-INF下各种文件作用,不同版本
  * 
  * <pre>
  * spring.factories:各种自动配置,监听器,初始化器等类的全路径名,由{@link EnableAutoConfiguration}注解加载
@@ -668,26 +589,6 @@ import com.wy.runner.SelfCommandLineRunner;
  * 5.编写标签的解析器HaohaoBeanDefinitionParser,在parse方法中注册HaohaoeanPostProcessor
  * 6.编写DreamBeanPostProcessor后置处理器
  * 7.使用时在applicationContext.xml配置文件中引入命名空间,在applicationContext.xml配置文件中使用自定义的标签
- * </pre>
- * 
- * 可以作为扩展点的16个类:
- * 
- * <pre>
- * {@link ApplicationContextInitializer}:见{@link SelfApplicationContextInitializer}
- * {@link BeanDefinitionRegistryPostProcessor}:见 {@link SelfBeanDefinitionRegistryPostProcessor}
- * {@link BeanFactoryPostProcessor}:见 {@link SelfBeanFactoryPostProcessor}
- * {@link InstantiationAwareBeanPostProcessor}:见 {@link SelfInstantiationAwareBeanPostProcessor}
- * {@link SmartInstantiationAwareBeanPostProcessor}:见 {@link SelfSmartInstantiationAwareBeanPostProcessor}
- * {@link BeanFactoryAware}:见 {@link SelfBeanFactoryAware}
- * {@link SelfApplicationContextAwareProcessor}:见 {@link SelfApplicationContextAwareProcessor}
- * {@link BeanNameAware}:见 {@link SelfBeanNameAware}
- * {@link PostConstruct}:初始化注解,在postProcessBeforeInitialization之后,InitializingBean.afterPropertiesSet之前
- * {@link InitializingBean}:见 {@link SelfInitializingBean}
- * {@link FactoryBean}:见 {@link SelfFactoryBean}
- * {@link SmartInitializingSingleton}:见 {@link SelfSmartInitializingSingleton}
- * {@link CommandLineRunner}:整个项目全部准备完成,等待接收请求时执行触发
- * {@link DisposableBean}:当此对象销毁时触发.比如说运行applicationContext.registerShutdownHook时,就会触发这个方法
- * {@link ApplicationListener}:事件监听,见 {@link SelfSpringEvent}
  * </pre>
  * 
  * Spring对配置类的处理主要分为2个阶段:
@@ -727,13 +628,6 @@ import com.wy.runner.SelfCommandLineRunner;
  * {@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry}
  * {@link ConfigurationClassPostProcessor#postProcessBeanFactory}
  * {@link ConfigurationClassPostProcessor#enhanceConfigurationClasses}
- * </pre>
- * 
- * 同时引入多种Bean操作,根据类型选择适合的Bean操作
- * 
- * <pre>
- * {@link CacheAutoConfiguration}->{@link CacheAutoConfiguration.CacheConfigurationImportSelector}
- * {@link PasswordEncoderFactories}->{@link DelegatingPasswordEncoder}
  * </pre>
  * 
  * @author 飞花梦影

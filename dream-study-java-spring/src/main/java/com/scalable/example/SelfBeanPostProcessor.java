@@ -1,4 +1,4 @@
-package com.wy.extension;
+package com.scalable.example;
 
 import javax.annotation.PostConstruct;
 

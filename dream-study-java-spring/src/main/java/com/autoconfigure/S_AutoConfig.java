@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
+import com.scalable.example.SelfApplicationContextInitializer;
 import com.wy.annotation.S_Annotation;
-import com.wy.extension.SelfApplicationContextInitializer;
 
 /**
  * 自动装配测试类,通常自动配置类都是只有一个启动类,在META-INF/spring.factories中加入需要启动的类,引入需要使用的jar

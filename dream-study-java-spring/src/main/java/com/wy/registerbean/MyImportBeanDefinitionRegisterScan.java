@@ -11,7 +11,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AspectJTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
-import com.wy.scan.MyScan;
+import com.experience.example.MyScan;
 
 /**
  * 需要使用Import注解导入

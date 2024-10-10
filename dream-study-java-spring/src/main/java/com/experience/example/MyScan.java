@@ -1,4 +1,4 @@
-package com.wy.scan;
+package com.experience.example;
 
 import java.util.HashSet;
 import java.util.Properties;

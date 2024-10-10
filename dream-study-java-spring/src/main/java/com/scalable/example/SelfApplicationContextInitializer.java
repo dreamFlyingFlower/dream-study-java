@@ -1,4 +1,4 @@
-package com.wy.extension;
+package com.scalable.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContextInitializer;

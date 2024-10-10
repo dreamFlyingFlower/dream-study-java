@@ -14,7 +14,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AspectJTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
-import com.wy.scan.MyScan;
+import com.experience.example.MyScan;
 
 /**
  * 利用注解或切面扫描指定包下的类注入Bean,该类可以加{@link Configuration}之类注解或利用{@link Import}注解使用
