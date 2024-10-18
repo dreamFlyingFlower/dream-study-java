@@ -11,8 +11,8 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
-import com.dream.lang.StrHelper;
 
+import dream.flying.flower.lang.StrHelper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
