@@ -4,15 +4,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.1</version>
+		<groupId>dream.flying.flower</groupId>
+		<artifactId>dream-parent3</artifactId>
+		<version>0.0.1</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>dream.flying.flower</groupId>
 	<artifactId>dream-study-java-spring3</artifactId>
-	<version>0.0.1</version>
 	<name>dream-study-java-spring3</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -46,12 +44,16 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-			<version>2.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>group.springframework.ai</groupId>
+			<artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
+			<version>1.1.0</version>
 		</dependency>
 
 		<dependency>

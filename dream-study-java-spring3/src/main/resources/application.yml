@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/simple_oa?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&allowMultiQueries=true&useSSL=false
+    url: jdbc:mysql://localhost:3306/dream_auth?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&allowMultiQueries=true&useSSL=false
     username: root
     password: 123456
   jackson:
