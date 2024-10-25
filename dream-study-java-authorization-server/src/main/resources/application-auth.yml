@@ -1,0 +1,51 @@
+logging:
+  level:
+    '[org.springframework.security]': trace
+
+# 认证服务器配置
+spring:
+  security:
+    user:
+      name: "user"
+      password: "password"
+      roles:
+        - "USER"
+    oauth2:
+      client:
+        registration:
+          login-client:
+            provider: login-client
+            client-id: "login-client"
+            client-secret: "{noop}openid-connect"
+            authorization-grant-type: authorization_code,refresh_token
+            client-authentication-method: client_secret_basic
+            client-name: 
+            redirect-uri: http://127.0.0.1:8080/login/oauth2/code/login-client,http://127.0.0.1:8080/authorized
+            scope:
+            - "openid"
+            - "profile"
+          login-client-with-messaging:
+            provider: login-client-with-messaging
+            client-id: "login-client-with-messaging"
+            client-secret: "{noop}with-messages"
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: authorization_code,refresh_token
+            redirect-uri: http://127.0.0.1:8080/login/oauth2/code/login-client-with-messaging,http://127.0.0.1:8080/authorized
+            scope:
+            - "openid"
+            - "profile"
+            - "message:read"
+            - "message:write"
+          messaging-client:
+            provider: messaging-client
+            client-id: "messaging-client"
+            client-secret: "{noop}secret"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: authorization_code,refresh_token,client_credentials
+            redirect-uri: http://127.0.0.1:8080/authorized
+            scope:
+            - "message:read"
+            - "message:write"
+        provider:
+          login-client:
+            authorization-uri: 

@@ -15,6 +15,8 @@
 	<modules>
 		<module>dream-study-java-ai</module>
 		<module>dream-study-java-algorithms</module>
+		<module>dream-study-java-authorization-server</module>
+		<module>dream-study-java-authorization-server3</module>
 		<module>dream-study-java-common</module>
 		<module>dream-study-java-crawler</module>
 		<module>dream-study-java-db</module>

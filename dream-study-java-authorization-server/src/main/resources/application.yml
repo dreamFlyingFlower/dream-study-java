@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/dream_auth?autoReconnect=true&useUnicode=true&serverTimezone=GMT%2B8&useSSL=false&tinyInt1isBit=false&allowMultiQueries=true&characterEncoding=UTF8&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    
+  redis:
+#    host: 172.30.252.13
+#    password: admin$%123
+    database: 15
+    
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Jwt中claims的issue属性,也就是jwt的签发地址,即认证服务器的根路径
+          # 资源服务器会进一步的配置,通过该地址获取公钥以解析jwt
+          issuer-uri: 
