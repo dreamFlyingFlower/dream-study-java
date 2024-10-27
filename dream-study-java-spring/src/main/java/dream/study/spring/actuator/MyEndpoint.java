@@ -40,6 +40,11 @@ public class MyEndpoint {
 
 	private Map<String, User> users = new ConcurrentHashMap<>();
 
+	/**
+	 * 展示在页面上的信息,不能有参数
+	 * 
+	 * @return Map<String, Object>
+	 */
 	@ReadOperation
 	public Set<String> users() {
 		return users.keySet();
@@ -50,6 +55,9 @@ public class MyEndpoint {
 		return users.get(arg0);
 	}
 
+	/**
+	 * 调用端点时使用的方法
+	 */
 	@WriteOperation
 	public Set<String> set(String userName, String passwd) {
 		HttpServletRequest request =

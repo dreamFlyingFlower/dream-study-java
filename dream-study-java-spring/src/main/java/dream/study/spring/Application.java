@@ -27,6 +27,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
@@ -105,6 +106,7 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ServletContextAware;
@@ -628,6 +630,15 @@ import dream.study.spring.scalable.example.SelfBeanNameAware;
  * {@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry}
  * {@link ConfigurationClassPostProcessor#postProcessBeanFactory}
  * {@link ConfigurationClassPostProcessor#enhanceConfigurationClasses}
+ * </pre>
+ * 
+ * 一些实用方法:
+ * 
+ * <pre>
+ * {@link ClassUtils#isPresent(String, ClassLoader)}:判断某个类是否存在,不限定在Spring上下文中
+ * {@link ListableBeanFactory#containsBeanDefinition(String)}:判断指定名称的bean是否已定义
+ * {@link ListableBeanFactory#getBeanNamesForType(Class)}:判断指定class的bean是否已定义
+ * {@link SingletonBeanRegistry#registerSingleton()}:通过{@link DefaultSingletonBeanRegistry}注册单例的bean到Spring上下文中
  * </pre>
  * 
  * @author 飞花梦影

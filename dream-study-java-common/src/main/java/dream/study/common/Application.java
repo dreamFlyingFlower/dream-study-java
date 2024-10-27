@@ -42,6 +42,17 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  *	P:Partition tolerance,多节点必须在限定的时间内完成数据的一致性,若无法完成,就表示发生了分区,必须做出选择
  * </pre>
  * 
+ * 可执行Jar包,其中包含以下信息:
+ * 
+ * <pre>
+ * META-INF/MANIFEST.MF:Jar描述
+ * 		Main-Class:Jar启动类,org.springframework.boot.loader.JarLauncher
+ * 		Start-Class:项目主类
+ * org/springframework/boot/loader:Spring Boot Loader
+ * BOOT-INF/classes:项目内容
+ * BOOT-INF/lib:项目依赖
+ * </pre>
+ * 
  * 工具类起名:
  * 
  * <pre>

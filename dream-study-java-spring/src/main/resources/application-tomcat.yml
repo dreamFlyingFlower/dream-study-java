@@ -6,6 +6,8 @@ server:
       max-connections: 8192
       # 在关闭连接之前可以通过管道传输的HTTP请求的最大数量.当为0或1时,将禁用keep-alive和管道处理;当为-1时,允许无限数量的保持活动的请求
       max-keep-alive-requests: 100
+      max-http-form-post-size: 2MB
+      max-swallow-size: 2MB
       # 连接器在接受连接后等待显示请求 URI 行的时间
       connection-timeout: 20000
       # 在关闭连接之前等待另一个 HTTP 请求的时间。如果未设置，则使用 connectionTimeout。设置为 -1 时不会超时

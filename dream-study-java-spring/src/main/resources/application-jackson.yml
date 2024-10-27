@@ -1,7 +1,7 @@
 spring:
   jackson:
     # 指定日期格式,比如yyyy-MM-dd HH:mm:ss,或者具体的格式化类的全限定名
-    date-format: 
+    date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: always
     # Jackson的反序列化配置
     deserialization: 
