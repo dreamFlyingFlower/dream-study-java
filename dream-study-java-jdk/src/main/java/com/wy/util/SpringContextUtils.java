@@ -7,8 +7,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.core.ParameterNameDiscoverer;
 
 /**
  * Spring上下文,可在非Spring环境中获得Spring组件
@@ -21,17 +19,6 @@ import org.springframework.core.ParameterNameDiscoverer;
 public class SpringContextUtils implements InitializingBean, ApplicationContextAware {
 
 	private static ApplicationContext applicationContext;
-
-	// 该类为spring特有类,可以拿到反射中方法的形参名.jdk1.8之前是拿不到的.jdk8如何拿要百度咯
-	private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER;
-
-	static {
-		PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
-	}
-
-	public static ParameterNameDiscoverer getDisCoverer() {
-		return PARAMETER_NAME_DISCOVERER;
-	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
