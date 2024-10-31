@@ -13,11 +13,23 @@ logging:
     '[org.springframework.web.servlet]': WARN
     # 打印mybatis的sql日志,前面为mapper接口所在的包
     '[com.wy.mapper]': debug
-  # 日志文件输出路径
+    # 分组标识,表示该分组所有包日志级别都是DEBUG
+    level-debug: DEBUG
+    level-warn: WARN
+    
   file: 
+    # 日志文件名称
     name: logger.log
+    # 日志文件输出路径
     path: D:\\Java
     # 单个日志文件最大大小
     max-size: 15MB
     # 日志保存最大天数
     max-history: 30
+  group:
+    # 指定分组标识,唯一
+    level-debug:
+    - org.springframework.web.servlet
+    - com.wy.mapper
+    level-warn:
+    - com.wy.common

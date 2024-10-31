@@ -1,4 +1,4 @@
-package com.wy.crl;
+package com.wy.controller;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;

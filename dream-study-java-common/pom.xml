@@ -227,6 +227,18 @@
 				</configuration>
 			</plugin>
 
+			<!-- SmartDoc插件 -->
+			<plugin>
+				<groupId>com.ly.smart-doc</groupId>
+				<artifactId>smart-doc-maven-plugin</artifactId>
+				<version>3.0.5</version>
+				<configuration>
+					<!-- 指定配置文件地址 -->
+					<configFile>./src/main/resources/smart-doc.json</configFile>
+					<projectName>${project.name}</projectName>
+				</configuration>
+			</plugin>
+
 			<!-- install,package跳过测试 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
