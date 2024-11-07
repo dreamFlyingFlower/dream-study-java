@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -63,7 +62,6 @@ public class CacheConfig extends CachingConfigurerSupport {
 	 * 定义缓存到那种缓存技术中
 	 */
 	@Bean
-	@ConditionalOnClass(RedisConfig.class)
 	@ConditionalOnMissingBean
 	CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 		RedisSerializer<String> redisSerializer = new StringRedisSerializer();
@@ -76,7 +74,8 @@ public class CacheConfig extends CachingConfigurerSupport {
 				ObjectMapper.DefaultTyping.NON_FINAL);
 		jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
 		// 配置序列化,解决乱码的问题,过期时间600秒
-		RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(600))
+		RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+				.entryTtl(Duration.ofSeconds(600))
 				.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
 				.serializeValuesWith(
 						RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
