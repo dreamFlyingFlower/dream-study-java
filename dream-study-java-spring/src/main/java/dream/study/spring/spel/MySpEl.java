@@ -20,7 +20,7 @@ import dream.flying.flower.framework.web.helper.SpringContextHelpers;
 import dream.flying.flower.lang.StrHelper;
 
 /**
- * SpringEL表达式
+ * SpringEL表达式,文档:https://docs.spring.io/spring-framework/reference/core/expressions.html
  * 
  * <pre>
  * #root.methodName:要调用的方法名称
@@ -101,7 +101,8 @@ public class MySpEl {
 	}
 
 	/**
-	 * EL表达式解析,参照#CacheOperationExpressionEvaluator 或{@link CachedExpressionEvaluator}
+	 * EL表达式解析,参照#CacheOperationExpressionEvaluator
+	 * 或{@link CachedExpressionEvaluator}
 	 *
 	 * @param expression EL表达式
 	 * @param method 方法
