@@ -36,6 +36,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.boot.jackson.JsonComponentModule;
+import org.springframework.boot.jackson.JsonMixin;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -91,6 +92,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -216,6 +218,10 @@ import dream.study.spring.config.UserSerializer;
  * {@link JsonComponent}:该注解可以将实现了{@link JsonSerializer}或{@link JsonDeserializer}的类指定序列化方式和反序列化方式.
  * 通常可以直接继承重写{@link StdSerializer#serialize}或{@link StdDeserializer#deserialize}
  * {@link JsonComponentModule}:解析{@link JsonComponent}
+ * {@link JsonMixin}:混合注解,允许在不修改原始类的情况下,为其添加或覆盖特定的注解
+ * 		1.新建一个类,将原始类中需要自定义序列化的属性复制到新类中,并可以在该属性上添加其他注解
+ * 		2.在要使用Json功能的地方调用{@link ObjectMapper#addMixIn(新类, 原始类)}
+ * 		3.直接使用当前注解,被注解标注的类为新类,注解中的值为原始类
  * </pre>
  * 
  * 其他注解:

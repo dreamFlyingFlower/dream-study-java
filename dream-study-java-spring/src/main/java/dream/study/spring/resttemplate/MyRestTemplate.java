@@ -22,10 +22,10 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import dream.flying.flower.collection.MapHelper;
-import dream.study.spring.util.RestTemplateUtil;
+import dream.flying.flower.framework.web.helper.RestTemplateHelpers;
 
 /**
- * 使用RestTemplate
+ * 使用RestTemplate.原生的RestTemplate不能使用Patch请求方式,需要设置为httpClient的工厂类.详见{@link RestTemplateHelpers}
  * 
  * @author 飞花梦影
  * @date 2021-10-02 10:19:33
@@ -55,7 +55,7 @@ public class MyRestTemplate {
 				.getBody();
 		// 发送带参数的POST请求,参数只能用MultiValueMap类型,否则响应方接收不到
 		MultiValueMap<String, Object> params =
-				RestTemplateUtil.builder().add("username", "admin").add("password", "123456").build();
+				RestTemplateHelpers.builder().add("username", "admin").add("password", "123456").build();
 		restTemplate.exchange("http://ip:port", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, Object>>(params, httpHeaders), String.class);
 		restTemplate.postForEntity("http://ip:port", new HttpEntity<MultiValueMap<String, Object>>(params, httpHeaders),
