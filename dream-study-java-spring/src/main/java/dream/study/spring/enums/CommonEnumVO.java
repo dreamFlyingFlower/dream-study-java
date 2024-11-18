@@ -38,14 +38,17 @@ public class CommonEnumVO {
 		if (commonEnum == null) {
 			return null;
 		}
-		return new CommonEnumVO(commonEnum.getCode(), commonEnum.getName(), commonEnum.getMsg());
+		return new CommonEnumVO(commonEnum.getValue(), commonEnum.getName(), commonEnum.getMsg());
 	}
 
 	public static List<CommonEnumVO> from(List<CommonEnum> commonEnums) {
 		if (CollectionUtils.isEmpty(commonEnums)) {
 			return Collections.emptyList();
 		}
-		return commonEnums.stream().filter(Objects::nonNull).map(CommonEnumVO::from).filter(Objects::nonNull)
+		return commonEnums.stream()
+				.filter(Objects::nonNull)
+				.map(CommonEnumVO::from)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 }

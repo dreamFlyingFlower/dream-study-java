@@ -23,11 +23,6 @@ public enum FileType implements CommonEnum {
 	}
 
 	@Override
-	public Integer getCode() {
-		return ordinal();
-	}
-
-	@Override
 	public String getMsg() {
 		return msg;
 	}

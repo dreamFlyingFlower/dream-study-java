@@ -27,12 +27,14 @@ public abstract class CommonEnumAttributeConverter<E extends Enum<E> & CommonEnu
 
 	@Override
 	public Integer convertToDatabaseColumn(E e) {
-		return e.getCode();
+		return e.getValue();
 	}
 
 	@Override
 	public E convertToEntityAttribute(Integer code) {
-		return (E) commonEnums.stream().filter(commonEnum -> commonEnum.match(String.valueOf(code))).findFirst()
+		return (E) commonEnums.stream()
+				.filter(commonEnum -> commonEnum.match(String.valueOf(code)))
+				.findFirst()
 				.orElse(null);
 	}
 }

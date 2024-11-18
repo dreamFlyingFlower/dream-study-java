@@ -38,7 +38,7 @@ public class SecondKillQueueRunner implements ApplicationRunner {
 					SuccessKilled kill = SecondKillQueue.getSkillQueue().consume();
 					if (kill != null) {
 						Result<?> result = seckillService.startQueue(kill.getSeckillId());
-						if (result != null && result.equals(Result.ok(TipEnum.TIP_SUCCESS.getCode()))) {
+						if (result != null && result.equals(Result.ok(TipEnum.TIP_SUCCESS.getValue()))) {
 							log.info("TaskRunner,result:{}", result);
 							log.info("TaskRunner从消息队列取出用户，用户:{}{}", kill.getUserId(), "秒杀成功");
 						}
@@ -49,5 +49,4 @@ public class SecondKillQueueRunner implements ApplicationRunner {
 			}
 		}).start();
 	}
-
 }
