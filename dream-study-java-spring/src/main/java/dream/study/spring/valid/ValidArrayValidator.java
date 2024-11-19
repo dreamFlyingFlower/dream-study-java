@@ -33,6 +33,8 @@ import org.hibernate.validator.constraints.CreditCardNumber;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * 对自定义校验规则的注解进行处理,此处处理@ValidArray
  * 
@@ -75,6 +77,7 @@ import org.springframework.stereotype.Component;
  * @git {@link https://github.com/mygodness100}
  */
 @Component
+@RequiredArgsConstructor
 public class ValidArrayValidator implements ConstraintValidator<ValidArray, Integer> {
 
 	private Set<Integer> set = new HashSet<>();

@@ -72,7 +72,7 @@ spring:
     default-encoding: UTF-8
   # 国际化
   messages:
-    basename: i18n.message.messages
+    basename: i18n/message/messages
   web:
     resources:
       add-mappings: true

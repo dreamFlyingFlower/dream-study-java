@@ -22,6 +22,8 @@ import org.springframework.boot.validation.MessageInterpolatorFactory;
 
 /**
  * 自定义注解实现参数校验:校验前端参数传递值是否在指定数值中.message(),groups(),payload()必须有
+ * 
+ * {@link Constraint}:指定解析当前注解的类
  *
  * @author ParadiseWY
  * @date 2020-12-19 10:05:17
@@ -41,9 +43,11 @@ public @interface ValidArray {
 	 * 
 	 * 如果是固定信息,不需要以{}包裹
 	 * 
+	 * 默认值属性会从默认的国际化文件ValidationMessages.properties中查找
+	 * 
 	 * @return class类
 	 */
-	String message() default "{com.wy.valid.ValidArray.message}";
+	String message() default "{dream.study.spring.valid.ValidArray.message}";
 
 	/**
 	 * 何时使用本校验类
