@@ -1,0 +1,30 @@
+# 异步,定时任务等线程池配置
+spring:
+  # 注解Async使用时的异步线程配置
+  task:
+    execution:
+      # 配置线程名前缀
+      thread-name-prefix: defaultTaskExecutor_
+      pool:
+        # 配置核心线程数
+        core-size: 10
+        # 配置最大线程数
+        max-size: 20
+        # 配置队列大小
+        queue-capacity: 20
+        # 配置空闲线程的最大时间,超过该时间,线程将被回收,默认60S
+        keep-alive: 60S
+        allow-core-thread-timeout: true
+      shutdown:
+        # 当线程池关闭时,定时任务是否立刻关闭,清空队列,而不等待他们执行完成,默认false,立刻关闭
+        await-termination: false
+        # 当线程池要关闭时,仍有线程在执行,此时等待的最大时长
+        await-termination-period: 60S
+    # 定时任务线程池配置
+    scheduling:
+      thread-name-prefix: defaultTaskScheduling_
+      pool:
+        size: 1
+      shutdown:
+        await-termination: false
+        await-termination-period: 60S
