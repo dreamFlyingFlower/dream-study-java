@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>dream.flying.flower</groupId>
-		<artifactId>dream-parent</artifactId>
+		<artifactId>dream-parent2</artifactId>
 		<version>0.0.1</version>
 		<relativePath />
 	</parent>
@@ -22,11 +22,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>dream.flying.flower</groupId>
-			<artifactId>dream-study-java-common</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>dream.flying.flower</groupId>
 			<artifactId>dream-framework-mybatis-plus</artifactId>
 		</dependency>
 		<dependency>
@@ -37,6 +32,25 @@
 			<groupId>io.springboot.ai</groupId>
 			<artifactId>spring-ai-openai-spring-boot-starter</artifactId>
 			<version>1.0.3</version>
+		</dependency>
+		<!-- DJL -->
+		<dependency>
+			<groupId>ai.djl</groupId>
+			<artifactId>api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ai.djl</groupId>
+			<artifactId>basicdataset</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ai.djl</groupId>
+			<artifactId>model-zoo</artifactId>
+		</dependency>
+		<!-- pytorch-engine-->
+		<dependency>
+			<groupId>ai.djl.pytorch</groupId>
+			<artifactId>pytorch-engine</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
@@ -66,17 +80,28 @@
 		</dependency>
 	</dependencies>
 
-<!--	<dependencyManagement>-->
-<!--		<dependencies>-->
-<!--			<dependency>-->
-<!--				<groupId>org.springframework.ai</groupId>-->
-<!--				<artifactId>spring-ai-bom</artifactId>-->
-<!--				<version>0.8.1-SNAPSHOT</version>-->
-<!--				<type>pom</type>-->
-<!--				<scope>import</scope>-->
-<!--			</dependency>-->
-<!--		</dependencies>-->
-<!--	</dependencyManagement>-->
+	<!--	<dependencyManagement>-->
+	<!--		<dependencies>-->
+	<!--			<dependency>-->
+	<!--				<groupId>org.springframework.ai</groupId>-->
+	<!--				<artifactId>spring-ai-bom</artifactId>-->
+	<!--				<version>0.8.1-SNAPSHOT</version>-->
+	<!--				<type>pom</type>-->
+	<!--				<scope>import</scope>-->
+	<!--			</dependency>-->
+	<!--		</dependencies>-->
+	<!--	</dependencyManagement>-->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>ai.djl</groupId>
+				<artifactId>bom</artifactId>
+				<version>0.23.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<repositories>
 		<repository>
@@ -96,4 +121,95 @@
 			</releases>
 		</repository>
 	</repositories>
+
+	<profiles>
+		<profile>
+			<id>windows</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<!-- Windows CPU -->
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-native-cpu</artifactId>
+					<classifier>win-x86_64</classifier>
+					<scope>runtime</scope>
+					<version>2.0.1</version>
+				</dependency>
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-jni</artifactId>
+					<version>2.0.1-0.23.0</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>centos7</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<!-- For Pre-CXX11 build (CentOS7)-->
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-native-cpu-precxx11</artifactId>
+					<classifier>linux-x86_64</classifier>
+					<version>2.0.1</version>
+					<scope>runtime</scope>
+				</dependency>
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-jni</artifactId>
+					<version>2.0.1-0.23.0</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<!-- Linux CPU -->
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-native-cpu</artifactId>
+					<classifier>linux-x86_64</classifier>
+					<scope>runtime</scope>
+					<version>2.0.1</version>
+				</dependency>
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-jni</artifactId>
+					<version>2.0.1-0.23.0</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>aarch64</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<!-- For aarch64 build-->
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-native-cpu-precxx11</artifactId>
+					<classifier>linux-aarch64</classifier>
+					<scope>runtime</scope>
+					<version>2.0.1</version>
+				</dependency>
+				<dependency>
+					<groupId>ai.djl.pytorch</groupId>
+					<artifactId>pytorch-jni</artifactId>
+					<version>2.0.1-0.23.0</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

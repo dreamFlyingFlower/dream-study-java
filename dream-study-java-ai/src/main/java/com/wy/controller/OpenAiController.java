@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dream.collection.ListHelper;
-import com.dream.collection.MapHelper;
+import dream.flying.flower.collection.ListHelper;
+import dream.flying.flower.collection.MapHelper;
 
 /**
- * 异步测试API
+ * AI测试
  * 
  * @author 飞花梦影
  * @date 2021-11-23 21:14:31
