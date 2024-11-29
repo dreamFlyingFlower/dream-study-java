@@ -7,8 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 
-import com.wy.config.ConfigProperties;
-
 /**
  * 测试配置类:不带{@link Configuration}和{@link ConfigurationProperties}注解类属性的注入<br>
  * 直接使用{@link Value}注解注入
