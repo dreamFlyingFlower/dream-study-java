@@ -1,0 +1,8 @@
+# 结构化日志记录
+logging:
+  structured:
+    format:
+      # 文件输出使用 ECS 格式
+      file: ecs
+      # 控制台输出使用 ECS 格式
+      console: ecs

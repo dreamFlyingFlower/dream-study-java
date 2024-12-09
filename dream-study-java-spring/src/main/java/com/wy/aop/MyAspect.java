@@ -36,6 +36,7 @@ import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AdvisorChainFactory;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.framework.AopProxyFactory;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -210,6 +211,16 @@ import com.wy.service.impl.SysLogServiceImpl;
  * ->14.2.3.{@link AdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:调用DefaultAdvisorChainFactory
  * ->14.2.3.1.{@link DefaultAdvisorChainFactory#getInterceptorsAndDynamicInterceptionAdvice}:利用工厂获取拦截器链
  * ->14.2.4.{@link #CglibMethodInvocation#proceed}:创建一个方法拦截对象,依次调用拦截器链中的方法,其他流程和JDK流程相似
+ * </pre>
+ * 
+ * AOP相关工具类:
+ * 
+ * <pre>
+ * {@link AopContext}:获取AOP切面
+ * ->{@link AopContext#currentProxy()}:获取当前被代理类,使用切面调用,常用于防止Spring事务失效
+ * {@link AopUtils}:AOP工具类
+ * ->{@link AopUtils#isAopProxy(Object)}:指定对象是否为代理类
+ * ->{@link AopUtils#findAdvisorsThatCanApply(java.util.List, Class)}:找到可用于代理指定类的切面列表
  * </pre>
  * 
  * @author 飞花梦影

@@ -1,0 +1,9 @@
+# RestClient和RestTemplate使用 http-components
+spring:
+  http:
+    client:
+      # 禁用重定向
+      redirects: dont-follow
+      factory: http-components
+      # 使用jetty
+      #factory: jetty
