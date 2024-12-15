@@ -1,5 +1,6 @@
 package com.wy.config.executor;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -12,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.scheduling.annotation.AsyncResult;
 
 import dream.flying.flower.framework.core.json.JsonHelpers;
 import lombok.extern.slf4j.Slf4j;
@@ -97,6 +97,8 @@ public class MyAsyncConfig02 implements AsyncConfigurer {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return new AsyncResult<>("任务完成");
+		CompletableFuture<String> completableFuture = new CompletableFuture<>();
+		completableFuture.complete("任务完成");
+		return completableFuture;
 	}
 }
