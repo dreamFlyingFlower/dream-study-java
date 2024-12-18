@@ -1,0 +1,42 @@
+server:
+  ssl:
+    # true:开启HTTPS访问
+    enabled: true
+    # 指定证书地址
+    key-store: classpath:test.keystore
+    # 证书格式
+    key-store-type: JKS
+    # 默认为TLS
+    protocol: TLS,TLS1.1,TLS1.2
+    # 已启用SSL协议
+    enabled-protocols:
+    - TLS
+    # 证书密钥别名
+    key-alias: test
+    # 私钥密码
+    key-password: 123456
+    # store文件密码
+    key-store-password: 123456
+    # 密钥存储的提供程序
+    key-store-provider: 
+    # 支持的SSL密码
+    ciphers:
+    - 123456
+    # 客户端身份验证是需要want还是需要need,需要信任存储
+    client-auth: none
+    # 保存SSL证书的信任存储
+    trust-store: 
+    #  用于访问信任存储的密码
+    trust-store-password: 
+    # 信任存储的提供程序
+    trust-store-provider: 
+    # 信任存储的类型
+    trust-store-type: 
+    # 证书地址
+    certificate:
+    # 证书私钥 
+    certificate-private-key:
+    # 信任证书文件
+    trust-certificate:  
+    # 信任证书私钥
+    trust-certificate-private-key: 
