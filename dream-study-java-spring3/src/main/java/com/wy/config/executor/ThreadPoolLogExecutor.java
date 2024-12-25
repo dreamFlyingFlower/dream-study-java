@@ -1,12 +1,12 @@
 package com.wy.config.executor;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.util.concurrent.ListenableFuture;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,15 +60,15 @@ public class ThreadPoolLogExecutor extends ThreadPoolTaskExecutor {
 	}
 
 	@Override
-	public ListenableFuture<?> submitListenable(Runnable task) {
+	public CompletableFuture<Void> submitCompletable(Runnable task) {
 		logThreadStatus("submitListenable(Runnable)");
-		return super.submitListenable(task);
+		return super.submitCompletable(task);
 	}
 
 	@Override
-	public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+	public <T> CompletableFuture<T> submitCompletable(Callable<T> task) {
 		logThreadStatus("submitListenable(Callable<T>)");
-		return super.submitListenable(task);
+		return super.submitCompletable(task);
 	}
 
 	@Override
