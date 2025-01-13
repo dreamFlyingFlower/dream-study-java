@@ -1,4 +1,4 @@
-package com.wy.util;
+package com.wy.mail;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Component
-public class MailUtil {
+public class SendMail {
 
 	@Autowired
 	private JavaMailSender javaMailSender;

@@ -67,6 +67,8 @@ public class User implements Serializable {
 
 	private String telphone;
 
+	private Date createTime;
+
 	private Role role;
 
 	private UserEx userEx;
