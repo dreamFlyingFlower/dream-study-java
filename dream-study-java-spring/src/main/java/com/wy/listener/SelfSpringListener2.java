@@ -9,7 +9,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * spring的发布事件监听
  * 
  * <pre>
- * {@link EventListener}:监听指定的事件,如果不指定,则监听所有类型事件.同步事件,在被监听事件执行完之后执行,不影响原有事务
+ * {@link EventListener#value()}:监听指定的事件,如果不指定,则监听所有类型事件.同步事件,在被监听事件执行完之后执行,不影响原有事务
+ * {@link EventListener#condition()}:监听可使用EL表达式
  * {@link TransactionalEventListener}:事务监听事件,默认在事务执行成功之后执行,可指定执行时机
  * {@link TransactionalEventListener#phase()}:AFTER_COMPLETION指无论事务commit或rollback都执行监听
  * AFTER_COMMIT + AFTER_COMPLETION可以同时生效;AFTER_ROLLBACK + AFTER_COMPLETION可以同时生效
