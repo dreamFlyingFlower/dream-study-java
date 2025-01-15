@@ -43,6 +43,9 @@ public class DebeziumProperties {
 
 	private String dbPassword;
 
+	/** 捕获更改的数据库的名称 */
+	private String dbName;
+
 	/** 保证每个数据库读取的instance-name logic-name 不能相同 */
 	/** 实例名 */
 	private String instanceName;
@@ -58,4 +61,7 @@ public class DebeziumProperties {
 
 	/** mysql.cnf 配置的 server-id */
 	private Integer serverId;
+
+	/** // 是否包含数据库表结构层面的变更,建议使用默认值true */
+	private String includeSchemaChange = "true";
 }

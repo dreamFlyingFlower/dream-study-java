@@ -71,12 +71,12 @@ public class DebeziumConfig {
 				.with("connector.class", MySqlConnector.class.getName())
 				// 偏移量持久化,用来容错 默认值
 				.with("offset.storage", "org.apache.kafka.connect.storage.FileOffsetBackingStore")
-				// 偏移量持久化文件路径 默认/tmp/offsets.dat 如果路径配置不正确可能导致无法存储偏移量 可能会导致重复消费变更
-				// 如果连接器重新启动,它将使用最后记录的偏移量来知道它应该恢复读取源信息中的哪个位置。
+				// 偏移量持久化文件路径,默认/tmp/offsets.dat.如果路径配置不正确可能导致无法存储偏移量,可能会导致重复消费变更
+				// 如果连接器重新启动,它将使用最后记录的偏移量来知道它应该恢复读取源信息中的哪个位置
 				.with("offset.storage.file.filename", debeziumProperties.getOffsetFileName())
-				// 捕获偏移量的周期
+				// 捕获偏移量的周期,尝试提交偏移量的时间间隔,默认值为1分钟
 				.with("offset.flush.interval.ms", debeziumProperties.getOffsetTime())
-				// 连接器的唯一名称
+				// 监听连接器的唯一名称
 				.with("name", debeziumProperties.getInstanceName())
 				// 数据库的hostname
 				.with("database.hostname", debeziumProperties.getDbIp())
@@ -86,43 +86,25 @@ public class DebeziumConfig {
 				.with("database.user", debeziumProperties.getDbUsername())
 				// 密码
 				.with("database.password", debeziumProperties.getDbPassword())
-				// 包含的数据库列表
+				// 要从中捕获更改的数据库的名称
+				.with("database.dbname", debeziumProperties.getDbName())
+				// 要捕获变化包含的数据库列表
 				.with("database.include.list", debeziumProperties.getIncludeDb())
+				// 应捕获其更改的所有表的列表
+				.with("table.include.list", debeziumProperties.getIncludeTable())
 				// 是否包含数据库表结构层面的变更,建议使用默认值true
-				.with("include.schema.changes", "false")
+				.with("include.schema.changes", debeziumProperties.getIncludeSchemaChange())
 				// mysql.cnf 配置的 server-id
 				.with("database.server.id", debeziumProperties.getServerId())
-				// MySQL 服务器或集群的逻辑名称
+				// MySQL服务器或集群的逻辑名称,形成命名空间,用于连接器写入的所有 Kafka 主题的名称、Kafka Connect 架构名称以及 Avro
+				// 转换器时对应的Avro 架构的命名空间用来
 				.with("database.server.name", debeziumProperties.getLogicName())
-				// 历史变更记录
+				// 负责数据库历史变更记录持久化Java类名
 				.with("database.history", "io.debezium.relational.history.FileDatabaseHistory")
 				// 历史变更记录存储位置,存储DDL
-				.with("database.history.file.filename", debeziumProperties.getHistoryFileName()).build();
+				.with("database.history.file.filename", debeziumProperties.getHistoryFileName())
+				.build();
 	}
-
-	/*
-	 * @Bean io.debezium.config.Configuration debeziumConfig() { return
-	 * io.debezium.config.Configuration.create() // 连接器的Java类名称
-	 * .with("connector.class", SqlServerConnector.class.getName()) // 偏移量持久化,用来容错
-	 * 默认值 .with("offset.storage",
-	 * "org.apache.kafka.connect.storage.FileOffsetBackingStore") // 要存储偏移量的文件路径
-	 * 默认/tmp/offsets.dat 如果路径配置不正确可能导致无法存储偏移量 可能会导致重复消费变更 //
-	 * 如果连接器重新启动,它将使用最后记录的偏移量来知道它应该恢复读取源信息中的哪个位置。
-	 * .with("offset.storage.file.filename", offsetFileName) // 尝试提交偏移量的时间间隔。默认值为
-	 * 1分钟 .with("offset.flush.interval.ms", offsetTime) // 监听连接器实例的 唯一名称
-	 * .with("name", instanceName) // SQL Server 实例的地址 .with("database.hostname",
-	 * ip) // SQL Server 实例的端口号 .with("database.port", port) // SQL Server 用户的名称
-	 * .with("database.user", username) // SQL Server 用户的密码
-	 * .with("database.password", password) // 要从中捕获更改的数据库的名称
-	 * .with("database.dbname", includeDb) // 是否包含数据库表结构层面的变更 默认值true
-	 * .with("include.schema.changes", "false") // Debezium 应捕获其更改的所有表的列表
-	 * .with("table.include.list", includeTable) // SQL Server
-	 * 实例/集群的逻辑名称,形成命名空间,用于连接器写入的所有 Kafka 主题的名称、Kafka Connect 架构名称以及 Avro 转换器时对应的
-	 * Avro 架构的命名空间用来 .with("database.server.name", logicName) // 负责数据库历史变更记录持久化Java
-	 * 类的名称 .with("database.history",
-	 * "io.debezium.relational.history.FileDatabaseHistory") // 历史变更记录存储位置,存储DDL
-	 * .with("database.history.file.filename", historyFileName) .build(); }
-	 */
 
 	/**
 	 * 实例化sql server 实时同步服务类,执行任务
@@ -134,8 +116,10 @@ public class DebeziumConfig {
 	SqlServerTimelyExecutor sqlServerTimelyExecutor(io.debezium.config.Configuration configuration) {
 		SqlServerTimelyExecutor sqlServerTimelyExecutor = new SqlServerTimelyExecutor();
 		DebeziumEngine<RecordChangeEvent<SourceRecord>> debeziumEngine =
-				DebeziumEngine.create(ChangeEventFormat.of(Connect.class)).using(configuration.asProperties())
-						.notifying(changeEventHandler::handlePayload).build();
+				DebeziumEngine.create(ChangeEventFormat.of(Connect.class))
+						.using(configuration.asProperties())
+						.notifying(changeEventHandler::handlePayload)
+						.build();
 		sqlServerTimelyExecutor.setDebeziumEngine(debeziumEngine);
 		return sqlServerTimelyExecutor;
 	}

@@ -34,6 +34,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebAppli
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.boot.jackson.JsonComponentModule;
 import org.springframework.boot.jackson.JsonMixin;
@@ -65,6 +67,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
@@ -249,6 +252,15 @@ import com.wy.config.UserSerializer;
  * 		该注解默认实现为{@link DefaultPropertySourceFactory},只能解析properties,xml或流,不能解析yml和yaml,可以通过自定义解析类来实现.
  * 		见 {@link SelfPropertySourceFactory}
  * {@link ImportResource}:导入spring的xml配置文件,用法和 PropertySource 类似
+ * 
+ * {@link ConfigurationPropertiesScan}:扫包并将{@link ConfigurationProperties}修饰的类注入,不会扫描{@link Component}
+ * </pre>
+ * 
+ * SpringSecurity相关
+ * 
+ * <pre>
+ * SecurityPolicy:3.4以上
+ * Authorize:3.4以上
  * </pre>
  * 
  * @author 飞花梦影
