@@ -43,7 +43,7 @@ management:
     # 允许访问ip:port/actuator/info,默认true.显示设置好的应用信息
     info:
       enabled: true
-    # 允许访问ip:port/actuator/startup,默认true.显示启动信息
+    # 允许访问ip:port/actuator/startup,显示每个Bean的初始化时间,默认true.显示启动信息
     startup:
       enabled: true
     # 允许访问ip:port/actuator/health,默认true.显示健康检查
