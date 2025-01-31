@@ -54,8 +54,10 @@ import java.util.stream.Stream;
 public class JDK9 {
 
 	public static void main(String[] args) {
-		test04();
-		test05();
+		// test04();
+		// test05();
+
+		test08();
 	}
 
 	/**
@@ -177,6 +179,17 @@ public class JDK9 {
 		Stream<String> stream = optional.stream().flatMap(x -> x.stream());
 		// System.out.println(stream.count());
 		stream.forEach(System.out::println);
+
+		Optional.of(new Object()).orElse(null);
+		// 新增or(),只有在被需要的时候调用
+		Optional.of(new Object()).or(() -> null);
+
+		Object obj = null;
+
+		// 同时处理值存在和不存在的情况:值存在处理方法;值不存在的处理方法
+		Optional.ofNullable(obj).ifPresentOrElse(System.out::println, () -> {
+			System.out.println(11);
+		});
 	}
 
 	/**
