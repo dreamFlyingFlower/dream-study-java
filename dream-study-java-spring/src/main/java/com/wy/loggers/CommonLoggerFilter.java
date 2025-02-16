@@ -9,16 +9,34 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 /**
  * {@link AbstractRequestLoggingFilter}:日志记录解决方案,有两个不同的实现类,通常使用{@link CommonsRequestLoggingFilter}
  * 
- * 需要设置日志级别:logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG,若需要自定义日志,可继承CommonsRequestLoggingFilter,重写日志级别
+ * <pre>
+ * 需要设置日志级别:
+ * logging:level:'[org.springframework.web.filter.CommonsRequestLoggingFilter]': DEBUG
+ * 或
+ * logging:level:'[org.springframework.web.filter]': DEBUG
+ * 需要加入到FilterRegistrationBean的拦截器中
+ * 
+ * 若需要自定义日志,可继承CommonsRequestLoggingFilter,重写日志级别
  * 
  * 日志监听入口为{@link LoggingApplicationListener}
+ * </pre>
+ * 
+ * 还可以利用拦截器,AOP,过滤器进行日志记录
+ * 
+ * SpringBoot3.3利用Actuator调整日志级别:
+ * 
+ * <pre>
+ * 暴露loggers: management.endpoints.web.exposure.include=loggers
+ * 将com.example包的日志级别调整为DEBUG:
+ * 		curl -X POST http://ip:port/actuator/loggers/com.example -H "Content-Type: application/json" -d '{"configuredLevel":"DEBUG"}'
+ * </pre>
  * 
  * @author 飞花梦影
  * @date 2024-10-18 14:01:10
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
-public class Loggers {
+public class CommonLoggerFilter {
 
 	@Bean
 	CommonsRequestLoggingFilter commonsRequestLoggingFilter() {

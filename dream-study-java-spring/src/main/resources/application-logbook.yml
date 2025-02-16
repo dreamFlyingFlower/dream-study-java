@@ -1,0 +1,14 @@
+logging:
+  level:
+    # 日志级别
+    '[org.zalando.logbook.Logbook]': TRACE
+
+logbook:
+  # 日志输出策略
+  strategy: default
+  # 排除
+  exclude:
+  - /swagger/*
+  format:
+    # 日志输出格式
+    style: json

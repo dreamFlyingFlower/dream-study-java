@@ -118,6 +118,10 @@
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-boot-starter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>logbook-spring-boot-starter</artifactId>
+		</dependency>
 
 		<!-- 构建时生成Spring组件(如@Component,@Service等)的索引,通过创建此元数据文件,Spring可以避免在运行时扫描类路径以查找这些组件的昂贵操作 -->
 		<!-- Bean扫描非常耗时,通过利用索引器,Spring可以快速定位和初始化Bean,而无需执行完整的类路径扫描,减少了具有大量Bean或复杂包结构的应用程序的启动时间 -->

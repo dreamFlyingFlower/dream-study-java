@@ -54,6 +54,10 @@ public class QuartzConfig {
 		SchedulerFactoryBean factory = new SchedulerFactoryBean();
 		// 关联trigger
 		factory.setTriggers(simpleTriggerFactoryBean.getObject());
+		// 用于quartz集群,QuartzScheduler启动时更新己存在的Job
+		// factory.setOverwriteExistingJobs(true);
+		// 延长启动
+		factory.setStartupDelay(1);
 		return factory;
 	}
 
