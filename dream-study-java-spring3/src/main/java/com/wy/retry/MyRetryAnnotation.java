@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
  * {@link Retryable#interceptor()}:将interceptor指定的beanName的Bean应用到注解
  * {@link Retryable#value()}:可重试的异常类型,同include,默认为空.如果excludes也为空,则重试所有异常
  * {@link Retryable#include()}:可重试的异常类型,默认为空.如果excludes也为空,则重试所有异常
+ * {@link Retryable#retryFor()}:效果同include
  * {@link Retryable#exclude()}:无需重试的异常类型,默认为空.如果includes也为空,则重试所有异常
  * {@link Retryable#maxAttempts()}:最大重试次数,包括第一次失败,默认为3次
- * {@link Retryable#stateful()}:false:表示无状态重试,每次重试独立处理,适用于幂等操作;true:有状态重试,在重试之间保留状态,适用于非幂等操作(如数据库事务)
  * {@link Retryable#recover()}:表示重试次数到达最大重试次数后的回调方法,如果不写,则抛出异常
  * ->回调方法的返回值必须与 Retryable 方法一致
  * ->回调方法的第一个参数,必须是 Throwable 类型,建议是与 Retryable 配置的异常一致

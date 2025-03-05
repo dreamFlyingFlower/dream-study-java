@@ -10,7 +10,7 @@ import org.springframework.retry.support.RetryTemplate;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 使用{@link RetryTemplate}进行重试,效果和使用注解相同,但更灵活
+ * 使用{@link RetryTemplate}自定义重试,效果和使用注解相同,但更灵活
  * 
  * 重试策略:
  * 
@@ -63,7 +63,7 @@ public class MyRetryTemplate {
 		// 设置重试回退操作策略,主要设置重试间隔时间
 		FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
 		backOffPolicy.setBackOffPeriod(fixedPeriodTime);
-		// 设置重试策略,主要设置重试次数
+		// 设置自定义重试策略,主要设置重试次数
 		SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(maxRetryTimes, exceptionMap);
 		retryTemplate.setRetryPolicy(retryPolicy);
 		retryTemplate.setBackOffPolicy(backOffPolicy);
