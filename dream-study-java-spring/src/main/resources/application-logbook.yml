@@ -1,14 +1,42 @@
 logging:
   level:
     # 日志级别
-    '[org.zalando.logbook.Logbook]': TRACE
+    '[org.zalando.logbook]': TRACE
 
 logbook:
+  write:
+    # 日志拆分块的大小,默认不拆分
+    chunk-size: 0
+    # 截取body的最大长度,后面使用...拼接,-1禁用
+    max-body-size: -1
+  secure-filter:
+    # 是否启用SecureLogbookFilter(同时项目中使用SpringSecurity才会生效)
+    enabled: true
+  filter:
+    # 是否启用LogbookFilter
+    enabled: true
+    # 如何处理表单请求,默认body
+    form-request-mode: body
   # 日志输出策略
   strategy: default
   # 排除
   exclude:
   - /swagger/*
+  # 包含
+  include:
+  - 
   format:
     # 日志输出格式
     style: json
+  # 启用日志记录的最小HTTP响应状态值,当策略为status-at-least或body-only-if-status-at-least时设置
+  minimum-status: 400
+  obfuscate:
+    # 需要混淆的http header集合,如[Authorization]
+    headers:
+    - 
+    # 需要混淆的参数集合,如[access_token]
+    parameters:
+    - 
+    # 需要混淆的path集合
+    paths:
+    - 
