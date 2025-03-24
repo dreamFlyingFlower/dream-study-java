@@ -160,7 +160,7 @@ import com.wy.scalable.example.SelfBeanNameAware;
  * 2.Aware接口属性注入
  * ->2.1.{@link BeanFactoryAware},{@link BeanNameAware},{@link ApplicationContextAware}等
  * 3.{@link BeanPostProcessor#postProcessBeforeInitialization()}回调
- * 4.InitializingBean接口的初始化方法回调
+ * 4.{@link InitializingBean#afterPropertiesSet}:初始化方法回调
  * 5.自定义初始化方法init回调,被{@link PostConstruct}修饰的初始化方法
  * 6.{@link BeanPostProcessor#postProcessAfterInitialization()} 回调
  * </pre>
