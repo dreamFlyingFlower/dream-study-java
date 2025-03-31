@@ -269,15 +269,15 @@ public class MyAspect {
 	 * bean(userService):拦截容器中userService类中的所有方法
 	 * bean(*Service):拦截容器中Service结尾的类中的所有方法
 	 * reference pointcut:表示引用其他命名切入点,只有@AspectJ风格支持
-	 * this:用于匹配当前AOP代理对象类型的执行方法.可能包括引入接口也类型匹配
-	 * within:用于匹配指定类型内的方法执行.
-	 * target:用于匹配当前目标对象类型的执行方法,不包括引入接口也类型匹配
+	 * this:匹配当前AOP代理对象类型的执行方法.可能包括引入接口也类型匹配
+	 * within:匹配指定类型内的方法执行,适用于静态类,没有execution粒度细
+	 * target:匹配目标对象(对代理的实例)的类型,包括子类,适用于动态代理
 	 * args:指定被拦截方法需要传递的形参,注意是形参,非参数类型.如果其他切面方法使用了被PointCut修饰的方法,则其他切面也要加上该形参
 	 * 
-	 * `@annotation`:注解拦截,内容为需要拦截的注解的全限定类名
-	 * `@within`:用于匹配所有持有指定注解类型内的方法
-	 * `@target`:用于匹配当前目标对象类型的执行方法,其中目标对象持有指定的注解
-	 * `@args`:用于匹配当前执行的方法传入的参数持有指定注解的执行
+	 * `@annotation`:注解拦截,内容为需要拦截的注解的全限定类名,只针对方法,不针对类
+	 * `@within`:同within,但匹配的是类上注解
+	 * `@target`:同target,但匹配的是类上注解
+	 * `@args`:匹配当前执行的方法传入的参数持有指定注解的执行
 	 * </pre>
 	 * 
 	 * {@link Pointcut#argNames()}:指定切入点表达式参数.参数可以是execution或者args中的.
