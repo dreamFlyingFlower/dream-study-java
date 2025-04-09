@@ -22,7 +22,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import dream.flying.flower.collection.MapHelper;
-import dream.flying.flower.framework.web.helper.RestTemplateHelpers;
+import dream.flying.flower.framework.web.RestTemplateHelpers;
 
 /**
  * 使用RestTemplate.原生的RestTemplate不能使用Patch请求方式,需要设置为httpClient的工厂类.详见{@link RestTemplateHelpers}
