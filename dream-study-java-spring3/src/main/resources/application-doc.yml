@@ -1,0 +1,61 @@
+springdoc:
+  # get请求多参数时不需要添加额外的@ParameterObject和@Parameter注解
+  default-flat-param-object: true
+  # 预加载,设为false会在首次打开时加载极长时间
+  pre-loading-enabled: false
+  swagger-ui:
+    # 启用swagger
+    enabled: true
+    # 自定义swagger请求地址,默认/swagger-ui.html
+    path: /swagger-ui.html
+    # 标签的排序方式:alpha-按照子母顺序排序.若使用@ApiSupport注解排序,不可配置当前属性,且@Tag#description需要值,否则不生效
+    tags-sorter: alpha
+    # 接口的排序方式:
+    # alpha-默认.按照子母顺序排序,若使用@ApiOperationSupport注解排序,不可配置当前属性
+    # order-该规则会使用Knife4j的增强排序扩展规则`x-order`
+    operations-sorter: alpha
+    show-extensions: true
+  api-docs:
+    # swagger后端请求地址
+    path: /v3/api-docs
+  # 分组
+  group-configs: 
+      # 分组标识,中文可能出现异常
+    - group: default
+      # 分组展示名称
+      display-name: default
+      # 匹配的URL
+      paths-to-match: /**
+      # 需要排序的URL
+      paths-to-exclude:
+      - /history/**
+      - /app/**
+      # 需要扫描的包路径
+      packages-to-scan: 
+      - dream.flying.flower.auth.server.controller
+      - dream.flying.flower.auth.server.endpoint
+    - group: 历史数据API
+      paths-to-match: /history/**
+      packages-to-scan:
+      - dream.flying.flower.auth.server.controller.history
+    - group: 应用API
+      paths-to-match: /app/**
+      packages-to-scan:
+      - dream.flying.flower.auth.server.controller.app
+
+knife4j:
+  enable: true
+  production: false
+  setting:
+    language: zh_cn
+    swagger-model-name: "实体类列表"
+    enable-footer: true
+    enable-footer-custom: true
+    footer-custom-content: "<strong>Copyright ©️ 2024 DreamFlyingFlower. All Rights Reversed</strong>"
+    enable-document-manage: true
+  #文档补充说明,必须是markdown格式
+  documents:
+  - name: MD语法说明
+    locations: classpath:static/markdown/grammar/*
+    # 此处分组必须使用在Knife4jConfig已存在的分组名group,当存在displayName时,使用displayName名称
+    group: default
