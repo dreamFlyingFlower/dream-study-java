@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<!-- 传统打jar包直接将整个项目以及依赖都打进去,项目越大,jar包越大,不利于服务部署,可采用以下方式 -->
+	<!-- 第一种:将依赖的jar包指向其他目录,并且在启动项目时添加参数指定依赖的jar包目录:-Djava.ext.dirs=lib或-Dloader.path=./lib -->
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<directory>/app/server/lib</directory>
+		<plugins>
+			<!-- 将项目需要依赖的jar包拷贝到指定目录,然后让项目去指该目录查找依赖 -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-dependency-plugin</artifactId> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>copy-dependencies</id> -->
+			<!-- <phase>package</phase> -->
+			<!-- <goals> -->
+			<!-- <goal>copy-dependencies</goal> -->
+			<!-- </goals> -->
+			<!-- <configuration> -->
+			<!-- <outputDirectory>${project.build.directory}/lib</outputDirectory> -->
+			<!-- <excludeTransitive>false</excludeTransitive> -->
+			<!-- <stripVersion>false</stripVersion> -->
+			<!-- <silent>true</silent> -->
+			<!-- </configuration> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<includes>
+						<!-- 如果有自己的依赖jar,可在次引入.如果没有,则使用null或nothing,不引入任何其他jar -->
+						<!-- 不存在的include引用,相当于排除所有maven依赖jar,没有任何三方jar文件打入输出jar -->
+						<include>
+							<!-- 使用null或nothing -->
+							<groupId>null</groupId>
+							<artifactId>null</artifactId>
+						</include>
+					</includes>
+					<!-- 打包方式,必须大写 -->
+					<layout>ZIP</layout>
+				</configuration>
+				<executions>
+					<!-- 将项目需要依赖的jar包拷贝到指定目录,然后让项目去指该目录查找依赖 -->
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<excludeTransitive>false</excludeTransitive>
+							<stripVersion>false</stripVersion>
+							<silent>true</silent>
+						</configuration>
+					</execution>
+					<execution>
+						<goals>
+							<!-- 剔除其他依赖,只保留最简单的结构 -->
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -29,9 +29,20 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.springboot.ai</groupId>
+			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-openai-spring-boot-starter</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.0-M6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+			<version>1.0.0-M6</version>
+		</dependency>
+		<!-- MCP 服务器支持 -WebMVC版本 -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-mcp-server-webmvc-spring-boot-starter</artifactId>
+			<version>1.0.0-M6</version>
 		</dependency>
 		<!-- DJL -->
 		<dependency>
@@ -135,12 +146,12 @@
 					<artifactId>pytorch-native-cpu</artifactId>
 					<classifier>win-x86_64</classifier>
 					<scope>runtime</scope>
-					<version>2.0.1</version>
+					<version>2.0.1</version><!--$NO-MVN-MAN-VER$-->
 				</dependency>
 				<dependency>
 					<groupId>ai.djl.pytorch</groupId>
 					<artifactId>pytorch-jni</artifactId>
-					<version>2.0.1-0.23.0</version>
+					<version>2.0.1-0.23.0</version><!--$NO-MVN-MAN-VER$-->
 					<scope>runtime</scope>
 				</dependency>
 			</dependencies>

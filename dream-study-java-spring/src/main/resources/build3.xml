@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<!-- 传统打jar包直接将整个项目以及依赖都打进去,项目越大,jar包越大,不利于服务部署,可采用以下方式 -->
+	<!-- 第三种:有些jar包并不在maven仓库中,要么搭建私服,将这些jar包放进去,要么使用systemPath方式 -->
+	<!-- 需要根据实际情况在properties中定义boot-jar-output等值 -->
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<directory>/app/server/lib</directory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<useUniqueVersions>false</useUniqueVersions>
+						</manifest>
+						<manifestEntries>
+							<!-- 非官方第三方jar在pom中是以systemPath方式引入的,maven-jar-plugin组件没有直接参数声明包含指定scope的组件 -->
+							<!-- 通过使用额外定义Class-Path来追加指定依赖组件列表,在子模块按实际情况指定jar-manifestEntries-classpath即可 -->
+							<!-- 例如(注意前面个点及各空格分隔符):. lib/xxx-1.0.0.jar lib/yyy-2.0.0.jar.详见各子模块boot-jar-output属性定义 -->
+							<Class-Path>${jar-manifestEntries-classpath}</Class-Path>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${boot-jar-output}/lib</outputDirectory>
+							<excludeTransitive>false</excludeTransitive>
+							<stripVersion>false</stripVersion>
+							<silent>false</silent>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>
+							<groupId>null</groupId>
+							<artifactId>null</artifactId>
+						</include>
+					</includes>
+					<layout>ZIP</layout>
+					<outputDirectory>${boot-jar-output}</outputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

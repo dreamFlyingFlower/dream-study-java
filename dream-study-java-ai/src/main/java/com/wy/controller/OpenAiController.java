@@ -1,19 +1,12 @@
 package com.wy.controller;
 
-import java.util.Map;
-
-import org.springframework.ai.chat.ChatClient;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.embedding.EmbeddingClient;
-import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import dream.flying.flower.collection.ListHelper;
-import dream.flying.flower.collection.MapHelper;
 
 /**
  * AI测试
@@ -27,21 +20,11 @@ import dream.flying.flower.collection.MapHelper;
 public class OpenAiController {
 
 	@Autowired
-	EmbeddingClient embeddingClient;
-
-	@Autowired
 	ChatClient chatClient;
-
-	@GetMapping("/ai/embedding")
-	public Map<?, ?> embed(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
-		EmbeddingResponse embeddingResponse =
-				this.embeddingClient.embedForResponse(ListHelper.builder(message).build());
-		return MapHelper.of("embedding", embeddingResponse);
-	}
 
 	@GetMapping("/ai/chat")
 	public String chat(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
 		Prompt prompt = new Prompt(message);
-		return chatClient.call(prompt).getResult().getOutput().getContent();
+		return chatClient.prompt(prompt).call().chatResponse().getResult().getOutput().getText();
 	}
 }

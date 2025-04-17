@@ -1,0 +1,35 @@
+spring:
+  ai:
+    anthropic:
+      # 密钥,从启动参数或环境变量中获取
+      api-key: ${ANTHROPIC_API_KEY}
+      chat:
+        options:
+          # 模型名称
+          model: claude-3-7-sonnet-20250219
+
+    mcp:
+      # 配置MCP客户端
+      client:
+        # 使用stdio传输的客户端,使用npx命令来下载并运行@modelcontextprotocol/server-brave-search,并使用-y标志自动确认所有安装提示
+        stdio:
+          connections:
+            # 网络搜索
+            brave-search:
+              command: npx
+              args:
+                - "-y"
+                - "@modelcontextprotocol/server-brave-search"
+              env:
+                BRAVE_API_KEY: ${BRAVE_API_KEY}
+            # 文件系统
+            filesystem:
+              command: npx
+              args:
+                - "-y"
+                - "@modelcontextprotocol/server-filesystem"
+                - "./"
+      server:
+        name: mcp-server
+        version: 1.0.0
+        type: SYNC
