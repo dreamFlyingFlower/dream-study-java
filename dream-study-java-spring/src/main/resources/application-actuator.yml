@@ -8,7 +8,7 @@ management:
       # 效果等同于server.context-path,若同时存在,base-path优先级更高
       base-path: /actuator
       exposure:
-        # 暴露所有的Actuator监控端点,默认禁用
+        # 暴露所有的Actuator监控端点,默认只开放health和info端点
         #include: "*"
         # 暴露多个端点
         include:
@@ -71,3 +71,16 @@ spring:
             user: 
               name: admin
               password: 123456
+
+  cloud:
+    nacos:
+      discovery:
+        # 如果集成了nacos,可以将actuator的元数据添加到服务发现组件中
+        metadata:
+          # 如果集成了security,可以配置权限
+          user:
+            name: admin
+            password: 123456
+          management:
+            context-path: ${server.servlet.context-path}/actuator
+        

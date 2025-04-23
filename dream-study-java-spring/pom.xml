@@ -123,6 +123,15 @@
 			<artifactId>logbook-spring-boot-starter</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-server</artifactId>
+		</dependency>
+
 		<!--
 		构建时生成Spring组件(如@Component,@Service等)的索引,通过创建此元数据文件,Spring可以避免在运行时扫描类路径以查找这些组件的昂贵操作 -->
 		<!--
