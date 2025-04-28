@@ -25,7 +25,9 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.weaver.patterns.KindedPointcut;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.IntroductionAdvisor;
+import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.aspectj.AbstractAspectJAdvice;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.aspectj.AspectJMethodBeforeAdvice;
 import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory;
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
@@ -35,6 +37,7 @@ import org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCre
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.aop.framework.AdvisedSupportListener;
 import org.springframework.aop.framework.AdvisorChainFactory;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.aop.framework.AopProxy;
@@ -46,6 +49,7 @@ import org.springframework.aop.framework.ProxyConfig;
 import org.springframework.aop.framework.ProxyCreatorSupport;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.framework.ReflectiveMethodInvocation;
+import org.springframework.aop.framework.adapter.AdvisorAdapter;
 import org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor;
 import org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor;
 import org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
@@ -97,11 +101,13 @@ import com.wy.service.impl.SysLogServiceImpl;
  * ->{@link #CglibAopProxy}:当使用CGLIB动态代理时的代理处理类,非public
  * {@link Advised}:代表被 Advice 增强的对象,包括添加advisor的方法,添加advice等的方法
  * {@link ProxyConfig}:一个代理对象的配置信息,包括代理的各种属性,如基于接口还是基于类构造代理
- * {@link ProxyCreatorSupport}:AdvisedSupport 的子类,创建代理对象的支持类,内部包含 AopProxyFacory 工厂成员,
+ * {@link AdvisedSupport}:AopProxyFacory的配置管理器
+ * ->{@link ProxyCreatorSupport}:AdvisedSupport 的子类,创建代理对象的支持类,内部包含 AopProxyFacory 工厂成员,
  * 		可直接使用工厂成员创建 Proxy
- * ->{@link ProxyFactory}:用于生成代理对象实例的工厂类
+ * -->{@link ProxyFactory}:用于生成代理对象实例的工厂类
+ * {@link AdvisedSupportListener}:AdvisedSupport监听器
  * {@link Advisor}:代表一个增强器提供者的对象,内部包含getAdvice()获取增强器
- * {@link AdvisorChainFactory}:获取增强器链的工厂接口,提供方法返回所有增强器
+ * {@link AdvisorChainFactory}:获取增强器链的工厂接口,提供方法返回所有增强器.Advisor链工厂接口与实现
  * {@link org.springframework.aop.Pointcut}:切入点,用于匹配类和方法,满足切入点的条件是advice
  * 
  * {@link Aspect}:指定需要代理的类.默认切面类应该为单例的,但是当切面类为一个多例类时,指定预处理的切入点表达式
@@ -221,6 +227,10 @@ import com.wy.service.impl.SysLogServiceImpl;
  * {@link AopUtils}:AOP工具类
  * ->{@link AopUtils#isAopProxy(Object)}:指定对象是否为代理类
  * ->{@link AopUtils#findAdvisorsThatCanApply(java.util.List, Class)}:找到可用于代理指定类的切面列表
+ * 
+ * {@link AspectJExpressionPointcut}: 解析表达式
+ * {@link PointcutAdvisor}: Pointcut和Advisor的连接器
+ * {@link AdvisorAdapter}: Advisor和Interceptor的连接器
  * </pre>
  * 
  * @author 飞花梦影
