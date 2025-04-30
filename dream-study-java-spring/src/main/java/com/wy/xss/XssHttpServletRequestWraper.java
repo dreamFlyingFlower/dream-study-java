@@ -48,6 +48,7 @@ public class XssHttpServletRequestWraper extends HttpServletRequestWrapper {
 		int i = str.length;
 		String as1[] = new String[i];
 		for (int j = 0; j < i; j++) {
+			// 也可以使用hutool的htmlutil#filter
 			as1[j] = cleanXSS(cleanSQLInject(str[j]));
 		}
 		log.info("XssHttpServletRequestWraper净化后的请求为：==========" + as1);
@@ -154,9 +155,11 @@ public class XssHttpServletRequestWraper extends HttpServletRequestWrapper {
 		matcher = pattern.matcher(src);
 		src = matcher.replaceAll("\"\"");
 		// 增加脚本
-		src = src.replaceAll("script", "").replaceAll(";", "")
+		src = src.replaceAll("script", "")
+				.replaceAll(";", "")
 				/* .replaceAll("\"", "").replaceAll("@", "") */
-				.replaceAll("0x0d", "").replaceAll("0x0a", "");
+				.replaceAll("0x0d", "")
+				.replaceAll("0x0a", "");
 
 		if (!temp.equals(src)) {
 			// System.out.println("输入信息存在xss攻击！");
@@ -181,9 +184,12 @@ public class XssHttpServletRequestWraper extends HttpServletRequestWrapper {
 	public String cleanSQLInject(String src) {
 		String lowSrc = src.toLowerCase();
 		String temp = src;
-		String lowSrcAfter =
-				lowSrc.replaceAll("insert", "forbidI").replaceAll("select", "forbidS").replaceAll("update", "forbidU")
-						.replaceAll("delete", "forbidD").replaceAll("and", "forbidA").replaceAll("or", "forbidO");
+		String lowSrcAfter = lowSrc.replaceAll("insert", "forbidI")
+				.replaceAll("select", "forbidS")
+				.replaceAll("update", "forbidU")
+				.replaceAll("delete", "forbidD")
+				.replaceAll("and", "forbidA")
+				.replaceAll("or", "forbidO");
 
 		if (!lowSrcAfter.equals(lowSrc)) {
 			log.error("sql注入检查：输入信息存在SQL攻击！");
