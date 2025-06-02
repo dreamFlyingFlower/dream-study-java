@@ -5,8 +5,10 @@ package com.wy.jdk15;
  * 
  * <pre>
  * 1.主要是对前2个版本功能的深化,稳定
- * 2.sealed限制类和接口继承,permits关键字指定继承或实现的类,接口.no-sealed非密封类可以被所有类继承
- * 3.隐藏类:不能直接被其他class的二进制代码访问的类,只能通过反射访问.例如Lambda表达式
+ * 2.sealed限制类和接口继承,permits关键字指定继承或实现的类,接口.
+ * 3.sealed修饰的类只能被sealed,final,no-sealed修改的类继承
+ * 4.no-sealed:非密封类,可以被所有类继承.取消sealed只能被permits指定类继承的限制
+ * 5.隐藏类:不能直接被其他class的二进制代码访问的类,只能通过反射访问.例如Lambda表达式
  * </pre>
  * 
  * @author 飞花梦影

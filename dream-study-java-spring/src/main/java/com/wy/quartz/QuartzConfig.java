@@ -56,7 +56,7 @@ public class QuartzConfig {
 		factory.setTriggers(simpleTriggerFactoryBean.getObject());
 		// 用于quartz集群,QuartzScheduler启动时更新己存在的Job
 		// factory.setOverwriteExistingJobs(true);
-		// 延长启动
+		// 项目启动之后多少秒才开始执行定时任务
 		factory.setStartupDelay(1);
 		return factory;
 	}

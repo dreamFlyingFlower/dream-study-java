@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component;
 /**
  * quartz的job具体执行方法,若有dataJobMap属性,可继承{@link QuartzJobBean}
  * 
- * {@link DisallowConcurrentExecution}:标记类为不能同时执行多个实例的类.其中实例基于{@link JobDetail}定义,即基于{@link JobKey}
+ * {@link DisallowConcurrentExecution}:标记类不能同时执行多个任务,即相同任务必须等上一个执行完之后才能执行下一个.
+ * 实例基于{@link JobDetail}定义,即基于{@link JobKey}.主要用于相同任务不能同时进行的程序
  * 
  * @author 飞花梦影
  * @date 2021-01-03 09:44:06
