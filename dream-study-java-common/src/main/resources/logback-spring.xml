@@ -19,7 +19,9 @@
 	<!-- %d{HH: mm:ss.SSS}:日志输出时间 -->
 	<!-- %thread:输出日志的进程名字 -->
 	<!-- %-5level:日志级别,并且使用5个字符靠左对齐 -->
+	<!-- %-4line或%L:打印行号,只使用4个字符 -->
 	<!-- %logger{36}:日志输出者的名字 -->
+	<!-- %-18X{LOG_ID}:18位的日志流水号,如果没有就是18个空格.LOG_ID需要使用MDC类进行设置 -->
 	<!-- %msg:日志消息 -->
 	<!-- %n:平台的换行符 -->
 
@@ -33,7 +35,7 @@
 	<!-- highlight:高亮 -->
 	<property name="CONSOLE_PATTERN"
 		value="%red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger{50}:%L) - %gray(%msg%n)" />
-	<property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L - %msg%n" />
+	<property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L %-18X{LOG_ID} - %msg%n" />
 
 	<!-- 彩色日志 -->
 	<conversionRule conversionWord="cc"
