@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,7 +30,7 @@ import com.wy.scalable.example.SelfApplicationContextInitializer;
  * 
  * 用户自定义的组件在spring上下加载完成,但是还没有刷新上下文之后注入到spring上下文中
  * 
- * SpringBootApplication启动注解:
+ * SpringBootApplication启动注解,具体的配置加载过程:
  * 
  * <pre>
  * {@link SpringBootApplication}:多注解的合体,扫描自动配置类,加载spring上下文
@@ -57,6 +58,8 @@ import com.wy.scalable.example.SelfApplicationContextInitializer;
  * --->{@link ImportSelector}:实现该接口的方法返回类的全路径,需要Import引入,和Import不同的是该接口引入Class字符串
  * 
  * {@link SpringApplication#run}:主要是对Spring上下文的解析,装配等,同时对EnableAutoConfiguration引入的其他类进行处理
+ * ->{@link SpringApplication#configureEnvironment}:加载环境变量,可在Web中访问ip:port/servlet-context/env
+ * ->{@link SpringApplication#configurePropertySources}:加载配置文件
  * </pre>
  * 
  * 启动流程:
@@ -90,7 +93,7 @@ import com.wy.scalable.example.SelfApplicationContextInitializer;
  * 
  * 其他自动注入配置见{@link S_Annotation}
  * 
- * 常用配置文件优先级,高优先级覆盖低优先级:
+ * 常用配置文件优先级,高优先级覆盖低优先级.从外向内加载:
  * 
  * <pre>
  * 1.启动参数
@@ -105,10 +108,20 @@ import com.wy.scalable.example.SelfApplicationContextInitializer;
  * 如果不带profile和带profile的配置中有同名属性,profile后加载,会覆盖不带profile的属性
  * </pre>
  * 
+ * 关于配置的不协调
+ * 
+ * <pre>
+ * {@link ConfigFileApplicationListener}: 当运行监听的时候,加载配置监听.新版本换成了ConfigDataEnvironmentPostProcessor
+ * BootstrapApplicationListener: 如果是Cloud程序,会监听bootstrap,且bootstrap的先加载.可以从Order比较
+ * 
+ * 即使BootstrapApplicationListener在ConfigFileApplicationListener之前加载,spring.application.name的值仍然是取application.yml中的值
+ * </pre>
+ * 
  * @author 飞花梦影
  * @date 2020-12-02 22:23:38
  * @git {@link https://github.com/dreamFlyingFlower}
  */
+@SuppressWarnings("deprecation")
 @Configuration
 public class S_AutoConfig {
 
