@@ -648,6 +648,7 @@ import com.wy.scalable.example.SelfBeanNameAware;
 @EnableAsync
 public class Application {
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		/**
 		 * 第一种启动方式,直接run即可启动,返回的上下文可以做一些其他操作

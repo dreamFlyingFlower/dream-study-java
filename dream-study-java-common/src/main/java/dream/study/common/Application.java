@@ -143,6 +143,7 @@ public class Application {
 	 * 
 	 * @param args 当多环境启动时,可以加载不同的参数
 	 */
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}

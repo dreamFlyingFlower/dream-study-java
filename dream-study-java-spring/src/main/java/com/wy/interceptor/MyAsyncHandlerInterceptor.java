@@ -39,6 +39,7 @@ public class MyAsyncHandlerInterceptor implements AsyncHandlerInterceptor {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void afterConcurrentHandlingStarted(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {

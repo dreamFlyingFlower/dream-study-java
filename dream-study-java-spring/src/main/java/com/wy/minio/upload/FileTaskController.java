@@ -38,7 +38,7 @@ public class FileTaskController {
 	 * @return Result
 	 */
 	@GetMapping("/{md5}")
-	public Result<?> taskInfo(@PathVariable("md5") String md5) {
+	public Result<?> taskInfo(@PathVariable String md5) {
 		return Result.ok(minioUploadService.getTaskInfo(md5));
 	}
 
@@ -60,8 +60,7 @@ public class FileTaskController {
 	 * @return Result
 	 */
 	@GetMapping("/{identifier}/{partNumber}")
-	public Result<?> preSignUploadUrl(@PathVariable("identifier") String identifier,
-			@PathVariable("partNumber") Integer partNumber) {
+	public Result<?> preSignUploadUrl(@PathVariable String identifier, @PathVariable Integer partNumber) {
 		FileTaskEntity task = minioUploadService.getByMd5(identifier);
 		if (task == null) {
 			return Result.error("分片任务不存在");
@@ -79,7 +78,7 @@ public class FileTaskController {
 	 * @return Result
 	 */
 	@PostMapping("/merge/{identifier}")
-	public Result<?> merge(@PathVariable("identifier") String identifier) {
+	public Result<?> merge(@PathVariable String identifier) {
 		minioUploadService.merge(identifier);
 		return Result.ok();
 	}

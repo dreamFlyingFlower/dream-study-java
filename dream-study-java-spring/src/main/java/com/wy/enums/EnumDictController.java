@@ -47,7 +47,7 @@ public class EnumDictController {
 	}
 
 	@GetMapping("/{type}")
-	public Result<List<CommonEnumVO>> dictByType(@PathVariable("type") String type) {
+	public Result<List<CommonEnumVO>> dictByType(@PathVariable String type) {
 		Map<String, List<CommonEnum>> dict = this.commonEnumRegistry.getNameDict();
 		List<CommonEnum> commonEnums = dict.get(type);
 		return Result.ok(CommonEnumVO.from(commonEnums));

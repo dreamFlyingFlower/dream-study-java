@@ -45,6 +45,7 @@ public class ValidatorConfig {
 	 * @return Validator
 	 */
 	@Bean
+	@SuppressWarnings("resource")
 	Validator validator() {
 		ValidatorFactory validatorFactory = Validation.byProvider(HibernateValidator.class)
 				.configure()

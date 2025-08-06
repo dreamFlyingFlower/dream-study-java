@@ -31,6 +31,7 @@ public class MyTikaConfig {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
+	@SuppressWarnings("resource")
 	@Bean
 	Tika tika() throws TikaException, IOException, SAXException {
 		// 配置文件

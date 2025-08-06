@@ -30,6 +30,7 @@ public class MinioService {
 	private MinioClient minioClient;
 
 	@SneakyThrows
+	@SuppressWarnings("resource")
 	public void test(MultipartFile multipartFile) {
 		// 检查bucket块是否存在,类似于命名空间
 		boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket("bucket").build());
@@ -49,14 +50,19 @@ public class MinioService {
 		}
 
 		// 上传本地/home/user/Photos/test.zip作为test.zip到块bucket中
-		minioClient.uploadObject(UploadObjectArgs.builder().bucket("bucket")
+		minioClient.uploadObject(UploadObjectArgs.builder()
+				.bucket("bucket")
 				// 上传后的文件名
 				.object("test.zip")
 				// 本地需要上传的文件地址
-				.filename("/home/user/Photos/test.zip").build());
+				.filename("/home/user/Photos/test.zip")
+				.build());
 		// 从流中读取文件
-		minioClient.putObject(PutObjectArgs.builder().bucket("bucket").object("test.zip")
+		minioClient.putObject(PutObjectArgs.builder()
+				.bucket("bucket")
+				.object("test.zip")
 				// 上传的流
-				.stream(multipartFile.getInputStream(), multipartFile.getSize(), -1).build());
+				.stream(multipartFile.getInputStream(), multipartFile.getSize(), -1)
+				.build());
 	}
 }

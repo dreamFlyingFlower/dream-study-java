@@ -90,12 +90,14 @@ public class MyHttpClient5 {
 	/** 响应处理器 */
 	private static final HttpClientResponseHandler<String> httpClientResponseHandler;
 
-	public static void httpClient() {
-		HttpClients.custom().setConnectionManager(defaultHttpClientConnectionManager)
+	public static CloseableHttpClient httpClient() {
+		return HttpClients.custom()
+				.setConnectionManager(defaultHttpClientConnectionManager)
 				.setKeepAliveStrategy(defaultConnectionKeepAliveStrategy)
 				// 设置http client的重试次数,默认是1次,间隔1S
 				.setRetryStrategy(new DefaultHttpRequestRetryStrategy())
-				.setDefaultRequestConfig(RequestConfig.custom().build()).build();
+				.setDefaultRequestConfig(RequestConfig.custom().build())
+				.build();
 	}
 
 	// jackson解析工具
@@ -110,13 +112,20 @@ public class MyHttpClient5 {
 				new UsernamePasswordCredentials("", "".toCharArray()));
 		credsProvider = basicCredentialsProvider;
 		// 创建http客户端
-		httpClient = HttpClients.custom().useSystemProperties().setRetryStrategy(new DefaultHttpRequestRetryStrategy())
-				.setDefaultCredentialsProvider(credsProvider).build();
+		httpClient = HttpClients.custom()
+				.useSystemProperties()
+				.setRetryStrategy(new DefaultHttpRequestRetryStrategy())
+				.setDefaultCredentialsProvider(credsProvider)
+				.build();
 		// 初始化httpGet
 		httpGet = new HttpGet("");
 		// 初始化HTTP请求配置
-		requestConfig = RequestConfig.custom().setContentCompressionEnabled(true).setAuthenticationEnabled(true)
-				.setConnectionRequestTimeout(Timeout.ofSeconds(100)).setResponseTimeout(Timeout.ofSeconds(100)).build();
+		requestConfig = RequestConfig.custom()
+				.setContentCompressionEnabled(true)
+				.setAuthenticationEnabled(true)
+				.setConnectionRequestTimeout(Timeout.ofSeconds(100))
+				.setResponseTimeout(Timeout.ofSeconds(100))
+				.build();
 		httpGet.setConfig(requestConfig);
 		// 初始化response解析器
 		httpClientResponseHandler = new BasicHttpClientResponseHandler();

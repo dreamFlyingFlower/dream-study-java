@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.logbook.Conditions;
 import org.zalando.logbook.Correlation;
@@ -38,6 +39,7 @@ import org.zalando.logbook.spring.LogbookClientHttpRequestInterceptor;
  * @date 2025-02-06 10:52:53
  * @git {@link https://github.com/dreamFlyingFlower}
  */
+@Configuration
 public class LogbookFilter {
 
 	@Bean

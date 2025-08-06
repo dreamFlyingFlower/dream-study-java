@@ -24,6 +24,7 @@ public class ResourceUtil {
 	 * @param fileName
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	public static void function4(String fileName) throws IOException {
 		InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(fileName);
 		getFileContent(in);
@@ -35,6 +36,7 @@ public class ResourceUtil {
 	 * @param fileName
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	public static void function5(String fileName) throws IOException {
 		InputStream in = ResourceUtil.class.getResourceAsStream(fileName);
 		getFileContent(in);
@@ -46,6 +48,7 @@ public class ResourceUtil {
 	 * @param fileName
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	public static void function6(String fileName) throws IOException {
 		ClassPathResource classPathResource = new ClassPathResource(fileName);
 		InputStream inputStream = classPathResource.getInputStream();

@@ -1,4 +1,4 @@
-package com.wy.classloader;
+package com.wy.yml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,12 +31,12 @@ public class ConfigUpdater {
 
 		obj.put("loadjars", jarNames);
 
-		// 修改
-		FileWriter writer = new FileWriter(new File("src/main/resources/bootstrap.yml"));
-		DumperOptions options = new DumperOptions();
-		options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-		options.setPrettyFlow(true);
-		Yaml yamlWriter = new Yaml(options);
-		yamlWriter.dump(obj, writer);
+		try (FileWriter writer = new FileWriter(new File("src/main/resources/bootstrap.yml"))) {
+			DumperOptions options = new DumperOptions();
+			options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+			options.setPrettyFlow(true);
+			Yaml yamlWriter = new Yaml(options);
+			yamlWriter.dump(obj, writer);
+		}
 	}
 }

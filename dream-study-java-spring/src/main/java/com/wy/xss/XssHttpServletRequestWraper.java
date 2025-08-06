@@ -74,6 +74,7 @@ public class XssHttpServletRequestWraper extends HttpServletRequestWrapper {
 	 * 过滤请求体 json 格式的
 	 */
 	@Override
+	@SuppressWarnings("resource")
 	public ServletInputStream getInputStream() throws IOException {
 		final ByteArrayInputStream bais = new ByteArrayInputStream(inputHandlers(super.getInputStream()).getBytes());
 
@@ -174,10 +175,11 @@ public class XssHttpServletRequestWraper extends HttpServletRequestWrapper {
 
 	// 输出
 	public void outputMsgByOutputStream(HttpServletResponse response, String msg) throws IOException {
-		ServletOutputStream outputStream = response.getOutputStream();
-		response.setHeader("content-type", "text/html;charset=UTF-8");
-		byte[] dataByteArr = msg.getBytes("UTF-8");
-		outputStream.write(dataByteArr);
+		try (ServletOutputStream outputStream = response.getOutputStream()) {
+			response.setHeader("content-type", "text/html;charset=UTF-8");
+			byte[] dataByteArr = msg.getBytes("UTF-8");
+			outputStream.write(dataByteArr);
+		}
 	}
 
 	// 需要增加通配,过滤大小写组合

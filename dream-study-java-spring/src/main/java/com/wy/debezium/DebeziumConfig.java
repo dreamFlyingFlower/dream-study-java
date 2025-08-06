@@ -112,6 +112,7 @@ public class DebeziumConfig {
 	 * @param configuration
 	 * @return SqlServerTimelyExecutor
 	 */
+	@SuppressWarnings("resource")
 	@Bean
 	SqlServerTimelyExecutor sqlServerTimelyExecutor(io.debezium.config.Configuration configuration) {
 		SqlServerTimelyExecutor sqlServerTimelyExecutor = new SqlServerTimelyExecutor();

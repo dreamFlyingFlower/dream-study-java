@@ -47,6 +47,7 @@ public class ReceiveMail {
 
 	private MailProperties mailProperties;
 
+	@SuppressWarnings("resource")
 	public void execute() {
 		Properties props = new Properties();
 		// 协议一般是iamp
@@ -76,14 +77,16 @@ public class ReceiveMail {
 			folder.getMessages();
 
 			if (folder.getMessageCount() <= 0) {
+				store.close();
+				folder.close();
 				return;
 			}
 
 			for (Message message : messages) {
 				handlerSingle(message);
 			}
-			folder.close(false);
 			store.close();
+			folder.close(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

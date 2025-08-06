@@ -1,6 +1,7 @@
 package com.wy.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +56,8 @@ public class User implements Serializable {
 	private Integer age;
 
 	private Character sex;
+
+	private BigDecimal salary;
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date birthday;
