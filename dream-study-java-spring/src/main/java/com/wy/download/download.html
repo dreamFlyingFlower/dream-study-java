@@ -1,0 +1,114 @@
+<!-- 对应DownloadController的v5方法中的前端代码 -->
+
+<body>
+<!-- 第一种:直接使用a标签 -->
+<!-- 简单,无需JS浏览器自动处理;不能自定义请求头,跨域时部分浏览器可能忽略download属性,文件名可能失效 -->
+<a href="/download/v4" download="图片.jpeg">下载</a>
+
+<!-- 第二种 -->
+<button type="button" onclick="downloadFile()">下载</button>
+</body>
+
+<script>
+	<!-- 第二种: Fetch + Blob -->
+	<!-- 支持自定义请求头,可添加进度条,兼容性较好,支持现代浏览器,且download属性可自定义文件名;大文件占用内存,不支持断点续传 -->
+	function downloadFile() {
+	  fetch('/download/v5', {
+	    headers: {Authorization: 'Bearer xxxooo'}
+	  })
+	  .then(response => response.blob())
+	  .then(blob => {
+	    const url = URL.createObjectURL(blob);
+	    const a = document.createElement('a');
+	    a.href = url;
+	    a.download = '图片.jpeg';
+	    a.click();
+	    URL.revokeObjectURL(url); // 释放内存
+	  });
+	}
+	
+	<!-- 第三种: 流式下载 -->
+	<!-- 后端接口需添加Content-Length响应header,否则进度信息无法正确显示 -->
+	<!-- 适合超大文件,内存占用可控;代码复杂,兼容性有限,需现代浏览器 -->
+	async function streamDownloadFile(url, filename, onProgress) {
+	  try {
+	    // 1. 发起请求
+	    const response = await fetch(url, {
+	      headers: { Authorization: 'Bearer xxxooo' }
+	    });
+	    if (!response.ok) {
+	      throw new Error(`下载失败: ${response.status} ${response.statusText}`);
+	    }
+	    // 2. 获取文件总大小
+	    const contentLength = response.headers.get('Content-Length');
+	    const totalSize = contentLength ? parseInt(contentLength) : null;
+	    console.log(totalSize)
+	    let loadedSize = 0;
+	    // 3. 创建可读流
+	    const reader = response.body.getReader();
+	    // 4. 创建可写流,文件保存
+	    const fileStream = await createFileStream(filename);
+	    // 5. 流式处理数据
+	    while (true) {
+	      const { done, value } = await reader.read();
+	      if (done) break;
+	      // 写入数据到文件
+	      await fileStream.write(value);
+	      // 更新进度
+	      loadedSize += value.length;
+	      if (onProgress) onProgress(loadedSize, totalSize);
+	    }
+	    // 6. 关闭文件流
+	    await fileStream.close();
+	    console.log('下载完成');
+	  } catch (error) {
+	    console.error('下载出错:', error);
+	    throw error;
+	  }
+	}
+
+	<!-- 创建浏览器文件写入流:兼容不同浏览器 -->
+	async function createFileStream(filename) {
+	  if ('showSaveFilePicker' in window) {
+	    // Chrome/Firefox 现代API（需要用户授权）
+	    const fileHandle = await window.showSaveFilePicker({
+	      suggestedName: filename,
+	      types: [{
+	        description: 'All Files',
+	        accept: { 'application/octet-stream': ['.bin', '.data'] }
+	      }]
+	    });
+	    const writable = await fileHandle.createWritable();
+	    return {
+	      write: (chunk) => writable.write(chunk),
+	      close: () => writable.close()
+	    };
+	  } else {
+	    // 回退方案:使用 Blob 下载,无法实时保存
+	    let chunks = [];
+	    return {
+	      write: (chunk) => chunks.push(chunk),
+	      close: () => {
+	        const blob = new Blob(chunks, { type: 'application/octet-stream' });
+	        const url = URL.createObjectURL(blob);
+	        const a = document.createElement('a');
+	        a.href = url;
+	        a.download = filename;
+	        a.click();
+	        URL.revokeObjectURL(url);
+	      }
+	    };
+	  }
+	}
+	function streamDownload2() {
+	  streamDownloadFile(
+	    '/download/v3',
+	    '图片.jpeg',
+	    (loaded, total) => {
+	      const percent = total ? Math.round((loaded / total) * 100) : '--';
+	      console.log(`下载进度: ${loaded}/${total || '?'} (${percent}%)`);
+	    }
+	  );
+	}
+	
+</script>

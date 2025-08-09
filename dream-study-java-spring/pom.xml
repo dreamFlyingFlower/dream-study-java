@@ -115,7 +115,6 @@
 		<dependency>
 			<groupId>com.github.lianjiatech</groupId>
 			<artifactId>retrofit-spring-boot-starter</artifactId>
-			<version>3.1.1</version>
 		</dependency>
 
 		<dependency>
@@ -134,6 +133,11 @@
 		<dependency>
 			<groupId>de.codecentric</groupId>
 			<artifactId>spring-boot-admin-starter-server</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jobrunr</groupId>
+			<artifactId>jobrunr-spring-boot-starter</artifactId>
 		</dependency>
 
 		<!--

@@ -1,0 +1,21 @@
+org:
+  jobrunr:
+    jobs:
+      # 任务失败重试次数
+      default-number-of-retries: 5
+      # 每次重试回退种子
+      retry-back-off-time-seed: 1
+    # 开启任务调度
+    job-scheduler:
+      enabled: true
+    # 启用任务的后台处理
+    background-job-server:
+      enabled: true
+    database:
+      type: sql
+    # 开启dashboard功能
+    dashboard:
+      enabled: true
+      username: admin
+      password: 123456
+      port: 7788

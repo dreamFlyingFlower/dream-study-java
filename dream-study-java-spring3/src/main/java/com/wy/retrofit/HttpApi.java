@@ -8,7 +8,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 /**
- * 类似HttpClient的远程调用工具.接口必须使用@RetrofitClient注解标记,需要JDK17
+ * 类似HttpClient的远程调用工具.接口必须使用@RetrofitClient注解标记
  * 
  * <pre>
  * 请求方式: GET,HEAD,POST,PUT,DELETE,OPTIONS
