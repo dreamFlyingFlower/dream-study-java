@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: dream-parent4
+gg:
+  jte:
+    development-mode: true

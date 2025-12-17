@@ -1,9 +1,9 @@
 package com.wy.retrofit;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+import com.wy.model.User;
 
 import dream.flying.flower.result.Result;
-import dream.study.common.model.User;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
