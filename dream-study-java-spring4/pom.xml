@@ -14,19 +14,7 @@
 	<version>0.0.1</version>
 	<name>dream-study-java-spring4</name>
 	<description>Demo project for Spring Boot4</description>
-	<url />
-	<licenses>
-		<license />
-	</licenses>
-	<developers>
-		<developer />
-	</developers>
-	<scm>
-		<connection />
-		<developerConnection />
-		<tag />
-		<url />
-	</scm>
+
 	<properties>
 		<java.version>17</java.version>
 		<grpc.version>1.77.0</grpc.version>
@@ -39,6 +27,10 @@
 	</properties>
 
 	<dependencies>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-webmvc</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webclient</artifactId>
@@ -46,6 +38,97 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-activemq</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-cassandra</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-elasticsearch</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-grafana</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-kafka</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-mariadb</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-mongodb</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-mssqlserver</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-mysql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-neo4j</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-oracle-free</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-pulsar</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-r2dbc</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-rabbitmq</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -320,10 +403,6 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-validation</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-webmvc</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
@@ -1078,11 +1157,6 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-testcontainers</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
 				<scope>test</scope>
@@ -1140,16 +1214,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-activemq</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-cassandra</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
 				<artifactId>testcontainers-consul</artifactId>
 				<scope>test</scope>
 			</dependency>
@@ -1161,76 +1225,6 @@
 			<dependency>
 				<groupId>org.testcontainers</groupId>
 				<artifactId>testcontainers-db2</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-elasticsearch</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-grafana</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-junit-jupiter</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-kafka</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-mariadb</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-mongodb</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-mssqlserver</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-mysql</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-neo4j</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-oracle-free</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-postgresql</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-pulsar</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-r2dbc</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>testcontainers-rabbitmq</artifactId>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -1259,27 +1253,28 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
-<!--			<plugin>-->
-<!--				<groupId>io.github.deweyjose</groupId>-->
-<!--				<artifactId>graphqlcodegen-maven-plugin</artifactId>-->
-<!--				<version>1.61.5</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<id>dgs-codegen</id>-->
-<!--						<goals>-->
-<!--							<goal>generate</goal>-->
-<!--						</goals>-->
-<!--						<configuration>-->
-<!--							<schemaPaths>-->
-<!--								<param>src/main/resources/graphql-client</param>-->
-<!--							</schemaPaths>-->
-<!--							<packageName>dream.flying.flower.codegen</packageName>-->
-<!--							<addGeneratedAnnotation>true</addGeneratedAnnotation>-->
-<!--							<disableDatesInGeneratedAnnotation>true</disableDatesInGeneratedAnnotation>-->
-<!--						</configuration>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
+			<!--			<plugin>-->
+			<!--				<groupId>io.github.deweyjose</groupId>-->
+			<!--				<artifactId>graphqlcodegen-maven-plugin</artifactId>-->
+			<!--				<version>1.61.5</version>-->
+			<!--				<executions>-->
+			<!--					<execution>-->
+			<!--						<id>dgs-codegen</id>-->
+			<!--						<goals>-->
+			<!--							<goal>generate</goal>-->
+			<!--						</goals>-->
+			<!--						<configuration>-->
+			<!--							<schemaPaths>-->
+			<!--								<param>src/main/resources/graphql-client</param>-->
+			<!--							</schemaPaths>-->
+			<!--							<packageName>dream.flying.flower.codegen</packageName>-->
+			<!--							<addGeneratedAnnotation>true</addGeneratedAnnotation>-->
+			<!--
+			<disableDatesInGeneratedAnnotation>true</disableDatesInGeneratedAnnotation>-->
+			<!--						</configuration>-->
+			<!--					</execution>-->
+			<!--				</executions>-->
+			<!--			</plugin>-->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -1345,40 +1340,40 @@
 				<groupId>org.cyclonedx</groupId>
 				<artifactId>cyclonedx-maven-plugin</artifactId>
 			</plugin>
-<!--			<plugin>-->
-<!--				<groupId>org.springframework.cloud</groupId>-->
-<!--				<artifactId>spring-cloud-contract-maven-plugin</artifactId>-->
-<!--				<version>5.0.0</version>-->
-<!--				<extensions>true</extensions>-->
-<!--				<configuration>-->
-<!--					<testFramework>JUNIT5</testFramework>-->
-<!--					<testMode>WEBTESTCLIENT</testMode>-->
-<!--				</configuration>-->
-<!--			</plugin>-->
-<!--			<plugin>-->
-<!--				<groupId>io.github.ascopes</groupId>-->
-<!--				<artifactId>protobuf-maven-plugin</artifactId>-->
-<!--				<version>4.0.3</version>-->
-<!--				<configuration>-->
-<!--					<protoc>${protobuf-java.version}</protoc>-->
-<!--					<binaryMavenPlugins>-->
-<!--						<binaryMavenPlugin>-->
-<!--							<groupId>io.grpc</groupId>-->
-<!--							<artifactId>protoc-gen-grpc-java</artifactId>-->
-<!--							<version>${grpc.version}</version>-->
-<!--							<options>@generated=omit</options>-->
-<!--						</binaryMavenPlugin>-->
-<!--					</binaryMavenPlugins>-->
-<!--				</configuration>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<id>generate</id>-->
-<!--						<goals>-->
-<!--							<goal>generate</goal>-->
-<!--						</goals>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
+			<!--			<plugin>-->
+			<!--				<groupId>org.springframework.cloud</groupId>-->
+			<!--				<artifactId>spring-cloud-contract-maven-plugin</artifactId>-->
+			<!--				<version>5.0.0</version>-->
+			<!--				<extensions>true</extensions>-->
+			<!--				<configuration>-->
+			<!--					<testFramework>JUNIT5</testFramework>-->
+			<!--					<testMode>WEBTESTCLIENT</testMode>-->
+			<!--				</configuration>-->
+			<!--			</plugin>-->
+			<!--			<plugin>-->
+			<!--				<groupId>io.github.ascopes</groupId>-->
+			<!--				<artifactId>protobuf-maven-plugin</artifactId>-->
+			<!--				<version>4.0.3</version>-->
+			<!--				<configuration>-->
+			<!--					<protoc>${protobuf-java.version}</protoc>-->
+			<!--					<binaryMavenPlugins>-->
+			<!--						<binaryMavenPlugin>-->
+			<!--							<groupId>io.grpc</groupId>-->
+			<!--							<artifactId>protoc-gen-grpc-java</artifactId>-->
+			<!--							<version>${grpc.version}</version>-->
+			<!--							<options>@generated=omit</options>-->
+			<!--						</binaryMavenPlugin>-->
+			<!--					</binaryMavenPlugins>-->
+			<!--				</configuration>-->
+			<!--				<executions>-->
+			<!--					<execution>-->
+			<!--						<id>generate</id>-->
+			<!--						<goals>-->
+			<!--							<goal>generate</goal>-->
+			<!--						</goals>-->
+			<!--					</execution>-->
+			<!--				</executions>-->
+			<!--			</plugin>-->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
