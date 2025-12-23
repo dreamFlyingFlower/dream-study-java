@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
  * @date 2025-04-09 23:22:38
  * @git {@link https://github.com/dreamFlyingFlower}
  */
+@Configuration
 public class Knife4jConfig {
 
 	@Bean

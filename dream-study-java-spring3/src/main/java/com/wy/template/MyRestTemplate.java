@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class MyRestTemplate {
 
+	@SuppressWarnings("resource")
 	@Bean
 	RestTemplate restTemplate() {
 

@@ -3,6 +3,7 @@ package com.wy.http;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import org.springframework.boot.http.client.HttpComponentsClientHttpRequestFactoryBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.client.JettyClientHttpRequestFactory;
@@ -57,6 +58,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
  * @date 2024-12-09 09:39:11
  * @git {@link https://github.com/dreamFlyingFlower}
  */
+@Configuration
 public class Feature {
 
 	/**

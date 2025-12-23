@@ -23,146 +23,156 @@ import com.dtflys.forest.utils.ForestProgress;
 public class MyForestInteceptor implements ForestInterceptor {
 
 	@Override
-	public void onInvokeMethod(ForestRequest request, ForestMethod method, Object[] args) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onInvokeMethod(request, method, args);
+	public void onInvokeMethod(@SuppressWarnings("rawtypes") ForestRequest request,
+			@SuppressWarnings("rawtypes") ForestMethod method, Object[] args) {
 	}
 
 	@Override
-	public boolean beforeExecute(ForestRequest request) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.beforeExecute(request);
+	public boolean beforeExecute(@SuppressWarnings("rawtypes") ForestRequest request) {
+		return true;
 	}
 
 	@Override
-	public void afterExecute(ForestRequest request, ForestResponse response) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.afterExecute(request, response);
+	public void afterExecute(@SuppressWarnings("rawtypes") ForestRequest request,
+			@SuppressWarnings("rawtypes") ForestResponse response) {
 	}
 
 	@Override
-	public byte[] onBodyEncode(ForestRequest request, ForestEncoder encoder, byte[] encodedData) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.onBodyEncode(request, encoder, encodedData);
+	public byte[] onBodyEncode(@SuppressWarnings("rawtypes") ForestRequest request, ForestEncoder encoder,
+			byte[] encodedData) {
+		return encodedData;
 	}
 
 	@Override
-	public ResponseResult onResponse(ForestRequest request, ForestResponse response) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.onResponse(request, response);
+	public ResponseResult onResponse(@SuppressWarnings("rawtypes") ForestRequest request,
+			@SuppressWarnings("rawtypes") ForestResponse response) {
+		return ResponseResult.RESPONSE_RESULT_PROCEED;
 	}
 
 	@Override
-	public void onError(ForestRuntimeException ex, ForestRequest request, ForestResponse response) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onError(ex, request, response);
+	public void onError(ForestRuntimeException ex, @SuppressWarnings("rawtypes") ForestRequest request,
+			@SuppressWarnings("rawtypes") ForestResponse response) {
 	}
 
 	@Override
-	public void onCanceled(ForestRequest req, ForestResponse res) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onCanceled(req, res);
+	public void onCanceled(@SuppressWarnings("rawtypes") ForestRequest req,
+			@SuppressWarnings("rawtypes") ForestResponse res) {
 	}
 
 	@Override
-	public void onRetry(ForestRequest request, ForestResponse response) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onRetry(request, response);
+	public void onRetry(@SuppressWarnings("rawtypes") ForestRequest request,
+			@SuppressWarnings("rawtypes") ForestResponse response) {
 	}
 
 	@Override
 	public void onProgress(ForestProgress progress) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onProgress(progress);
 	}
 
 	@Override
 	public void onRedirection(ForestRequest<?> redirectReq, ForestRequest<?> prevReq, ForestResponse<?> prevRes) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onRedirection(redirectReq, prevReq, prevRes);
 	}
 
 	@Override
-	public void onLoadCookie(ForestRequest request, ForestCookies cookies) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onLoadCookie(request, cookies);
+	public void onLoadCookie(@SuppressWarnings("rawtypes") ForestRequest request, ForestCookies cookies) {
 	}
 
 	@Override
-	public void onSaveCookie(ForestRequest request, ForestCookies cookies) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.onSaveCookie(request, cookies);
+	public void onSaveCookie(@SuppressWarnings("rawtypes") ForestRequest request, ForestCookies cookies) {
 	}
 
 	@Override
-	public InterceptorAttributes getAttributes(ForestRequest request) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttributes(request);
+	public InterceptorAttributes getAttributes(@SuppressWarnings("rawtypes") ForestRequest request) {
+		return request.getInterceptorAttributes(this.getClass());
 	}
 
 	@Override
-	public void addAttribute(ForestRequest request, String name, Object value) {
-		// TODO Auto-generated method stub
-		ForestInterceptor.super.addAttribute(request, name, value);
+	public void addAttribute(@SuppressWarnings("rawtypes") ForestRequest request, String name, Object value) {
+		request.addInterceptorAttribute(this.getClass(), name, value);
 	}
 
 	@Override
-	public Object getAttribute(ForestRequest request, String name) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttribute(request, name);
+	public Object getAttribute(@SuppressWarnings("rawtypes") ForestRequest request, String name) {
+		return request.getInterceptorAttribute(this.getClass(), name);
 	}
 
 	@Override
-	public <R> R getAttribute(ForestRequest request, String name, Class<R> clazz) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttribute(request, name, clazz);
+	public <R> R getAttribute(@SuppressWarnings("rawtypes") ForestRequest request, String name, Class<R> clazz) {
+		Object obj = request.getInterceptorAttribute(this.getClass(), name);
+		if (obj == null) {
+			return null;
+		}
+		return clazz.cast(obj);
 	}
 
 	@Override
-	public Boolean getAttributeAsBoolean(ForestRequest request, String name) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttributeAsBoolean(request, name);
+	public Boolean getAttributeAsBoolean(@SuppressWarnings("rawtypes") ForestRequest request, String name) {
+		Object attr = getAttribute(request, name);
+		if (attr == null) {
+			return null;
+		}
+		if (attr instanceof Boolean) {
+			return (Boolean) attr;
+		}
+		return Boolean.valueOf(String.valueOf(attr));
 	}
 
 	@Override
-	public String getAttributeAsString(ForestRequest request, String name) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttributeAsString(request, name);
+	public String getAttributeAsString(@SuppressWarnings("rawtypes") ForestRequest request, String name) {
+		Object attr = getAttribute(request, name);
+		if (attr == null) {
+			return null;
+		}
+		return String.valueOf(attr);
 	}
 
 	@Override
-	public Integer getAttributeAsInteger(ForestRequest request, String name) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttributeAsInteger(request, name);
+	public Integer getAttributeAsInteger(@SuppressWarnings("rawtypes") ForestRequest request, String name) {
+		Object attr = getAttribute(request, name);
+		if (attr == null) {
+			return null;
+		}
+		return (Integer) attr;
 	}
 
 	@Override
-	public Float getAttributeAsFloat(ForestRequest request, String name) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttributeAsFloat(request, name);
+	public Float getAttributeAsFloat(@SuppressWarnings("rawtypes") ForestRequest request, String name) {
+		Object attr = getAttribute(request, name);
+		if (attr == null) {
+			return null;
+		}
+		return (Float) attr;
 	}
 
 	@Override
-	public Double getAttributeAsDouble(ForestRequest request, String name) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getAttributeAsDouble(request, name);
+	public Double getAttributeAsDouble(@SuppressWarnings("rawtypes") ForestRequest request, String name) {
+		Object attr = getAttribute(request, name);
+		if (attr == null) {
+			return null;
+		}
+		return (Double) attr;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <R> R getOrAddAttribute(@SuppressWarnings("rawtypes") ForestRequest request, String name,
+			Supplier<R> supplier) {
+		Object obj = getAttribute(request, name);
+		if (obj == null && supplier != null) {
+			obj = supplier.get();
+			addAttribute(request, name, obj);
+		}
+		return (R) obj;
 	}
 
 	@Override
-	public <R> R getOrAddAttribute(ForestRequest request, String name, Supplier<R> supplier) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.getOrAddAttribute(request, name, supplier);
+	public boolean isGlobalInterceptor(@SuppressWarnings("rawtypes") ForestRequest request) {
+		Boolean ret = getAttributeAsBoolean(request, "__global__");
+		return ret != null && ret;
 	}
 
 	@Override
-	public boolean isGlobalInterceptor(ForestRequest request) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.isGlobalInterceptor(request);
-	}
-
-	@Override
-	public boolean isBaseInterceptor(ForestRequest request) {
-		// TODO Auto-generated method stub
-		return ForestInterceptor.super.isBaseInterceptor(request);
+	public boolean isBaseInterceptor(@SuppressWarnings("rawtypes") ForestRequest request) {
+		Boolean ret = getAttributeAsBoolean(request, "__base__");
+		return ret != null && ret;
 	}
 }
