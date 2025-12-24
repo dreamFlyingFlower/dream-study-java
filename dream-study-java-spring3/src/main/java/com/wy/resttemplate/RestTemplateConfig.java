@@ -93,6 +93,7 @@ public class RestTemplateConfig {
 	/**
 	 * 利用httpclient构建自定义的requestfactory
 	 */
+	@SuppressWarnings("resource")
 	@Bean
 	HttpComponentsClientHttpRequestFactory requestFactory() {
 		PoolingHttpClientConnectionManager poolingHttpClientConnectionManager =

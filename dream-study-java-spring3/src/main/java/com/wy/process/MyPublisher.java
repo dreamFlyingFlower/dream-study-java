@@ -13,9 +13,9 @@ public class MyPublisher {
 
 	public static void main(String[] args) {
 		SubmissionPublisher<String> submissionPublisher = new SubmissionPublisher<>();
-		try (submissionPublisher) {
+		MyProcessor myProcessor = new MyProcessor();
+		try (submissionPublisher; myProcessor) {
 			MySubscriber mySubscriber = new MySubscriber();
-			MyProcessor myProcessor = new MyProcessor();
 			// 如果没有processor,可以直接由publisher发送
 			// submissionPublisher.subscribe(mySubscriber);
 			// 如果有processor,publisher先发布给processor,再由processor发布给subscriber

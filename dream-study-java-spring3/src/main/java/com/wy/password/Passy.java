@@ -282,18 +282,20 @@ public class Passy {
 		// 加载自己的提示信息
 		URL resource = Passy.class.getClassLoader().getResource("messages.properties");
 		Properties props = new Properties();
-		props.load(new FileInputStream(resource.getPath()));
-		MessageResolver resolver = new PropertiesMessageResolver(props);
-		PasswordValidator validate = new PasswordValidator(resolver, new LengthRule(8, 16), new WhitespaceRule());
+		try (FileInputStream fis = new FileInputStream(resource.getPath())) {
+			props.load(fis);
+			MessageResolver resolver = new PropertiesMessageResolver(props);
+			PasswordValidator validate = new PasswordValidator(resolver, new LengthRule(8, 16), new WhitespaceRule());
 
-		RuleResult tooShort = validate.validate(new PasswordData("XXXX"));
-		RuleResult tooLong = validate.validate(new PasswordData("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"));
+			RuleResult tooShort = validate.validate(new PasswordData("XXXX"));
+			RuleResult tooLong = validate.validate(new PasswordData("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"));
 
-		System.out.println(tooShort.isValid());
-		tooShort.getDetails().forEach(System.out::println);
+			System.out.println(tooShort.isValid());
+			tooShort.getDetails().forEach(System.out::println);
 
-		System.out.println(tooLong.isValid());
-		tooLong.getDetails().forEach(System.out::println);
+			System.out.println(tooLong.isValid());
+			tooLong.getDetails().forEach(System.out::println);
+		}
 	}
 
 	public static void illegalSequence() {
