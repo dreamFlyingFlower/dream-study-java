@@ -3,6 +3,7 @@ package com.wy.mybatis.sensitive;
 import java.lang.reflect.Field;
 
 import dream.flying.flower.digest.DigestHelper;
+import dream.flying.flower.reflect.ReflectHelper;
 
 /**
  * 默认加密处理器

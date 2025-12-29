@@ -6,21 +6,17 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     dynamic: 
       druid:
-        # druidweb端页面监控用户名和密码
-        stat-view-servlet: 
-          login-username: root
-          login-password: 123456
         # 合并多个DruidDataSource的监控数据
         use-global-data-source-stat: true
         # 初始化大小,最小,最大线程
         initial-size: 10
         min-idle: 5
         max-active: 10
-        # 获取连接等待超时的时间,单位毫秒
+        # 获取连接等待超时的时间,毫秒
         max-wait: 60000
-        # 间隔多久才进行一次检测,检测需要关闭的空闲连接,单位毫秒
+        # 间隔多久检测需要关闭的空闲连接,毫秒
         time-between-eviction-runs-millis: 60000
-        # 配置一个连接在池中最小和最大生存的时间,单位是毫秒
+        # 一个连接在池中最小和最大生存的时间,毫秒
         min-evictable-idle-time-millis: 300000
         max-evictable-idle-time-millis:  900000
         # 测试连接是否可用
@@ -28,34 +24,72 @@ spring:
         test-while-idle: true
         test-on-borrow: false
         test-on-return: false
+        # 是否缓存preparedStatement,也就是PSCache.PSCache对支持游标的数据库性能提升巨大,比如说oracle
         pool-prepared-statements: true
+        # 要启用PSCache,必须配置大于0,当大于0时, poolPreparedStatements自动触发修改为true
+        max-open-prepared-statements: 20
+        # 利用aop 对指定接口的执行时间,jdbc数进行记录
+        aop-patterns: "com.springboot.template.dao.*"
         # 通过connectProperties属性来打开mergeSql功能,慢SQL记录
-        connect-properties: 
+        connection-properties: 
           druid: 
             stat: 
               merge-sql: true
               slowSqlMillis: 5000
-        # 配置监控统计拦截的filters,去掉后监控界面sql无法统计,wall用于防火墙
+        # 配置监控统计拦截的filters,stat必须启用.去掉后监控界面sql无法统计,wall用于防火墙
         filters: stat,wall,slf4j
-        filter:
-          wall:
-            enabled: true
-            log-violation: true
-            throw-exception: true
-            config:
-              alter-table-allow: false
-              truncate-allow: false
-              drop-table-allow: false
-              none-base-statement-allow: false
-              update-where-none-check: true
-              select-into-outfile-allow: false
-              metadata-allow: true
-              multi-statement-allow: true
-          stat:
-            log-slow-sql: true
-            enabled: true
-            merge-sql: true
-            slow-sql-millis: 1000
+        wall:
+          enabled: true
+          log-violation: true
+          throw-exception: true
+          config:
+            alter-table-allow: false
+            truncate-allow: false
+            drop-table-allow: false
+            none-base-statement-allow: false
+            update-where-none-check: true
+            select-into-outfile-allow: false
+            metadata-allow: true
+            multi-statement-allow: true
+        stat:
+          log-slow-sql: true
+          enabled: true
+          # 开启慢sql监控,超过2s 就认为是慢sql,记录到日志中
+          merge-sql: true
+          slow-sql-millis: 2000
+        # 日志监控,使用slf4j 进行日志输出
+        slf4j:
+          enabled: true
+          statement-log-error-enabled: true
+          statement-create-after-log-enabled: false
+          statement-close-after-log-enabled: false
+          result-set-open-after-log-enabled: false
+          result-set-close-after-log-enabled: false
+        # 配置WebStatFilter,用于采集web关联监控的数据
+        web-stat-filter:
+          enabled: true
+          # 过滤所有url
+          url-pattern: /*
+          # 排除一些不必要的url
+          exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+          # 开启session统计功能
+          session-stat-enable: true
+          # session的最大个数,默认100
+          session-stat-max-count: 1000
+        # 配置StatViewServlet(监控页面),用于展示Druid的统计信息
+        stat-view-servlet:
+          enabled: true
+          # 访问内置监控页面的路径,内置监控页面的首页是/druid/index.html
+          url-pattern: /druid/*
+          # 不允许清空统计数据,重新计算
+          reset-enable: false
+          # 配置监控页面访问密码
+          login-username: root
+          login-password: 123
+          # 允许访问的地址,如果allow没有配置或者为空,则允许所有访问
+          allow: 127.0.0.1
+          # 拒绝访问的地址,deny优先于allow,如果在deny列表中,就算在allow列表中,也会被拒绝
+          deny:
           
     hikari:
       jdbc-url: jdbc:mysql://localhost:3306/simpleoa?autoReconnect=true&useUnicode=true&serverTimezone=GMT&tinyInt1isBit=false&allowMultiQueries=true

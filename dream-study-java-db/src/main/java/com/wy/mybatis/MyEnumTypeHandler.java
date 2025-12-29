@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
-import dream.flying.flower.common.StatusMsg;
-import dream.flying.flower.helper.EnumStatusMsgHelper;
+import dream.flying.flower.common.NumberMsg;
+import dream.flying.flower.helper.CodeMsgHelper;
 import dream.flying.flower.reflect.ClassHelper;
 
 /**
@@ -20,14 +20,14 @@ import dream.flying.flower.reflect.ClassHelper;
  * @date 2023-02-12 23:23:46
  * @git {@link https://github.com/dreamFlyingFlower }
  */
-public class MyEnumTypeHandler<T extends Enum<T> & StatusMsg> implements TypeHandler<T> {
+public class MyEnumTypeHandler<T extends Enum<T> & NumberMsg> implements TypeHandler<T> {
 
 	/**
 	 * 定义当前数据如何保存到数据库中
 	 */
 	@Override
 	public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
-		ps.setInt(i, parameter.getCode());
+		ps.setInt(i, parameter.getValue());
 	}
 
 	/**
@@ -37,14 +37,14 @@ public class MyEnumTypeHandler<T extends Enum<T> & StatusMsg> implements TypeHan
 	@Override
 	public T getResult(ResultSet rs, String columnName) throws SQLException {
 		int code = rs.getInt(columnName);
-		return EnumStatusMsgHelper.getEnum(code, (Class<T>) ClassHelper.getGenricType(MyEnumTypeHandler.class));
+		return CodeMsgHelper.getEnum(code, (Class<T>) ClassHelper.getGenricType(MyEnumTypeHandler.class));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getResult(ResultSet rs, int columnIndex) throws SQLException {
 		int code = rs.getInt(columnIndex);
-		return EnumStatusMsgHelper.getEnum(code, (Class<T>) ClassHelper.getGenricType(MyEnumTypeHandler.class));
+		return CodeMsgHelper.getEnum(code, (Class<T>) ClassHelper.getGenricType(MyEnumTypeHandler.class));
 	}
 
 	/**
