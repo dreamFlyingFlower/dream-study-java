@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 public class MultiPorts {
 
 	@Bean
-	public ServletWebServerFactory servletContainer() {
+	ServletWebServerFactory servletContainer() {
 		TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
 		// 配置主端口8080
 		factory.setPort(8080);

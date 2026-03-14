@@ -95,7 +95,6 @@ public class AntiLeechingFilter extends OncePerRequestFilter {
 		return false;
 	}
 
-	@SuppressWarnings("resource")
 	private void handleDenyAction(HttpServletResponse request, String defaultImage) {
 		// 根据deny-action配置决定处理方式
 		if ("REDIRECT".equals(antiLeechingProperties.getDenyAction())) {

@@ -1,5 +1,5 @@
 module test {
-	exports com.wy;
+	exports dream.study.jdk;
 	requires spring.boot;
 	requires spring.boot.autoconfigure;
 	requires spring.context;
