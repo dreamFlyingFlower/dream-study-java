@@ -2,6 +2,8 @@ package dream.study.jdk.jdk25;
 
 import java.util.concurrent.StructuredTaskScope;
 
+import dream.study.jdk.model.User;
+
 /**
  * JDK25(LTS)新特性
  * 
@@ -15,12 +17,12 @@ import java.util.concurrent.StructuredTaskScope;
  * 6.结构化并发(JEP 505,预览)
  * 7.作用域值(Scoped Values)(JEP 506):替代 ThreadLocal 的新方案,跨线程共享上下文更安全
  * 8.稳定值(Stable Values)(JEP 502,预览): 线程安全的懒加载配置更简单,不需要双重检查锁定
- * 9.向量 API(JEP 508,孵化)
- * 10.紧凑对象头(JEP 519)
- * 11.分代 Shenandoah GC(JEP 521)
- * 12.提前编译(AOT)优化(JEP 514 & 515)
- * 13.JFR 增强(JEP 509, 518, 520)
- * 14.安全性更新(JEP 470, 510)
+ * 9.向量 API(JEP 508,孵化): 高性能向量运算,适合 AI、数据分析场景
+ * 10.紧凑对象头(JEP 519): 对象头缩小到 64 位,减少内存占用,提高缓存效率
+ * 11.分代 Shenandoah GC(JEP 521): Shenandoah GC 支持分代,降低延迟,提高吞吐,适合高并发场景
+ * 12.提前编译(AOT)优化(JEP 514 & 515): 启动更快,预热更快,云原生应用、微服务受益明显
+ * 13.JFR 增强(JEP 509, 518, 520): Java Flight Recorder 支持: CPU 时间分析;方法执行跟踪;更低开销采样.生产环境可观测性更强
+ * 14.安全性更新(JEP 470, 510): 内置 PEM 编解码,标准化 KDF（PBKDF2、Argon2 等）
  * 15.移除 32 位 x86(JEP 503)
  * </pre>
  *
@@ -73,9 +75,16 @@ public class JDK25 {
 	}
 	
 	// feature8
-	StableValue<Config> config = StableValue.of();
+	StableValue<User> user = StableValue.of();
 
-	Config getConfig() {
-	    return config.orElseSet(this::loadConfig);
+	User getUser() {
+	    return user.orElseSet(this::loadConfig);
 	}
+	
+	// feature9
+	var species = FloatVector.SPECIES_256;
+	var a = FloatVector.fromArray(species, arr1, 0);
+	var b = FloatVector.fromArray(species, arr2, 0);
+	var c = a.add(b);
+	c.intoArray(result, 0);
 }
