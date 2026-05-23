@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>dream.flying.flower</groupId>
-		<artifactId>dream-parent2</artifactId>
+		<artifactId>dream-parent3</artifactId>
 		<version>0.0.1</version>
 		<relativePath />
 	</parent>
@@ -15,59 +15,99 @@
 	<description>Study for spring ai</description>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>21</java.version>
+		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
 		<debezium.version>1.5.2.Final</debezium.version>
+		<langchain4j.version>0.36.2</langchain4j.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>dream.flying.flower</groupId>
-			<artifactId>dream-framework-mybatis-plus</artifactId>
+			<artifactId>dream-framework-mybatis-plus3</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-openai-spring-boot-starter</artifactId>
-			<version>1.0.0-M6</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.ai</groupId>-->
+		<!--			<artifactId>spring-ai-starter-model-openai</artifactId>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.ai</groupId>-->
+		<!--			<artifactId>spring-ai-starter-mcp-client</artifactId>-->
+		<!--		</dependency>-->
+		<!--		 MCP 服务器支持 -WebMVC版本 -->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.ai</groupId>-->
+		<!--			<artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>-->
+		<!--		</dependency>-->
+
+		<!-- LangChain4j -->
 		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
-			<version>1.0.0-M6</version>
-		</dependency>
-		<!-- MCP 服务器支持 -WebMVC版本 -->
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-mcp-server-webmvc-spring-boot-starter</artifactId>
-			<version>1.0.0-M6</version>
-		</dependency>
-		<!-- DJL -->
-		<dependency>
-			<groupId>ai.djl</groupId>
-			<artifactId>api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ai.djl</groupId>
-			<artifactId>basicdataset</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ai.djl</groupId>
-			<artifactId>model-zoo</artifactId>
-		</dependency>
-		<!-- pytorch-engine-->
-		<dependency>
-			<groupId>ai.djl.pytorch</groupId>
-			<artifactId>pytorch-engine</artifactId>
-			<scope>runtime</scope>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j</artifactId>
+			<version>${langchain4j.version}</version>
 		</dependency>
 
+		<!-- OpenAI 接入 -->
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-boot-starter</artifactId>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-open-ai</artifactId>
+			<version>${langchain4j.version}</version>
 		</dependency>
+
+		<!-- 可选:本地嵌入模型,做 RAG 不想花钱买 embedding 时很好用 -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId>
+			<version>${langchain4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
+			<version>${langchain4j.version}</version>
+		</dependency>
+
+		<!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-document-parser-apache-tika -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-document-parser-apache-tika</artifactId>
+			<version>${langchain4j.version}</version>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-document-parser-apache-pdfbox -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-document-parser-apache-pdfbox</artifactId>
+			<version>${langchain4j.version}</version>
+		</dependency>
+
+		<!-- DJL -->
+		<!--		<dependency>-->
+		<!--			<groupId>ai.djl</groupId>-->
+		<!--			<artifactId>api</artifactId>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>ai.djl</groupId>-->
+		<!--			<artifactId>basicdataset</artifactId>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>ai.djl</groupId>-->
+		<!--			<artifactId>model-zoo</artifactId>-->
+		<!--		</dependency>-->
+		<!--		 pytorch-engine-->
+		<!--		<dependency>-->
+		<!--			<groupId>ai.djl.pytorch</groupId>-->
+		<!--			<artifactId>pytorch-engine</artifactId>-->
+		<!--			<scope>runtime</scope>-->
+		<!--		</dependency>-->
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -91,26 +131,22 @@
 		</dependency>
 	</dependencies>
 
-	<!--	<dependencyManagement>-->
-	<!--		<dependencies>-->
-	<!--			<dependency>-->
-	<!--				<groupId>org.springframework.ai</groupId>-->
-	<!--				<artifactId>spring-ai-bom</artifactId>-->
-	<!--				<version>0.8.1-SNAPSHOT</version>-->
-	<!--				<type>pom</type>-->
-	<!--				<scope>import</scope>-->
-	<!--			</dependency>-->
-	<!--		</dependencies>-->
-	<!--	</dependencyManagement>-->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>ai.djl</groupId>
-				<artifactId>bom</artifactId>
-				<version>0.23.0</version>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>1.1.6</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!--			<dependency>-->
+			<!--				<groupId>ai.djl</groupId>-->
+			<!--				<artifactId>bom</artifactId>-->
+			<!--				<version>0.23.0</version>-->
+			<!--				<type>pom</type>-->
+			<!--				<scope>import</scope>-->
+			<!--			</dependency>-->
 		</dependencies>
 	</dependencyManagement>
 
@@ -134,93 +170,108 @@
 	</repositories>
 
 	<profiles>
-		<profile>
-			<id>windows</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<dependencies>
-				<!-- Windows CPU -->
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-native-cpu</artifactId>
-					<classifier>win-x86_64</classifier>
-					<scope>runtime</scope>
-					<version>2.0.1</version><!--$NO-MVN-MAN-VER$-->
-				</dependency>
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-jni</artifactId>
-					<version>2.0.1-0.23.0</version><!--$NO-MVN-MAN-VER$-->
-					<scope>runtime</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>centos7</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<dependencies>
-				<!-- For Pre-CXX11 build (CentOS7)-->
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-native-cpu-precxx11</artifactId>
-					<classifier>linux-x86_64</classifier>
-					<version>2.0.1</version>
-					<scope>runtime</scope>
-				</dependency>
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-jni</artifactId>
-					<version>2.0.1-0.23.0</version>
-					<scope>runtime</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>linux</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<dependencies>
-				<!-- Linux CPU -->
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-native-cpu</artifactId>
-					<classifier>linux-x86_64</classifier>
-					<scope>runtime</scope>
-					<version>2.0.1</version>
-				</dependency>
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-jni</artifactId>
-					<version>2.0.1-0.23.0</version>
-					<scope>runtime</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>aarch64</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<dependencies>
-				<!-- For aarch64 build-->
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-native-cpu-precxx11</artifactId>
-					<classifier>linux-aarch64</classifier>
-					<scope>runtime</scope>
-					<version>2.0.1</version>
-				</dependency>
-				<dependency>
-					<groupId>ai.djl.pytorch</groupId>
-					<artifactId>pytorch-jni</artifactId>
-					<version>2.0.1-0.23.0</version>
-					<scope>runtime</scope>
-				</dependency>
-			</dependencies>
-		</profile>
+		<!--		<profile>-->
+		<!--			<id>windows</id>-->
+		<!--			<activation>-->
+		<!--				<activeByDefault>true</activeByDefault>-->
+		<!--			</activation>-->
+		<!--			<dependencies>-->
+		<!--				 Windows CPU -->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-native-cpu</artifactId>-->
+		<!--					<classifier>win-x86_64</classifier>-->
+		<!--					<scope>runtime</scope>-->
+		<!--					<version>2.0.1</version>$NO-MVN-MAN-VER$-->
+		<!--				</dependency>-->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-jni</artifactId>-->
+		<!--					<version>2.0.1-0.23.0</version>$NO-MVN-MAN-VER$-->
+		<!--					<scope>runtime</scope>-->
+		<!--				</dependency>-->
+		<!--			</dependencies>-->
+		<!--		</profile>-->
+		<!--		<profile>-->
+		<!--			<id>centos7</id>-->
+		<!--			<activation>-->
+		<!--				<activeByDefault>false</activeByDefault>-->
+		<!--			</activation>-->
+		<!--			<dependencies>-->
+		<!--				 For Pre-CXX11 build (CentOS7)-->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-native-cpu-precxx11</artifactId>-->
+		<!--					<classifier>linux-x86_64</classifier>-->
+		<!--					<version>2.0.1</version>-->
+		<!--					<scope>runtime</scope>-->
+		<!--				</dependency>-->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-jni</artifactId>-->
+		<!--					<version>2.0.1-0.23.0</version>-->
+		<!--					<scope>runtime</scope>-->
+		<!--				</dependency>-->
+		<!--			</dependencies>-->
+		<!--		</profile>-->
+		<!--		<profile>-->
+		<!--			<id>linux</id>-->
+		<!--			<activation>-->
+		<!--				<activeByDefault>false</activeByDefault>-->
+		<!--			</activation>-->
+		<!--			<dependencies>-->
+		<!--				 Linux CPU -->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-native-cpu</artifactId>-->
+		<!--					<classifier>linux-x86_64</classifier>-->
+		<!--					<scope>runtime</scope>-->
+		<!--					<version>2.0.1</version>-->
+		<!--				</dependency>-->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-jni</artifactId>-->
+		<!--					<version>2.0.1-0.23.0</version>-->
+		<!--					<scope>runtime</scope>-->
+		<!--				</dependency>-->
+		<!--			</dependencies>-->
+		<!--		</profile>-->
+		<!--		<profile>-->
+		<!--			<id>aarch64</id>-->
+		<!--			<activation>-->
+		<!--				<activeByDefault>false</activeByDefault>-->
+		<!--			</activation>-->
+		<!--			<dependencies>-->
+		<!--				 For aarch64 build-->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-native-cpu-precxx11</artifactId>-->
+		<!--					<classifier>linux-aarch64</classifier>-->
+		<!--					<scope>runtime</scope>-->
+		<!--					<version>2.0.1</version>-->
+		<!--				</dependency>-->
+		<!--				<dependency>-->
+		<!--					<groupId>ai.djl.pytorch</groupId>-->
+		<!--					<artifactId>pytorch-jni</artifactId>-->
+		<!--					<version>2.0.1-0.23.0</version>-->
+		<!--					<scope>runtime</scope>-->
+		<!--				</dependency>-->
+		<!--			</dependencies>-->
+		<!--		</profile>-->
 	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>21</source>
+					<target>21</target>
+					<parameters>true</parameters> <!-- 关键 -->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
