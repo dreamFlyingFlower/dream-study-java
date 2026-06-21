@@ -18,5 +18,5 @@ langchain4j:
   open-ai:
     chat-model:
       base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
-      api-key: sk-00391c09e405477f86e1ff251570f441
+      api-key: ${ALIYUN_AI_KEY}
       model-name: qwen-plus
