@@ -3,7 +3,7 @@ package com.wy.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.wy.langchain.KnowledgeAssistant;
+import com.wy.langchain.KnowledgeChainAssistant;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -58,8 +58,8 @@ public class LangchainConfig {
 	 * @return
 	 */
 	@Bean
-	KnowledgeAssistant knowledgeAssistant(ChatLanguageModel chatModel, ContentRetriever retriever) {
-		return AiServices.builder(KnowledgeAssistant.class)
+	KnowledgeChainAssistant knowledgeChainAssistant(ChatLanguageModel chatModel, ContentRetriever retriever) {
+		return AiServices.builder(KnowledgeChainAssistant.class)
 				.chatLanguageModel(chatModel)
 				.contentRetriever(retriever)
 				.chatMemoryProvider(uid -> MessageWindowChatMemory.withMaxMessages(30))

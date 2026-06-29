@@ -10,7 +10,7 @@ import dev.langchain4j.service.UserMessage;
  * @author 飞花梦影
  * @date 2026-05-23 11:30:51
  */
-public interface KnowledgeAssistant {
+public interface KnowledgeChainAssistant {
 
 	@SystemMessage("""
 			你是公司内部知识库助手。回答时请遵循：
