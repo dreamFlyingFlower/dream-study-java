@@ -1,6 +1,7 @@
 package com.wy.langchain;
 
 import dev.langchain4j.service.MemoryId;
+import dev.langchain4j.service.Result;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 
@@ -18,6 +19,7 @@ public interface KnowledgeChainAssistant {
 			2. 如资料不足，请明确告诉用户"暂无相关资料";
 			3. 回答结尾附上引用的文档来源;
 			4.内容请以MarkDown格式出书.
+			5.不要使用任何外部知识库.
 			""")
-	String chat(@MemoryId String userId, @UserMessage String question);
+	Result<String> chat(@MemoryId String userId, @UserMessage String question);
 }

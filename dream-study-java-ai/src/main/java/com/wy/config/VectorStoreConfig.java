@@ -1,4 +1,4 @@
-package com.wy.service;
+package com.wy.config;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,44 +8,77 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
 import org.springframework.ai.reader.markdown.config.MarkdownDocumentReaderConfig;
-import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
+import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.PathResource;
-import org.springframework.stereotype.Service;
 
 import com.wy.properties.KnowledgeProperties;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 /**
  * 
  *
  * @author 飞花梦影
- * @date 2026-06-29 16:21:00
+ * @date 2026-06-29 16:44:50
  */
-@Service
+@Configuration
 @RequiredArgsConstructor
-public class KnowledgeService {
+public class VectorStoreConfig {
 
-	private final VectorStore vectorStore;
+	private final KnowledgeProperties knowledgeProperties;;
 
-	private final ChatClient chatClient;
+	@Bean
+	VectorStore knowledgeVectorStore(EmbeddingModel embeddingModel) throws IOException {
+		SimpleVectorStore knowledgeVectorStore = SimpleVectorStore.builder(embeddingModel).build();
 
-	private KnowledgeProperties knowledgeProperties;;
+		// 加载目录下所有文档写入向量库,数据量太大
+		// loadAllDocs(knowledgeVectorStore);
+
+		loadFile(knowledgeVectorStore);
+
+		return knowledgeVectorStore;
+	}
+
+	private void loadFile(VectorStore knowledgeVectorStore) {
+		// 1. 读取文档
+		MarkdownDocumentReaderConfig mdConfig = MarkdownDocumentReaderConfig.builder()
+				.withHorizontalRuleCreateDocument(false)
+				.withIncludeCodeBlock(true)
+				.build();
+		FileSystemResource fsResource = new FileSystemResource(knowledgeProperties.getSourceFile());
+		MarkdownDocumentReader mdReader = new MarkdownDocumentReader(fsResource, mdConfig);
+		List<Document> documents = mdReader.read();
+
+		// 2. 切分文档
+		TokenTextSplitter textSplitter = new TokenTextSplitter();
+		// TokenTextSplitter.builder()
+		// .withChunkSize(800) // 每段最大 800 Token
+		// .withMinChunkSizeChars(400) // 每段最小 400 字符
+		// .withKeepSeparator(true) // 保留分隔符
+		// .build();
+
+		List<Document> chunks = textSplitter.apply(documents);
+
+		// 3. 写入向量数据库（自动完成向量化）
+		knowledgeVectorStore.add(chunks);
+		System.out.println("成功入库 " + chunks.size() + " 个文档片段。");
+	}
 
 	/**
 	 * 启动时自动加载知识库并向量化存储
 	 * 
 	 * @throws IOException
 	 */
-	@PostConstruct
-	public void init() throws IOException {
+	private void loadAllDocs(SimpleVectorStore knowledgeVectorStore) throws IOException {
 		List<Document> allDocuments = new ArrayList<>();
 		Path dirPath = Paths.get(knowledgeProperties.getDirRoot());
 
@@ -90,17 +123,10 @@ public class KnowledgeService {
 
 		// 存入向量数据库
 		if (!allDocuments.isEmpty()) {
-			vectorStore.add(allDocuments);
+			knowledgeVectorStore.add(allDocuments);
 			System.out.println("知识库加载完成，总片段数: " + allDocuments.size());
 		} else {
 			System.out.println("未加载到任何文档");
 		}
-	}
-
-	/**
-	 * 基于本地知识库回答问题
-	 */
-	public String ask(String question) {
-		return chatClient.prompt().user(question).call().content();
 	}
 }

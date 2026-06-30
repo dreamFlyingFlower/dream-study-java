@@ -1,0 +1,6 @@
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.siliconflow.cn/v1
+      api-key: ${SILICONFLOW_API_KEY}
+      model-name: Qwen/Qwen2.5-7B-Instruct

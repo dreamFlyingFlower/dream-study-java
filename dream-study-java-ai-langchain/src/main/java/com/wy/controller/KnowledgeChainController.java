@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wy.langchain.KnowledgeChainAssistant;
 
+import dev.langchain4j.service.Result;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -25,17 +26,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class KnowledgeChainController {
 
-	private final KnowledgeChainAssistant assistant;
+	private final KnowledgeChainAssistant knowledgeChainAssistant;
 
 	@PostMapping
 	public Map<String, String> chat(@RequestHeader("X-User-Id") String userId, @RequestBody Map<String, String> body) {
-		String answer = assistant.chat("1", body.get("q"));
-		return Map.of("answer", answer);
+		Result<String> answer = knowledgeChainAssistant.chat("1", body.get("q"));
+		return Map.of("answer", answer.content());
 	}
 
 	@GetMapping
-	public Map<String, String> chat(@RequestParam String q) {
-		String answer = assistant.chat("1", q);
-		return Map.of("answer", answer);
+	public Map<String, Object> chat(@RequestParam String q) {
+		Result<String> answer = knowledgeChainAssistant.chat("1", q);
+		return Map.of("question", q, "answer", answer.content(), "sources",
+				answer.sources().stream().map(s -> s.textSegment().text()).toList());
 	}
 }

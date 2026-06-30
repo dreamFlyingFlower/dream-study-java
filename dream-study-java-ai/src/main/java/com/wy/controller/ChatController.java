@@ -2,30 +2,27 @@ package com.wy.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
 /**
- * MCP Server服务提供者
+ * 
  *
  * @author 飞花梦影
- * @date 2025-04-17 15:13:51
- * @git {@link https://github.com/dreamFlyingFlower}
+ * @date 2026-06-30 11:13:16
  */
 @RestController
-@AllArgsConstructor
 @RequestMapping("chat")
-public class BookController {
+@RequiredArgsConstructor
+public class ChatController {
 
-	/**
-	 * 对应使用McpServerConfig中的ChatClient
-	 */
 	private final ChatClient chatClient;
 
 	/**
@@ -52,12 +49,10 @@ public class BookController {
 	 * @param question 聊天请求
 	 * @return 包含AI回复的响应
 	 */
-	@GetMapping(value = "stream", produces = org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public ResponseEntity<Flux<String>> stream(@RequestParam(required = false) String question) {
 		try {
-			// 使用流式API调用聊天
-			Flux<String> content = chatClient.prompt().user(question).stream().content();
-			return ResponseEntity.ok(content);
+			return ResponseEntity.ok(chatClient.prompt().user(question).stream().content());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.ok(Flux.just("处理请求时出错: " + e.getMessage()));

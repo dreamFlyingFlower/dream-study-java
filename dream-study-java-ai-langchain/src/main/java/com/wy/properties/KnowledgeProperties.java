@@ -16,7 +16,5 @@ import lombok.Data;
 @ConfigurationProperties("config.knowledge")
 public class KnowledgeProperties {
 
-	private String dirRoot = "D:\\person\\repository\\dream-study-notes\\Nginx";
-
-	private String sourceFile = "D:\\person\\repository\\dream-study-notes\\Nginx\\Nginx.md";
+	private String dirRoot;
 }

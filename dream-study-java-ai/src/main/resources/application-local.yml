@@ -1,5 +1,9 @@
 spring:
   ai:
+    vectorstore:
+      redis:
+        initialize-schema: true  # 启动时自动创建索引
+        index-name: my-knowledge-base # 索引名称
     openai:
       # 全局配置
       base-url: https://api.siliconflow.cn
@@ -11,8 +15,8 @@ spring:
         options:
           # 模型配置
           model: Qwen/Qwen2.5-7B-Instruct
-          temperature: 0
       # 向量模型
-      embedding:
-        options:
-          model: BAAI/bge-m3
+
+  data:
+    redis:
+      host: 
