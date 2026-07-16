@@ -30,7 +30,6 @@ public class MinioService {
 	private MinioClient minioClient;
 
 	@SneakyThrows
-	@SuppressWarnings("resource")
 	public void test(MultipartFile multipartFile) {
 		// 检查bucket块是否存在,类似于命名空间
 		boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket("bucket").build());

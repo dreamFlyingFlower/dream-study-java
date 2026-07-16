@@ -74,7 +74,6 @@ public class XssHttpServletRequestWraper extends HttpServletRequestWrapper {
 	 * 过滤请求体 json 格式的
 	 */
 	@Override
-	@SuppressWarnings("resource")
 	public ServletInputStream getInputStream() throws IOException {
 		final ByteArrayInputStream bais = new ByteArrayInputStream(inputHandlers(super.getInputStream()).getBytes());
 

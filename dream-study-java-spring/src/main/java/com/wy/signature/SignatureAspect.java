@@ -33,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2023-12-26 17:41:59
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-@ConditionalOnBean(SignatureProperties.class)
-@Component
 @Slf4j
 @Aspect
+@Component
+@ConditionalOnBean(SignatureProperties.class)
 public class SignatureAspect implements PointCutDef {
 
 	@Resource

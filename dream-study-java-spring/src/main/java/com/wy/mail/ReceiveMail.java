@@ -47,7 +47,6 @@ public class ReceiveMail {
 
 	private MailProperties mailProperties;
 
-	@SuppressWarnings("resource")
 	public void execute() {
 		Properties props = new Properties();
 		// 协议一般是iamp

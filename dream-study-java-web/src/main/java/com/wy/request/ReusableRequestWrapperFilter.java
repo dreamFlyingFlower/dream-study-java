@@ -29,10 +29,13 @@ public class ReusableRequestWrapperFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
-		// 可以在这里处理请求数据
+		// 可以在这里处理请求数据,但是这里拿不到,必须在请求被@RequestBody解析之后才能拿到
+		// byte[] body = requestWrapper.getContentAsByteArray();
+		filterChain.doFilter(requestWrapper, response);
+
+		// 放在这里才能拿到
 		byte[] body = requestWrapper.getContentAsByteArray();
 		// 处理body
 		System.out.println(new String(body));
-		filterChain.doFilter(requestWrapper, response);
 	}
 }
