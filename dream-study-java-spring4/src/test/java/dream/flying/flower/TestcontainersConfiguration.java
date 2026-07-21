@@ -45,7 +45,8 @@ class TestcontainersConfiguration {
 	@Bean
 	@ServiceConnection
 	ElasticsearchContainer elasticsearchContainer() {
-		return new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.17.10"));
+		return new ElasticsearchContainer(
+				DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.17.10"));
 	}
 
 	@Bean
@@ -108,6 +109,7 @@ class TestcontainersConfiguration {
 		return new RabbitMQContainer(DockerImageName.parse("rabbitmq:latest"));
 	}
 
+	@SuppressWarnings("resource")
 	@Bean
 	@ServiceConnection(name = "redis")
 	GenericContainer<?> redisContainer() {
@@ -120,10 +122,10 @@ class TestcontainersConfiguration {
 		return new MSSQLServerContainer(DockerImageName.parse("mcr.microsoft.com/mssql/server:latest"));
 	}
 
+	@SuppressWarnings("resource")
 	@Bean
 	@ServiceConnection(name = "openzipkin/zipkin")
 	GenericContainer<?> zipkinContainer() {
 		return new GenericContainer<>(DockerImageName.parse("openzipkin/zipkin:latest")).withExposedPorts(9411);
 	}
-
 }

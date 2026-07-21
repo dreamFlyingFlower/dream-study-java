@@ -4,6 +4,7 @@ import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 import com.wy.model.User;
@@ -31,7 +32,8 @@ import com.wy.model.User;
  * @date 2025-12-29 16:00:07
  * @git {@link https://github.com/dreamFlyingFlower}
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE,
+		unmappedTargetPolicy = ReportingPolicy.IGNORE)
 @DecoratedWith(UserDecorate.class)
 public interface UserConvert {
 
@@ -46,6 +48,8 @@ public interface UserConvert {
 	 * @param object
 	 * @return
 	 */
-	@Mapping(target = "createTime", expression = "java(System.currentTimeMillis())")
+	// @Mapping(target = "createTime", expression =
+	// "java(System.currentTimeMillis())")
+	@Mapping(target = "createTime", expression = "java(new java.util.Date())")
 	User toUser(Object object);
 }

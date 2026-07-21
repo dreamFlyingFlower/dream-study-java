@@ -19,7 +19,7 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 public class ReactiveWebSocketClientConfiguration {
 
 	@Bean
-	public WebSocketClient reactiveWebSocketClient(URI uri) {
+	WebSocketClient reactiveWebSocketClient(URI uri) {
 		WebSocketClient client = new ReactorNettyWebSocketClient();
 		WebSocketHandler handler = new ReactiveWebSocketClientHandler();
 		client.execute(uri, handler).subscribe();

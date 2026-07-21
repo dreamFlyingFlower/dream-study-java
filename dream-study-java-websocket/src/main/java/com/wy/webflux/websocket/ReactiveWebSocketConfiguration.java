@@ -15,7 +15,7 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 public class ReactiveWebSocketConfiguration {
 
 	@Bean
-	public WebSocketHandlerAdapter webSocketHandlerAdapter() {
+	WebSocketHandlerAdapter webSocketHandlerAdapter() {
 		return new WebSocketHandlerAdapter();
 	}
 }

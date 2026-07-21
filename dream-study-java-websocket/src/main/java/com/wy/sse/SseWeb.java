@@ -30,11 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
  * \n\n:表示此次数据传输结束
  * </pre>
  * 
- * SSE和WebSocket的区别:
+ * SSE和WebSocket的区别与适用场景:
  * 
  * <pre>
  * SSE是单向链接,一旦建立链接后,只能是服务器向Web推送,且只支持文本消息,但是实现比WebSocket要简单
  * WebSocket是双向推送,服务器和Web都可以互相发送消息,支持文本和二进制消息,但是实现比较复杂
+ * 
+ * SSE:大屏实时数据 / 通知中心未读数 / 大模型流式回答 / 监控告警推送
+ * WebSocket: 聊天 / 在线协作 / 直播弹幕 / 多人游戏
  * </pre>
  * 
  * @author 飞花梦影

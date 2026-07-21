@@ -6,7 +6,7 @@ import org.springframework.web.service.registry.ImportHttpServices;
 
 import dream.flying.flower.config.BeanRegisterConfig;
 import dream.flying.flower.config.WebFluxVersionConfig;
-import dream.flying.flower.controller.WebFluxVersionController;
+//import dream.flying.flower.controller.WebFluxVersionController;
 
 /**
  * SpringBoot4新特性
@@ -28,7 +28,6 @@ import dream.flying.flower.controller.WebFluxVersionController;
 @SpringBootApplication
 public class DreamApplication {
 
-	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		SpringApplication.run(DreamApplication.class, args);
 	}

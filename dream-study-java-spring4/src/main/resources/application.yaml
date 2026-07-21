@@ -1,6 +1,10 @@
 spring:
   application:
-    name: dream-parent4
-gg:
-  jte:
-    development-mode: true
+    name: dream-study-java-spring4
+  http:
+    serviceclient:
+      # 全局配置,只能配置webclient和restclient相同参数,不能分开配置
+      # 以下map的key需要和@ImportHttpServices的group相同
+      branch: 
+        base-url: http://8.153.96.30:7969/coconut/cummins-loto-branch/cummins/
+        

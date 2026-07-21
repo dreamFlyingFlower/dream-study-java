@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
+import dream.flying.flower.entity.User;
+
 /**
  * 新的bean注入方式,但本质上和之前没什么不同,可能是注入的前后顺序不同.仍然需要使用@Import
  *
@@ -27,8 +29,4 @@ class MyBeansRegistrar implements BeanRegistrar {
 			registry.registerBean(User.class, spec -> spec.supplier(context -> new User()));
 		}
 	}
-}
-
-class User {
-
 }

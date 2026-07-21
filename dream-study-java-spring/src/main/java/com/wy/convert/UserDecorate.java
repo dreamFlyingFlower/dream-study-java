@@ -13,6 +13,10 @@ public abstract class UserDecorate implements UserConvert {
 
 	private UserConvert userConvert;
 
+	public UserDecorate() {
+		super();
+	}
+
 	public UserDecorate(UserConvert userConvert) {
 		this.userConvert = userConvert;
 	}
