@@ -19,7 +19,11 @@ spring:
     # 执行迁移时是否自动调用验证.当版本不符合逻辑,比如先执行了 DML 而没有对应的DDL会抛出异常
     validate-on-migrate: true
     # 如果没有 flyway_schema_history 这个 metadata 表,在执行 flyway migrate 之前,必须先执行 flyway baseline 命令
-    # 设置为 true 后 flyway 将在需要 baseline 的时候, 自动执行一次 baseline
+    # 当数据库中已经存在表,但是flyway第一次执行时,如果该值默认值或false,会抛出异常
+    # 该值设置为 true 后 flyway 将在需要 baseline 的时候, 自动执行一次 baseline ,即数据库中存在表,仍然能正常执行
+    # 但是这样会存在一个问题: 通常通过flyway新增的表sql文件版本都是V1.0.0_Create_...sql,而flyway已经执行过一次baseline
+    # 会在数据库中新建flyway_schema_history表,此时版本就为1,当检测新增表的建表文件名时V1.0.0开头时,不会新建表
+    # 因为新表的版本和第一次baseline的版本相同,需要修改新表的sql文件为V1.0.1或大于1的数字
     baseline-on-migrate: true
     # 指定 baseline 的版本号,默认值为 1, 低于该版本号的 SQL 文件, migrate 时会被忽略
     baseline-version: 1
