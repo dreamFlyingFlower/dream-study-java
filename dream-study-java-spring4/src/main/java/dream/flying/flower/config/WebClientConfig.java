@@ -8,16 +8,17 @@ import org.springframework.web.service.registry.HttpServiceGroup.ClientType;
 import org.springframework.web.service.registry.ImportHttpServices;
 
 import dream.flying.flower.client.DeviceClient;
+import dream.flying.flower.client.UserInternalClient;
+import dream.flying.flower.client.UserOfficalClient;
 import dream.flying.flower.client.WorkCenterClient;
 
 /**
  * 响应式配置,对应ImportHttpServices#clientType为ClientType#WEB_CLIENT.和RestClientConfig用一个即可
  * 
- * {@link ImportHttpServices}:为指定的接口注册 HTTP 代理,分别归属于 branch 和 user 组
- * {@link ImportHttpServices#group()}:分组标识,可以认为是某一个服务的标识,所有处于同一个组的配置相同
- * {@link ImportHttpServices#types()}:服务接口,默认value()
- * {@link ImportHttpServices()}:服务接口
- * {@link ImportHttpServices#clientType()}:设置调用模式,默认RestClient.WEB_CLIENT:响应式调用
+ * {@link ImportHttpServices}:服务接口,为指定的接口注册 HTTP 代理,分别归属于 branch 和 user 组
+ * ->{@link ImportHttpServices#group()}:分组标识,可以认为是某一个服务的标识,所有处于同一个组的配置相同
+ * ->{@link ImportHttpServices#types()}:服务接口,默认value()
+ * ->{@link ImportHttpServices#clientType()}:设置调用模式,默认RestClient.WEB_CLIENT:响应式调用
  * {@link RestClientHttpServiceGroupConfigurer}:为组内所有服务应用通用配置,如请求头信息
  *
  * @author 飞花梦影
@@ -27,7 +28,7 @@ import dream.flying.flower.client.WorkCenterClient;
 @Configuration(proxyBeanMethods = false)
 @ImportHttpServices(group = "branch", types = { DeviceClient.class, WorkCenterClient.class },
 		clientType = ClientType.WEB_CLIENT)
-@ImportHttpServices(group = "user", types = { UserServiceInternal.class, UserServiceOfficial.class })
+@ImportHttpServices(group = "user", types = { UserInternalClient.class, UserOfficalClient.class })
 public class WebClientConfig {
 
 	/**

@@ -2,9 +2,15 @@ spring:
   application:
     name: dream-study-java-spring4
   http:
+    # 统一配置
+    clients:
+      connect-timeout: 60S
+      read-timeout: 60S
     serviceclient:
       # 全局配置,只能配置webclient和restclient相同参数,不能分开配置
       # 以下map的key需要和@ImportHttpServices的group相同
       branch: 
         base-url: http://8.153.96.30:7969/coconut/cummins-loto-branch/cummins/
+        # 个性化配置
+        connect-timeout: 60S
         

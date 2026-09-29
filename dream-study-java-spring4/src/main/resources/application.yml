@@ -1,0 +1,20 @@
+spring:
+  threads:
+    virtual:
+      # 开启虚拟线程,Web请求,JDK自带的HTTP客户端都会使用虚拟线程
+      enabled: true
+
+#  data:
+#    #  redis主从静态节点
+#    redis:
+#      masterreplica:
+#        nodes:
+#          - 192.168.1.10:6379   # 主节点
+#          - 192.168.1.11:6379   # 从节点
+#          - 192.168.1.12:6379
+
+logging:
+  console:
+    # 关闭控制台输出,文件日志照常写
+    enabled: false
+

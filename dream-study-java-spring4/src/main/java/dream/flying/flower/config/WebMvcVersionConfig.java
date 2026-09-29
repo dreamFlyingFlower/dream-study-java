@@ -3,21 +3,26 @@ package dream.flying.flower.config;
 import java.net.URI;
 import java.time.ZonedDateTime;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.web.accept.ApiVersionDeprecationHandler;
 import org.springframework.web.accept.ApiVersionParser;
+import org.springframework.web.accept.ApiVersionResolver;
+import org.springframework.web.accept.ApiVersionStrategy;
+import org.springframework.web.accept.MediaTypeParamApiVersionResolver;
 import org.springframework.web.accept.SemanticApiVersionParser;
+import org.springframework.web.accept.StandardApiVersionDeprecationHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.reactive.accept.ApiVersionDeprecationHandler;
-import org.springframework.web.reactive.accept.ApiVersionResolver;
-import org.springframework.web.reactive.accept.ApiVersionStrategy;
-import org.springframework.web.reactive.accept.MediaTypeParamApiVersionResolver;
-import org.springframework.web.reactive.accept.StandardApiVersionDeprecationHandler;
-import org.springframework.web.reactive.config.ApiVersionConfigurer;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 版本控制配置,也可以使用配置文件.需要在{@link GetMapping#version()}中指定版本,不指定则使用默认
- * 
+ *
  * 参考{@link https://docs.spring.io/spring/reference/web/webflux-versioning.html}
  * 
  * <pre>
@@ -34,7 +39,7 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
  * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
-public class WebFluxVersionConfig implements WebFluxConfigurer {
+public class WebMvcVersionConfig implements WebMvcConfigurer {
 
 	@Override
 	public void configureApiVersioning(ApiVersionConfigurer configurer) {
@@ -48,30 +53,27 @@ public class WebFluxVersionConfig implements WebFluxConfigurer {
 		// configurer.usePathSegment("version");
 
 		// 方式4:使用请求头中的某个参数:Accept: application/vnd.api+json;version=1
-		// configurer.useMediaTypeParameter(MediaType.APPLICATION_JSON, "version");
+		configurer.useMediaTypeParameter(MediaType.APPLICATION_JSON, "version");
 
 		// 方式5:自定义版本控制
-		// configurer.useVersionResolver(new ApiVersionResolver() {
-		//
-		// @Override
-		// @Nullable
-		// public String resolveVersion(ServerWebExchange exchange) {
-		// // 从用户代理字符串解析版本
-		//
-		// HttpHeaders httpHeaders = exchange.getRequest().getHeaders();
-		//
-		// String userAgent = httpHeaders.getFirst("User-Agent");
-		// if (userAgent != null && userAgent.contains("mobile")) {
-		// return "mobile";
-		// }
-		//
-		// // 基于客户端 IP 或其他业务规则
-		// // ....
-		//
-		// // 默认版本
-		// return "1";
-		// }
-		// });
+		configurer.useVersionResolver(new ApiVersionResolver() {
+
+			@Override
+			@Nullable
+			public String resolveVersion(HttpServletRequest request) {
+				// 从用户代理字符串解析版本
+				String userAgent = request.getHeader("User-Agent");
+				if (userAgent != null && userAgent.contains("mobile")) {
+					return "mobile";
+				}
+
+				// 基于客户端 IP 或其他业务规则
+				// ....
+
+				// 默认版本
+				return "1";
+			}
+		});
 		// 添加支持的版本
 		configurer.addSupportedVersions("1", "2");
 

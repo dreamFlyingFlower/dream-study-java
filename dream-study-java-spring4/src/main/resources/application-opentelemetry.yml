@@ -1,0 +1,10 @@
+# 加上opentelemetry,配好 OTLP ,Trace 就自动往 Jaeger、Tempo 这类后端送
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+  tracing:
+    export:
+      enabled: true

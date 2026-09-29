@@ -1,0 +1,24 @@
+spring:
+  mvc:
+    apiversion:
+      default: 1
+      supported: 1,2
+      use:
+        header: X-API-Version
+
+  webflux:
+    # 配置文件只能有一个生效,如果要使用多个,需要使用文件进行配置
+    apiversion:
+      # 默认版本
+      default: 1
+      # 支持的版本
+      supported: 1,2
+      use:
+        # 获取版本的请求头属性
+        header: X-API-Version
+        media-type-parameter: 
+          '[application/json]' : version
+        # URL 路径段索引,从 0 开始,如/api/2/user,下面的配置就是取2,如果是V2,也使用2
+        path-segment: 1
+        # 从查询参数中取.如?version=2,取version的值
+        query-parameter: version

@@ -19,6 +19,12 @@ import dream.flying.flower.config.WebFluxVersionConfig;
  * 2.新的bean注入方式,但本质上和之前并没有什么不同.详见{@link BeanRegisterConfig}
  * 
  * 3.{@link ImportHttpServices}:更快捷的http代理创建
+ * 
+ * 4.配置文件开启虚拟线程:spring.threads.virtual.开启后,Web(Tomcat等,httpserviceClient,restclient)请求,JDK自带的HTTP客户端都会使用虚拟线程
+ * 
+ * 5. RestTestClient 和 WebTestClient 写法统一,方便写测试用例
+ * 
+ * 6.可观测性(Metrics + Traces)以前要引 Micrometer,OpenTelemetry SDK,各种 Exporter, Spring Boot 4 加了专用 opentelemetry
  * </pre>
  *
  * @author 飞花梦影
